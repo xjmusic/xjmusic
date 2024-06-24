@@ -22,7 +22,7 @@ import io.xj.model.pojos.SegmentChoice;
 import io.xj.model.pojos.SegmentChoiceArrangementPick;
 import io.xj.model.enums.SegmentState;
 import io.xj.model.enums.SegmentType;
-import io.xj.model.HubContent;
+import io.xj.model.ContentEntityStore;
 import io.xj.model.HubTopology;
 import io.xj.model.entity.EntityFactoryImpl;
 import io.xj.model.entity.EntityUtils;
@@ -52,7 +52,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.xj.engine.SegmentFixtures::buildSegmentChoice;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.ASSERT_EQ;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
@@ -60,45 +60,40 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
  */
 @ExtendWith(MockitoExtension.class)
 public class CraftBeat_LayeredVoicesTest {
-  CraftFactory craftFactory;
-  FabricatorFactory fabricatorFactory;
-  HubContent sourceMaterial;
+  CraftFactory *craftFactory = nullptr;
+  FabricatorFactory * fabricatorFactory = nullptr;
+  ContentEntityStore * sourceMaterial = nullptr;
   InstrumentAudio audioHihat;
   InstrumentAudio audioKick;
   InstrumentAudio audioSnare;
-  SegmentEntityStore store;
-  SegmentFixtures fake;
+  SegmentEntityStore *store = nullptr;
+  ContentFixtures *fake = nullptr;
   Program program42;
   Segment segment4;
 
-  @BeforeEach
-  public void setUp() throws Exception {
-    JsonProvider jsonProvider = new JsonProviderImpl();
-    auto entityFactory = new EntityFactoryImpl(jsonProvider);
+  void SetUp() override {
+
+
     craftFactory = new CraftFactoryImpl();
-    HubTopology.buildHubApiTopology(entityFactory);
-    FabricationTopology.buildFabricationTopology(entityFactory);
-    JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
-    store = new SegmentEntityStoreImpl(entityFactory);
-    fabricatorFactory = new FabricatorFactoryImpl(
-      store,
-      jsonapiPayloadFactory,
-      jsonProvider
-    );
+
+
+
+    store = new SegmentEntityStore();
+    fabricatorFactory = new FabricatorFactory(store);
 
     // Manipulate the underlying entity store; reset before each test
-    store.clear();
+    store->clear();
 
     // Mock request via HubClientFactory returns fake generated library of model content
-    fake = new SegmentFixtures();
-    sourceMaterial = new HubContent(Stream.concat(
-      fake.setupFixtureB1().stream().filter(entity -> !EntityUtils.isSame(entity, fake.program35) && !EntityUtils.isChild(entity, fake.program35)),
+    fake = new ContentFixtures();
+    sourceMaterial = new ContentEntityStore(Stream.concat(
+      fake->setupFixtureB1().stream().filter(entity -> !EntityUtils.isSame(entity, fake->program35) && !EntityUtils.isChild(entity, fake->program35)),
       customFixtures().stream()
     ).collect(Collectors.toList()));
 
     // Chain "Test Print #1" has 5 total segments
-    Chain chain1 = store.put(SegmentFixtures::buildChain(fake.project1, "Test Print #1", Chain::Type::Production, Chain::State::Fabricate, fake.template1, null));
-    store.put(SegmentFixtures::buildSegment(
+    Chain chain1 = store->put(SegmentFixtures::buildChain(fake->project1, "Test Print #1", Chain::Type::Production, Chain::State::Fabricate, fake->template1, null));
+    store->put(SegmentFixtures::buildSegment(
       chain1,
       Segment::Type::Initial,
       0,
@@ -110,7 +105,7 @@ public class CraftBeat_LayeredVoicesTest {
       120.0f,
       "chains-1-segments-9f7s89d8a7892",
       true));
-    store.put(SegmentFixtures::buildSegment(
+    store->put(SegmentFixtures::buildSegment(
       chain1,
       SegmentType.CONTINUE,
       1,
@@ -124,7 +119,7 @@ public class CraftBeat_LayeredVoicesTest {
 
     // segment just crafted
     // Testing entities for reference
-    Segment segment3 = store.put(SegmentFixtures::buildSegment(
+    Segment segment3 = store->put(SegmentFixtures::buildSegment(
       chain1,
       SegmentType.CONTINUE,
       2,
@@ -135,12 +130,12 @@ public class CraftBeat_LayeredVoicesTest {
       0.30f,
       120.0f,
       "chains-1-segments-9f7s89d8a7892.wav", true));
-    store.put(buildSegmentChoice(segment3, Program::Type::Macro, fake.program4_sequence0_binding0));
-    store.put(buildSegmentChoice(segment3, Program::Type::Main, fake.program5_sequence0_binding0));
-    store.put(SegmentFixtures::buildSegmentChoice(segment3, program42));
+    store->put(buildSegmentChoice(segment3, Program::Type::Macro, fake->program4_sequence0_binding0));
+    store->put(buildSegmentChoice(segment3, Program::Type::Main, fake->program5_sequence0_binding0));
+    store->put(SegmentFixtures::buildSegmentChoice(segment3, program42));
 
     // segment crafting
-    segment4 = store.put(SegmentFixtures::buildSegment(
+    segment4 = store->put(SegmentFixtures::buildSegment(
       chain1,
       SegmentType.CONTINUE,
       3,
@@ -151,14 +146,14 @@ public class CraftBeat_LayeredVoicesTest {
       0.45f,
       120.0f,
       "chains-1-segments-9f7s89d8a7892.wav", true));
-    store.put(buildSegmentChoice(segment4, Program::Type::Macro, fake.program4_sequence0_binding0));
-    store.put(buildSegmentChoice(segment4, Program::Type::Main, fake.program5_sequence1_binding0));
+    store->put(buildSegmentChoice(segment4, Program::Type::Macro, fake->program4_sequence0_binding0));
+    store->put(buildSegmentChoice(segment4, Program::Type::Main, fake->program5_sequence1_binding0));
 
     for (std::string memeName : List.of("Cozy", "Classic", "Outlook", "Rosy"))
-      store.put(SegmentFixtures::buildSegmentMeme(segment4, memeName));
+      store->put(SegmentFixtures::buildSegmentMeme(segment4, memeName));
 
-    store.put(SegmentFixtures::buildSegmentChord(segment4, 0.0f, "A minor"));
-    store.put(SegmentFixtures::buildSegmentChord(segment4, 8.0f, "D Major"));
+    store->put(SegmentFixtures::buildSegmentChord(segment4, 0.0f, "A minor"));
+    store->put(SegmentFixtures::buildSegmentChord(segment4, 8.0f, "D Major"));
   }
 
 
@@ -171,7 +166,7 @@ public class CraftBeat_LayeredVoicesTest {
     Collection<Object> entities = new ArrayList<>();
 
     // Instrument "808"
-    Instrument instrument1 = EntityUtils.add(entities, ContentFixtures::buildInstrument(fake.library2, Instrument::Type::Drum, Instrument::Mode::Event, Instrument::State::Published, "808 Drums"));
+    Instrument instrument1 = EntityUtils.add(entities, ContentFixtures::buildInstrument(fake->library2, Instrument::Type::Drum, Instrument::Mode::Event, Instrument::State::Published, "808 Drums"));
     EntityUtils.add(entities, ContentFixtures::buildMeme(instrument1, "heavy"));
     //
     audioKick = EntityUtils.add(entities, ContentFixtures::buildAudio(instrument1, "Kick", "19801735098q47895897895782138975898.wav", 0.01f, 2.123f, 120.0f, 0.6f, "KICK", "Eb", 1.0f));
@@ -181,7 +176,7 @@ public class CraftBeat_LayeredVoicesTest {
     audioHihat = EntityUtils.add(entities, ContentFixtures::buildAudio(instrument1, "Hihat", "iop0803k1k2l3h5a3s2d3f4g.wav", 0.01f, 1.5f, 120.0f, 0.6f, "HIHAT", "Ab", 1.0f));
 
     // A basic beat from scratch with layered voices
-    program42 = EntityUtils.add(entities, ContentFixtures::buildProgram(fake.library2, Program::Type::Beat, Program::State::Published, "Basic Beat", "C", 121f));
+    program42 = EntityUtils.add(entities, ContentFixtures::buildProgram(fake->library2, Program::Type::Beat, Program::State::Published, "Basic Beat", "C", 121f));
     EntityUtils.add(entities, ContentFixtures::buildMeme(program42, "Basic"));
     ProgramVoice program42_locomotion = EntityUtils.add(entities, ContentFixtures::buildVoice(program42, Instrument::Type::Drum, "Locomotion"));
     ProgramVoice program42_kickSnare = EntityUtils.add(entities, ContentFixtures::buildVoice(program42, Instrument::Type::Drum, "BoomBap"));
@@ -212,27 +207,27 @@ public class CraftBeat_LayeredVoicesTest {
 
   @Test
   public void craftBeatVoiceContinue() throws Exception {
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4.getId(), 48000.0f, 2, null);
+    auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, 48000.0f, 2, null);
 
-    craftFactory.beat(fabricator).doWork();
+    craftFactory->beat(fabricator).doWork();
 
-    Segment result = store.readSegment(segment4.getId()).orElseThrow();
-    assertFalse(store.readAll(result.getId(), SegmentChoice.class).empty());
+    Segment result = store->readSegment(segment4->id).orElseThrow();
+    assertFalse(store->readAllSegmentChoices(result->id).empty());
 
     int pickedKick = 0;
     int pickedSnare = 0;
     int pickedHihat = 0;
     Collection<SegmentChoiceArrangementPick> picks = fabricator.getPicks();
     for (SegmentChoiceArrangementPick pick : picks) {
-      if (pick.getInstrumentAudioId().equals(audioKick.getId()))
+      if (pick.getInstrumentAudioId().equals(audioKick->id))
         pickedKick++;
-      if (pick.getInstrumentAudioId().equals(audioSnare.getId()))
+      if (pick.getInstrumentAudioId().equals(audioSnare->id))
         pickedSnare++;
-      if (pick.getInstrumentAudioId().equals(audioHihat.getId()))
+      if (pick.getInstrumentAudioId().equals(audioHihat->id))
         pickedHihat++;
     }
-    assertEquals(8, pickedKick);
-    assertEquals(8, pickedSnare);
-    assertEquals(64, pickedHihat);
+    ASSERT_EQ(8, pickedKick);
+    ASSERT_EQ(8, pickedSnare);
+    ASSERT_EQ(64, pickedHihat);
   }
 }

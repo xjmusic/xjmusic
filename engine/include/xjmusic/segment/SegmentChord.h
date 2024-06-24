@@ -3,17 +3,15 @@
 #ifndef SEGMENT_CHORD_H
 #define SEGMENT_CHORD_H
 
+#include <set>
 #include <string>
-#include <utility>
 
-#include "xjmusic/util/EntityUtils.h"
 #include "SegmentEntity.h"
 
 namespace XJ {
 
   class SegmentChord : public SegmentEntity {
   public:
-
     SegmentChord() = default;
 
     float position{};
@@ -32,6 +30,12 @@ namespace XJ {
      */
     [[nodiscard]] unsigned long long hashCode() const;
 
+    /**
+     * Get the names of a set of Segment Chords
+     * @param segmentChords  The set of Segment Chords
+     * @return       The names
+     */
+    static std::set<std::string> getNames(const std::set<SegmentChord *> &segmentChords);
   };
 
 }// namespace XJ

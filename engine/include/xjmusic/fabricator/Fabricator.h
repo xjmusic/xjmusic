@@ -834,7 +834,7 @@ namespace XJ {
      @return micros per beat
      @throws FabricationException on failure
      */
-    virtual float getMicrosPerBeat(float tempo);
+    virtual double getMicrosPerBeat(float tempo);
 
     /**
      Get the second macro sequence binding offset of a given macro program
@@ -930,7 +930,7 @@ namespace XJ {
     std::optional<SegmentChoice*> macroChoiceOfPreviousSegment;
     std::optional<SegmentChoice*> mainChoiceOfPreviousSegment;
 
-    float microsPerBeat{};
+    double microsPerBeat{};
 
     std::set<Instrument::Type> *distinctChordVoicingTypes{};
 

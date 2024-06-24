@@ -20,3 +20,12 @@ unsigned long long SegmentChord::hashCode() const {
          std::hash<std::string>{}(name);
 }
 
+
+std::set<std::string> SegmentChord::getNames(const std::set<SegmentChord *> &segmentChords) {
+  std::set<std::string> names;
+  for (const auto &segmentChord: segmentChords) {
+    names.insert(segmentChord->name);
+  }
+  return names;
+}
+

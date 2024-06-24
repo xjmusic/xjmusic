@@ -5,7 +5,7 @@
 package io.xj.engine.craft.macro_main;
 
 import io.xj.engine.fabricator.SegmentEntityStore;
-import io.xj.model.HubContent;
+import io.xj.model.ContentEntityStore;
 import io.xj.model.HubTopology;
 import io.xj.model.entity.EntityFactoryImpl;
 import io.xj.model.entity.EntityUtils;
@@ -48,45 +48,40 @@ import static io.xj.model.util.ValueUtils.MICROS_PER_MINUTE;
 import static io.xj.engine.SegmentFixtures::buildChain;
 import static io.xj.engine.SegmentFixtures::buildSegment;
 import static io.xj.engine.SegmentFixtures::buildSegmentChoice;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.ASSERT_EQ;
 
 @ExtendWith(MockitoExtension.class)
 public class CraftFoundationContinueTest {
-  CraftFactory craftFactory;
-  FabricatorFactory fabricatorFactory;
-  HubContent sourceMaterial;
-  SegmentEntityStore store;
-  SegmentFixtures fake;
+  CraftFactory *craftFactory = nullptr;
+  FabricatorFactory * fabricatorFactory = nullptr;
+  ContentEntityStore * sourceMaterial = nullptr;
+  SegmentEntityStore *store = nullptr;
+  ContentFixtures *fake = nullptr;
   Segment segment4;
 
-  @BeforeEach
-  public void setUp() throws Exception {
-    JsonProvider jsonProvider = new JsonProviderImpl();
-    auto entityFactory = new EntityFactoryImpl(jsonProvider);
+  void SetUp() override {
+
+
     craftFactory = new CraftFactoryImpl();
-    HubTopology.buildHubApiTopology(entityFactory);
-    FabricationTopology.buildFabricationTopology(entityFactory);
-    JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
-    store = new SegmentEntityStoreImpl(entityFactory);
-    fabricatorFactory = new FabricatorFactoryImpl(
-      store,
-      jsonapiPayloadFactory,
-      jsonProvider
-    );
+
+
+
+    store = new SegmentEntityStore();
+    fabricatorFactory = new FabricatorFactory(store);
 
     // Manipulate the underlying entity store; reset before each test
-    store.clear();
+    store->clear();
 
     // Mock request via HubClientFactory returns fake generated library of model content
-    fake = new SegmentFixtures();
-    sourceMaterial = new HubContent(Stream.concat(
-      fake.setupFixtureB1().stream(),
-      fake.setupFixtureB2().stream()
+    fake = new ContentFixtures();
+    sourceMaterial = new ContentEntityStore(Stream.concat(
+      fake->setupFixtureB1().stream(),
+      fake->setupFixtureB2().stream()
     ).collect(Collectors.toList()));
 
     // Chain "Test Print #1" has 5 total segments
-    Chain chain1 = store.put(SegmentFixtures::buildChain(fake.project1, "Test Print #1", Chain::Type::Production, Chain::State::Fabricate, fake.template1, null));
-    store.put(SegmentFixtures::buildSegment(
+    Chain chain1 = store->put(SegmentFixtures::buildChain(fake->project1, "Test Print #1", Chain::Type::Production, Chain::State::Fabricate, fake->template1, null));
+    store->put(SegmentFixtures::buildSegment(
       chain1,
       0,
       Segment::State::Crafted,
@@ -96,7 +91,7 @@ public class CraftFoundationContinueTest {
       120.0f,
       "chains-1-segments-9f7s89d8a7892"
     ));
-    store.put(SegmentFixtures::buildSegment(
+    store->put(SegmentFixtures::buildSegment(
       chain1,
       1,
       SegmentState.CRAFTING,
@@ -107,7 +102,7 @@ public class CraftFoundationContinueTest {
       "chains-1-segments-9f7s89d8a7892"
     ));
     // Chain "Test Print #1" has this segment that was just crafted
-    Segment segment3 = store.put(SegmentFixtures::buildSegment(
+    Segment segment3 = store->put(SegmentFixtures::buildSegment(
       chain1,
       2,
       Segment::State::Crafted,
@@ -117,24 +112,24 @@ public class CraftFoundationContinueTest {
       120.0f,
       "chains-1-segments-9f7s89d8a7892.wav"
     ));
-    store.put(buildSegmentChoice(
+    store->put(buildSegmentChoice(
       segment3,
       Segment.DELTA_UNLIMITED,
       Segment.DELTA_UNLIMITED,
-      fake.program4,
-      fake.program4_sequence1_binding0));
-    store.put(buildSegmentChoice(
+      fake->program4,
+      fake->program4_sequence1_binding0));
+    store->put(buildSegmentChoice(
       segment3,
       Segment.DELTA_UNLIMITED,
       Segment.DELTA_UNLIMITED,
-      fake.program5,
-      fake.program5_sequence0_binding0));
+      fake->program5,
+      fake->program5_sequence0_binding0));
 
     // Chain "Test Print #1" has a planned segment
-    segment4 = store.put(SegmentFixtures::buildSegment(
+    segment4 = store->put(SegmentFixtures::buildSegment(
       chain1,
       3,
-      SegmentState.PLANNED,
+      Segment::State::Planned,
       "C",
       4,
       1.0f,
@@ -145,36 +140,36 @@ public class CraftFoundationContinueTest {
 
   @Test
   public void craftFoundationContinue() throws Exception {
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4.getId(), 48000.0f, 2, null);
+    auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, 48000.0f, 2, null);
 
-    craftFactory.macroMain(fabricator, null, null).doWork();
+    craftFactory->macroMain(fabricator, null, null).doWork();
 
-    Segment result = store.readSegment(segment4.getId()).orElseThrow();
-    assertEquals(SegmentType.CONTINUE, result.getType());
-    assertEquals(32 * MICROS_PER_MINUTE / 140, (long) Objects.requireNonNull(result.getDurationMicros()));
-    assertEquals(Integer.valueOf(32), result.getTotal());
-    assertEquals(0.23, result.getIntensity(), 0.001);
-    assertEquals("G -", result.getKey());
-    assertEquals(140, result.getTempo(), 0.001);
-    assertEquals(SegmentType.CONTINUE, result.getType());
+    Segment result = store->readSegment(segment4->id).orElseThrow();
+    ASSERT_EQ(SegmentType.CONTINUE, result.getType());
+    ASSERT_EQ(32 * MICROS_PER_MINUTE / 140, (long) Objects.requireNonNull(result.getDurationMicros()));
+    ASSERT_EQ(Integer.valueOf(32), result.total);
+    ASSERT_NEAR(0.23, result.intensity, 0.001);
+    ASSERT_EQ("G -", result.getKey());
+    ASSERT_NEAR(140, result.getTempo(), 0.001);
+    ASSERT_EQ(SegmentType.CONTINUE, result.getType());
     // assert memes
     assertSameItems(
       List.of("OUTLOOK", "TROPICAL", "COZY", "WILD", "PESSIMISM"),
-      EntityUtils.namesOf(store.readAll(result.getId(), SegmentMeme.class)));
+      EntityUtils.namesOf(store->readAll(result->id, SegmentMeme.class)));
     // assert chords
     assertSameItems(List.of("Bb -", "C"),
-      EntityUtils.namesOf(store.readAll(result.getId(), SegmentChord.class)));
+      EntityUtils.namesOf(store->readAll(result->id, SegmentChord.class)));
     // assert choices
     Collection<SegmentChoice> segmentChoices =
-      store.readAll(result.getId(), SegmentChoice.class);
+      store->readAllSegmentChoices(result->id);
     // assert macro choice
-    SegmentChoice macroChoice = SegmentUtils.findFirstOfType(segmentChoices, Program::Type::Macro);
-    assertEquals(fake.program4_sequence1_binding0.getId(), macroChoice.getProgramSequenceBindingId());
-    assertEquals(Integer.valueOf(1), fabricator.getSequenceBindingOffsetForChoice(macroChoice));
+    auto macroChoice = SegmentUtils::findFirstOfType(segmentChoices, Program::Type::Macro);
+    ASSERT_EQ(fake->program4_sequence1_binding0->id, macroChoice.getProgramSequenceBindingId());
+    ASSERT_EQ(Integer.valueOf(1), fabricator.getSequenceBindingOffsetForChoice(macroChoice));
     // assert main choice
-    SegmentChoice mainChoice = SegmentUtils.findFirstOfType(segmentChoices, Program::Type::Main);
-    assertEquals(fake.program5_sequence1_binding0.getId(), mainChoice.getProgramSequenceBindingId()); // next main sequence binding in same program as previous sequence
-    assertEquals(Integer.valueOf(1), fabricator.getSequenceBindingOffsetForChoice(mainChoice));
+    auto mainChoice = SegmentUtils::findFirstOfType(segmentChoices, Program::Type::Main);
+    ASSERT_EQ(fake->program5_sequence1_binding0->id, mainChoice.getProgramSequenceBindingId()); // next main sequence binding in same program as previous sequence
+    ASSERT_EQ(Integer.valueOf(1), fabricator.getSequenceBindingOffsetForChoice(mainChoice));
   }
 
 }

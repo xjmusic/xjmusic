@@ -22,7 +22,7 @@ import io.xj.model.pojos.Segment;
 import io.xj.model.pojos.SegmentChoice;
 import io.xj.model.enums.SegmentState;
 import io.xj.model.enums.SegmentType;
-import io.xj.model.HubContent;
+import io.xj.model.ContentEntityStore;
 import io.xj.model.HubTopology;
 import io.xj.model.entity.EntityFactoryImpl;
 import io.xj.model.entity.EntityUtils;
@@ -46,47 +46,42 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 @ExtendWith(MockitoExtension.class)
 public class CraftBeatProgramVoiceInitialTest {
   Chain chain2;
-  CraftFactory craftFactory;
-  FabricatorFactory fabricatorFactory;
-  HubContent sourceMaterial;
-  SegmentEntityStore store;
-  SegmentFixtures fake;
+  CraftFactory *craftFactory = nullptr;
+  FabricatorFactory * fabricatorFactory = nullptr;
+  ContentEntityStore * sourceMaterial = nullptr;
+  SegmentEntityStore *store = nullptr;
+  ContentFixtures *fake = nullptr;
   Segment segment0;
 
-  @BeforeEach
-  public void setUp() throws Exception {
-    JsonProvider jsonProvider = new JsonProviderImpl();
-    auto entityFactory = new EntityFactoryImpl(jsonProvider);
+  void SetUp() override {
+
+
     craftFactory = new CraftFactoryImpl();
-    HubTopology.buildHubApiTopology(entityFactory);
-    FabricationTopology.buildFabricationTopology(entityFactory);
-    JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
-    store = new SegmentEntityStoreImpl(entityFactory);
-    fabricatorFactory = new FabricatorFactoryImpl(
-      store,
-      jsonapiPayloadFactory,
-      jsonProvider
-    );
+
+
+
+    store = new SegmentEntityStore();
+    fabricatorFactory = new FabricatorFactory(store);
 
     // Manipulate the underlying entity store; reset before each test
-    store.clear();
+    store->clear();
 
     // force known beat selection by destroying program 35
     // Mock request via HubClientFactory returns fake generated library of model content
-    fake = new SegmentFixtures();
-    sourceMaterial = new HubContent(Stream.concat(
-        fake.setupFixtureB1().stream(),
-        fake.setupFixtureB3().stream())
-      .filter(entity -> !EntityUtils.isSame(entity, fake.program35) && !EntityUtils.isChild(entity, fake.program35))
+    fake = new ContentFixtures();
+    sourceMaterial = new ContentEntityStore(Stream.concat(
+        fake->setupFixtureB1().stream(),
+        fake->setupFixtureB3().stream())
+      .filter(entity -> !EntityUtils.isSame(entity, fake->program35) && !EntityUtils.isChild(entity, fake->program35))
       .collect(Collectors.toList()));
 
     // Chain "Print #2" has 1 initial segment in crafting state - Foundation is complete
-    chain2 = store.put(buildChain(
-      fake.project1,
+    chain2 = store->put(buildChain(
+      fake->project1,
       "Print #2",
       Chain::Type::Production,
       Chain::State::Fabricate,
-      ContentFixtures::buildTemplate(fake.project1, "Tests")
+      ContentFixtures::buildTemplate(fake->project1, "Tests")
     ));
   }
 
@@ -94,28 +89,28 @@ public class CraftBeatProgramVoiceInitialTest {
   public void craftBeatVoiceInitial() throws Exception {
     insertSegment();
 
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment0.getId(), 48000.0f, 2, null);
+    auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment0->id, 48000.0f, 2, null);
 
-    craftFactory.beat(fabricator).doWork();
+    craftFactory->beat(fabricator).doWork();
 
-    Segment result = store.readSegment(segment0.getId()).orElseThrow();
-    assertFalse(store.readAll(result.getId(), SegmentChoice.class).empty());
+    Segment result = store->readSegment(segment0->id).orElseThrow();
+    assertFalse(store->readAllSegmentChoices(result->id).empty());
 
   }
 
   @Test
   public void craftBeatVoiceInitial_okWhenNoBeatChoice() throws Exception {
     insertSegment();
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment0.getId(), 48000.0f, 2, null);
+    auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment0->id, 48000.0f, 2, null);
 
-    craftFactory.beat(fabricator).doWork();
+    craftFactory->beat(fabricator).doWork();
   }
 
   /**
    Insert fixture segment 6, including the beat choice only if specified
    */
   void insertSegment() throws FabricationException {
-    segment0 = store.put(SegmentFixtures::buildSegment(
+    segment0 = store->put(SegmentFixtures::buildSegment(
       chain2,
       Segment::Type::Initial,
       0,
@@ -126,23 +121,23 @@ public class CraftBeatProgramVoiceInitialTest {
       0.55f,
       130.0f,
       "chains-1-segments-9f7s89d8a7892.wav", true));
-    store.put(buildSegmentChoice(
+    store->put(buildSegmentChoice(
       segment0,
       0,
       Segment.DELTA_UNLIMITED,
-      fake.program4,
-      fake.program4_sequence0_binding0));
-    store.put(buildSegmentChoice(
+      fake->program4,
+      fake->program4_sequence0_binding0));
+    store->put(buildSegmentChoice(
       segment0,
       0,
       Segment.DELTA_UNLIMITED,
-      fake.program5,
-      fake.program5_sequence0_binding0));
+      fake->program5,
+      fake->program5_sequence0_binding0));
     for (std::string memeName : List.of("Special", "Wild", "Pessimism", "Outlook"))
-      store.put(SegmentFixtures::buildSegmentMeme(segment0, memeName));
+      store->put(SegmentFixtures::buildSegmentMeme(segment0, memeName));
 
-    store.put(SegmentFixtures::buildSegmentChord(segment0, 0.0f, "C minor"));
-    store.put(SegmentFixtures::buildSegmentChord(segment0, 8.0f, "Db minor"));
+    store->put(SegmentFixtures::buildSegmentChord(segment0, 0.0f, "C minor"));
+    store->put(SegmentFixtures::buildSegmentChord(segment0, 8.0f, "Db minor"));
   }
 
 }

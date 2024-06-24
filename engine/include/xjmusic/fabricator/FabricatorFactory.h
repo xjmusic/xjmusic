@@ -20,6 +20,7 @@ namespace XJ {
    */
   class FabricatorFactory {
   public:
+    virtual ~FabricatorFactory() = default;
 
     /**
      * Constructor from entity store

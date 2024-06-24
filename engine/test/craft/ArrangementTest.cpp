@@ -214,7 +214,7 @@ protected:
           .filter(e -> e.getPosition().equals(sbPosition))
           .findAny()
           .orElseThrow(() -> FabricationException(String.format("Failed to locate event type %s position %f", sbType, sbPosition)));
-        stickyBuns.add(new StickyBun(event.getId(), List.of(Objects.requireNonNull(sbSeed))));
+        stickyBuns.add(new StickyBun(event->id, List.of(Objects.requireNonNull(sbSeed))));
       }
     }
        */

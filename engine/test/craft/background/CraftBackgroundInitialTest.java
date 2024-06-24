@@ -19,7 +19,7 @@ import io.xj.model.enums.ChainType;
 import io.xj.model.pojos.Segment;
 import io.xj.model.enums.SegmentState;
 import io.xj.model.enums.SegmentType;
-import io.xj.model.HubContent;
+import io.xj.model.ContentEntityStore;
 import io.xj.model.HubTopology;
 import io.xj.model.entity.EntityFactoryImpl;
 import io.xj.model.json.JsonProvider;
@@ -41,49 +41,44 @@ import static io.xj.engine.SegmentFixtures::buildSegmentChoice;
 
 @ExtendWith(MockitoExtension.class)
 public class CraftBackgroundInitialTest {
-  CraftFactory craftFactory;
-  FabricatorFactory fabricatorFactory;
-  HubContent sourceMaterial;
-  SegmentEntityStore store;
+  CraftFactory *craftFactory = nullptr;
+  FabricatorFactory * fabricatorFactory = nullptr;
+  ContentEntityStore * sourceMaterial = nullptr;
+  SegmentEntityStore *store = nullptr;
   Segment segment6;
 
-  @BeforeEach
-  public void setUp() throws Exception {
-    JsonProvider jsonProvider = new JsonProviderImpl();
-    auto entityFactory = new EntityFactoryImpl(jsonProvider);
+  void SetUp() override {
+
+
     craftFactory = new CraftFactoryImpl();
-    HubTopology.buildHubApiTopology(entityFactory);
-    FabricationTopology.buildFabricationTopology(entityFactory);
-    JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
-    store = new SegmentEntityStoreImpl(entityFactory);
-    fabricatorFactory = new FabricatorFactoryImpl(
-      store,
-      jsonapiPayloadFactory,
-      jsonProvider
-    );
+
+
+
+    store = new SegmentEntityStore();
+    fabricatorFactory = new FabricatorFactory(store);
 
     // Manipulate the underlying entity store; reset before each test
-    store.clear();
+    store->clear();
 
     // Mock request via HubClientFactory returns fake generated library of model content
-    SegmentFixtures fake = new SegmentFixtures();
-    sourceMaterial = new HubContent(Stream.concat(
-      Stream.concat(fake.setupFixtureB1().stream(),
-        fake.setupFixtureB2().stream()),
-      fake.setupFixtureB3().stream()
+    SegmentFixtures fake = new ContentFixtures();
+    sourceMaterial = new ContentEntityStore(Stream.concat(
+      Stream.concat(fake->setupFixtureB1().stream(),
+        fake->setupFixtureB2().stream()),
+      fake->setupFixtureB3().stream()
     ).collect(Collectors.toList()));
 
     // Chain "Print #2" has 1 initial segment in crafting state - Foundation is complete
-    auto chain2 = store.put(buildChain(
-      fake.project1,
+    auto chain2 = store->put(buildChain(
+      fake->project1,
       "Print #2",
       Chain::Type::Production,
       Chain::State::Fabricate,
-      ContentFixtures::buildTemplate(fake.project1, "Test")
+      ContentFixtures::buildTemplate(fake->project1, "Test")
     ));
 
     // segment crafting
-    segment6 = store.put(SegmentFixtures::buildSegment(
+    segment6 = store->put(SegmentFixtures::buildSegment(
       chain2,
       Segment::Type::Initial,
       0,
@@ -95,23 +90,23 @@ public class CraftBackgroundInitialTest {
       130.0f,
       "chains-1-segments-9f7s89d8a7892.wav",
       true));
-    store.put(buildSegmentChoice(
+    store->put(buildSegmentChoice(
       segment6,
       Segment.DELTA_UNLIMITED,
       Segment.DELTA_UNLIMITED,
-      fake.program4,
-      fake.program4_sequence0_binding0));
-    store.put(buildSegmentChoice(
+      fake->program4,
+      fake->program4_sequence0_binding0));
+    store->put(buildSegmentChoice(
       segment6,
       Segment.DELTA_UNLIMITED,
       Segment.DELTA_UNLIMITED,
-      fake.program5,
-      fake.program5_sequence0_binding0));
+      fake->program5,
+      fake->program5_sequence0_binding0));
     for (std::string memeName : List.of("Special", "Wild", "Pessimism", "Outlook"))
-      store.put(SegmentFixtures::buildSegmentMeme(segment6, memeName));
+      store->put(SegmentFixtures::buildSegmentMeme(segment6, memeName));
 
-    store.put(SegmentFixtures::buildSegmentChord(segment6, 0.0f, "C minor"));
-    store.put(SegmentFixtures::buildSegmentChord(segment6, 8.0f, "Db minor"));
+    store->put(SegmentFixtures::buildSegmentChord(segment6, 0.0f, "C minor"));
+    store->put(SegmentFixtures::buildSegmentChord(segment6, 8.0f, "Db minor"));
   }
 
   @AfterEach
@@ -121,13 +116,13 @@ public class CraftBackgroundInitialTest {
 
   @Test
   public void craftBackgroundInitial() throws Exception {
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment6.getId(), 48000.0f, 2, null);
+    auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment6->id, 48000.0f, 2, null);
 
-    craftFactory.background(fabricator).doWork();
+    craftFactory->background(fabricator).doWork();
 
 //    // assert choice of background-type sequence
 //    Collection<SegmentChoice> segmentChoices =
-//      store.getAll(segment6.getId(), SegmentChoice.class);
+//      store->getAll(segment6->id, SegmentChoice.class);
 //    assertNotNull(Segments.findFirstOfType(segmentChoices, Instrument::Type::Background));
   }
 }

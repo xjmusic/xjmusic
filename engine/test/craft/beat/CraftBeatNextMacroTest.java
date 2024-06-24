@@ -5,7 +5,7 @@
 package io.xj.engine.craft.beat;
 
 import io.xj.engine.fabricator.SegmentEntityStoreImpl;
-import io.xj.model.HubContent;
+import io.xj.model.ContentEntityStore;
 import io.xj.model.HubTopology;
 import io.xj.model.entity.EntityFactoryImpl;
 import io.xj.model.enums.Program::Type;
@@ -47,43 +47,38 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @ExtendWith(MockitoExtension.class)
 public class CraftBeatNextMacroTest {
-  CraftFactory craftFactory;
-  FabricatorFactory fabricatorFactory;
-  SegmentFixtures fake;
+  CraftFactory *craftFactory = nullptr;
+  FabricatorFactory * fabricatorFactory = nullptr;
+  ContentFixtures *fake = nullptr;
   Chain chain1;
   Segment segment4;
-  SegmentEntityStore store;
-  HubContent sourceMaterial;
+  SegmentEntityStore *store = nullptr;
+  ContentEntityStore * sourceMaterial = nullptr;
 
-  @BeforeEach
-  public void setUp() throws Exception {
-    JsonProvider jsonProvider = new JsonProviderImpl();
-    auto entityFactory = new EntityFactoryImpl(jsonProvider);
+  void SetUp() override {
+
+
     craftFactory = new CraftFactoryImpl();
-    HubTopology.buildHubApiTopology(entityFactory);
-    FabricationTopology.buildFabricationTopology(entityFactory);
-    JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
-    store = new SegmentEntityStoreImpl(entityFactory);
-    fabricatorFactory = new FabricatorFactoryImpl(
-      store,
-      jsonapiPayloadFactory,
-      jsonProvider
-    );
+
+
+
+    store = new SegmentEntityStore();
+    fabricatorFactory = new FabricatorFactory(store);
 
     // Manipulate the underlying entity store; reset before each test
-    store.clear();
+    store->clear();
 
     // Mock request via HubClientFactory returns fake generated library of model content
-    fake = new SegmentFixtures();
-    sourceMaterial = new HubContent(Stream.concat(
-      Stream.concat(fake.setupFixtureB1().stream(),
-        fake.setupFixtureB2().stream()),
-      fake.setupFixtureB3().stream()
+    fake = new ContentFixtures();
+    sourceMaterial = new ContentEntityStore(Stream.concat(
+      Stream.concat(fake->setupFixtureB1().stream(),
+        fake->setupFixtureB2().stream()),
+      fake->setupFixtureB3().stream()
     ).collect(Collectors.toList()));
 
     // Chain "Test Print #1" has 5 total segments
-    chain1 = store.put(SegmentFixtures::buildChain(fake.project1, "Test Print #1", Chain::Type::Production, Chain::State::Fabricate, fake.template1, null));
-    store.put(SegmentFixtures::buildSegment(
+    chain1 = store->put(SegmentFixtures::buildChain(fake->project1, "Test Print #1", Chain::Type::Production, Chain::State::Fabricate, fake->template1, null));
+    store->put(SegmentFixtures::buildSegment(
       chain1,
       Segment::Type::Initial,
       0,
@@ -95,7 +90,7 @@ public class CraftBeatNextMacroTest {
       120.0f,
       "chains-1-segments-9f7s89d8a7892",
       true));
-    store.put(SegmentFixtures::buildSegment(
+    store->put(SegmentFixtures::buildSegment(
       chain1,
       SegmentType.CONTINUE,
       1,
@@ -116,27 +111,27 @@ public class CraftBeatNextMacroTest {
   @Test
   public void craftBeatNextMacro() throws Exception {
     insertSegments3and4(true);
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4.getId(), 48000.0f, 2, null);
+    auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, 48000.0f, 2, null);
 
-    craftFactory.beat(fabricator).doWork();
+    craftFactory->beat(fabricator).doWork();
 
     // assert choice of beat-type sequence
     Collection<SegmentChoice> segmentChoices =
-      store.readAll(segment4.getId(), SegmentChoice.class);
-    assertNotNull(SegmentUtils.findFirstOfType(segmentChoices, Program::Type::Beat));
+      store->readAll(segment4->id, SegmentChoice.class);
+    assertNotNull(SegmentUtils::findFirstOfType(segmentChoices, Program::Type::Beat));
   }
 
   @Test
   public void craftBeatNextMacro_okEvenWithoutPreviousSegmentBeatChoice() throws Exception {
     insertSegments3and4(false);
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4.getId(), 48000.0f, 2, null);
+    auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, 48000.0f, 2, null);
 
-    craftFactory.beat(fabricator).doWork();
+    craftFactory->beat(fabricator).doWork();
 
     // assert choice of beat-type sequence
     Collection<SegmentChoice> segmentChoices =
-      store.readAll(segment4.getId(), SegmentChoice.class);
-    assertNotNull(SegmentUtils.findFirstOfType(segmentChoices, Program::Type::Beat));
+      store->readAll(segment4->id, SegmentChoice.class);
+    assertNotNull(SegmentUtils::findFirstOfType(segmentChoices, Program::Type::Beat));
   }
 
   /**
@@ -146,7 +141,7 @@ public class CraftBeatNextMacroTest {
    */
   void insertSegments3and4(boolean excludeBeatChoiceForSegment3) throws FabricationException {
     // Chain "Test Print #1" has this segment that was just crafted
-    Segment segment3 = store.put(SegmentFixtures::buildSegment(
+    Segment segment3 = store->put(SegmentFixtures::buildSegment(
       chain1,
       SegmentType.CONTINUE,
       2,
@@ -157,27 +152,27 @@ public class CraftBeatNextMacroTest {
       0.30f,
       120.0f,
       "chains-1-segments-9f7s89d8a7892.wav", true));
-    store.put(buildSegmentChoice(
+    store->put(buildSegmentChoice(
       segment3,
       Segment.DELTA_UNLIMITED,
       Segment.DELTA_UNLIMITED,
-      fake.program4,
-      fake.program4_sequence2_binding0));
-    store.put(buildSegmentChoice(
+      fake->program4,
+      fake->program4_sequence2_binding0));
+    store->put(buildSegmentChoice(
       segment3,
       Segment.DELTA_UNLIMITED,
       Segment.DELTA_UNLIMITED,
-      fake.program5,
-      fake.program5_sequence1_binding0));
+      fake->program5,
+      fake->program5_sequence1_binding0));
     if (!excludeBeatChoiceForSegment3)
-      store.put(SegmentFixtures::buildSegmentChoice(
+      store->put(SegmentFixtures::buildSegmentChoice(
         segment3,
         Segment.DELTA_UNLIMITED,
         Segment.DELTA_UNLIMITED,
-        fake.program35));
+        fake->program35));
 
     // Chain "Test Print #1" has a segment in crafting state - Foundation is complete
-    segment4 = store.put(SegmentFixtures::buildSegment(
+    segment4 = store->put(SegmentFixtures::buildSegment(
       chain1,
       SegmentType.NEXT_MACRO,
       3,
@@ -188,22 +183,22 @@ public class CraftBeatNextMacroTest {
       0.45f,
       125.0f,
       "chains-1-segments-9f7s89d8a7892.wav", true));
-    store.put(buildSegmentChoice(
+    store->put(buildSegmentChoice(
       segment4,
       Segment.DELTA_UNLIMITED,
       Segment.DELTA_UNLIMITED,
-      fake.program4,
-      fake.program4_sequence0_binding0));
-    store.put(buildSegmentChoice(
+      fake->program4,
+      fake->program4_sequence0_binding0));
+    store->put(buildSegmentChoice(
       segment4,
       Segment.DELTA_UNLIMITED,
       Segment.DELTA_UNLIMITED,
-      fake.program15,
-      fake.program15_sequence0_binding0));
+      fake->program15,
+      fake->program15_sequence0_binding0));
     for (std::string memeName : List.of("Hindsight", "Chunky", "Regret", "Tangy"))
-      store.put(SegmentFixtures::buildSegmentMeme(segment4, memeName));
-    store.put(SegmentFixtures::buildSegmentChord(segment4, 0.0f, "F minor"));
-    store.put(SegmentFixtures::buildSegmentChord(segment4, 8.0f, "Gb minor"));
+      store->put(SegmentFixtures::buildSegmentMeme(segment4, memeName));
+    store->put(SegmentFixtures::buildSegmentChord(segment4, 0.0f, "F minor"));
+    store->put(SegmentFixtures::buildSegmentChord(segment4, 8.0f, "Gb minor"));
   }
 
 

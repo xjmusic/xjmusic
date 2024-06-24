@@ -5,7 +5,7 @@
 package io.xj.engine.craft.macro_main;
 
 import io.xj.engine.fabricator.SegmentEntityStoreImpl;
-import io.xj.model.HubContent;
+import io.xj.model.ContentEntityStore;
 import io.xj.model.HubTopology;
 import io.xj.model.entity.EntityFactoryImpl;
 import io.xj.model.entity.EntityUtils;
@@ -39,7 +39,7 @@ import java.util.stream.Stream;
 import static io.xj.model.util.Assertion.assertSameItems;
 import static io.xj.engine.SegmentFixtures::buildChain;
 import static io.xj.engine.SegmentFixtures::buildSegment;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.ASSERT_EQ;
 
 @ExtendWith(MockitoExtension.class)
 public class CraftSegmentPatternMemeTest {
@@ -61,32 +61,32 @@ public class CraftSegmentPatternMemeTest {
 
       CraftFactory craftFactory = new CraftFactoryImpl();
       auto jsonProvider = new JsonProviderImpl();
-      auto entityFactory = new EntityFactoryImpl(jsonProvider);
-      auto store = new SegmentEntityStoreImpl(entityFactory);
-      JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
+
+      auto store = new SegmentEntityStore();
+
       FabricatorFactory fabricatorFactory = new FabricatorFactoryImpl(
         store,
         jsonapiPayloadFactory,
         jsonProvider
       );
-      HubTopology.buildHubApiTopology(entityFactory);
-      FabricationTopology.buildFabricationTopology(entityFactory);
+
+
 
       // Manipulate the underlying entity store; reset before each test
-      store.clear();
+      store->clear();
 
       // Mock request via HubClientFactory returns fake generated library of model content
-      SegmentFixtures fake = new SegmentFixtures();
-      HubContent sourceMaterial = new HubContent(Stream.concat(
-        fake.setupFixtureB1().stream(),
-        fake.setupFixtureB2().stream()
+      SegmentFixtures fake = new ContentFixtures();
+      ContentEntityStore sourceMaterial = new ContentEntityStore(Stream.concat(
+        fake->setupFixtureB1().stream(),
+        fake->setupFixtureB2().stream()
       ).collect(Collectors.toList()));
 
       // Chain "Test Print #1" has 5 total segments
-      Chain chain = store.put(SegmentFixtures::buildChain(fake.project1, "Test Print #1", Chain::Type::Production, Chain::State::Fabricate, fake.template1, null));
+      Chain chain = store->put(SegmentFixtures::buildChain(fake->project1, "Test Print #1", Chain::Type::Production, Chain::State::Fabricate, fake->template1, null));
 
       // Preceding Segment
-      Segment previousSegment = store.put(SegmentFixtures::buildSegment(
+      Segment previousSegment = store->put(SegmentFixtures::buildSegment(
         chain,
         1,
         SegmentState.CRAFTING,
@@ -96,18 +96,18 @@ public class CraftSegmentPatternMemeTest {
         120.0f,
         "chains-1-segments-9f7s89d8a7892.wav"
       ));
-      store.put(SegmentFixtures::buildSegmentChoice(previousSegment, Program::Type::Macro, fake.program4_sequence1_binding0));
-      store.put(SegmentFixtures::buildSegmentChoice(previousSegment, Program::Type::Main, fake.program5_sequence1_binding0));
+      store->put(SegmentFixtures::buildSegmentChoice(previousSegment, Program::Type::Macro, fake->program4_sequence1_binding0));
+      store->put(SegmentFixtures::buildSegmentChoice(previousSegment, Program::Type::Main, fake->program5_sequence1_binding0));
 
       // Following Segment
-      Segment segment = store.put(SegmentFixtures::buildSegment(chain, 2, SegmentState.PLANNED, "C", 8, 0.8f, 120, "chain-1-waveform-12345"));
+      Segment segment = store->put(SegmentFixtures::buildSegment(chain, 2, Segment::State::Planned, "C", 8, 0.8f, 120, "chain-1-waveform-12345"));
 
-      craftFactory.macroMain(fabricatorFactory.fabricate(sourceMaterial, segment.getId(), 48000.0f, 2, null), null, null).doWork();
+      craftFactory->macroMain(fabricatorFactory->fabricate(sourceMaterial, segment->id, 48000.0f, 2, null), null, null).doWork();
 
-      auto result = store.readSegment(segment.getId()).orElseThrow();
-      assertEquals(SegmentType.NEXT_MACRO, result.getType());
+      auto result = store->readSegment(segment->id).orElseThrow();
+      ASSERT_EQ(SegmentType.NEXT_MACRO, result.getType());
       assertSameItems(List.of("REGRET", "HINDSIGHT", "CHUNKY", "TANGY"),
-        EntityUtils.namesOf(store.readAll(result.getId(), SegmentMeme.class)));
+        EntityUtils.namesOf(store->readAll(result->id, SegmentMeme.class)));
     }
   }
 }

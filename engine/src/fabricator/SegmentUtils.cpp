@@ -6,7 +6,7 @@ using namespace XJ;
 
 
 std::optional<const SegmentChoice *>
-SegmentUtils::findFirstOfType(const std::vector<SegmentChoice *> &segmentChoices, Program::Type type) {
+SegmentUtils::findFirstOfType(const std::set<SegmentChoice *> &segmentChoices, Program::Type type) {
   const auto it = std::find_if(segmentChoices.begin(), segmentChoices.end(), [type](const SegmentChoice *choice) {
     return choice->programType == type;
   });
@@ -18,7 +18,7 @@ SegmentUtils::findFirstOfType(const std::vector<SegmentChoice *> &segmentChoices
 
 
 std::optional<const SegmentChoice *>
-SegmentUtils::findFirstOfType(const std::vector<SegmentChoice *> &segmentChoices, Instrument::Type type) {
+SegmentUtils::findFirstOfType(const std::set<SegmentChoice *> &segmentChoices, Instrument::Type type) {
   const auto it = std::find_if(segmentChoices.begin(), segmentChoices.end(), [type](const SegmentChoice *choice) {
     return choice->instrumentType == type;
   });

@@ -112,7 +112,7 @@ TEST_F(SegmentUtilsTest, FindFirstOfType) {
   ch1.deltaOut = SegmentChoice::DELTA_UNLIMITED;
   ch1.programType = Program::Type::Macro;
 
-  std::vector choices = {&ch0, &ch1};
+  std::set choices = {&ch0, &ch1};
   ASSERT_EQ(ch0.id, SegmentUtils::findFirstOfType(choices, Program::Type::Main).value()->id);
 }
 

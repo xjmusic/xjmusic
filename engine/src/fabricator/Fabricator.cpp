@@ -970,16 +970,16 @@ ContentEntityStore *Fabricator::getSourceMaterial() {
 }
 
 
-float Fabricator::getMicrosPerBeat(float tempo) {
+double Fabricator::getMicrosPerBeat(const float tempo) {
   if (0 == microsPerBeat)
-    microsPerBeat = static_cast<float>(ValueUtils::MICROS_PER_MINUTE) / tempo;
+    microsPerBeat = static_cast<double>(ValueUtils::MICROS_PER_MINUTE) / tempo;
   return microsPerBeat;
 }
 
 
 int Fabricator::getSecondMacroSequenceBindingOffset(const Program *macroProgram) {
   std::vector<int> offsets;
-  auto bindings = sourceMaterial->getSequenceBindingsOfProgram(macroProgram->id);
+  const auto bindings = sourceMaterial->getSequenceBindingsOfProgram(macroProgram->id);
 
   for (const auto &binding: bindings) {
     offsets.push_back(binding->offset);

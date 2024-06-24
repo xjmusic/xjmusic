@@ -3,14 +3,16 @@
 #ifndef XJMUSIC_FABRICATOR_SEGMENT_UTILS_H
 #define XJMUSIC_FABRICATOR_SEGMENT_UTILS_H
 
+#include <optional>
+#include <set>
 #include <string>
 #include <vector>
-#include <optional>
 
 #include "xjmusic/segment/Segment.h"
 #include "xjmusic/segment/SegmentChoice.h"
 #include "xjmusic/segment/SegmentChoiceArrangement.h"
 #include "xjmusic/segment/SegmentChordVoicing.h"
+
 
 /**
  Utilities for working with segments
@@ -29,7 +31,7 @@ namespace XJ {
      @return segment choice of given type
      */
     static std::optional<const SegmentChoice *>
-    findFirstOfType(const std::vector<SegmentChoice *> &segmentChoices, Program::Type type);
+    findFirstOfType(const std::set<SegmentChoice *> &segmentChoices, Program::Type type);
 
     /**
      Find first segment choice of a given type in a collection of segment choices
@@ -39,7 +41,7 @@ namespace XJ {
      @return segment choice of given type
      */
     static std::optional<const SegmentChoice *>
-    findFirstOfType(const std::vector<SegmentChoice *> &segmentChoices, Instrument::Type type);
+    findFirstOfType(const std::set<SegmentChoice *> &segmentChoices, Instrument::Type type);
 
     /**
      Get the identifier or a Segment: ship key if available, else ID

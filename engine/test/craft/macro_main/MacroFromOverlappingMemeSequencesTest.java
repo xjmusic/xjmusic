@@ -16,7 +16,7 @@ import io.xj.model.enums.ChainState;
 import io.xj.model.enums.ChainType;
 import io.xj.model.pojos.Segment;
 import io.xj.model.enums.SegmentState;
-import io.xj.model.HubContent;
+import io.xj.model.ContentEntityStore;
 import io.xj.model.HubTopology;
 import io.xj.model.entity.EntityFactoryImpl;
 import io.xj.model.enums.Program::State;
@@ -40,7 +40,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 
 import static io.xj.engine.SegmentFixtures::buildSegmentChoice;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.ASSERT_EQ;
 
 /**
  Choose next Macro program based on the memes of the last sequence from the previous Macro program https://github.com/xjmusic/xjmusic/issues/299
@@ -52,22 +52,17 @@ public class MacroFromOverlappingMemeSequencesTest {
   MacroMainCraftImpl subject;
   Program macro2a;
 
-  @BeforeEach
-  public void setUp() throws Exception {
+  void SetUp() override {
     auto jsonProvider = new JsonProviderImpl();
-    auto entityFactory = new EntityFactoryImpl(jsonProvider);
-    auto store = new SegmentEntityStoreImpl(entityFactory);
-    JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
-    auto fabricatorFactory = new FabricatorFactoryImpl(
-      store,
-      jsonapiPayloadFactory,
-      jsonProvider
-    );
-    HubTopology.buildHubApiTopology(entityFactory);
-    FabricationTopology.buildFabricationTopology(entityFactory);
+
+    auto store = new SegmentEntityStore();
+
+    auto fabricatorFactory = new FabricatorFactory(store);
+
+
 
     // Manipulate the underlying entity store; reset before each test
-    store.clear();
+    store->clear();
 
     // Mock request via HubClientFactory returns fake generated library of model content
     // Project "bananas"
@@ -109,7 +104,7 @@ public class MacroFromOverlappingMemeSequencesTest {
     auto macro2b_sequenceA_binding = ContentFixtures::buildBinding(macro2b_sequenceA, 0);
     auto macro2b_sequenceA_bindingMeme = ContentFixtures::buildMeme(macro2b_sequenceA_binding, "Purple");
 
-    HubContent sourceMaterial = new HubContent(List.of(
+    ContentEntityStore sourceMaterial = new ContentEntityStore(List.of(
       project1,
       library2,
       user2,
@@ -142,8 +137,8 @@ public class MacroFromOverlappingMemeSequencesTest {
     ));
 
     // Chain "Test Print #1" has 5 total segments
-    Chain chain1 = store.put(SegmentFixtures::buildChain(project1, "Test Print #1", Chain::Type::Production, Chain::State::Fabricate, template1, null));
-    Segment segment1 = store.put(SegmentFixtures::buildSegment(
+    Chain chain1 = store->put(SegmentFixtures::buildChain(project1, "Test Print #1", Chain::Type::Production, Chain::State::Fabricate, template1, null));
+    Segment segment1 = store->put(SegmentFixtures::buildSegment(
       chain1,
       0,
       Segment::State::Crafted,
@@ -153,10 +148,10 @@ public class MacroFromOverlappingMemeSequencesTest {
       120.0f,
       "chains-1-segments-9f7s89d8a7892"
     ));
-    store.put(buildSegmentChoice(segment1, Program::Type::Macro, macro1_sequenceA_binding));
-    store.put(buildSegmentChoice(segment1, Program::Type::Main, main5_sequenceA_binding));
+    store->put(buildSegmentChoice(segment1, Program::Type::Macro, macro1_sequenceA_binding));
+    store->put(buildSegmentChoice(segment1, Program::Type::Main, main5_sequenceA_binding));
 
-    Segment segment2 = store.put(SegmentFixtures::buildSegment(
+    Segment segment2 = store->put(SegmentFixtures::buildSegment(
       chain1,
       1,
       SegmentState.CRAFTING,
@@ -167,7 +162,7 @@ public class MacroFromOverlappingMemeSequencesTest {
       "chains-1-segments-9f7s89d8a7892.wav"
     ));
 
-    subject = new MacroMainCraftImpl(fabricatorFactory.fabricate(sourceMaterial, segment2.getId(), 48000.0f, 2, null), null, null);
+    subject = new MacroMainCraftImpl(fabricatorFactory->fabricate(sourceMaterial, segment2->id, 48000.0f, 2, null), null, null);
   }
 
   @Test
@@ -176,7 +171,7 @@ public class MacroFromOverlappingMemeSequencesTest {
     // At 100 repetitions, false positive is 2^100:1 against
     for (int i = 0; i < REPEAT_TIMES; i++) {
       auto result = subject.chooseMacroProgram();
-      assertEquals(macro2a.getId(), result.getId());
+      ASSERT_EQ(macro2a->id, result->id);
     }
   }
 }

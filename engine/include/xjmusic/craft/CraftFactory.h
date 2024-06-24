@@ -29,6 +29,7 @@ namespace XJ {
  basis.putReport();
  */
 class CraftFactory {
+public:
 
   /**
    Create Foundation Craft instance for a particular segment

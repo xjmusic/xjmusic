@@ -5,7 +5,7 @@
 package io.xj.engine.craft.macro_main;
 
 import io.xj.engine.fabricator.SegmentEntityStoreImpl;
-import io.xj.model.HubContent;
+import io.xj.model.ContentEntityStore;
 import io.xj.model.HubTopology;
 import io.xj.model.entity.EntityFactoryImpl;
 import io.xj.model.json.JsonProvider;
@@ -33,50 +33,45 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import static io.xj.engine.SegmentFixtures::buildChain;
 import static io.xj.engine.SegmentFixtures::buildSegment;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.ASSERT_EQ;
 
 @ExtendWith(MockitoExtension.class)
 public class CraftSegmentOutputEncoderTest {
-  CraftFactory craftFactory;
-  FabricatorFactory fabricatorFactory;
-  SegmentEntityStore store;
+  CraftFactory *craftFactory = nullptr;
+  FabricatorFactory * fabricatorFactory = nullptr;
+  SegmentEntityStore *store = nullptr;
   Segment segment6;
-  HubContent sourceMaterial;
+  ContentEntityStore * sourceMaterial = nullptr;
 
-  @BeforeEach
-  public void setUp() throws Exception {
-    JsonProvider jsonProvider = new JsonProviderImpl();
-    auto entityFactory = new EntityFactoryImpl(jsonProvider);
+  void SetUp() override {
+
+
     craftFactory = new CraftFactoryImpl();
-    HubTopology.buildHubApiTopology(entityFactory);
-    FabricationTopology.buildFabricationTopology(entityFactory);
-    JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
-    store = new SegmentEntityStoreImpl(entityFactory);
-    fabricatorFactory = new FabricatorFactoryImpl(
-      store,
-      jsonapiPayloadFactory,
-      jsonProvider
-    );
+
+
+
+    store = new SegmentEntityStore();
+    fabricatorFactory = new FabricatorFactory(store);
 
     // Manipulate the underlying entity store; reset before each test
-    store.clear();
+    store->clear();
 
     // Mock request via HubClientFactory returns fake generated library of model content
-    SegmentFixtures fake = new SegmentFixtures();
-    sourceMaterial = new HubContent(fake.setupFixtureB1());
+    SegmentFixtures fake = new ContentFixtures();
+    sourceMaterial = new ContentEntityStore(fake->setupFixtureB1());
 
     // Chain "Print #2" has 1 initial planned segment
-    Chain chain2 = store.put(buildChain(
-      fake.project1,
+    Chain chain2 = store->put(buildChain(
+      fake->project1,
       "Print #2",
       Chain::Type::Production,
       Chain::State::Fabricate,
-      fake.template1
+      fake->template1
     ));
-    segment6 = store.put(SegmentFixtures::buildSegment(
+    segment6 = store->put(SegmentFixtures::buildSegment(
       chain2,
       0,
-      SegmentState.PLANNED,
+      Segment::State::Planned,
       "C",
       8,
       0.8f,
@@ -86,12 +81,12 @@ public class CraftSegmentOutputEncoderTest {
 
   @Test
   public void craftFoundationInitial() throws Exception {
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment6.getId(), 48000.0f, 2, null);
+    auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment6->id, 48000.0f, 2, null);
 
-    craftFactory.macroMain(fabricator, null, null).doWork();
+    craftFactory->macroMain(fabricator, null, null).doWork();
 
-    Segment result = store.readSegment(segment6.getId()).orElseThrow();
-    assertEquals(segment6.getId(), result.getId());
-    assertEquals(Segment::Type::Initial, result.getType());
+    Segment result = store->readSegment(segment6->id).orElseThrow();
+    ASSERT_EQ(segment6->id, result->id);
+    ASSERT_EQ(Segment::Type::Initial, result.getType());
   }
 }
