@@ -165,7 +165,7 @@ namespace XJ {
 
      @return choice if previously made, or null if none is found
      */
-    virtual std::vector<SegmentChoice *> getChoicesIfContinued(Program::Type programType);
+    virtual std::set<SegmentChoice *> getChoicesIfContinued(const Program::Type programType);
 
     /**
      Determine if a choice has been previously crafted

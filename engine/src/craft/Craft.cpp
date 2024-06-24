@@ -71,7 +71,7 @@ void Craft::precomputeDeltas(
   }
 
   // then we overwrite the wall-to-wall random values with more specific values depending on the situation
-  switch (fabricator->getType()) {
+  switch (fabricator->type) {
     case Segment::Type::Pending: {
       // No Op
     }
@@ -390,7 +390,7 @@ bool Craft::computeMute(Instrument::Type instrumentType) const {
 
 void Craft::pickInstrumentAudio(const SegmentChoiceArrangement &arrangement, const InstrumentAudio &audio,
                                 long startAtSegmentMicros, long lengthMicros, std::string event) const {
-  const auto pick = new SegmentChoiceArrangementPick();
+  const auto pick = SegmentChoiceArrangementPick();
   pick->id = EntityUtils::computeUniqueId();
   pick->segmentId = fabricator->getSegment()->id;
   pick->segmentChoiceArrangementId = arrangement.id;
@@ -523,7 +523,7 @@ void Craft::craftChordParts(const float tempo, const Instrument *instrument, con
   if (fabricator->getSegmentChords().empty()) return;
 
   // Arrangement
-  auto *arrangement = new SegmentChoiceArrangement();
+  auto *arrangement = SegmentChoiceArrangement();
   arrangement->id = EntityUtils::computeUniqueId();
   arrangement->segmentId = choice->segmentId;
   arrangement->segmentChoiceId = choice->id;
@@ -550,7 +550,7 @@ void Craft::craftChordParts(const float tempo, const Instrument *instrument, con
     if (volRatio <= 0) continue;
 
     // Pick
-    auto *pick = new SegmentChoiceArrangementPick();
+    auto *pick = SegmentChoiceArrangementPick();
     pick->id = EntityUtils::computeUniqueId();
     pick->segmentId = choice->segmentId;
     pick->segmentChoiceArrangementId = arrangement->id;
@@ -875,7 +875,7 @@ void Craft::pickInstrumentAudio(
   if (!audio.has_value()) return;
 
   // of pick
-  const auto pick = new SegmentChoiceArrangementPick();
+  const auto pick = SegmentChoiceArrangementPick();
   pick->id = EntityUtils::computeUniqueId();
   pick->segmentId = segmentChoiceArrangement.segmentId;
   pick->segmentChoiceArrangementId = segmentChoiceArrangement.id;

@@ -23,31 +23,31 @@ void BackgroundCraft::doWork() {
 }
 
 void BackgroundCraft::craftBackground(const Instrument *instrument) {
-  auto choice = new SegmentChoice();
-  choice.setId(EntityUtils::computeUniqueId());
-  choice.setSegmentId(fabricator.getSegment().getId());
-  choice.setMute(computeMute(instrument.getType()));
-  choice.setInstrumentType(instrument.getType());
-  choice.setInstrumentMode(instrument.getMode());
-  choice.setInstrumentId(instrument.getId());
-  fabricator.put(choice, false);
-  auto arrangement = new SegmentChoiceArrangement();
-  arrangement.setId(EntityUtils::computeUniqueId());
-  arrangement.setSegmentId(fabricator.getSegment().getId());
-  arrangement.segmentChoiceId(choice.getId());
-  fabricator.put(arrangement, false);
+  auto choice = SegmentChoice();
+  choice.id = EntityUtils::computeUniqueId();
+  choice.segmentId = fabricator->getSegment()->id;
+  choice.mute = computeMute(instrument->type);
+  choice.instrumentType = instrument->type;
+  choice.instrumentMode = instrument->mode;
+  choice.instrumentId = instrument->id;
+  fabricator->put(choice, false);
+  auto arrangement = SegmentChoiceArrangement();
+  arrangement.id = EntityUtils::computeUniqueId();
+  arrangement.segmentId = fabricator->getSegment()->id;
+  arrangement.segmentChoiceId = choice.id;
+  fabricator->put(arrangement);
 
-  for (InstrumentAudio audio: selectGeneralAudioIntensityLayers(instrument)) {
-    auto pick = new SegmentChoiceArrangementPick();
-    pick.setId(EntityUtils::computeUniqueId());
-    pick.setSegmentId(fabricator.getSegment().getId());
-    pick.setSegmentChoiceArrangementId(arrangement.getId());
-    pick.setStartAtSegmentMicros(0L);
-    pick.setLengthMicros(fabricator.getTotalSegmentMicros());
-    pick.setAmplitude(1.0f);
-    pick.setEvent("BACKGROUND");
-    pick.setInstrumentAudioId(audio.getId());
-    fabricator.put(pick, false);
+  for (const InstrumentAudio& audio: selectGeneralAudioIntensityLayers(instrument)) {
+    auto pick = SegmentChoiceArrangementPick();
+    pick.id = EntityUtils::computeUniqueId();
+    pick.segmentId = fabricator->getSegment()->id;
+    pick.segmentChoiceArrangementId = arrangement.id;
+    pick.startAtSegmentMicros = 0L;
+    pick.lengthMicros = fabricator->getTotalSegmentMicros();
+    pick.amplitude = 1.0f;
+    pick.event = "BACKGROUND";
+    pick.instrumentAudioId = audio.id;
+    fabricator->put(pick);
   }
 }
 

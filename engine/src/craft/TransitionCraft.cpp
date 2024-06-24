@@ -12,8 +12,8 @@ TransitionCraft::TransitionCraft(
     this->largeNames = fabricator->getTemplateConfig().eventNamesLarge;
   }
 
-  @Override
-  public void doWork() throws FabricationException {
+
+  void doWork()  {
     std::optional<SegmentChoice> previousChoice = fabricator-getRetrospective().getPreviousChoiceOfType(Instrument::Type::Transition);
 
     auto instrument = previousChoice.isPresent() ?
@@ -24,7 +24,7 @@ TransitionCraft::TransitionCraft(
       return;
     }
 
-    craftTransition(fabricator.getTempo(), instrument.get());
+    craftTransition(fabricator->getTempo(), instrument.get());
   }
 
   /**
@@ -32,8 +32,8 @@ TransitionCraft::TransitionCraft(
 
    @return true if it is a big transition segment
    */
-  boolean isBigTransitionSegment() throws FabricationException {
-    return switch (fabricator.getType()) {
+  boolean isBigTransitionSegment()  {
+    return switch (fabricator->type) {
       case PENDING, CONTINUE -> false;
       case INITIAL, NEXT_MAIN, NEXT_MACRO -> true;
     };
@@ -46,14 +46,14 @@ TransitionCraft::TransitionCraft(
 
    @return true if it is a medium transition segment
    */
-  boolean isMediumTransitionSegment() throws FabricationException {
-    return switch (fabricator.getType()) {
+  boolean isMediumTransitionSegment()  {
+    return switch (fabricator->type) {
       case PENDING, INITIAL, NEXT_MAIN, NEXT_MACRO -> false;
-      case CONTINUE -> !fabricator.getCurrentMainSequence()
+      case CONTINUE -> !fabricator->getCurrentMainSequence()
         .orElseThrow(() -> new FabricationException("Can't get current main sequence"))
-        .getId()
-        .equals(fabricator.getPreviousMainSequence().orElseThrow(() ->
-          new FabricationException("Can't get previous main sequence")).getId());
+        .id
+        .equals(fabricator->getPreviousMainSequence().orElseThrow(() ->
+          new FabricationException("Can't get previous main sequence")).id);
     };
   }
 
@@ -64,20 +64,20 @@ TransitionCraft::TransitionCraft(
    @param instrument of percussion loop instrument to craft
    */
   @SuppressWarnings("DuplicatedCode")
-  void craftTransition(double tempo, Instrument instrument) throws FabricationException {
-    auto choice = new SegmentChoice();
+  void craftTransition(double tempo, Instrument instrument)  {
+    auto choice = SegmentChoice();
     choice.setId(EntityUtils::computeUniqueId());
-    choice.setSegmentId(fabricator.getSegment().getId());
-    choice.setMute(computeMute(instrument.getType()));
-    choice.setInstrumentType(instrument.getType());
-    choice.setInstrumentMode(instrument.getMode());
-    choice.setInstrumentId(instrument.getId());
-    fabricator.put(choice, false);
-    auto arrangement = new SegmentChoiceArrangement();
+    choice.setSegmentId(fabricator->getSegment().id);
+    choice.setMute(computeMute(instrument.type));
+    choice.setInstrumentType(instrument.type);
+    choice.setInstrumentMode(instrument.mode);
+    choice.setInstrumentId(instrument.id);
+    fabricator->put(choice, false);
+    auto arrangement = SegmentChoiceArrangement();
     arrangement.setId(EntityUtils::computeUniqueId());
-    arrangement.setSegmentId(fabricator.getSegment().getId());
-    arrangement.segmentChoiceId(choice.getId());
-    fabricator.put(arrangement, false);
+    arrangement.setSegmentId(fabricator->getSegment().id);
+    arrangement.segmentChoiceId(choice.id);
+    fabricator->put(arrangement, false);
 
     auto small = selectAudiosForInstrument(instrument, smallNames);
     auto medium = selectAudiosForInstrument(instrument, mediumNames);
@@ -85,22 +85,22 @@ TransitionCraft::TransitionCraft(
 
     if (isBigTransitionSegment() && !big.isEmpty())
       for (auto bigAudio : big)
-        pickInstrumentAudio(arrangement, bigAudio, 0, fabricator.getTotalSegmentMicros(), largeNames.get(0));
+        pickInstrumentAudio(arrangement, bigAudio, 0, fabricator->getTotalSegmentMicros(), largeNames.get(0));
 
     else if (isMediumTransitionSegment() && !medium.isEmpty())
       for (auto mediumAudio : medium)
-        pickInstrumentAudio(arrangement, mediumAudio, 0, fabricator.getTotalSegmentMicros(), mediumNames.get(0));
+        pickInstrumentAudio(arrangement, mediumAudio, 0, fabricator->getTotalSegmentMicros(), mediumNames.get(0));
 
     else if (!small.isEmpty())
       for (auto smallAudio : small)
-        pickInstrumentAudio(arrangement, smallAudio, 0, fabricator.getTotalSegmentMicros(), smallNames.get(0));
+        pickInstrumentAudio(arrangement, smallAudio, 0, fabricator->getTotalSegmentMicros(), smallNames.get(0));
 
-    auto deltaUnits = Bar.of(fabricator.getCurrentMainProgramConfig().getBarBeats()).computeSubsectionBeats(fabricator.getSegment().getTotal());
+    auto deltaUnits = Bar.of(fabricator->getCurrentMainProgramConfig().getBarBeats()).computeSubsectionBeats(fabricator->getSegment().getTotal());
     auto pos = deltaUnits;
-    while (pos < fabricator.getSegment().getTotal()) {
+    while (pos < fabricator->getSegment().getTotal()) {
       if (!small.isEmpty())
         for (auto smallAudio : small)
-          pickInstrumentAudio(arrangement, smallAudio, fabricator.getSegmentMicrosAtPosition(tempo, pos), fabricator.getTotalSegmentMicros(), smallNames.get(0));
+          pickInstrumentAudio(arrangement, smallAudio, fabricator->getSegmentMicrosAtPosition(tempo, pos), fabricator->getTotalSegmentMicros(), smallNames.get(0));
       pos += deltaUnits;
     }
   }
@@ -111,10 +111,10 @@ TransitionCraft::TransitionCraft(
    @return instrument audios
    */
   private Collection<InstrumentAudio> selectAudiosForInstrument(Instrument instrument, List<std::string> names) {
-    auto previous = fabricator->getRetrospective().getPreviousPicksForInstrument(instrument.getId()).stream()
+    auto previous = fabricator->getRetrospective().getPreviousPicksForInstrument(instrument.id).stream()
       .filter(pick -> names.contains(StringUtils.toMeme(pick.getEvent())))
       .collect(Collectors.toSet());
-    if (fabricator.getInstrumentConfig(instrument).isAudioSelectionPersistent() && !previous.isEmpty()) {
+    if (fabricator->getInstrumentConfig(instrument).isAudioSelectionPersistent() && !previous.isEmpty()) {
       return previous.stream()
         .map(SegmentChoiceArrangementPick::getInstrumentAudioId)
         .collect(Collectors.toSet()) // unique audio ids
@@ -126,9 +126,9 @@ TransitionCraft::TransitionCraft(
     }
 
     return selectAudioIntensityLayers(
-      fabricator->getSourceMaterial()->getAudiosOfInstrument(instrument.getId())
+      fabricator->getSourceMaterial()->getAudiosOfInstrument(instrument.id)
         .stream().filter(instrumentAudio -> names.contains(StringUtils.toMeme(instrumentAudio.getEvent()))).collect(Collectors.toSet()),
-      fabricator.getTemplateConfig().getIntensityLayers(Instrument::Type::Background)
+      fabricator->getTemplateConfig().getIntensityLayers(Instrument::Type::Background)
     );
   }
 }

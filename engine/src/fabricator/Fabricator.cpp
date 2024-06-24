@@ -263,15 +263,14 @@ Fabricator::getChoiceIfContinued(const Instrument::Type instrumentType, const In
 }
 
 
-std::vector<SegmentChoice *> Fabricator::getChoicesIfContinued(const Program::Type programType) {
+std::set<SegmentChoice *> Fabricator::getChoicesIfContinued(const Program::Type programType) {
   if (getSegment()->type != Segment::Type::Continue) return {};
 
-  auto choices = retrospective->getChoices();
-  std::vector<SegmentChoice *> filteredChoices;
+  std::set<SegmentChoice *> filteredChoices;
 
-  std::copy_if(choices.begin(), choices.end(), std::back_inserter(filteredChoices), [&](const SegmentChoice *choice) {
-    return choice->programType == programType;
-  });
+  for (auto choice : retrospective->getChoices())
+    if (choice->programType == programType)
+      filteredChoices.emplace(choice);
 
   if (filteredChoices.empty()) {
     spdlog::warn("[seg-{}] Could not get previous choice for programType={}", segmentId,
