@@ -710,7 +710,7 @@ namespace XJ {
      @return Choice successfully put
      @throws FabricationException on failure
      */
-    virtual SegmentChoice put(SegmentChoice entity, bool force);
+    virtual SegmentChoice * put(SegmentChoice entity, bool force);
 
     /**
      Put a SegmentChoiceArrangement in the store
@@ -719,7 +719,7 @@ namespace XJ {
      @return Arrangement successfully put
      @throws FabricationException on failure
      */
-    virtual SegmentChoiceArrangement put(SegmentChoiceArrangement entity);
+    virtual SegmentChoiceArrangement *put(SegmentChoiceArrangement entity);
 
     /**
      Put a SegmentChoiceArrangementPick in the store
@@ -728,7 +728,7 @@ namespace XJ {
      @return ChoiceArrangementPick successfully put
      @throws FabricationException on failure
      */
-    virtual SegmentChoiceArrangementPick put(SegmentChoiceArrangementPick entity);
+    virtual SegmentChoiceArrangementPick *put(SegmentChoiceArrangementPick entity);
 
     /**
      Put a SegmentChord in the store
@@ -737,7 +737,7 @@ namespace XJ {
      @return Chord successfully put
      @throws FabricationException on failure
      */
-    virtual SegmentChord put(SegmentChord entity);
+    virtual SegmentChord* put(SegmentChord entity);
 
     /**
      Put a SegmentChordVoicing in the store
@@ -746,7 +746,7 @@ namespace XJ {
      @return ChordVoicing successfully put
      @throws FabricationException on failure
      */
-    virtual SegmentChordVoicing put(SegmentChordVoicing entity);
+    virtual SegmentChordVoicing* put(SegmentChordVoicing entity);
 
     /**
      Put a SegmentMeme in the store
@@ -756,7 +756,7 @@ namespace XJ {
      @return Meme successfully put
      @throws FabricationException on failure
      */
-    virtual SegmentMeme put(SegmentMeme entity, bool force);
+    virtual SegmentMeme *put(SegmentMeme entity, bool force);
 
     /**
      Put a SegmentMessage in the store
@@ -765,7 +765,7 @@ namespace XJ {
      @return Message successfully put
      @throws FabricationException on failure
      */
-    virtual SegmentMessage put(SegmentMessage entity);
+    virtual SegmentMessage *put(SegmentMessage entity);
 
     /**
      Put a SegmentMeta in the store
@@ -774,7 +774,7 @@ namespace XJ {
      @return Meta successfully put
      @throws FabricationException on failure
      */
-    virtual SegmentMeta put(SegmentMeta entity);
+    virtual SegmentMeta* put(SegmentMeta entity);
 
     /**
      Set the preferred audio for a key

@@ -23,6 +23,14 @@ namespace XJ {
      https://github.com/xjmusic/xjmusic/issues/196
      */
     void doWork();
+
+    /**
+     Craft loop parts
+
+     @param tempo of main program
+     @param instrument for which to craft
+     */
+    void craftLoopParts(double tempo, const Instrument *instrument);
   };
 
 }// namespace XJ

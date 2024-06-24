@@ -75,3 +75,12 @@ std::string Instrument::toString(const Instrument::Mode &mode) {
 std::string Instrument::toString(const Instrument::State &state) {
   return stateValueNames.at(state);
 }
+
+const std::vector<std::string> &Instrument::toStrings(std::vector<Instrument::Type> types) {
+  static std::vector<std::string> typeStrings;
+  typeStrings.clear();
+  for (const auto &type : types) {
+    typeStrings.push_back(toString(type));
+  }
+  return typeStrings;
+}

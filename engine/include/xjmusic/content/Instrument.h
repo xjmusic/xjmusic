@@ -94,6 +94,8 @@ namespace XJ {
      * @return      The string representation of the Instrument State
      */
     static std::string toString(const Instrument::State &state);
+
+    static const std::vector<std::string> &toStrings(std::vector<Instrument::Type> types);
   };
 
 }// namespace XJ

@@ -38,7 +38,7 @@ MacroMainCraft::MacroMainCraft(
       macroSequence = doMacroChoiceWork(segment);
       mainSequence = doMainChoiceWork(segment);
     }
-    mainProgram = fabricator->getSourceMaterial()->getProgram(mainSequence.getProgramId())
+    mainProgram = fabricator->getSourceMaterial()->getProgram(mainSequence.programId)
       .orElseThrow(() -> new FabricationException(std::string.format("Unable to determine main program for Segment[%d]", segment.id)));
 
     // 3. Chords and voicings
@@ -151,11 +151,11 @@ MacroMainCraft::MacroMainCraft(
   private std::string computeSegmentKey(ProgramSequence mainSequence)  {
     std::string mainKey = mainSequence.getKey();
     if (null == mainKey || mainKey.isEmpty())
-      mainKey = fabricator->getSourceMaterial()->getProgram(mainSequence.getProgramId())
+      mainKey = fabricator->getSourceMaterial()->getProgram(mainSequence.programId)
         .orElseThrow(() -> new FabricationException(std::string.format(
           "Unable to determine key for Main-Program[%s] %s",
           mainSequence.getName(),
-          mainSequence.getProgramId())
+          mainSequence.programId)
         ))
         .getKey();
     return Chord.of(mainKey).getName();

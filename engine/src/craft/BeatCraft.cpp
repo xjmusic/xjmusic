@@ -30,56 +30,60 @@ void BeatCraft::doWork()  {
         return "unknown";
       });
 
-    Predicate<SegmentChoice> choiceFilter = (SegmentChoice choice) -> Program::Type::Beat.equals(choice.getProgramType());
-    auto programNames = fabricator->getSourceMaterial()->getVoicesOfProgram(program.get()).stream()
-      .map(ProgramVoice::getName)
-      .collect(Collectors.toList());
+  std::function<bool(const SegmentChoice*)> choiceFilter = [](const SegmentChoice* choice) {
+    return Program::Type::Beat == choice->programType;
+  };
+
+  auto programVoices = fabricator->getSourceMaterial()->getVoicesOfProgram(program.value());
+    auto voiceNames = ProgramVoice::getNames(programVoices);
+    auto voiceNameVector = std::vector<std::string>(voiceNames.begin(), voiceNames.end());
+
     precomputeDeltas(
-      choiceFilter,
-      choiceIndexProvider,
-      programNames,
-      fabricator->getTemplateConfig().getDeltaArcBeatLayersToPrioritize(),
-      fabricator->getTemplateConfig().getDeltaArcBeatLayersIncoming()
+        choiceFilter,
+        choiceIndexProvider,
+        voiceNameVector,
+        fabricator->getTemplateConfig().deltaArcBeatLayersToPrioritize,
+        fabricator->getTemplateConfig().deltaArcBeatLayersIncoming
     );
 
     // beat sequence is selected at random of the current program
     // FUTURE: Beat Program with multiple Sequences https://github.com/xjmusic/xjmusic/issues/241
-    auto sequence = fabricator->getRandomlySelectedSequence(program.get());
+    auto sequence = fabricator->getRandomlySelectedSequence(program.value());
 
     // voice arrangements
-    if (sequence.isPresent()) {
-      for (ProgramVoice voice : fabricator->getSourceMaterial()->getVoicesOfProgram(program.get())) {
+    if (sequence.has_value()) {
+      for (auto voice : programVoices) {
         auto choice = SegmentChoice();
-        choice.setId(EntityUtils::computeUniqueId());
-        choice.setSegmentId(fabricator->getSegment().id);
-        choice.setMute(computeMute(voice.type));
-        choice.setProgramType(fabricator->getSourceMaterial()->getProgram(voice.getProgramId()).orElseThrow(() -> new FabricationException("Can't get program for voice")).type);
-        choice.setInstrumentType(voice.type);
-        choice.setProgramId(voice.getProgramId());
-        choice.setProgramSequenceId(sequence.get().id);
-        choice.setProgramVoiceId(voice.id);
+        choice.id = EntityUtils::computeUniqueId();
+        choice.segmentId = fabricator->getSegment()->id;
+        choice.mute = computeMute(voice->type);
+        choice.programType = program.value()->type;
+        choice.instrumentType = voice->type;
+        choice.programId = voice->programId;
+        choice.programSequenceId = sequence.value()->id;
+        choice.programVoiceId = voice->id;
 
         // Whether there is a prior choice for this voice
-        std::optional<SegmentChoice> priorChoice = fabricator->getChoiceIfContinued(voice);
+        auto priorChoice = fabricator->getChoiceIfContinued(voice);
 
-        if (priorChoice.isPresent()) {
+        if (priorChoice.has_value()) {
           // If there is a prior choice, then we should continue it
-          choice.setDeltaIn(priorChoice.get().getDeltaIn());
-          choice.setDeltaOut(priorChoice.get().getDeltaOut());
-          choice.setInstrumentId(priorChoice.get().getInstrumentId());
-          choice.setInstrumentMode(priorChoice.get().getInstrumentMode());
-          this.craftNoteEventArrangements(fabricator->getTempo(), fabricator->put(choice, false), true);
+          choice.deltaIn = priorChoice.value()->deltaIn;
+          choice.deltaOut = priorChoice.value()->deltaOut;
+          choice.instrumentId = priorChoice.value()->instrumentId;
+          choice.instrumentMode = priorChoice.value()->instrumentMode;
+          craftNoteEventArrangements(static_cast<float>(fabricator->getTempo()), fabricator->put(choice, false), true);
         } else {
           // If there is no prior choice, then we should choose a fresh instrument
           auto instrument = chooseFreshInstrument(Instrument::Type::Drum, fabricator->getSourceMaterial()->getTrackNamesOfVoice(voice));
-          if (instrument.isEmpty()) {
+          if (!instrument.has_value()) {
             continue;
           }
-          choice.setDeltaIn(computeDeltaIn(choice));
-          choice.setDeltaOut(computeDeltaOut(choice));
-          choice.setInstrumentId(instrument.get().id);
-          choice.setInstrumentMode(instrument.get().mode);
-          this.craftNoteEventArrangements(fabricator->getTempo(), fabricator->put(choice, false), true);
+          choice.deltaIn = computeDeltaIn(&choice);
+          choice.deltaOut = computeDeltaOut(&choice);
+          choice.instrumentId = instrument.value()->id;
+          choice.instrumentMode = instrument.value()->mode;
+          craftNoteEventArrangements(static_cast<float>(fabricator->getTempo()), fabricator->put(choice, false), true);
         }
       }
     }

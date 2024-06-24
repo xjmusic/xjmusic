@@ -23,7 +23,7 @@
 using namespace XJ;
 
 #define SEGMENT_STORE_CORE_HEADERS(ENTITY, ENTITIES)                      \
-  ENTITY put(const ENTITY& choice);                                       \
+  ENTITY* put(const ENTITY& choice);                                      \
   std::optional<ENTITY *> read##ENTITY(int segmentId, const UUID& id);    \
   std::set<ENTITY *> readAll##ENTITIES(int segmentId);                    \
   std::set<ENTITY *> readAll##ENTITIES(const std::set<int>& segmentIds);  \

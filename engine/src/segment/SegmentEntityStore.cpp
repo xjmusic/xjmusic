@@ -10,12 +10,12 @@ using namespace XJ;
 
 
 #define SEGMENT_STORE_CORE_METHODS(ENTITY, ENTITIES, STORE)                                   \
-  ENTITY SegmentEntityStore::put(const ENTITY &entity) {                                      \
+  ENTITY* SegmentEntityStore::put(const ENTITY &entity) {                                     \
     if (STORE.find(entity.segmentId) == STORE.end()) {                                        \
       STORE[entity.segmentId] = std::map<UUID, ENTITY>();                                     \
     }                                                                                         \
     STORE[entity.segmentId][entity.id] = entity;                                              \
-    return entity;                                                                            \
+    return &STORE[entity.segmentId][entity.id];                                               \
   }                                                                                           \
   std::optional<ENTITY *> SegmentEntityStore::read##ENTITY(int segmentId, const UUID &id) {   \
     if (STORE.find(segmentId) == STORE.end()) {                                               \

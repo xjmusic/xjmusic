@@ -22,3 +22,20 @@ TEST(ProgramVoiceTest, FieldValues) {
   ASSERT_EQ("Drum Voice", subject.name);
   ASSERT_EQ(7.0f, subject.order);
 }
+
+TEST(ProgramVoiceTest, GetNames) {
+  ProgramVoice voice1;
+  voice1.name = "Voice 1";
+  ProgramVoice voice2;
+  voice2.name = "Voice 2";
+  ProgramVoice voice3;
+  voice3.name = "Voice 3";
+
+  std::set<const ProgramVoice *> voices = {&voice1, &voice2, &voice3};
+  std::set<std::string> names = ProgramVoice::getNames(voices);
+
+  ASSERT_EQ(3, names.size());
+  ASSERT_TRUE(names.find("Voice 1") != names.end());
+  ASSERT_TRUE(names.find("Voice 2") != names.end());
+  ASSERT_TRUE(names.find("Voice 3") != names.end());
+}

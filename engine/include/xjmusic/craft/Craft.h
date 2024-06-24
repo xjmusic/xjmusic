@@ -171,10 +171,10 @@ namespace XJ {
      */
     void precomputeDeltas(
         const std::function<bool(const SegmentChoice *)> &choiceFilter,
-        Craft::ChoiceIndexProvider *setChoiceIndexProvider,
-        const std::vector<std::string> &layers,
+        ChoiceIndexProvider *setChoiceIndexProvider,
+        const std::vector<std::string> &layersInCraftOrder,
         const std::set<std::string> &layerPrioritizationSearches,
-        int numLayersIncoming);
+        const int numLayersIncoming);
 
     /**
      Whether a position is in the given bounds
@@ -337,7 +337,7 @@ namespace XJ {
         const InstrumentAudio &audio,
         long startAtSegmentMicros,
         long lengthMicros,
-        std::string event) const;
+        const std::string& event) const;
 
     /**
      Pick one audio for each desired intensity level, by layering the audios by intensity and picking one from each layer.

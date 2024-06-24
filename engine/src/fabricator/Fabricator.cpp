@@ -879,65 +879,55 @@ bool Fabricator::isInitialSegment() {
 }
 
 
-SegmentChoice Fabricator::put(SegmentChoice entity, bool force) {
+SegmentChoice * Fabricator::put(SegmentChoice entity, bool force) {
   auto memeStack = MemeStack::from(templateConfig.memeTaxonomy, SegmentMeme::getNames(getSegmentMemes()));
 
   // For a SegmentChoice, add memes from program, program sequence binding, and instrument if present
   if (!isValidChoiceAndMemesHaveBeenAdded(entity, memeStack, force))
-    return entity;
+    return &entity;
 
-  store->put(entity);
-
-  return entity;
+  return store->put(entity);
 }
 
 
-SegmentChoiceArrangement Fabricator::put(SegmentChoiceArrangement entity) {
-  store->put(entity);
-  return entity;
+SegmentChoiceArrangement* Fabricator::put(SegmentChoiceArrangement entity) {
+  return store->put(entity);
 }
 
 
-SegmentChoiceArrangementPick Fabricator::put(SegmentChoiceArrangementPick entity) {
-  store->put(entity);
-  return entity;
+SegmentChoiceArrangementPick* Fabricator::put(SegmentChoiceArrangementPick entity) {
+  return store->put(entity);
 }
 
 
-SegmentChord Fabricator::put(SegmentChord entity) {
-  store->put(entity);
-  return entity;
+SegmentChord* Fabricator::put(SegmentChord entity) {
+  return store->put(entity);ty;
 }
 
 
-SegmentChordVoicing Fabricator::put(SegmentChordVoicing entity) {
-  store->put(entity);
-  return entity;
+SegmentChordVoicing* Fabricator::put(SegmentChordVoicing entity) {
+  return store->put(entity);
 }
 
 
-SegmentMeme Fabricator::put(SegmentMeme entity, bool force) {
+SegmentMeme  *Fabricator::put(SegmentMeme entity, bool force) {
   auto memeStack = MemeStack::from(templateConfig.memeTaxonomy, SegmentMeme::getNames(getSegmentMemes()));
 
   // Unless forced, don't put a duplicate of an existing meme
   if (!isValidMemeAddition((SegmentMeme) entity, memeStack, force))
     return entity;
 
-  store->put(entity);
-
-  return entity;
+ return store->put(entity);
 }
 
 
-SegmentMessage Fabricator::put(SegmentMessage entity) {
-  store->put(entity);
-  return entity;
+SegmentMessage * Fabricator::put(SegmentMessage entity) {
+  return store->put(entity);
 }
 
 
-SegmentMeta Fabricator::put(SegmentMeta entity) {
-  store->put(entity);
-  return entity;
+SegmentMeta * Fabricator::put(SegmentMeta entity) {
+  return store->put(entity);
 }
 
 
