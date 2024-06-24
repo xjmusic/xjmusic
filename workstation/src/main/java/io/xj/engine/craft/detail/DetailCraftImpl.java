@@ -109,12 +109,12 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
     choice.setInstrumentType(instrument.getType());
     choice.setInstrumentMode(instrument.getMode());
     choice.setInstrumentId(instrument.getId());
-    fabricator.put(choice, false);
+    if (fabricator.put(choice, false).isEmpty()) return;
     var arrangement = new SegmentChoiceArrangement();
     arrangement.setId(UUID.randomUUID());
     arrangement.setSegmentId(fabricator.getSegment().getId());
     arrangement.segmentChoiceId(choice.getId());
-    fabricator.put(arrangement, false);
+    fabricator.put(arrangement);
 
     for (InstrumentAudio audio : selectGeneralAudioIntensityLayers(instrument)) {
 
@@ -139,7 +139,7 @@ public class DetailCraftImpl extends CraftImpl implements DetailCraft {
         pick.setAmplitude(1.0f);
         pick.setEvent("LOOP");
         pick.setInstrumentAudioId(audio.getId());
-        fabricator.put(pick, false);
+        fabricator.put(pick);
 
         beats += audio.getLoopBeats();
       }

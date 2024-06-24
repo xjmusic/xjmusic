@@ -182,9 +182,9 @@ public class FabricatorImplTest {
     segment = store.put(SegmentFixtures.buildSegment(chain, 2, SegmentState.CRAFTING, "G major", 8, 0.6f, 240.0f, "seg123"));
     when(mockFabricatorFactory.loadRetrospective(any())).thenReturn(mockRetrospective);
     subject = new FabricatorImpl(mockFabricatorFactory, store, sourceMaterial, segment.getId(), mockJsonapiPayloadFactory, jsonProvider, 48000.0f, 2, null);
-    subject.put(SegmentFixtures.buildSegmentChord(segment, 0.0f, "C"), false);
-    subject.put(SegmentFixtures.buildSegmentChord(segment, 2.0f, "F"), false);
-    subject.put(SegmentFixtures.buildSegmentChord(segment, 5.5f, "Gm"), false);
+    subject.put(SegmentFixtures.buildSegmentChord(segment, 0.0f, "C"));
+    subject.put(SegmentFixtures.buildSegmentChord(segment, 2.0f, "F"));
+    subject.put(SegmentFixtures.buildSegmentChord(segment, 5.5f, "Gm"));
 
     assertEquals("C", subject.getChordAt(0.0).orElseThrow().getName());
     assertEquals("C", subject.getChordAt(1.0).orElseThrow().getName());

@@ -2,13 +2,13 @@
 package io.xj.engine.craft.beat;
 
 
+import io.xj.engine.FabricationException;
+import io.xj.engine.craft.CraftImpl;
+import io.xj.engine.fabricator.Fabricator;
 import io.xj.model.enums.InstrumentType;
 import io.xj.model.enums.ProgramType;
 import io.xj.model.pojos.Program;
 import io.xj.model.pojos.ProgramVoice;
-import io.xj.engine.FabricationException;
-import io.xj.engine.craft.CraftImpl;
-import io.xj.engine.fabricator.Fabricator;
 import io.xj.model.pojos.SegmentChoice;
 
 import java.util.Optional;
@@ -87,7 +87,9 @@ public class BeatCraftImpl extends CraftImpl implements BeatCraft {
           choice.setDeltaOut(priorChoice.get().getDeltaOut());
           choice.setInstrumentId(priorChoice.get().getInstrumentId());
           choice.setInstrumentMode(priorChoice.get().getInstrumentMode());
-          this.craftNoteEventArrangements(fabricator.getTempo(), fabricator.put(choice, false), true);
+          var storedChoice = fabricator.put(choice, false);
+          if (storedChoice.isPresent())
+            this.craftNoteEventArrangements(fabricator.getTempo(), storedChoice.get(), true);
         } else {
           // If there is no prior choice, then we should choose a fresh instrument
           var instrument = chooseFreshInstrument(InstrumentType.Drum, fabricator.sourceMaterial().getTrackNamesOfVoice(voice));
@@ -98,7 +100,9 @@ public class BeatCraftImpl extends CraftImpl implements BeatCraft {
           choice.setDeltaOut(computeDeltaOut(choice));
           choice.setInstrumentId(instrument.get().getId());
           choice.setInstrumentMode(instrument.get().getMode());
-          this.craftNoteEventArrangements(fabricator.getTempo(), fabricator.put(choice, false), true);
+          var storedChoice = fabricator.put(choice, false);
+          if (storedChoice.isPresent())
+            this.craftNoteEventArrangements(fabricator.getTempo(), storedChoice.get(), true);
         }
       }
     }

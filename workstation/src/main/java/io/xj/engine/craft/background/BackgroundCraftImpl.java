@@ -75,7 +75,7 @@ public class BackgroundCraftImpl extends CraftImpl implements BackgroundCraft {
       pick.setAmplitude(1.0f);
       pick.setEvent("BACKGROUND");
       pick.setInstrumentAudioId(audio.getId());
-      fabricator.put(pick, false);
+      fabricator.put(pick);
     }
   }
 }

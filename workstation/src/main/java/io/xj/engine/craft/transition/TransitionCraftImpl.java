@@ -101,12 +101,12 @@ public class TransitionCraftImpl extends CraftImpl implements TransitionCraft {
     choice.setInstrumentType(instrument.getType());
     choice.setInstrumentMode(instrument.getMode());
     choice.setInstrumentId(instrument.getId());
-    fabricator.put(choice, false);
+    if (fabricator.put(choice, false).isEmpty()) return;
     var arrangement = new SegmentChoiceArrangement();
     arrangement.setId(UUID.randomUUID());
     arrangement.setSegmentId(fabricator.getSegment().getId());
     arrangement.segmentChoiceId(choice.getId());
-    fabricator.put(arrangement, false);
+    fabricator.put(arrangement);
 
     var small = selectAudiosForInstrument(instrument, smallNames);
     var medium = selectAudiosForInstrument(instrument, mediumNames);

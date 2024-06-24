@@ -92,7 +92,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
         chord.setSegmentId(segment.getId());
         chord.setPosition(sequenceChord.getPosition());
         chord.setName(name);
-        fabricator.put(chord, false);
+        fabricator.put(chord);
         for (var voicing : fabricator.sourceMaterial().getVoicingsOfChord(sequenceChord)) {
           var segmentChordVoicing = new SegmentChordVoicing();
           segmentChordVoicing.setId(UUID.randomUUID());
@@ -100,7 +100,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
           segmentChordVoicing.segmentChordId(chord.getId());
           segmentChordVoicing.type(fabricator.getProgramVoiceType(voicing).toString());
           segmentChordVoicing.setNotes(voicing.getNotes());
-          fabricator.put(segmentChordVoicing, false);
+          fabricator.put(segmentChordVoicing);
         }
       }
     }
