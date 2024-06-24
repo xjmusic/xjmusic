@@ -591,11 +591,11 @@ std::optional<ProgramSequence *> Fabricator::getRandomlySelectedSequence(const P
 }
 
 
-std::optional<ProgramSequenceBinding>
+std::optional<const ProgramSequenceBinding *>
 Fabricator::getRandomlySelectedSequenceBindingAtOffset(const Program *program, int offset) {
-  std::vector<ProgramSequenceBinding> sequenceBindings;
+  std::vector<const ProgramSequenceBinding *> sequenceBindings;
   for (const auto &sequenceBinding: sourceMaterial->getBindingsAtOffsetOfProgram(program, offset, true)) {
-    sequenceBindings.emplace_back(*sequenceBinding);
+    sequenceBindings.emplace_back(sequenceBinding);
   }
   if (sequenceBindings.empty())
     return std::nullopt;
@@ -901,7 +901,7 @@ SegmentChoiceArrangementPick* Fabricator::put(SegmentChoiceArrangementPick entit
 
 
 SegmentChord* Fabricator::put(SegmentChord entity) {
-  return store->put(entity);ty;
+  return store->put(entity);
 }
 
 
@@ -915,7 +915,7 @@ SegmentMeme  *Fabricator::put(SegmentMeme entity, bool force) {
 
   // Unless forced, don't put a duplicate of an existing meme
   if (!isValidMemeAddition((SegmentMeme) entity, memeStack, force))
-    return entity;
+    return &entity;
 
  return store->put(entity);
 }

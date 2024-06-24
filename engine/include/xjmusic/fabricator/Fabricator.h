@@ -463,7 +463,7 @@ namespace XJ {
      @param offset to get sequence binding at
      @return randomly selected sequence binding
      */
-    virtual std::optional<ProgramSequenceBinding>
+    virtual std::optional<const ProgramSequenceBinding *>
     getRandomlySelectedSequenceBindingAtOffset(const Program *program, int offset);
 
     /**

@@ -25,6 +25,39 @@ namespace XJ {
      perform craft for the current segment
      */
     void doWork();
+
+    /**
+     Is this a big-transition segment? (next main or next macro)
+
+     @return true if it is a big transition segment
+     */
+    bool isBigTransitionSegment();
+
+    /**
+     Is this a medium-transition segment? (not the same sequence as the previous segment)
+     <p>
+     Transition craft uses Small (instead of Medium) when a sequence repeats for more than 1 segment https://github.com/xjmusic/xjmusic/issues/264
+
+     @return true if it is a medium transition segment
+     */
+    bool isMediumTransitionSegment();
+
+    /**
+     Craft percussion loop
+
+     @param tempo      of main program
+     @param instrument of percussion loop instrument to craft
+     */
+    void craftTransition(double tempo, const Instrument *instrument);
+
+    /**
+     Select audios for instrument having the given event names
+
+     @return instrument audios
+     */
+    std::set<const InstrumentAudio *>
+    selectAudiosForInstrument(const Instrument *instrument, std::set<std::string> names);
+
   };
 
 }// namespace XJ

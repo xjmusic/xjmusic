@@ -259,7 +259,7 @@ namespace XJ {
      @param instrument for which to pick audio
      @return drum-type Instrument
      */
-    [[nodiscard]] std::set<InstrumentAudio> selectGeneralAudioIntensityLayers(const Instrument *instrument) const;
+    [[nodiscard]] std::set<const InstrumentAudio *> selectGeneralAudioIntensityLayers(const Instrument *instrument) const;
 
   protected:
     /**
@@ -333,8 +333,8 @@ namespace XJ {
      @on failure
      */
     void pickInstrumentAudio(
-        const SegmentChoiceArrangement &arrangement,
-        const InstrumentAudio &audio,
+        const SegmentChoiceArrangement *arrangement,
+        const InstrumentAudio *audio,
         long startAtSegmentMicros,
         long lengthMicros,
         const std::string& event) const;
@@ -347,8 +347,8 @@ namespace XJ {
      @param layers number of layers to pick
      @return picked audios
      */
-    [[nodiscard]] std::set<InstrumentAudio>
-    selectAudioIntensityLayers(const std::set<const InstrumentAudio *> &audios, int layers) const;
+    [[nodiscard]] std::set<const InstrumentAudio *>
+    selectAudioIntensityLayers(std::set<const InstrumentAudio *> audios, const int layers) const;
 
     /**
      Segments have intensity arcs; automate mixer layers in and out of each main program

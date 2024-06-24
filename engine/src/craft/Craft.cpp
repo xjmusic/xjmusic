@@ -306,14 +306,14 @@ Craft::selectNewChordPartInstrumentAudio(const Instrument *instrument, const Cho
   return {audio.value()};
 }
 
-std::set<InstrumentAudio> Craft::selectGeneralAudioIntensityLayers(const Instrument *instrument) const {
+std::set<const InstrumentAudio *> Craft::selectGeneralAudioIntensityLayers(const Instrument *instrument) const {
   const auto previous = fabricator->getRetrospective()->getPreviousPicksForInstrument(instrument->id);
   if (!previous.empty() && fabricator->getInstrumentConfig(instrument).isAudioSelectionPersistent) {
-    std::set<InstrumentAudio> result;
+    std::set<const InstrumentAudio *> result;
     for (const auto &pick: previous) {
       auto audio = fabricator->getSourceMaterial()->getInstrumentAudio(pick->instrumentAudioId);
       if (audio.has_value()) {
-        result.insert(*audio.value());
+        result.insert(audio.value());
       }
     }
     return result;
@@ -392,8 +392,8 @@ bool Craft::computeMute(Instrument::Type instrumentType) const {
 }
 
 void Craft::pickInstrumentAudio(
-    const SegmentChoiceArrangement &arrangement,
-    const InstrumentAudio &audio,
+    const SegmentChoiceArrangement *arrangement,
+    const InstrumentAudio *audio,
     long startAtSegmentMicros,
     long lengthMicros,
     const std::string &event
@@ -401,17 +401,17 @@ void Craft::pickInstrumentAudio(
   auto pick = SegmentChoiceArrangementPick();
   pick.id = EntityUtils::computeUniqueId();
   pick.segmentId = fabricator->getSegment()->id;
-  pick.segmentChoiceArrangementId = arrangement.id;
+  pick.segmentChoiceArrangementId = arrangement->id;
   pick.startAtSegmentMicros = startAtSegmentMicros;
   pick.lengthMicros = lengthMicros;
   pick.event = event;
   pick.amplitude = static_cast<float>(1.0);
-  pick.instrumentAudioId = audio.id;
+  pick.instrumentAudioId = audio->id;
   fabricator->put(pick);
 }
 
-std::set<InstrumentAudio>
-Craft::selectAudioIntensityLayers(const std::set<const InstrumentAudio *> &audios, const int layers) const {
+std::set<const InstrumentAudio *>
+Craft::selectAudioIntensityLayers(std::set<const InstrumentAudio *> audios, const int layers) const {
   // Sort audios by intensity
   std::vector<const InstrumentAudio *> sorted;
   std::copy(audios.begin(), audios.end(), std::back_inserter(sorted));
@@ -435,12 +435,12 @@ Craft::selectAudioIntensityLayers(const std::set<const InstrumentAudio *> &audio
     bags[i / marblesPerLayer]->add(1, sorted[i]->id);
   }
 
-  std::set<InstrumentAudio> result;
+  std::set<const InstrumentAudio *> result;
   for (auto &bag: bags) {
     if (!bag->empty()) {
       auto audio = fabricator->getSourceMaterial()->getInstrumentAudio(bag->pick());
       if (audio.has_value()) {
-        result.insert(*audio.value());
+        result.emplace(audio.value());
       }
     }
   }
