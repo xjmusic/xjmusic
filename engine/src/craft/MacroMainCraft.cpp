@@ -24,7 +24,7 @@ void MacroMainCraft::doWork() {
 
   // If we are overriding memes, start by adding them to the workbench segment, and do main before macro
   if (!overrideMemes.empty()) {
-    for (std::string meme: overrideMemes) {
+    for (const std::string& meme: overrideMemes) {
       auto segmentMeme = SegmentMeme();
       segmentMeme.id = EntityUtils::computeUniqueId();
       segmentMeme.segmentId = fabricator->getSegment()->id;
@@ -48,7 +48,7 @@ void MacroMainCraft::doWork() {
   for (auto sequenceChord: fabricator->getProgramSequenceChords(mainSequence)) {
     // don't of chord past end of Segment
     std::string name;
-    if (sequenceChord->position < mainSequence->total) {
+    if (sequenceChord->position < static_cast<int>(mainSequence->total)) {
       // delta the chord name
       name = Chord(sequenceChord->name).getName();
       // of the chord
@@ -192,7 +192,7 @@ const float MacroMainCraft::computeIntensity(
     return macroIntensity.value();
   if (mainIntensity.has_value())
     return mainIntensity.value();
-  throw new FabricationException("Failed to compute Intensity!");
+  throw FabricationException("Failed to compute Intensity!");
 }
 
 const int MacroMainCraft::computeMacroSequenceBindingOffset() {
@@ -211,7 +211,7 @@ const int MacroMainCraft::computeMacroSequenceBindingOffset() {
   if (fabricator->getType() == Segment::Type::NextMain)
     return fabricator->getNextSequenceBindingOffset(previousMacroChoice.value());
 
-  throw new FabricationException(
+  throw FabricationException(
       "Cannot get Macro-type sequence for known fabricator type=" + Segment::toString(fabricator->getType()));
 }
 
@@ -226,7 +226,7 @@ const int MacroMainCraft::computeMainProgramSequenceBindingOffset() {
     case Segment::Type::Continue: {
       auto previousMainChoice = fabricator->getPreviousMainChoice();
       if (!previousMainChoice.has_value())
-        throw new FabricationException("Cannot get retrieve previous main choice");
+        throw FabricationException("Cannot get retrieve previous main choice");
       return fabricator->getNextSequenceBindingOffset(previousMainChoice.value());
     }
     default:
@@ -260,7 +260,7 @@ const Program *MacroMainCraft::chooseRandomProgram(std::set<const Program *> pro
 
   // if the bag is empty, problems
   if (bag.empty())
-    throw new FabricationException("Failed to choose any random program. No candidates available!");
+    throw FabricationException("Failed to choose any random program. No candidates available!");
 
   auto program = fabricator->getSourceMaterial()->getProgram(bag.pick());
   if (!program.has_value()) {
@@ -268,7 +268,7 @@ const Program *MacroMainCraft::chooseRandomProgram(std::set<const Program *> pro
         "Unable to choose main program for Segment[" + std::to_string(fabricator->getSegment()->id) + "]";
     fabricator->addErrorMessage(message);
     spdlog::error(message);
-    throw new FabricationException(message);
+    throw FabricationException(message);
   }
   return program.value();
 }
@@ -292,7 +292,7 @@ const Program *MacroMainCraft::chooseMacroProgram() {
           "Unable to get previous macro program for Segment[" + std::to_string(fabricator->getSegment()->id) + "]";
       fabricator->addErrorMessage(message);
       spdlog::error(message);
-      throw new FabricationException(message);
+      throw FabricationException(message);
     }
     return previousProgram.value();
   }
@@ -336,7 +336,7 @@ const Program *MacroMainCraft::chooseMacroProgram() {
 
   // if the bag is empty, problems
   if (bag.empty())
-    throw new FabricationException("Failed to choose any next macro program. No candidates available!");
+    throw FabricationException("Failed to choose any next macro program. No candidates available!");
 
   // report and pick
   fabricator->putReport("macroChoice", bag.toString());
@@ -345,7 +345,7 @@ const Program *MacroMainCraft::chooseMacroProgram() {
     auto message = "Unable to choose macro program for Segment[" + std::to_string(fabricator->getSegment()->id) + "]";
     fabricator->addErrorMessage(message);
     spdlog::error(message);
-    throw new FabricationException(message);
+    throw FabricationException(message);
   }
   return program.value();
 }
@@ -366,7 +366,7 @@ const Program *MacroMainCraft::chooseMainProgram() {
           "Unable to get previous main program for Segment[" + std::to_string(fabricator->getSegment()->id) + "]";
       fabricator->addErrorMessage(message);
       spdlog::error(message);
-      throw new FabricationException(message);
+      throw FabricationException(message);
     }
     return previousProgram.value();
   }
@@ -407,7 +407,7 @@ const Program *MacroMainCraft::chooseMainProgram() {
 
   // if the bag is empty, problems
   if (bag.empty()) {
-    throw new FabricationException("Failed to choose any next main program. No candidates available!");
+    throw FabricationException("Failed to choose any next main program. No candidates available!");
   }
 
   // report and pick
@@ -417,11 +417,11 @@ const Program *MacroMainCraft::chooseMainProgram() {
     auto message = "Unable to choose main program for Segment[" + std::to_string(fabricator->getSegment()->id) + "]";
     fabricator->addErrorMessage(message);
     spdlog::error(message);
-    throw new FabricationException(message);
+    throw FabricationException(message);
   }
   return program.value();
 }
 
-const long MacroMainCraft::segmentLengthMicros(const Program *mainProgram, const ProgramSequence *mainSequence) {
-  return fabricator->getSegmentMicrosAtPosition(mainProgram->tempo, mainSequence->total);
+long MacroMainCraft::segmentLengthMicros(const Program *mainProgram, const ProgramSequence *mainSequence) {
+  return fabricator->getSegmentMicrosAtPosition(mainProgram->tempo, static_cast<float>(mainSequence->total));
 }

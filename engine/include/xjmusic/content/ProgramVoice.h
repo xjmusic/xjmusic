@@ -3,6 +3,7 @@
 #ifndef PROGRAM_VOICE_H
 #define PROGRAM_VOICE_H
 
+#include <set>
 #include <string>
 #include <utility>
 

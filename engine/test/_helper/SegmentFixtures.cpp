@@ -302,7 +302,7 @@ SegmentMeme SegmentFixtures::buildSegmentMeme(
 
 SegmentChord SegmentFixtures::buildSegmentChord(
     const Segment *segment,
-    double atPosition,
+    float atPosition,
     std::string name) {
   SegmentChord segmentChord;
   segmentChord.id = EntityUtils::computeUniqueId();
@@ -320,7 +320,7 @@ SegmentChordVoicing SegmentFixtures::buildSegmentChordVoicing(
   segmentChordVoicing.id = EntityUtils::computeUniqueId();
   segmentChordVoicing.segmentId = chord->segmentId;
   segmentChordVoicing.segmentChordId = chord->id;
-  segmentChordVoicing.type = Instrument::toString(type);
+  segmentChordVoicing.type = type;
   segmentChordVoicing.notes = std::move(notes);
   return segmentChordVoicing;
 }

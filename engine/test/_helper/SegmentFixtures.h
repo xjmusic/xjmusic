@@ -233,7 +233,7 @@ namespace XJ {
      */
     static SegmentChord buildSegmentChord(
         const Segment *segment,
-        double atPosition,
+        float atPosition,
         std::string name);
 
     /**

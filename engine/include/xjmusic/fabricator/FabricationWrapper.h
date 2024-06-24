@@ -27,7 +27,7 @@ namespace XJ {
     explicit FabricationWrapper(Fabricator *fabricator);
 
     /**
-     Create a new FabricationException prefixed with a segment id
+     Create a FabricationException prefixed with a segment id
 
      @param message to include in exception
      @return FabricationException to throw

@@ -11,7 +11,6 @@
 
 #include "xjmusic/craft/Craft.h"
 #include "xjmusic/fabricator/ChainUtils.h"
-#include "xjmusic/fabricator/FabricationException.h"
 #include "xjmusic/fabricator/FabricatorFactory.h"
 #include "xjmusic/util/CsvUtils.h"
 
@@ -54,7 +53,7 @@ protected:
   std::vector<StickyBun> stickyBuns;
   Chain *chain = nullptr;
   Segment *segment = nullptr;
-  std::map<Instrument::Type, SegmentChoice> segmentChoices;
+  std::map<Instrument::Type, const SegmentChoice *> segmentChoices;
   Program mainProgram1;
 
 
@@ -214,7 +213,7 @@ protected:
         var event = detailProgramSequencePatternEvents.get(sbType).stream()
           .filter(e -> e.getPosition().equals(sbPosition))
           .findAny()
-          .orElseThrow(() -> new FabricationException(String.format("Failed to locate event type %s position %f", sbType, sbPosition)));
+          .orElseThrow(() -> FabricationException(String.format("Failed to locate event type %s position %f", sbType, sbPosition)));
         stickyBuns.add(new StickyBun(event.getId(), List.of(Objects.requireNonNull(sbSeed))));
       }
     }
@@ -248,13 +247,13 @@ protected:
                                                                    getFloat(cObj).value(),
                                                                    getStr(cObj, "name").value()));
         YAML::Node vObj = cObj["voicings"];
-        for (const auto &[_, instrument]: instruments) {
+        for (const auto &[instrumentType, instrument]: instruments) {
           if (auto notes = getStr(vObj, StringUtils::toLowerCase(Instrument::toString(instrument.type))); notes.has_value())
-            store->put(SegmentFixtures::buildSegmentChordVoicing(&chord, instrument.type, notes.value()));
+            store->put(SegmentFixtures::buildSegmentChordVoicing(chord, instrument.type, notes.value()));
         }
       }
 
-      for (const auto &[_, instrument]: instruments)
+      for (const auto &[instrumentType, instrument]: instruments)
         if (detailPrograms.count(instrument.type) &&
             detailProgramSequences.count(instrument.type) &&
             detailProgramVoices.count(instrument.type))
@@ -369,8 +368,8 @@ protected:
         }
         fabricator->put(SegmentFixtures::buildSegmentChoice(segment, &mainProgram1), false);
         auto *subject = new Craft(fabricator);
-        for (const auto &[_, choice]: segmentChoices)
-          subject->craftNoteEventArrangements(static_cast<float>(TEMPO), &choice, false);
+        for (const auto &[instrumentType, choice]: segmentChoices)
+          subject->craftNoteEventArrangements(static_cast<float>(TEMPO), choice, false);
 
         // assert picks
         loadAndPerformAssertions(data);

@@ -14,7 +14,6 @@
 
 #include "xjmusic/craft/Craft.h"
 #include "xjmusic/fabricator/ChainUtils.h"
-#include "xjmusic/fabricator/FabricationException.h"
 #include "xjmusic/util/CsvUtils.h"
 
 // NOLINTNEXTLINE
@@ -314,16 +313,16 @@ TEST_F(CraftTest, SelectGeneralAudioIntensityLayers_ThreeLayers) {
   auto result = subject->selectGeneralAudioIntensityLayers(instrument1);
 
   // Sort the result
-  std::vector<InstrumentAudio> resultVector(result.begin(), result.end());
-  std::sort(resultVector.begin(), resultVector.end(), [](const InstrumentAudio &a, const InstrumentAudio &b) {
-    return a.intensity < b.intensity;
+  std::vector<const InstrumentAudio *> resultVector(result.begin(), result.end());
+  std::sort(resultVector.begin(), resultVector.end(), [](const InstrumentAudio *a, const InstrumentAudio *b) {
+    return a->intensity < b->intensity;
   });
 
   // Check the result
   EXPECT_EQ(3, resultVector.size());
-  EXPECT_TRUE(resultVector[0].id == instrument1audio1a->id || resultVector[0].id == instrument1audio1b->id);
-  EXPECT_TRUE(resultVector[1].id == instrument1audio2a->id || resultVector[1].id == instrument1audio2b->id);
-  EXPECT_TRUE(resultVector[2].id == instrument1audio3a->id || resultVector[2].id == instrument1audio3b->id);
+  EXPECT_TRUE(resultVector[0]->id == instrument1audio1a->id || resultVector[0]->id == instrument1audio1b->id);
+  EXPECT_TRUE(resultVector[1]->id == instrument1audio2a->id || resultVector[1]->id == instrument1audio2b->id);
+  EXPECT_TRUE(resultVector[2]->id == instrument1audio3a->id || resultVector[2]->id == instrument1audio3b->id);
 }
 
 /**
@@ -378,14 +377,14 @@ TEST_F(CraftTest, SelectGeneralAudioIntensityLayers_ContinueSegment) {
   auto result = subject->selectGeneralAudioIntensityLayers(instrument1);
 
   // Sort the result
-  std::vector<InstrumentAudio> resultVector(result.begin(), result.end());
-  std::sort(resultVector.begin(), resultVector.end(), [](const InstrumentAudio &a, const InstrumentAudio &b) {
-    return a.intensity < b.intensity;
+  std::vector<const InstrumentAudio *> resultVector(result.begin(), result.end());
+  std::sort(resultVector.begin(), resultVector.end(), [](const InstrumentAudio *a, const InstrumentAudio *b) {
+    return a->intensity < b->intensity;
   });
 
   // Check the result
   EXPECT_EQ(3, resultVector.size());
-  EXPECT_EQ(instrument1audio1a->id, resultVector[0].id);
-  EXPECT_EQ(instrument1audio2a->id, resultVector[1].id);
-  EXPECT_EQ(instrument1audio3a->id, resultVector[2].id);
+  EXPECT_EQ(instrument1audio1a->id, resultVector[0]->id);
+  EXPECT_EQ(instrument1audio2a->id, resultVector[1]->id);
+  EXPECT_EQ(instrument1audio3a->id, resultVector[2]->id);
 }

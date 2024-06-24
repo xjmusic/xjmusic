@@ -127,7 +127,7 @@ namespace XJ {
      @param mainSequence the end of which marks the end of the segment
      @return segment length, in nanoseconds
      */
-    const long segmentLengthMicros(const Program *mainProgram, const ProgramSequence *mainSequence);
+    long segmentLengthMicros(const Program *mainProgram, const ProgramSequence *mainSequence);
   };
 
 }// namespace XJ
