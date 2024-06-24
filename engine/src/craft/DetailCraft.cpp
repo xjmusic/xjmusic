@@ -22,7 +22,7 @@ DetailCraft::DetailCraft(
 void DetailCraft::doWork() {
   // Segments have delta arcs; automate mixer layers in and out of each main program https://github.com/xjmusic/xjmusic/issues/233
   Craft::ChoiceIndexProvider *choiceIndexProvider = new Craft::LambdaChoiceIndexProvider(
-      [this](const SegmentChoice &choice) -> std::string {
+      [](const SegmentChoice &choice) -> std::string {
         auto typeString = Instrument::toString(choice.instrumentType);
         if (typeString.empty()) {
           return choice.id;
@@ -101,14 +101,14 @@ void DetailCraft::craftLoopParts(double tempo, const Instrument *instrument) {
   choice.instrumentType=instrument->type;
   choice.instrumentMode=instrument->mode;
   choice.instrumentId=instrument->id;
-  fabricator->put(choice, false);
+  if (!fabricator->put(choice, false).has_value()) return;
   auto arrangement = SegmentChoiceArrangement();
   arrangement.id = EntityUtils::computeUniqueId();
   arrangement.segmentId = fabricator->getSegment()->id;
   arrangement.segmentChoiceId = choice.id;
   fabricator->put(arrangement);
 
-  for (InstrumentAudio audio: selectGeneralAudioIntensityLayers(instrument)) {
+  for (auto audio: selectGeneralAudioIntensityLayers(instrument)) {
 
     // Start at zero and keep laying down loops until we're out of here
     float beats = 0;
@@ -118,7 +118,7 @@ void DetailCraft::craftLoopParts(double tempo, const Instrument *instrument) {
       long startAtSegmentMicros = fabricator->getSegmentMicrosAtPosition(tempo, beats);
       long lengthMicros = fmin(
           fabricator->getTotalSegmentMicros() - startAtSegmentMicros,
-          (long) (audio.loopBeats * fabricator->getMicrosPerBeat(tempo))
+          (long) (audio->loopBeats * fabricator->getMicrosPerBeat(tempo))
       );
 
       // of pick
@@ -130,10 +130,10 @@ void DetailCraft::craftLoopParts(double tempo, const Instrument *instrument) {
       pick.lengthMicros=lengthMicros;
       pick.amplitude=1.0f;
       pick.event="LOOP";
-      pick.instrumentAudioId=audio.id;
+      pick.instrumentAudioId=audio->id;
       fabricator->put(pick);
 
-      beats += audio.loopBeats;
+      beats += audio->loopBeats;
     }
   }
 }

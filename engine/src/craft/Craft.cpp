@@ -477,8 +477,8 @@ void Craft::craftNoteEvents(
       choice.deltaOut = priorChoice.value()->deltaOut;
       choice.instrumentId = priorChoice.value()->instrumentId;
       choice.instrumentMode = priorChoice.value()->instrumentMode;
-      fabricator->put(choice, false);
-      this->craftNoteEventArrangements(tempo, &choice, false);
+      if (fabricator->put(choice, false).has_value())
+        this->craftNoteEventArrangements(tempo, &choice, false);
       continue;
     }
 
@@ -492,7 +492,7 @@ void Craft::craftNoteEvents(
     choice.deltaOut = computeDeltaOut(&choice);
     choice.instrumentId = instrument.value().id;
     choice.instrumentMode = instrument.value().mode;
-    fabricator->put(choice, false);
+    if (fabricator->put(choice, false).has_value())
     this->craftNoteEventArrangements(tempo, &choice, false);
   }
 }
@@ -515,8 +515,8 @@ void Craft::craftChordParts(const float tempo, const Instrument *instrument) {
     choice.deltaIn = priorChoice.value()->deltaIn;
     choice.deltaOut = priorChoice.value()->deltaOut;
     choice.instrumentId = priorChoice.value()->instrumentId;
-    fabricator->put(choice, false);
-    this->craftChordParts(tempo, instrument, &choice);
+    if (fabricator->put(choice, false).has_value())
+      this->craftChordParts(tempo, instrument, &choice);
     return;
   }
 
@@ -524,8 +524,8 @@ void Craft::craftChordParts(const float tempo, const Instrument *instrument) {
   choice.deltaIn = computeDeltaIn(&choice);
   choice.deltaOut = computeDeltaOut(&choice);
   choice.instrumentId = instrument->id;
-  fabricator->put(choice, false);
-  this->craftChordParts(tempo, instrument, &choice);
+  if (fabricator->put(choice, false).has_value())
+    this->craftChordParts(tempo, instrument, &choice);
 }
 
 void Craft::craftChordParts(const float tempo, const Instrument *instrument, const SegmentChoice *choice) {

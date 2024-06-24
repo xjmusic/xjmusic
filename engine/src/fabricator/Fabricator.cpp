@@ -565,8 +565,8 @@ NoteRange Fabricator::getProgramVoicingNoteRange(const Instrument::Type instrume
   if (voicingNoteRange.find(instrumentType) == voicingNoteRange.end()) {
     std::vector<std::string> notes;
     const auto voicings = getChordVoicings();
-    for (const auto &voicing: voicings) {
-      if (SegmentUtils::containsAnyValidNotes(voicing) && voicing->type == Instrument::toString(instrumentType)) {
+    for (auto voicing: voicings) {
+      if (SegmentUtils::containsAnyValidNotes(voicing) && voicing->type == instrumentType) {
         auto voicingNotes = getNotes(voicing);
         notes.insert(notes.end(), voicingNotes.begin(), voicingNotes.end());
       }
@@ -790,8 +790,8 @@ Fabricator::chooseVoicing(const SegmentChord *chord, const Instrument::Type inst
   const std::set<SegmentChordVoicing *> voicings = store->readAllSegmentChordVoicings(segmentId);
 
   std::vector<SegmentChordVoicing *> validVoicings;
-  for (const auto &voicing: voicings) {
-    if (SegmentUtils::containsAnyValidNotes(voicing) && voicing->type == Instrument::toString(instrumentType) &&
+  for (auto voicing: voicings) {
+    if (SegmentUtils::containsAnyValidNotes(voicing) && voicing->type == instrumentType &&
         voicing->segmentChordId == chord->id) {
       validVoicings.push_back(voicing);
     }
@@ -879,14 +879,14 @@ bool Fabricator::isInitialSegment() {
 }
 
 
-SegmentChoice * Fabricator::put(SegmentChoice entity, bool force) {
+std::optional<SegmentChoice *> Fabricator::put(SegmentChoice entity, bool force) {
   auto memeStack = MemeStack::from(templateConfig.memeTaxonomy, SegmentMeme::getNames(getSegmentMemes()));
 
   // For a SegmentChoice, add memes from program, program sequence binding, and instrument if present
   if (!isValidChoiceAndMemesHaveBeenAdded(entity, memeStack, force))
-    return &entity;
+    return std::nullopt;
 
-  return store->put(entity);
+   return store->put(entity);
 }
 
 
@@ -910,12 +910,12 @@ SegmentChordVoicing* Fabricator::put(SegmentChordVoicing entity) {
 }
 
 
-SegmentMeme  *Fabricator::put(SegmentMeme entity, bool force) {
+std::optional<SegmentMeme  *> Fabricator::put(SegmentMeme entity, bool force) {
   auto memeStack = MemeStack::from(templateConfig.memeTaxonomy, SegmentMeme::getNames(getSegmentMemes()));
 
   // Unless forced, don't put a duplicate of an existing meme
   if (!isValidMemeAddition((SegmentMeme) entity, memeStack, force))
-    return &entity;
+    return std::nullopt;
 
  return store->put(entity);
 }

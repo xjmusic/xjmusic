@@ -35,6 +35,8 @@ import io.xj.model.pojos.SegmentChordVoicing;
 import io.xj.model.pojos.SegmentMeme;
 import io.xj.model.enums.SegmentMessageType;
 import io.xj.model.enums.SegmentType;
+import io.xj.model.pojos.SegmentMessage;
+import io.xj.model.pojos.SegmentMeta;
 
 import java.util.Collection;
 import java.util.List;
@@ -658,9 +660,8 @@ public interface Fabricator {
   Boolean isInitialSegment();
 
   /**
-   Put a new Entity by type and id
+   Put a new SegmentChoice by type and id
    <p>
-   If it's a SegmentChoice...
    Should add meme from ALL program and instrument types! https://github.com/xjmusic/xjmusic/issues/210
    - Add memes of choices to segment in order to affect further choices.
    - Add all memes of this choice, from target program, program sequence binding, or instrument if present
@@ -672,7 +673,71 @@ public interface Fabricator {
    @param force overriding safeguards (e.g. choices must not violate meme stack, memes must be unique)
    @return entity successfully put
    */
-  <N> N put(N entity, boolean force) throws FabricationException;
+  Optional<SegmentChoice> put(SegmentChoice entity, boolean force) throws FabricationException;
+
+  /**
+   Put a new SegmentMeme by type and id
+   <p>
+   Should add meme from ALL program and instrument types! https://github.com/xjmusic/xjmusic/issues/210
+   - Add memes of choices to segment in order to affect further choices.
+   - Add all memes of this choice, from target program, program sequence binding, or instrument if present
+   - Enhances: Straightforward meme logic https://github.com/xjmusic/xjmusic/issues/270
+   - Enhances: XJ should not add memes to Segment for program/instrument that was not successfully chosen https://github.com/xjmusic/xjmusic/issues/216
+   <p>
+
+   @param entity to put
+   @param force overriding safeguards (e.g. choices must not violate meme stack, memes must be unique)
+   @return entity successfully put
+   */
+  Optional<SegmentMeme> put(SegmentMeme entity, boolean force) throws FabricationException;
+
+  /**
+   Put a new SegmentChoiceArrangement by type and id
+
+   @param entity to put
+   @return entity successfully put
+   */
+  SegmentChoiceArrangement put(SegmentChoiceArrangement entity) throws FabricationException;
+
+  /**
+   Put a new SegmentChoiceArrangementPick by type and id
+
+   @param entity to put
+   @return entity successfully put
+   */
+  SegmentChoiceArrangementPick put(SegmentChoiceArrangementPick entity) throws FabricationException;
+
+  /**
+   Put a new SegmentChord by type and id
+
+   @param entity to put
+   @return entity successfully put
+   */
+  SegmentChord put(SegmentChord entity) throws FabricationException;
+
+  /**
+   Put a new SegmentChordVoicing by type and id
+
+   @param entity to put
+   @return entity successfully put
+   */
+  SegmentChordVoicing put(SegmentChordVoicing entity) throws FabricationException;
+
+  /**
+   Put a new SegmentMessage by type and id
+
+   @param entity to put
+   @return entity successfully put
+   */
+  SegmentMessage put(SegmentMessage entity) throws FabricationException;
+
+  /**
+   Put a new SegmentMeta by type and id
+
+   @param entity to put
+   @return entity successfully put
+   */
+  SegmentMeta put(SegmentMeta entity) throws FabricationException;
 
   /**
    Set the preferred audio for a key

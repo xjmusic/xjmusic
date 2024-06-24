@@ -2,6 +2,8 @@
 package io.xj.engine.fabricator;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import io.xj.engine.FabricationException;
+import io.xj.engine.util.MarbleBag;
 import io.xj.model.HubContent;
 import io.xj.model.InstrumentConfig;
 import io.xj.model.ProgramConfig;
@@ -11,6 +13,8 @@ import io.xj.model.enums.ContentBindingType;
 import io.xj.model.enums.InstrumentMode;
 import io.xj.model.enums.InstrumentType;
 import io.xj.model.enums.ProgramType;
+import io.xj.model.enums.SegmentMessageType;
+import io.xj.model.enums.SegmentType;
 import io.xj.model.json.JsonProvider;
 import io.xj.model.jsonapi.JsonapiPayloadFactory;
 import io.xj.model.meme.MemeStack;
@@ -21,6 +25,7 @@ import io.xj.model.music.Note;
 import io.xj.model.music.NoteRange;
 import io.xj.model.music.PitchClass;
 import io.xj.model.music.StickyBun;
+import io.xj.model.pojos.Chain;
 import io.xj.model.pojos.Instrument;
 import io.xj.model.pojos.InstrumentAudio;
 import io.xj.model.pojos.Program;
@@ -34,13 +39,6 @@ import io.xj.model.pojos.ProgramSequencePattern;
 import io.xj.model.pojos.ProgramSequencePatternEvent;
 import io.xj.model.pojos.ProgramVoice;
 import io.xj.model.pojos.ProgramVoiceTrack;
-import io.xj.model.pojos.TemplateBinding;
-import io.xj.model.util.CsvUtils;
-import io.xj.model.util.StringUtils;
-import io.xj.model.util.ValueException;
-import io.xj.model.util.ValueUtils;
-import io.xj.engine.FabricationException;
-import io.xj.model.pojos.Chain;
 import io.xj.model.pojos.Segment;
 import io.xj.model.pojos.SegmentChoice;
 import io.xj.model.pojos.SegmentChoiceArrangement;
@@ -49,10 +47,12 @@ import io.xj.model.pojos.SegmentChord;
 import io.xj.model.pojos.SegmentChordVoicing;
 import io.xj.model.pojos.SegmentMeme;
 import io.xj.model.pojos.SegmentMessage;
-import io.xj.model.enums.SegmentMessageType;
 import io.xj.model.pojos.SegmentMeta;
-import io.xj.model.enums.SegmentType;
-import io.xj.engine.util.MarbleBag;
+import io.xj.model.pojos.TemplateBinding;
+import io.xj.model.util.CsvUtils;
+import io.xj.model.util.StringUtils;
+import io.xj.model.util.ValueException;
+import io.xj.model.util.ValueUtils;
 import jakarta.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -195,7 +195,7 @@ public class FabricatorImpl implements Fabricator {
       msg.setSegmentId(getSegment().getId());
       msg.setType(messageType);
       msg.setBody(body);
-      put(msg, false);
+      put(msg);
     } catch (FabricationException e) {
       LOG.warn("Failed to add message!", e);
     }
@@ -834,23 +834,61 @@ public class FabricatorImpl implements Fabricator {
   }
 
   @Override
-  public <N> N put(N entity, boolean force) throws FabricationException {
+  public Optional<SegmentChoice> put(SegmentChoice entity, boolean force) throws FabricationException {
     var memeStack = MemeStack.from(templateConfig.getMemeTaxonomy(),
       getSegmentMemes().stream().map(SegmentMeme::getName).toList());
 
     // For a SegmentChoice, add memes from program, program sequence binding, and instrument if present
-    if (SegmentChoice.class.equals(entity.getClass()))
-      if (!isValidChoiceAndMemesHaveBeenAdded((SegmentChoice) entity, memeStack, force))
-        return entity;
-
-    // For a SegmentMeme, don't put a duplicate of an existing meme
-    if (SegmentMeme.class.equals(entity.getClass()))
-      if (!isValidMemeAddition((SegmentMeme) entity, memeStack, force))
-        return entity;
+    if (!isValidChoiceAndMemesHaveBeenAdded(entity, memeStack, force))
+      return Optional.empty();
 
     store.put(entity);
 
-    return entity;
+    return Optional.of(entity);
+  }
+
+  @Override
+  public Optional<SegmentMeme> put(SegmentMeme entity, boolean force) throws FabricationException {
+    var memeStack = MemeStack.from(templateConfig.getMemeTaxonomy(),
+      getSegmentMemes().stream().map(SegmentMeme::getName).toList());
+
+    // For a SegmentMeme, don't put a duplicate of an existing meme
+    if (!isValidMemeAddition(entity, memeStack, force))
+      return Optional.empty();
+
+    store.put(entity);
+
+    return Optional.of(entity);
+  }
+
+  @Override
+  public SegmentChoiceArrangement put(SegmentChoiceArrangement entity) throws FabricationException {
+    return store.put(entity);
+  }
+
+  @Override
+  public SegmentChoiceArrangementPick put(SegmentChoiceArrangementPick entity) throws FabricationException {
+    return store.put(entity);
+  }
+
+  @Override
+  public SegmentChord put(SegmentChord entity) throws FabricationException {
+    return store.put(entity);
+  }
+
+  @Override
+  public SegmentChordVoicing put(SegmentChordVoicing entity) throws FabricationException {
+    return store.put(entity);
+  }
+
+  @Override
+  public SegmentMessage put(SegmentMessage entity) throws FabricationException {
+    return store.put(entity);
+  }
+
+  @Override
+  public SegmentMeta put(SegmentMeta entity) throws FabricationException {
+    return store.put(entity);
   }
 
   @Override

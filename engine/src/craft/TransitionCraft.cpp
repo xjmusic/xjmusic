@@ -59,7 +59,7 @@ void TransitionCraft::craftTransition(double tempo, const Instrument* instrument
   choice.instrumentType = instrument->type;
   choice.instrumentMode = instrument->mode;
   choice.instrumentId = instrument->id;
-  fabricator->put(choice, false);
+  if (!fabricator->put(choice, false).has_value()) return;
   auto arrangement = SegmentChoiceArrangement();
   arrangement.id = EntityUtils::computeUniqueId();
   arrangement.segmentId = fabricator->getSegment()->id;

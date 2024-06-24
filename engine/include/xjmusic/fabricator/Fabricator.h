@@ -707,10 +707,10 @@ namespace XJ {
      <p>
 
      @param entity Choice to put
-     @return Choice successfully put
+     @return choice if successfully put
      @throws FabricationException on failure
      */
-    virtual SegmentChoice * put(SegmentChoice entity, bool force);
+    virtual std::optional<SegmentChoice *> put(SegmentChoice entity, bool force);
 
     /**
      Put a SegmentChoiceArrangement in the store
@@ -756,7 +756,7 @@ namespace XJ {
      @return Meme successfully put
      @throws FabricationException on failure
      */
-    virtual SegmentMeme *put(SegmentMeme entity, bool force);
+    virtual std::optional<SegmentMeme *> put(SegmentMeme entity, bool force);
 
     /**
      Put a SegmentMessage in the store

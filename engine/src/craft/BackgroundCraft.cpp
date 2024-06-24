@@ -30,14 +30,14 @@ void BackgroundCraft::craftBackground(const Instrument *instrument) {
   choice.instrumentType = instrument->type;
   choice.instrumentMode = instrument->mode;
   choice.instrumentId = instrument->id;
-  fabricator->put(choice, false);
+  if (!fabricator->put(choice, false).has_value()) return;
   auto arrangement = SegmentChoiceArrangement();
   arrangement.id = EntityUtils::computeUniqueId();
   arrangement.segmentId = fabricator->getSegment()->id;
   arrangement.segmentChoiceId = choice.id;
   fabricator->put(arrangement);
 
-  for (const InstrumentAudio& audio: selectGeneralAudioIntensityLayers(instrument)) {
+  for (auto audio: selectGeneralAudioIntensityLayers(instrument)) {
     auto pick = SegmentChoiceArrangementPick();
     pick.id = EntityUtils::computeUniqueId();
     pick.segmentId = fabricator->getSegment()->id;
@@ -46,7 +46,7 @@ void BackgroundCraft::craftBackground(const Instrument *instrument) {
     pick.lengthMicros = fabricator->getTotalSegmentMicros();
     pick.amplitude = 1.0f;
     pick.event = "BACKGROUND";
-    pick.instrumentAudioId = audio.id;
+    pick.instrumentAudioId = audio->id;
     fabricator->put(pick);
   }
 }
