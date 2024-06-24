@@ -1,18 +1,20 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
-package io.xj.engine.craft;
 
+#ifndef XJMUSIC_CRAFT_FACTORY_H
+#define XJMUSIC_CRAFT_FACTORY_H
 
-import io.xj.model.pojos.Program;
-import io.xj.engine.FabricationException;
-import io.xj.engine.craft.background.BackgroundCraft;
-import io.xj.engine.craft.beat.BeatCraft;
-import io.xj.engine.craft.detail.DetailCraft;
-import io.xj.engine.craft.macro_main.MacroMainCraft;
-import io.xj.engine.craft.transition.TransitionCraft;
-import io.xj.engine.fabricator.Fabricator;
-import jakarta.annotation.Nullable;
+#include <optional>
 
-import java.util.Collection;
+#include "xjmusic/content/Program.h"
+#include "xjmusic/fabricator/Fabricator.h"
+
+#include "BeatCraft.h"
+#include "DetailCraft.h"
+#include "MacroMainCraft.h"
+#include "BackgroundCraft.h"
+#include "TransitionCraft.h"
+
+namespace XJ {
 
 /**
  Craft is performed in order:
@@ -26,7 +28,7 @@ import java.util.Collection;
  craftFactory.voice(basis).craft();
  basis.putReport();
  */
-public interface CraftFactory {
+class CraftFactory {
 
   /**
    Create Foundation Craft instance for a particular segment
@@ -38,11 +40,11 @@ public interface CraftFactory {
    @return MacroMainCraft
    @throws FabricationException on failure
    */
-  MacroMainCraft macroMain(
-      Fabricator fabricator,
-      @Nullable Program overrideMacroProgram,
-      @Nullable Collection<std::string> overrideMemes
-  ) throws FabricationException;
+  static MacroMainCraft macroMain(
+      Fabricator *fabricator,
+      const std::optional<Program *>& overrideMacroProgram,
+      const std::set<std::string> &overrideMemes
+  );
 
   /**
    Create Beat Craft instance for a particular segment
@@ -51,9 +53,9 @@ public interface CraftFactory {
    @return BeatCraft
    @throws FabricationException on failure
    */
-  BeatCraft beat(
-      Fabricator fabricator
-  ) throws FabricationException;
+  static BeatCraft beat(
+      Fabricator *fabricator
+  );
 
   /**
    Create Detail Craft instance for a particular segment
@@ -62,9 +64,9 @@ public interface CraftFactory {
    @return DetailCraft
    @throws FabricationException on failure
    */
-  DetailCraft detail(
-      Fabricator fabricator
-  ) throws FabricationException;
+  static DetailCraft detail(
+      Fabricator *fabricator
+  );
 
   /**
    Create Background Craft instance for a particular segment
@@ -73,9 +75,9 @@ public interface CraftFactory {
    @return BackgroundCraft
    @throws FabricationException on failure
    */
-  BackgroundCraft background(
-    Fabricator fabricator
-  ) throws FabricationException;
+  static BackgroundCraft background(
+    Fabricator *fabricator
+  );
 
   /**
    Create Transition Craft instance for a particular segment
@@ -84,7 +86,11 @@ public interface CraftFactory {
    @return TransitionCraft
    @throws FabricationException on failure
    */
-  TransitionCraft transition(
-      Fabricator fabricator
-  ) throws FabricationException;
-}
+  static TransitionCraft transition(
+      Fabricator *fabricator
+  );
+};
+
+}// namespace XJ
+
+#endif//XJMUSIC_CRAFT_FACTORY_H

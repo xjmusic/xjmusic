@@ -4,18 +4,12 @@
 
 using namespace XJ;
 
-List<std::string> smallNames;
-  List<std::string> mediumNames;
-  List<std::string> largeNames;
-
-  public TransitionCraftImpl(
-    Fabricator fabricator
-  ) {
-    super(fabricator);
-
-    smallNames = fabricator.getTemplateConfig().getEventNamesSmall();
-    mediumNames = fabricator.getTemplateConfig().getEventNamesMedium();
-    largeNames = fabricator.getTemplateConfig().getEventNamesLarge();
+TransitionCraft::TransitionCraft(
+    Fabricator *fabricator
+  ) : FabricationWrapper(fabricator) {
+    this->smallNames = fabricator->getTemplateConfig().eventNamesSmall;
+    this->mediumNames = fabricator->getTemplateConfig().eventNamesMedium;
+    this->largeNames = fabricator->getTemplateConfig().eventNamesLarge;
   }
 
   @Override

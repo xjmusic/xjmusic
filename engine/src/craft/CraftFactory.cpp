@@ -4,31 +4,25 @@
 
 using namespace XJ;
 
-CraftFactory::CraftFactory() {
-  }
+MacroMainCraft CraftFactory::macroMain(
+    Fabricator *fabricator,
+    const std::optional<Program *> &overrideMacroProgram,
+    const std::set<std::string> &overrideMemes) {
+  return MacroMainCraft(fabricator, overrideMacroProgram, overrideMemes);
+}
 
-  @Override
-  public MacroMainCraft macroMain(Fabricator fabricator, @Nullable Program overrideMacroProgram, @Nullable Collection<std::string> overrideMemes) {
-    return new MacroMainCraftImpl(fabricator, overrideMacroProgram, overrideMemes);
-  }
+BeatCraft CraftFactory::beat(Fabricator *fabricator) {
+  return BeatCraft(fabricator);
+}
 
-  @Override
-  public BeatCraft beat(Fabricator fabricator) throws FabricationException {
-    return new BeatCraftImpl(fabricator);
-  }
+DetailCraft CraftFactory::detail(Fabricator *fabricator) {
+  return DetailCraft(fabricator);
+}
 
-  @Override
-  public DetailCraft detail(Fabricator fabricator) throws FabricationException {
-    return new DetailCraftImpl(fabricator);
-  }
+TransitionCraft CraftFactory::transition(Fabricator *fabricator) {
+  return TransitionCraft(fabricator);
+}
 
-  @Override
-  public TransitionCraft transition(Fabricator fabricator) throws FabricationException {
-    return new TransitionCraftImpl(fabricator);
-  }
-
-  @Override
-  public BackgroundCraft background(Fabricator fabricator) throws FabricationException {
-    return new BackgroundCraftImpl(fabricator);
-  }
-
+BackgroundCraft CraftFactory::background(Fabricator *fabricator) {
+  return BackgroundCraft(fabricator);
+}

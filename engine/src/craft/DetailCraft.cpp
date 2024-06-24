@@ -14,9 +14,10 @@ using namespace XJ;
     Instrument::Type::Percussion
   );
 
-  public DetailCraftImpl(Fabricator fabricator) {
-    super(fabricator);
-  }
+DetailCraft::DetailCraft(
+      Fabricator * fabricator
+  ) : FabricationWrapper(fabricator) {}
+
 
   @Override
   public void doWork() throws FabricationException {

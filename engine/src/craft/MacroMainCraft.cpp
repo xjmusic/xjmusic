@@ -4,25 +4,15 @@
 
 using namespace XJ;
 
-private static Logger LOG = LoggerFactory.getLogger(MacroMainCraftImpl.class);
+MacroMainCraft::MacroMainCraft(
+        Fabricator *fabricator,
+        const std::optional<Program *> &overrideMacroProgram,
+        const std::set<std::string> &overrideMemes) : FabricationWrapper(fabricator) {
+  this->overrideMacroProgram = overrideMacroProgram;
+  this->overrideMemes = overrideMemes;
+}
 
-  @Nullable
-  private Program overrideMacroProgram;
-  @Nullable
-  private Collection<std::string> overrideMemes;
-
-  public MacroMainCraftImpl(
-    Fabricator fabricator,
-    @Nullable Program overrideMacroProgram,
-    @Nullable Collection<std::string> overrideMemes
-  ) {
-    super(fabricator);
-    this.overrideMacroProgram = overrideMacroProgram;
-    this.overrideMemes = overrideMemes;
-  }
-
-  @Override
-  public void doWork() throws FabricationException {
+  void doWork() {
     auto segment = fabricator.getSegment();
 
     // Prepare variables to hold result of macro and main choice
@@ -53,7 +43,7 @@ private static Logger LOG = LoggerFactory.getLogger(MacroMainCraftImpl.class);
 
     // 3. Chords and voicings
     for (ProgramSequenceChord sequenceChord : fabricator.getProgramSequenceChords(mainSequence)) {
-      // don't of chord past end of Segment 
+      // don't of chord past end of Segment
       std::string name;
       if (sequenceChord.getPosition() < mainSequence.getTotal()) {
         // delta the chord name

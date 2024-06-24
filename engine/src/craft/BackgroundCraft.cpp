@@ -4,13 +4,10 @@
 
 
 BackgroundCraft::BackgroundCraft(
-      Fabricator fabricator
-  ) {
-    super(fabricator);
-  }
+      Fabricator * fabricator
+  ) : FabricationWrapper(fabricator) {}
 
-  @Override
-  public void doWork() throws FabricationException {
+void doWork() throws FabricationException {
     Optional<SegmentChoice> previousChoice = fabricator.retrospective().getPreviousChoiceOfType(Instrument::Type::Background);
 
     auto instrument = previousChoice.isPresent() ?

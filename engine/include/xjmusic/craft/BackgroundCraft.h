@@ -1,16 +1,26 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
-package io.xj.engine.craft.background;
 
-import io.xj.engine.FabricationException;
+#ifndef XJMUSIC_CRAFT_BACKGROUND_CRAFT_H
+#define XJMUSIC_CRAFT_BACKGROUND_CRAFT_H
 
-/**
- Background-type Instrument https://github.com/xjmusic/xjmusic/issues/256
- */
-public interface BackgroundCraft {
+#include "xjmusic/fabricator/Fabricator.h"
+#include "xjmusic/fabricator/FabricationWrapper.h"
+
+namespace XJ {
 
   /**
-   perform craft for the current segment
+   Background-type Instrument https://github.com/xjmusic/xjmusic/issues/256
    */
-  void doWork() throws FabricationException;
+  class BackgroundCraft : FabricationWrapper {
+  public:
+    explicit BackgroundCraft(Fabricator *fabricator);
 
-}
+    /**
+     perform craft for the current segment
+     */
+    void doWork();
+  };
+
+}// namespace XJ
+
+#endif//XJMUSIC_CRAFT_BACKGROUND_CRAFT_H

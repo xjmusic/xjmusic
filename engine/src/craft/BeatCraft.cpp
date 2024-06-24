@@ -5,10 +5,8 @@
 using namespace XJ;
 
 BeatCraft::BeatCraft(
-    Fabricator fabricator
-  ) {
-    super(fabricator);
-  }
+      Fabricator * fabricator
+  ) : FabricationWrapper(fabricator) {}
 
   @Override
   public void doWork() throws FabricationException {
