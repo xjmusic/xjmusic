@@ -38,7 +38,7 @@ MacroMainCraft::MacroMainCraft(
       macroSequence = doMacroChoiceWork(segment);
       mainSequence = doMainChoiceWork(segment);
     }
-    mainProgram = fabricator.sourceMaterial().getProgram(mainSequence.getProgramId())
+    mainProgram = fabricator->getSourceMaterial()->getProgram(mainSequence.getProgramId())
       .orElseThrow(() -> new FabricationException(std::string.format("Unable to determine main program for Segment[%d]", segment.getId())));
 
     // 3. Chords and voicings
@@ -55,7 +55,7 @@ MacroMainCraft::MacroMainCraft(
         chord.setPosition(sequenceChord.getPosition());
         chord.setName(name);
         fabricator.put(chord, false);
-        for (auto voicing : fabricator.sourceMaterial().getVoicingsOfChord(sequenceChord)) {
+        for (auto voicing : fabricator->getSourceMaterial()->getVoicingsOfChord(sequenceChord)) {
           auto segmentChordVoicing = new SegmentChordVoicing();
           segmentChordVoicing.setId(EntityUtils::computeUniqueId());
           segmentChordVoicing.setSegmentId(segment.getId());
@@ -98,7 +98,7 @@ MacroMainCraft::MacroMainCraft(
     Integer macroSequenceBindingOffset = computeMacroSequenceBindingOffset();
     auto macroSequenceBinding = fabricator.getRandomlySelectedSequenceBindingAtOffset(macroProgram, macroSequenceBindingOffset)
       .orElseThrow(() -> new FabricationException(std::string.format("Unable to determine macro sequence binding for Segment[%d]", segment.getId())));
-    auto macroSequence = fabricator.sourceMaterial().getSequenceOfBinding(macroSequenceBinding)
+    auto macroSequence = fabricator->getSourceMaterial()->getSequenceOfBinding(macroSequenceBinding)
       .orElseThrow(() -> new FabricationException(std::string.format("Unable to determine macro sequence for Segment[%d]", segment.getId())));
     //
     auto macroChoice = new SegmentChoice();
@@ -126,7 +126,7 @@ MacroMainCraft::MacroMainCraft(
     Integer mainSequenceBindingOffset = computeMainProgramSequenceBindingOffset();
     auto mainSequenceBinding = fabricator.getRandomlySelectedSequenceBindingAtOffset(mainProgram, mainSequenceBindingOffset)
       .orElseThrow(() -> new FabricationException(std::string.format("Unable to determine main sequence binding for Segment[%d]", segment.getId())));
-    auto mainSequence = fabricator.sourceMaterial().getSequenceOfBinding(mainSequenceBinding)
+    auto mainSequence = fabricator->getSourceMaterial()->getSequenceOfBinding(mainSequenceBinding)
       .orElseThrow(() -> new FabricationException(std::string.format("Unable to determine main sequence for Segment[%d]", segment.getId())));
     //
     auto mainChoice = new SegmentChoice();
@@ -151,7 +151,7 @@ MacroMainCraft::MacroMainCraft(
   private std::string computeSegmentKey(ProgramSequence mainSequence) throws FabricationException {
     std::string mainKey = mainSequence.getKey();
     if (null == mainKey || mainKey.isEmpty())
-      mainKey = fabricator.sourceMaterial().getProgram(mainSequence.getProgramId())
+      mainKey = fabricator->getSourceMaterial()->getProgram(mainSequence.getProgramId())
         .orElseThrow(() -> new FabricationException(std::string.format(
           "Unable to determine key for Main-Program[%s] %s",
           mainSequence.getName(),
@@ -283,7 +283,7 @@ MacroMainCraft::MacroMainCraft(
     if (bag.isEmpty())
       throw new FabricationException("Failed to choose any random program. No candidates available!");
 
-    auto program = fabricator.sourceMaterial().getProgram(bag.pick());
+    auto program = fabricator->getSourceMaterial()->getProgram(bag.pick());
     if (program.isEmpty()) {
       auto message = std::string.format(
         "Unable to choose main program for Segment[%d]",
@@ -306,7 +306,7 @@ MacroMainCraft::MacroMainCraft(
       return overrideMacroProgram;
 
     auto bag = MarbleBag.empty();
-    auto candidates = fabricator.sourceMaterial().getProgramsOfType(Program::Type::Macro);
+    auto candidates = fabricator->getSourceMaterial()->getProgramsOfType(Program::Type::Macro);
 
     // initial segment is completely random
     if (fabricator.isInitialSegment()) return chooseRandomProgram(candidates, List.of());
@@ -342,8 +342,8 @@ MacroMainCraft::MacroMainCraft(
     // Phase 2: Any Directly Bound Programs besides any that should be avoided, meme match is a bonus
     // Phase 3: Any Directly Bound Programs
     for (Program program : programsDirectlyBound(candidates)) {
-      bag.add(1, program.getId(), iso.score(fabricator.sourceMaterial().getMemesAtBeginning(program)));
-      bag.add(2, program.getId(), 1 + iso.score(fabricator.sourceMaterial().getMemesAtBeginning(program)));
+      bag.add(1, program.getId(), iso.score(fabricator->getSourceMaterial()->getMemesAtBeginning(program)));
+      bag.add(2, program.getId(), 1 + iso.score(fabricator->getSourceMaterial()->getMemesAtBeginning(program)));
       bag.add(3, program.getId());
     }
 
@@ -353,8 +353,8 @@ MacroMainCraft::MacroMainCraft(
     // Phase 6: Any Published Programs
     for (Program program : programsPublished(candidates)) {
       if (avoidProgramId.isEmpty() || !avoidProgramId.get().equals(program.getId())) {
-        bag.add(4, program.getId(), iso.score(fabricator.sourceMaterial().getMemesAtBeginning(program)));
-        bag.add(5, program.getId(), 1 + iso.score(fabricator.sourceMaterial().getMemesAtBeginning(program)));
+        bag.add(4, program.getId(), iso.score(fabricator->getSourceMaterial()->getMemesAtBeginning(program)));
+        bag.add(5, program.getId(), 1 + iso.score(fabricator->getSourceMaterial()->getMemesAtBeginning(program)));
       }
       bag.add(6, program.getId());
     }
@@ -370,7 +370,7 @@ MacroMainCraft::MacroMainCraft(
 
     // report and pick
     fabricator.putReport("macroChoice", bag.toString());
-    auto program = fabricator.sourceMaterial().getProgram(bag.pick());
+    auto program = fabricator->getSourceMaterial()->getProgram(bag.pick());
     if (program.isEmpty()) {
       auto message = std::string.format(
         "Unable to choose macro program for Segment[%d]",
@@ -392,7 +392,7 @@ MacroMainCraft::MacroMainCraft(
    */
   protected Program chooseMainProgram() throws FabricationException {
     auto bag = MarbleBag.empty();
-    auto candidates = fabricator.sourceMaterial().getProgramsOfType(Program::Type::Main);
+    auto candidates = fabricator->getSourceMaterial()->getProgramsOfType(Program::Type::Main);
 
     // if continuing the macro program, use the same one
     if (SegmentType.CONTINUE == fabricator.getType()
@@ -420,8 +420,8 @@ MacroMainCraft::MacroMainCraft(
     // Add candidates to the bag
     // Phase 1: Directly Bound Programs, memes allowed, bonus for meme match, besides any that should be avoided
     for (Program program : programsDirectlyBound(candidates)) {
-      if (!iso.isAllowed(fabricator.sourceMaterial().getMemesAtBeginning(program))) continue;
-      bag.add(1, program.getId(), 1 + iso.score(fabricator.sourceMaterial().getMemesAtBeginning(program)));
+      if (!iso.isAllowed(fabricator->getSourceMaterial()->getMemesAtBeginning(program))) continue;
+      bag.add(1, program.getId(), 1 + iso.score(fabricator->getSourceMaterial()->getMemesAtBeginning(program)));
     }
 
     // Add candidates to the bag
@@ -429,13 +429,13 @@ MacroMainCraft::MacroMainCraft(
     // Phase 3: Any Published Programs, memes allowed, bonus for meme match
     auto published = programsPublished(candidates);
     for (Program program : published) {
-      if (!iso.isAllowed(fabricator.sourceMaterial().getMemesAtBeginning(program))) {
+      if (!iso.isAllowed(fabricator->getSourceMaterial()->getMemesAtBeginning(program))) {
         continue;
       }
       if (avoidProgramId.isEmpty() || !avoidProgramId.get().equals(program.getId()))
-        bag.add(2, program.getId(), 1 + iso.score(fabricator.sourceMaterial().getMemesAtBeginning(program)));
+        bag.add(2, program.getId(), 1 + iso.score(fabricator->getSourceMaterial()->getMemesAtBeginning(program)));
       else
-        bag.add(3, program.getId(), 1 + iso.score(fabricator.sourceMaterial().getMemesAtBeginning(program)));
+        bag.add(3, program.getId(), 1 + iso.score(fabricator->getSourceMaterial()->getMemesAtBeginning(program)));
     }
 
     // Add candidates to the bag
@@ -450,7 +450,7 @@ MacroMainCraft::MacroMainCraft(
 
     // report and pick
     fabricator.putReport("mainChoice", bag.toString());
-    auto program = fabricator.sourceMaterial().getProgram(bag.pick());
+    auto program = fabricator->getSourceMaterial()->getProgram(bag.pick());
     if (program.isEmpty()) {
       auto message = std::string.format(
         "Unable to choose main program for Segment[%d]",

@@ -10,11 +10,11 @@ BeatCraft::BeatCraft(
 
   @Override
   public void doWork() throws FabricationException {
-    Optional<SegmentChoice> priorBeatChoice = fabricator.getChoicesIfContinued(Program::Type::Beat).stream().findFirst();
+    std::optional<SegmentChoice> priorBeatChoice = fabricator.getChoicesIfContinued(Program::Type::Beat).stream().findFirst();
 
     // Program is from prior choice, or freshly chosen
-    Optional<Program> program = priorBeatChoice.isPresent() ?
-      fabricator.sourceMaterial().getProgram(priorBeatChoice.get().getProgramId()) :
+    std::optional<Program> program = priorBeatChoice.isPresent() ?
+      fabricator->getSourceMaterial()->getProgram(priorBeatChoice.get().getProgramId()) :
       chooseFreshProgram(Program::Type::Beat, Instrument::Type::Drum);
 
     // Should gracefully skip voicing type if unfulfilled by detail program https://github.com/xjmusic/xjmusic/issues/240
@@ -24,11 +24,11 @@ BeatCraft::BeatCraft(
 
     // Segments have intensity arcs; automate mixer layers in and out of each main program https://github.com/xjmusic/xjmusic/issues/233
     ChoiceIndexProvider choiceIndexProvider = (SegmentChoice choice) ->
-      fabricator.sourceMaterial().getProgramVoice(choice.getProgramVoiceId())
+      fabricator->getSourceMaterial()->getProgramVoice(choice.getProgramVoiceId())
         .map(ProgramVoice::getName)
         .orElse("Unknown");
     Predicate<SegmentChoice> choiceFilter = (SegmentChoice choice) -> Program::Type::Beat.equals(choice.getProgramType());
-    auto programNames = fabricator.sourceMaterial().getVoicesOfProgram(program.get()).stream()
+    auto programNames = fabricator->getSourceMaterial()->getVoicesOfProgram(program.get()).stream()
       .map(ProgramVoice::getName)
       .collect(Collectors.toList());
     precomputeDeltas(
@@ -45,19 +45,19 @@ BeatCraft::BeatCraft(
 
     // voice arrangements
     if (sequence.isPresent()) {
-      for (ProgramVoice voice : fabricator.sourceMaterial().getVoicesOfProgram(program.get())) {
+      for (ProgramVoice voice : fabricator->getSourceMaterial()->getVoicesOfProgram(program.get())) {
         auto choice = new SegmentChoice();
         choice.setId(EntityUtils::computeUniqueId());
         choice.setSegmentId(fabricator.getSegment().getId());
         choice.setMute(computeMute(voice.getType()));
-        choice.setProgramType(fabricator.sourceMaterial().getProgram(voice.getProgramId()).orElseThrow(() -> new FabricationException("Can't get program for voice")).getType());
+        choice.setProgramType(fabricator->getSourceMaterial()->getProgram(voice.getProgramId()).orElseThrow(() -> new FabricationException("Can't get program for voice")).getType());
         choice.setInstrumentType(voice.getType());
         choice.setProgramId(voice.getProgramId());
         choice.setProgramSequenceId(sequence.get().getId());
         choice.setProgramVoiceId(voice.getId());
 
         // Whether there is a prior choice for this voice
-        Optional<SegmentChoice> priorChoice = fabricator.getChoiceIfContinued(voice);
+        std::optional<SegmentChoice> priorChoice = fabricator.getChoiceIfContinued(voice);
 
         if (priorChoice.isPresent()) {
           // If there is a prior choice, then we should continue it
@@ -68,7 +68,7 @@ BeatCraft::BeatCraft(
           this.craftNoteEventArrangements(fabricator.getTempo(), fabricator.put(choice, false), true);
         } else {
           // If there is no prior choice, then we should choose a fresh instrument
-          auto instrument = chooseFreshInstrument(Instrument::Type::Drum, fabricator.sourceMaterial().getTrackNamesOfVoice(voice));
+          auto instrument = chooseFreshInstrument(Instrument::Type::Drum, fabricator->getSourceMaterial()->getTrackNamesOfVoice(voice));
           if (instrument.isEmpty()) {
             continue;
           }

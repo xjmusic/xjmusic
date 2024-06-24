@@ -3,15 +3,23 @@
 #ifndef XJMUSIC_CRAFT_BACKGROUND_CRAFT_H
 #define XJMUSIC_CRAFT_BACKGROUND_CRAFT_H
 
+#include "xjmusic/craft/Craft.h"
 #include "xjmusic/fabricator/Fabricator.h"
-#include "xjmusic/fabricator/FabricationWrapper.h"
 
 namespace XJ {
 
   /**
    Background-type Instrument https://github.com/xjmusic/xjmusic/issues/256
    */
-  class BackgroundCraft : FabricationWrapper {
+  class BackgroundCraft : protected Craft {
+
+    /**
+     Craft percussion loop
+
+     @param instrument for which to craft
+     */
+    void craftBackground(const Instrument *instrument);
+
   public:
     explicit BackgroundCraft(Fabricator *fabricator);
 

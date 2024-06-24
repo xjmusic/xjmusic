@@ -30,10 +30,10 @@ DetailCraft::DetailCraft(
     for (Instrument::Type instrumentType : DETAIL_INSTRUMENT_TYPES) {
 
       // Instrument is from prior choice, else freshly chosen
-      Optional<SegmentChoice> priorChoice = fabricator.getChoiceIfContinued(instrumentType);
+      std::optional<SegmentChoice> priorChoice = fabricator.getChoiceIfContinued(instrumentType);
 
       // Instruments may be chosen without programs https://github.com/xjmusic/xjmusic/issues/234
-      Optional<Instrument> instrument = priorChoice.isPresent() ? fabricator.sourceMaterial().getInstrument(priorChoice.get().getInstrumentId()) : chooseFreshInstrument(instrumentType, Set.of());
+      std::optional<Instrument> instrument = priorChoice.isPresent() ? fabricator->getSourceMaterial()->getInstrument(priorChoice.get().getInstrumentId()) : chooseFreshInstrument(instrumentType, Set.of());
 
       // Should gracefully skip voicing type if unfulfilled by detail instrument https://github.com/xjmusic/xjmusic/issues/240
       if (instrument.isEmpty()) {
@@ -46,7 +46,7 @@ DetailCraft::DetailCraft(
         // Event instrument mode takes over legacy behavior https://github.com/xjmusic/xjmusic/issues/234
         case Event -> {
           // Event Use prior chosen program or find a new one
-          Optional<Program> program = priorChoice.isPresent() ? fabricator.sourceMaterial().getProgram(priorChoice.get().getProgramId()) : chooseFreshProgram(Program::Type::Detail, instrumentType);
+          std::optional<Program> program = priorChoice.isPresent() ? fabricator->getSourceMaterial()->getProgram(priorChoice.get().getProgramId()) : chooseFreshProgram(Program::Type::Detail, instrumentType);
 
           // Event Should gracefully skip voicing type if unfulfilled by detail program https://github.com/xjmusic/xjmusic/issues/240
           if (program.isEmpty()) {

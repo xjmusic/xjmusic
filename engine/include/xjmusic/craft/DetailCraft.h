@@ -3,7 +3,7 @@
 #ifndef XJMUSIC_CRAFT_DETAIL_CRAFT_H
 #define XJMUSIC_CRAFT_DETAIL_CRAFT_H
 
-#include "xjmusic/fabricator/FabricationWrapper.h"
+#include "xjmusic/craft/Craft.h"
 #include "xjmusic/fabricator/Fabricator.h"
 
 namespace XJ {
@@ -12,7 +12,7 @@ namespace XJ {
    Structure craft for the current segment includes all kinds of Detail
    [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
    */
-  class DetailCraft : FabricationWrapper {
+  class DetailCraft : protected Craft {
   public:
     explicit DetailCraft(Fabricator *fabricator);
 

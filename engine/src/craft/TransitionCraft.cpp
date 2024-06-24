@@ -14,10 +14,10 @@ TransitionCraft::TransitionCraft(
 
   @Override
   public void doWork() throws FabricationException {
-    Optional<SegmentChoice> previousChoice = fabricator.retrospective().getPreviousChoiceOfType(Instrument::Type::Transition);
+    std::optional<SegmentChoice> previousChoice = fabricator-getRetrospective().getPreviousChoiceOfType(Instrument::Type::Transition);
 
     auto instrument = previousChoice.isPresent() ?
-      fabricator.sourceMaterial().getInstrument(previousChoice.get().getInstrumentId()) :
+      fabricator->getSourceMaterial()->getInstrument(previousChoice.get().getInstrumentId()) :
       chooseFreshInstrument(Instrument::Type::Transition, List.of());
 
     if (instrument.isEmpty()) {
@@ -111,7 +111,7 @@ TransitionCraft::TransitionCraft(
    @return instrument audios
    */
   private Collection<InstrumentAudio> selectAudiosForInstrument(Instrument instrument, List<std::string> names) {
-    auto previous = fabricator.retrospective().getPreviousPicksForInstrument(instrument.getId()).stream()
+    auto previous = fabricator->getRetrospective().getPreviousPicksForInstrument(instrument.getId()).stream()
       .filter(pick -> names.contains(StringUtils.toMeme(pick.getEvent())))
       .collect(Collectors.toSet());
     if (fabricator.getInstrumentConfig(instrument).isAudioSelectionPersistent() && !previous.isEmpty()) {
@@ -119,14 +119,14 @@ TransitionCraft::TransitionCraft(
         .map(SegmentChoiceArrangementPick::getInstrumentAudioId)
         .collect(Collectors.toSet()) // unique audio ids
         .stream()
-        .map(audioId -> fabricator.sourceMaterial().getInstrumentAudio(audioId))
-        .filter(Optional::isPresent)
-        .map(Optional::get)
+        .map(audioId -> fabricator->getSourceMaterial()->getInstrumentAudio(audioId))
+        .filter(std::optional::isPresent)
+        .map(std::optional::get)
         .collect(Collectors.toSet());
     }
 
     return selectAudioIntensityLayers(
-      fabricator.sourceMaterial().getAudiosOfInstrument(instrument.getId())
+      fabricator->getSourceMaterial()->getAudiosOfInstrument(instrument.getId())
         .stream().filter(instrumentAudio -> names.contains(StringUtils.toMeme(instrumentAudio.getEvent()))).collect(Collectors.toSet()),
       fabricator.getTemplateConfig().getIntensityLayers(Instrument::Type::Background)
     );

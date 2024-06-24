@@ -5,7 +5,7 @@
 
 #include <set>
 
-#include "xjmusic/fabricator/FabricationWrapper.h"
+#include "xjmusic/craft/Craft.h"
 #include "xjmusic/fabricator/Fabricator.h"
 
 namespace XJ {
@@ -13,7 +13,7 @@ namespace XJ {
   /**
    Transition-type Instrument https://github.com/xjmusic/xjmusic/issues/262
    */
-  class TransitionCraft : FabricationWrapper {
+  class TransitionCraft : protected Craft {
     std::set<std::string> smallNames;
     std::set<std::string> mediumNames;
     std::set<std::string> largeNames;

@@ -22,7 +22,7 @@ namespace XJ {
   /**
  Arrangement of Segment Events is a common foundation for all craft
  */
-  class Craft : FabricationWrapper {
+  class Craft : protected FabricationWrapper {
   protected:
     std::map<std::string, int> deltaIns;
     std::map<std::string, int> deltaOuts;
@@ -30,11 +30,12 @@ namespace XJ {
 
   public:
     /**
- Instrument provider to make some code more portable
- */
+     Instrument provider to make some code more portable
+     */
     class InstrumentProvider {
     public:
       virtual ~InstrumentProvider() = default;
+
       virtual std::optional<Instrument> get(const ProgramVoice *voice);
     };
 
@@ -44,7 +45,7 @@ namespace XJ {
     class LambdaInstrumentProvider final : public InstrumentProvider {
     public:
       explicit LambdaInstrumentProvider(std::function<std::optional<Instrument>(ProgramVoice)> func) : func_(
-                                                                                                           std::move(func)) {}
+          std::move(func)) {}
 
       std::optional<Instrument> get(const ProgramVoice *voice) override {
         return func_(*voice);
@@ -60,6 +61,7 @@ namespace XJ {
     class ChoiceIndexProvider {
     public:
       virtual ~ChoiceIndexProvider() = default;
+
       virtual std::string get(const SegmentChoice *choice);
     };
 
@@ -282,7 +284,8 @@ namespace XJ {
      @param instruments to filter
      @return filtered instruments
      */
-    [[nodiscard]] std::set<const Instrument *> instrumentsDirectlyBound(const std::set<const Instrument *> &instruments) const;
+    [[nodiscard]] std::set<const Instrument *>
+    instrumentsDirectlyBound(const std::set<const Instrument *> &instruments) const;
 
     /**
      Filter only the published instruments
@@ -290,7 +293,8 @@ namespace XJ {
      @param instruments to filter
      @return filtered instruments
      */
-    [[nodiscard]] static std::set<const Instrument *> instrumentsPublished(const std::set<const Instrument *> &instruments);
+    [[nodiscard]] static std::set<const Instrument *>
+    instrumentsPublished(const std::set<const Instrument *> &instruments);
 
     /**
      Filter only the directly bound instrumentAudios
@@ -298,7 +302,8 @@ namespace XJ {
      @param instrumentAudios to filter
      @return filtered instrumentAudios
      */
-    [[nodiscard]] std::set<const InstrumentAudio *> audiosDirectlyBound(const std::set<const InstrumentAudio *> &instrumentAudios) const;
+    [[nodiscard]] std::set<const InstrumentAudio *>
+    audiosDirectlyBound(const std::set<const InstrumentAudio *> &instrumentAudios) const;
 
     /**
      Filter only the published instrumentAudios
@@ -306,7 +311,8 @@ namespace XJ {
      @param instrumentAudios to filter
      @return filtered instrumentAudios
      */
-    [[nodiscard]] std::set<const InstrumentAudio *> audiosPublished(const std::set<const InstrumentAudio *> &instrumentAudios) const;
+    [[nodiscard]] std::set<const InstrumentAudio *>
+    audiosPublished(const std::set<const InstrumentAudio *> &instrumentAudios) const;
 
     /**
      Compute a mute value, based on the template config
@@ -341,7 +347,8 @@ namespace XJ {
      @param layers number of layers to pick
      @return picked audios
      */
-    [[nodiscard]] std::set<InstrumentAudio> selectAudioIntensityLayers(const std::set<const InstrumentAudio *> &audios, int layers) const;
+    [[nodiscard]] std::set<InstrumentAudio>
+    selectAudioIntensityLayers(const std::set<const InstrumentAudio *> &audios, int layers) const;
 
     /**
      Segments have intensity arcs; automate mixer layers in and out of each main program
@@ -575,7 +582,8 @@ namespace XJ {
      @return matched new audio
      */
     std::optional<const InstrumentAudio *>
-    selectMultiphonicInstrumentAudio(const Instrument *instrument, const ProgramSequencePatternEvent *event, const std::string &note) const;
+    selectMultiphonicInstrumentAudio(const Instrument *instrument, const ProgramSequencePatternEvent *event,
+                                     const std::string &note) const;
 
     /**
      Select audio from a multiphonic instrument
@@ -622,7 +630,8 @@ namespace XJ {
      @param note       to match
      @return matched new audio
      */
-    std::optional<const InstrumentAudio *> selectNewMultiphonicInstrumentAudio(const Instrument *instrument, std::string note) const;
+    std::optional<const InstrumentAudio *>
+    selectNewMultiphonicInstrumentAudio(const Instrument *instrument, std::string note) const;
 
     /**
      Test if an instrument contains audios named like N
@@ -633,7 +642,8 @@ namespace XJ {
      @param requireEvents N
      @return true if instrument contains audios named like N or required event names list is empty
      */
-    bool instrumentContainsAudioEventsLike(const Instrument &instrument, const std::set<std::string> &requireEvents) const;
+    bool
+    instrumentContainsAudioEventsLike(const Instrument &instrument, const std::set<std::string> &requireEvents) const;
   };
 
 }// namespace XJ

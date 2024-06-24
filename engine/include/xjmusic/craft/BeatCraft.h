@@ -3,7 +3,7 @@
 #ifndef XJMUSIC_CRAFT_BEAT_CRAFT_H
 #define XJMUSIC_CRAFT_BEAT_CRAFT_H
 
-#include "xjmusic/fabricator/FabricationWrapper.h"
+#include "xjmusic/craft/Craft.h"
 #include "xjmusic/fabricator/Fabricator.h"
 
 namespace XJ {
@@ -12,7 +12,7 @@ namespace XJ {
    Structure craft for the current segment beat
    If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
    */
-  class BeatCraft : FabricationWrapper {
+  class BeatCraft : protected Craft {
   public:
     explicit BeatCraft(Fabricator *fabricator);
 

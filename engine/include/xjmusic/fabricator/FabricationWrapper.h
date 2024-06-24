@@ -14,6 +14,9 @@ namespace XJ {
  Fabrication wrapper is a common foundation for all craft
  */
   class FabricationWrapper {
+  protected:
+    Fabricator *fabricator;
+
   public:
 
     /**
@@ -44,10 +47,6 @@ namespace XJ {
      @param traces of how missing entity was searched for
      */
     void reportMissing(const std::map<std::string, std::string>& traces) const;
-
-  protected:
-    Fabricator *fabricator;
-
   };
 
 }// namespace XJ
