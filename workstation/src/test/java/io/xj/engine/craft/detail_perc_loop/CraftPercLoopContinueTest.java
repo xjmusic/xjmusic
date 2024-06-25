@@ -1,30 +1,21 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.engine.craft.detail_perc_loop;
 
-import io.xj.engine.fabricator.SegmentEntityStore;
+import io.xj.engine.FabricationTopology;
+import io.xj.engine.SegmentFixtures;
+import io.xj.engine.craft.CraftFactory;
+import io.xj.engine.craft.CraftFactoryImpl;
+import io.xj.engine.fabricator.*;
 import io.xj.model.HubContent;
 import io.xj.model.HubTopology;
 import io.xj.model.entity.EntityFactoryImpl;
-import io.xj.model.enums.InstrumentMode;
-import io.xj.model.enums.InstrumentType;
+import io.xj.model.enums.*;
 import io.xj.model.json.JsonProvider;
 import io.xj.model.json.JsonProviderImpl;
 import io.xj.model.jsonapi.JsonapiPayloadFactory;
 import io.xj.model.jsonapi.JsonapiPayloadFactoryImpl;
-import io.xj.engine.SegmentFixtures;
-import io.xj.engine.FabricationTopology;
-import io.xj.engine.craft.CraftFactory;
-import io.xj.engine.craft.CraftFactoryImpl;
-import io.xj.engine.fabricator.Fabricator;
-import io.xj.engine.fabricator.FabricatorFactory;
-import io.xj.engine.fabricator.FabricatorFactoryImpl;
 import io.xj.model.pojos.Chain;
-import io.xj.model.enums.ChainState;
-import io.xj.model.enums.ChainType;
 import io.xj.model.pojos.Segment;
-import io.xj.model.enums.SegmentState;
-import io.xj.model.enums.SegmentType;
-import io.xj.engine.fabricator.SegmentEntityStoreImpl;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,8 +26,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.xj.engine.SegmentFixtures.buildChain;
-import static io.xj.engine.SegmentFixtures.buildSegment;
 import static io.xj.engine.SegmentFixtures.buildSegmentChoice;
 
 @ExtendWith(MockitoExtension.class)
@@ -106,18 +95,6 @@ public class CraftPercLoopContinueTest {
   @AfterEach
   public void tearDown() {
 
-  }
-
-  @Test
-  public void craftPercLoopContinue() throws Exception {
-    insertSegments3and4(false);
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4.getId(), 48000.0f, 2, null);
-
-//    craftFactory.detail(fabricator).doWork();
-//    // assert choice of percLoop-type sequence
-//    Collection<SegmentChoice> segmentChoices =
-//      store.getAll(segment4.getId(), SegmentChoice.class);
-//    assertNotNull(Segments.findFirstOfType(segmentChoices, InstrumentType.Percussion));
   }
 
   /**
@@ -191,16 +168,18 @@ public class CraftPercLoopContinueTest {
   }
 
   @Test
+  public void craftPercLoopContinue() throws Exception {
+    insertSegments3and4(false);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4.getId(), 48000.0f, 2, null);
+
+    craftFactory.detail(fabricator).doWork();
+  }
+
+  @Test
   public void craftPercLoopContinue_okEvenWithoutPreviousSegmentPercLoopChoice() throws Exception {
     insertSegments3and4(true);
     Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4.getId(), 48000.0f, 2, null);
-    craftFactory.detail(fabricator).doWork();
 
-/*
-    // assert choice of percLoop-type sequence
-    Collection<SegmentChoice> segmentChoices =
-      store.getAll(segment4.getId(), SegmentChoice.class);
-    assertNotNull(Segments.findFirstOfType(segmentChoices, InstrumentType.Percussion));
-*/
+    craftFactory.detail(fabricator).doWork();
   }
 }

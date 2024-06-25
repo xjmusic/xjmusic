@@ -1,29 +1,25 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.engine.craft.transition;
 
-import io.xj.engine.fabricator.SegmentEntityStore;
+import io.xj.engine.FabricationException;
+import io.xj.engine.FabricationTopology;
+import io.xj.engine.SegmentFixtures;
+import io.xj.engine.craft.CraftFactory;
+import io.xj.engine.craft.CraftFactoryImpl;
+import io.xj.engine.fabricator.*;
 import io.xj.model.HubContent;
 import io.xj.model.HubTopology;
 import io.xj.model.entity.EntityFactoryImpl;
+import io.xj.model.enums.ChainState;
+import io.xj.model.enums.ChainType;
+import io.xj.model.enums.SegmentState;
+import io.xj.model.enums.SegmentType;
 import io.xj.model.json.JsonProvider;
 import io.xj.model.json.JsonProviderImpl;
 import io.xj.model.jsonapi.JsonapiPayloadFactory;
 import io.xj.model.jsonapi.JsonapiPayloadFactoryImpl;
-import io.xj.engine.FabricationException;
-import io.xj.engine.SegmentFixtures;
-import io.xj.engine.FabricationTopology;
-import io.xj.engine.craft.CraftFactory;
-import io.xj.engine.craft.CraftFactoryImpl;
-import io.xj.engine.fabricator.Fabricator;
-import io.xj.engine.fabricator.FabricatorFactory;
-import io.xj.engine.fabricator.FabricatorFactoryImpl;
 import io.xj.model.pojos.Chain;
-import io.xj.model.enums.ChainState;
-import io.xj.model.enums.ChainType;
 import io.xj.model.pojos.Segment;
-import io.xj.model.enums.SegmentState;
-import io.xj.model.enums.SegmentType;
-import io.xj.engine.fabricator.SegmentEntityStoreImpl;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,7 +30,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.xj.engine.SegmentFixtures.buildSegment;
 import static io.xj.engine.SegmentFixtures.buildSegmentChoice;
 
 @ExtendWith(MockitoExtension.class)
@@ -106,19 +101,6 @@ public class CraftTransitionNextMacroTest {
 
   }
 
-  @Test
-  public void craftTransitionNextMacro() throws Exception {
-    insertSegments3and4();
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4.getId(), 48000.0f, 2, null);
-
-    craftFactory.transition(fabricator).doWork();
-
-//    // assert choice of transition-type sequence
-//    Collection<SegmentChoice> segmentChoices =
-//      store.getAll(segment4.getId(), SegmentChoice.class);
-//    assertNotNull(Segments.findFirstOfType(segmentChoices, InstrumentType.Transition, InstrumentMode.Event));
-  }
-
   /**
    Insert fixture segments 3 and 4, including the transition choice for segment 3 only if specified
    */
@@ -176,6 +158,14 @@ public class CraftTransitionNextMacroTest {
       store.put(SegmentFixtures.buildSegmentMeme(segment4, memeName));
     store.put(SegmentFixtures.buildSegmentChord(segment4, 0.0f, "F minor"));
     store.put(SegmentFixtures.buildSegmentChord(segment4, 8.0f, "Gb minor"));
+  }
+
+  @Test
+  public void craftTransitionNextMacro() throws Exception {
+    insertSegments3and4();
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4.getId(), 48000.0f, 2, null);
+
+    craftFactory.transition(fabricator).doWork();
   }
 
 

@@ -1,30 +1,26 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.engine.craft.detail_perc_loop;
 
-import io.xj.engine.fabricator.SegmentEntityStoreImpl;
+import io.xj.engine.FabricationException;
+import io.xj.engine.FabricationTopology;
+import io.xj.engine.SegmentFixtures;
+import io.xj.engine.craft.CraftFactory;
+import io.xj.engine.craft.CraftFactoryImpl;
+import io.xj.engine.fabricator.*;
 import io.xj.model.HubContent;
 import io.xj.model.HubTopology;
 import io.xj.model.TemplateConfig;
 import io.xj.model.entity.EntityFactoryImpl;
 import io.xj.model.entity.EntityUtils;
+import io.xj.model.enums.ChainState;
+import io.xj.model.enums.ChainType;
+import io.xj.model.enums.SegmentState;
 import io.xj.model.json.JsonProvider;
 import io.xj.model.json.JsonProviderImpl;
 import io.xj.model.jsonapi.JsonapiPayloadFactory;
 import io.xj.model.jsonapi.JsonapiPayloadFactoryImpl;
-import io.xj.engine.FabricationException;
-import io.xj.engine.SegmentFixtures;
-import io.xj.engine.FabricationTopology;
-import io.xj.engine.craft.CraftFactory;
-import io.xj.engine.craft.CraftFactoryImpl;
-import io.xj.engine.fabricator.Fabricator;
-import io.xj.engine.fabricator.FabricatorFactory;
-import io.xj.engine.fabricator.FabricatorFactoryImpl;
 import io.xj.model.pojos.Chain;
-import io.xj.model.enums.ChainState;
-import io.xj.model.enums.ChainType;
 import io.xj.model.pojos.Segment;
-import io.xj.model.enums.SegmentState;
-import io.xj.engine.fabricator.SegmentEntityStore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,7 +31,6 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.xj.engine.SegmentFixtures.buildSegment;
 import static io.xj.engine.SegmentFixtures.buildSegmentChoice;
 
 @ExtendWith(MockitoExtension.class)
@@ -86,46 +81,6 @@ public class CraftPercLoopProgramVoiceInitialTest {
     store.put(chain2);
   }
 
-  @Test
-  public void craftPercLoopVoiceInitial() throws Exception {
-    insertSegment();
-
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment0.getId(), 48000.0f, 2, null);
-
-    craftFactory.detail(fabricator).doWork();
-
-//    Segment result = store.getSegment(segment0.getId()).orElseThrow();
-//    assertFalse(store.getAll(result.getId(), SegmentChoice.class).isEmpty());
-//    
-//    int pickedKick = 0;
-//    int pickedSnare = 0;
-//    int pickedBleep = 0;
-//    int pickedToot = 0;
-//    Collection<SegmentChoiceArrangementPick> picks = fabricator.getPicks();
-//    for (SegmentChoiceArrangementPick pick : picks) {
-//      if (pick.getInstrumentAudioId().equals(fake.instrument8_audio8kick.getId()))
-//        pickedKick++;
-//      if (pick.getInstrumentAudioId().equals(fake.instrument8_audio8snare.getId()))
-//        pickedSnare++;
-//      if (pick.getInstrumentAudioId().equals(fake.instrument8_audio8bleep.getId()))
-//        pickedBleep++;
-//      if (pick.getInstrumentAudioId().equals(fake.instrument8_audio8toot.getId()))
-//        pickedToot++;
-//    }
-//    assertEquals(12, pickedKick);
-//    assertEquals(12, pickedSnare);
-//    assertEquals(4, pickedBleep);
-//    assertEquals(4, pickedToot);
-  }
-
-  @Test
-  public void craftPercLoopVoiceInitial_okWhenNoPercLoopChoice() throws Exception {
-    insertSegment();
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment0.getId(), 48000.0f, 2, null);
-
-    craftFactory.detail(fabricator).doWork();
-  }
-
   /**
    Insert fixture segment 6, including the percLoop choice only if specified
    */
@@ -147,6 +102,23 @@ public class CraftPercLoopProgramVoiceInitialTest {
 
     store.put(SegmentFixtures.buildSegmentChord(segment0, 0.0f, "C minor"));
     store.put(SegmentFixtures.buildSegmentChord(segment0, 8.0f, "Db minor"));
+  }
+
+  @Test
+  public void craftPercLoopVoiceInitial() throws Exception {
+    insertSegment();
+
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment0.getId(), 48000.0f, 2, null);
+
+    craftFactory.detail(fabricator).doWork();
+  }
+
+  @Test
+  public void craftPercLoopVoiceInitial_okWhenNoPercLoopChoice() throws Exception {
+    insertSegment();
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment0.getId(), 48000.0f, 2, null);
+
+    craftFactory.detail(fabricator).doWork();
   }
 
 }

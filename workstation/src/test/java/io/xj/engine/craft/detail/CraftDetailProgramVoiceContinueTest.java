@@ -1,32 +1,24 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.engine.craft.detail;
 
-import io.xj.engine.fabricator.SegmentEntityStore;
-import io.xj.engine.fabricator.SegmentEntityStoreImpl;
+import io.xj.engine.FabricationException;
+import io.xj.engine.FabricationTopology;
+import io.xj.engine.SegmentFixtures;
+import io.xj.engine.craft.CraftFactory;
+import io.xj.engine.craft.CraftFactoryImpl;
+import io.xj.engine.fabricator.*;
 import io.xj.model.HubContent;
 import io.xj.model.HubTopology;
 import io.xj.model.entity.EntityFactoryImpl;
-import io.xj.model.enums.InstrumentType;
+import io.xj.model.enums.*;
 import io.xj.model.json.JsonProvider;
 import io.xj.model.json.JsonProviderImpl;
 import io.xj.model.jsonapi.JsonapiPayloadFactory;
 import io.xj.model.jsonapi.JsonapiPayloadFactoryImpl;
-import io.xj.engine.FabricationException;
-import io.xj.engine.SegmentFixtures;
-import io.xj.engine.FabricationTopology;
-import io.xj.engine.craft.CraftFactory;
-import io.xj.engine.craft.CraftFactoryImpl;
-import io.xj.engine.fabricator.Fabricator;
-import io.xj.engine.fabricator.FabricatorFactory;
-import io.xj.engine.fabricator.FabricatorFactoryImpl;
 import io.xj.model.pojos.Chain;
-import io.xj.model.enums.ChainState;
-import io.xj.model.enums.ChainType;
 import io.xj.model.pojos.Segment;
 import io.xj.model.pojos.SegmentChoiceArrangementPick;
 import io.xj.model.pojos.SegmentChord;
-import io.xj.model.enums.SegmentState;
-import io.xj.model.enums.SegmentType;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -38,7 +30,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.xj.engine.SegmentFixtures.buildSegment;
 import static io.xj.engine.SegmentFixtures.buildSegmentChoice;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -112,6 +103,76 @@ public class CraftDetailProgramVoiceContinueTest {
 
   }
 
+  /**
+   Insert fixture segments 3 and 4, including the detail choice for segment 3 only if specified
+
+   @param excludeDetailChoiceForSegment3 if desired for the purpose of this test
+   */
+  void insertSegments3and4(boolean excludeDetailChoiceForSegment3) throws FabricationException {
+    // segment just crafted
+    // Testing entities for reference
+    Segment segment3 = store.put(SegmentFixtures.buildSegment(
+            chain1,
+            SegmentType.CONTINUE,
+            2,
+            2,
+            SegmentState.CRAFTED,
+            "F Major",
+            64,
+            0.30f,
+            120.0f,
+            "chains-1-segments-9f7s89d8a7892.wav", true));
+    store.put(buildSegmentChoice(
+            segment3,
+            Segment.DELTA_UNLIMITED,
+            Segment.DELTA_UNLIMITED,
+            fake.program4,
+            fake.program4_sequence0_binding0));
+    store.put(buildSegmentChoice(
+            segment3,
+            Segment.DELTA_UNLIMITED,
+            Segment.DELTA_UNLIMITED,
+            fake.program5,
+            fake.program5_sequence0_binding0));
+    if (!excludeDetailChoiceForSegment3)
+      store.put(SegmentFixtures.buildSegmentChoice(
+              segment3,
+              Segment.DELTA_UNLIMITED,
+              Segment.DELTA_UNLIMITED,
+              fake.program10));
+
+    // segment crafting
+    segment4 = store.put(SegmentFixtures.buildSegment(
+            chain1,
+            SegmentType.CONTINUE,
+            3,
+            3,
+            SegmentState.CRAFTING,
+            "D Major",
+            16,
+            0.45f,
+            120.0f,
+            "chains-1-segments-9f7s89d8a7892.wav", true));
+    store.put(buildSegmentChoice(
+            segment4,
+            Segment.DELTA_UNLIMITED,
+            Segment.DELTA_UNLIMITED,
+            fake.program4,
+            fake.program4_sequence0_binding0));
+    store.put(buildSegmentChoice(
+            segment4,
+            Segment.DELTA_UNLIMITED,
+            Segment.DELTA_UNLIMITED,
+            fake.program5,
+            fake.program5_sequence1_binding0));
+    for (String memeName : List.of("Cozy", "Classic", "Outlook", "Rosy"))
+      store.put(SegmentFixtures.buildSegmentMeme(segment4, memeName));
+    SegmentChord chord0 = store.put(SegmentFixtures.buildSegmentChord(segment4, 0.0f, "A minor"));
+    store.put(SegmentFixtures.buildSegmentChordVoicing(chord0, InstrumentType.Bass, "A2, C3, E3"));
+    SegmentChord chord1 = store.put(SegmentFixtures.buildSegmentChord(segment4, 8.0f, "D Major"));
+    store.put(SegmentFixtures.buildSegmentChordVoicing(chord1, InstrumentType.Bass, "D2, F#2, A2"));
+  }
+
   @Test
   public void craftDetailVoiceContinue() throws Exception {
     insertSegments3and4(false);
@@ -121,7 +182,7 @@ public class CraftDetailProgramVoiceContinueTest {
 
     store.readSegment(segment4.getId()).orElseThrow();
     assertFalse(fabricator.getChoices().isEmpty());
-    
+
     int pickedBloop = 0;
     Collection<SegmentChoiceArrangementPick> picks = fabricator.getPicks();
 
@@ -139,76 +200,5 @@ public class CraftDetailProgramVoiceContinueTest {
 
     craftFactory.detail(fabricator).doWork();
   }
-
-  /**
-   Insert fixture segments 3 and 4, including the detail choice for segment 3 only if specified
-
-   @param excludeDetailChoiceForSegment3 if desired for the purpose of this test
-   */
-  void insertSegments3and4(boolean excludeDetailChoiceForSegment3) throws FabricationException {
-    // segment just crafted
-    // Testing entities for reference
-    Segment segment3 = store.put(SegmentFixtures.buildSegment(
-      chain1,
-      SegmentType.CONTINUE,
-      2,
-      2,
-      SegmentState.CRAFTED,
-      "F Major",
-      64,
-      0.30f,
-      120.0f,
-      "chains-1-segments-9f7s89d8a7892.wav", true));
-    store.put(buildSegmentChoice(
-      segment3,
-      Segment.DELTA_UNLIMITED,
-      Segment.DELTA_UNLIMITED,
-      fake.program4,
-      fake.program4_sequence0_binding0));
-    store.put(buildSegmentChoice(
-      segment3,
-      Segment.DELTA_UNLIMITED,
-      Segment.DELTA_UNLIMITED,
-      fake.program5,
-      fake.program5_sequence0_binding0));
-    if (!excludeDetailChoiceForSegment3)
-      store.put(SegmentFixtures.buildSegmentChoice(
-        segment3,
-        Segment.DELTA_UNLIMITED,
-        Segment.DELTA_UNLIMITED,
-        fake.program10));
-
-    // segment crafting
-    segment4 = store.put(SegmentFixtures.buildSegment(
-      chain1,
-      SegmentType.CONTINUE,
-      3,
-      3,
-      SegmentState.CRAFTING,
-      "D Major",
-      16,
-      0.45f,
-      120.0f,
-      "chains-1-segments-9f7s89d8a7892.wav", true));
-    store.put(buildSegmentChoice(
-      segment4,
-      Segment.DELTA_UNLIMITED,
-      Segment.DELTA_UNLIMITED,
-      fake.program4,
-      fake.program4_sequence0_binding0));
-    store.put(buildSegmentChoice(
-      segment4,
-      Segment.DELTA_UNLIMITED,
-      Segment.DELTA_UNLIMITED,
-      fake.program5,
-      fake.program5_sequence1_binding0));
-    for (String memeName : List.of("Cozy", "Classic", "Outlook", "Rosy"))
-      store.put(SegmentFixtures.buildSegmentMeme(segment4, memeName));
-    SegmentChord chord0 = store.put(SegmentFixtures.buildSegmentChord(segment4, 0.0f, "A minor"));
-    store.put(SegmentFixtures.buildSegmentChordVoicing(chord0, InstrumentType.Bass, "A2, C3, E3"));
-    SegmentChord chord1 = store.put(SegmentFixtures.buildSegmentChord(segment4, 8.0f, "D Major"));
-    store.put(SegmentFixtures.buildSegmentChordVoicing(chord1, InstrumentType.Bass, "D2, F#2, A2"));
-  }
-
 
 }

@@ -4,26 +4,16 @@ package io.xj.engine.fabricator;
 
 
 import io.xj.engine.ContentFixtures;
-import io.xj.engine.SegmentFixtures;
 import io.xj.engine.FabricationException;
 import io.xj.engine.FabricationTopology;
-import io.xj.model.pojos.Chain;
-import io.xj.model.enums.ChainState;
-import io.xj.model.enums.ChainType;
-import io.xj.model.pojos.Segment;
-import io.xj.model.pojos.SegmentChoice;
-import io.xj.model.enums.SegmentState;
-import io.xj.model.enums.SegmentType;
+import io.xj.engine.SegmentFixtures;
 import io.xj.model.HubTopology;
 import io.xj.model.entity.EntityFactory;
 import io.xj.model.entity.EntityFactoryImpl;
-import io.xj.model.enums.ProgramType;
+import io.xj.model.enums.*;
 import io.xj.model.json.JsonProvider;
 import io.xj.model.json.JsonProviderImpl;
-import io.xj.model.pojos.Library;
-import io.xj.model.pojos.Project;
-import io.xj.model.pojos.Template;
-import io.xj.model.pojos.TemplateBinding;
+import io.xj.model.pojos.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,11 +27,7 @@ import java.util.UUID;
 import static io.xj.engine.SegmentFixtures.buildChain;
 import static io.xj.engine.SegmentFixtures.buildSegmentChoice;
 import static io.xj.model.util.ValueUtils.MICROS_PER_SECOND;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 public class FabricationContentEntityStoreImplTest {

@@ -2,40 +2,21 @@
 package io.xj.engine.craft.beat;
 
 import io.xj.engine.ContentFixtures;
-import io.xj.engine.SegmentFixtures;
 import io.xj.engine.FabricationTopology;
+import io.xj.engine.SegmentFixtures;
 import io.xj.engine.craft.CraftFactory;
 import io.xj.engine.craft.CraftFactoryImpl;
-import io.xj.engine.fabricator.SegmentEntityStore;
-import io.xj.engine.fabricator.SegmentEntityStoreImpl;
-import io.xj.engine.fabricator.Fabricator;
-import io.xj.engine.fabricator.FabricatorFactory;
-import io.xj.engine.fabricator.FabricatorFactoryImpl;
-import io.xj.model.pojos.Chain;
-import io.xj.model.enums.ChainState;
-import io.xj.model.enums.ChainType;
-import io.xj.model.pojos.Segment;
-import io.xj.model.pojos.SegmentChoice;
-import io.xj.model.pojos.SegmentChoiceArrangementPick;
-import io.xj.model.enums.SegmentState;
-import io.xj.model.enums.SegmentType;
+import io.xj.engine.fabricator.*;
 import io.xj.model.HubContent;
 import io.xj.model.HubTopology;
 import io.xj.model.entity.EntityFactoryImpl;
 import io.xj.model.entity.EntityUtils;
-import io.xj.model.enums.InstrumentMode;
-import io.xj.model.enums.InstrumentState;
-import io.xj.model.enums.InstrumentType;
-import io.xj.model.enums.ProgramState;
-import io.xj.model.enums.ProgramType;
+import io.xj.model.enums.*;
 import io.xj.model.json.JsonProvider;
 import io.xj.model.json.JsonProviderImpl;
 import io.xj.model.jsonapi.JsonapiPayloadFactory;
 import io.xj.model.jsonapi.JsonapiPayloadFactoryImpl;
-import io.xj.model.pojos.Instrument;
-import io.xj.model.pojos.InstrumentAudio;
-import io.xj.model.pojos.Program;
-import io.xj.model.pojos.ProgramVoice;
+import io.xj.model.pojos.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -159,6 +140,11 @@ public class CraftBeat_LayeredVoicesTest {
   }
 
 
+  @AfterEach
+  public void tearDown() {
+
+  }
+
   /**
    Some custom fixtures for testing
 
@@ -200,11 +186,6 @@ public class CraftBeat_LayeredVoicesTest {
     EntityUtils.add(entities, ContentFixtures.buildEvent(pattern35a2, trackSnare, 3.0f, 1.0f, "c3", 0.5f));
 
     return entities;
-  }
-
-  @AfterEach
-  public void tearDown() {
-
   }
 
   @Test

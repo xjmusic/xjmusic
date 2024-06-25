@@ -2,27 +2,23 @@
 package io.xj.engine.craft.detail_hook;
 
 import io.xj.engine.ContentFixtures;
-import io.xj.engine.SegmentFixtures;
 import io.xj.engine.FabricationTopology;
+import io.xj.engine.SegmentFixtures;
 import io.xj.engine.craft.CraftFactory;
 import io.xj.engine.craft.CraftFactoryImpl;
-import io.xj.engine.fabricator.SegmentEntityStore;
-import io.xj.engine.fabricator.SegmentEntityStoreImpl;
-import io.xj.engine.fabricator.Fabricator;
-import io.xj.engine.fabricator.FabricatorFactory;
-import io.xj.engine.fabricator.FabricatorFactoryImpl;
-import io.xj.model.enums.ChainState;
-import io.xj.model.enums.ChainType;
-import io.xj.model.pojos.Segment;
-import io.xj.model.enums.SegmentState;
-import io.xj.model.enums.SegmentType;
+import io.xj.engine.fabricator.*;
 import io.xj.model.HubContent;
 import io.xj.model.HubTopology;
 import io.xj.model.entity.EntityFactoryImpl;
+import io.xj.model.enums.ChainState;
+import io.xj.model.enums.ChainType;
+import io.xj.model.enums.SegmentState;
+import io.xj.model.enums.SegmentType;
 import io.xj.model.json.JsonProvider;
 import io.xj.model.json.JsonProviderImpl;
 import io.xj.model.jsonapi.JsonapiPayloadFactory;
 import io.xj.model.jsonapi.JsonapiPayloadFactoryImpl;
+import io.xj.model.pojos.Segment;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -121,10 +117,5 @@ public class CraftHookInitialTest {
     Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment6.getId(), 48000.0f, 2, null);
 
     craftFactory.detail(fabricator).doWork();
-
-//    // assert choice of hook-type sequence
-//    Collection<SegmentChoice> segmentChoices =
-//      store.getAll(segment6.getId(), SegmentChoice.class);
-//    assertNotNull(Segments.findFirstOfType(segmentChoices, InstrumentType.Hook));
   }
 }
