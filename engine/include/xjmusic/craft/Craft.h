@@ -563,13 +563,13 @@ namespace XJ {
      */
     void pickInstrumentAudio(
         const std::string &note,
-        const Instrument &instrument,
-        const ProgramSequencePatternEvent &event,
-        const SegmentChoiceArrangement &segmentChoiceArrangement,
-        long startAtSegmentMicros,
-        std::optional<long> lengthMicros,
+        const Instrument *instrument,
+        const ProgramSequencePatternEvent *event,
+        const SegmentChoiceArrangement *segmentChoiceArrangement,
+        const long &startAtSegmentMicros,
+        const std::optional<long> &lengthMicros,
         const std::optional<UUID> &segmentChordVoicingId,
-        float volRatio) const;
+        const float &volRatio) const;
 
     /**
      Select audio from a multiphonic instrument

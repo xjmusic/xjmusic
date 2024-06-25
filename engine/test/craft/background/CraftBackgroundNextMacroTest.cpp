@@ -1,7 +1,8 @@
-#include <gmock/gmock.h>
-#include <gtest/gtest.h>
 #include <set>
 #include <vector>
+
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
 
 #include "../../_helper/ContentFixtures.h"
 #include "../../_helper/SegmentFixtures.h"
@@ -155,5 +156,5 @@ TEST_F(CraftBackgroundNextMacroTest, CraftBackgroundNextMacro) {
   //    // assert choice of background-type sequence
   //    auto segmentChoices =
   //      store->getAll(segment4->id, SegmentChoice.class);
-  //    assertNotNull(Segments.findFirstOfType(segmentChoices, Instrument::Type::Background));
+  //    ASSERT_EQ(Segments.findFirstOfType(segmentChoices, Instrument::Type::Background).has_value(), true);
 }

@@ -211,7 +211,7 @@ protected:
         var sbPosition = getFloat(sbObj, "position");
         var sbSeed = getInt(sbObj, "seed");
         var event = detailProgramSequencePatternEvents.get(sbType).stream()
-          .filter(e -> e.getPosition().equals(sbPosition))
+          .filter(e -> e.getPosition()== sbPosition)
           .findAny()
           .orElseThrow(() -> FabricationException(String.format("Failed to locate event type %s position %f", sbType, sbPosition)));
         stickyBuns.add(new StickyBun(event->id, List.of(Objects.requireNonNull(sbSeed))));

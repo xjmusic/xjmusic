@@ -137,17 +137,17 @@ public class CraftHookProgramVoiceNextMacroTest {
 //    // assert hook choice
 //    auto segmentChoices = fabricator->getChoices();
 //    SegmentChoice hookChoice = segmentChoices.stream()
-//      .filter(c -> c.getInstrumentType().equals(Instrument::Type::Hook)).findFirst().value();
+//      .filter(c -> c.getInstrumentType()== Instrument::Type::Hook).findFirst().value();
 //    assertTrue(fabricator->getArrangements()
-//      .stream().anyMatch(a -> a.getSegmentChoiceId().equals(hookChoice->id)));
+//      .stream().anyMatch(a -> a.getSegmentChoiceId()== hookChoice->id));
 //    
 //    int pickedKick = 0;
 //    int pickedSnare = 0;
-//    Collection<SegmentChoiceArrangementPick> picks = fabricator->getPicks();
-//    for (SegmentChoiceArrangementPick pick : picks) {
-//      if (pick.getInstrumentAudioId().equals(audioKick->id))
+//    auto picks = fabricator->getPicks();
+//    for (auto pick : picks) {
+//      if (pick->instrumentAudioId== audioKick->id)
 //        pickedKick++;
-//      if (pick.getInstrumentAudioId().equals(audioSnare->id))
+//      if (pick->instrumentAudioId== audioSnare->id)
 //        pickedSnare++;
 //    }
 //    ASSERT_EQ(8, pickedKick);

@@ -111,13 +111,13 @@ public class CraftDetailProgramVoiceNextMainTest {
 
     craftFactory->detail(fabricator).doWork();
 
-    assertNotNull(fabricator->getArrangements(fabricator->getCurrentDetailChoices()));
+    ASSERT_EQ(fabricator->getArrangements(fabricator->getCurrentDetailChoices()).has_value(), true);
 
     
     int pickedBloop = 0;
-    Collection<SegmentChoiceArrangementPick> picks = fabricator->getPicks();
-    for (SegmentChoiceArrangementPick pick : picks) {
-      if (pick.getInstrumentAudioId().equals(fake->instrument9_audio8->id))
+    Collection<SegmentChoiceArrangementPick> = fabricator->getPicks();
+    for (auto pick : picks) {
+      if (pick->instrumentAudioId== fake->instrument9_audio8->id)
         pickedBloop++;
     }
     ASSERT_EQ(16, pickedBloop);

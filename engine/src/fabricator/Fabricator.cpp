@@ -109,7 +109,7 @@ std::set<SegmentChoiceArrangement *> Fabricator::getArrangements() {
 }
 
 
-std::set<SegmentChoiceArrangement *> Fabricator::getArrangements(const std::set<SegmentChoice *> &choices) {
+std::set<SegmentChoiceArrangement *> Fabricator::getArrangements(std::set<const SegmentChoice *> &choices) {
   std::vector<UUID> choiceIds;
   for (const auto &choice: choices) {
     choiceIds.push_back(choice->id);
@@ -578,16 +578,16 @@ NoteRange Fabricator::getProgramVoicingNoteRange(const Instrument::Type instrume
 }
 
 
-std::optional<ProgramSequence *> Fabricator::getRandomlySelectedSequence(const Program *program) {
-  std::vector<ProgramSequence> sequences;
-  for (const auto &sequence: sourceMaterial->getProgramSequences()) {
+std::optional<const ProgramSequence *> Fabricator::getRandomlySelectedSequence(const Program *program) {
+  std::vector<const ProgramSequence*> sequences;
+  for (const auto sequence: sourceMaterial->getProgramSequences()) {
     if (sequence->programId == program->id) {
-      sequences.emplace_back(*sequence);
+      sequences.emplace_back(sequence);
     }
   }
   if (sequences.empty())
     return std::nullopt;
-  return {&sequences[MarbleBag::quickPick(static_cast<int>(sequences.size()))]};
+  return {sequences[MarbleBag::quickPick(static_cast<int>(sequences.size()))]};
 }
 
 
@@ -744,15 +744,15 @@ std::optional<const ProgramSequence *> Fabricator::getSequence(const SegmentChoi
       return {sourceMaterial->getProgramSequence(sequenceBinding.value()->programSequenceId).value()};
   }
 
-  auto it = sequenceForChoice.find(*choice);
+  auto it = sequenceForChoice.find(choice);
   if (it == sequenceForChoice.end()) {
     const auto randomSequence = getRandomlySelectedSequence(program.value());
     if (randomSequence.has_value()) {
-      sequenceForChoice[(*choice)] = randomSequence.value();
+      sequenceForChoice[choice] = randomSequence.value();
     }
   }
 
-  it = sequenceForChoice.find(*choice);
+  it = sequenceForChoice.find(choice);
   if (it == sequenceForChoice.end()) {
     return std::nullopt;
   }

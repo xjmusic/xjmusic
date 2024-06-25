@@ -23,17 +23,15 @@ using ::testing::ReturnRef;
 
 using namespace XJ;
 
-class CraftTransitionProgramVoiceContinueTest : public ::testing::Test {
+class CraftBeatContinueTest : public ::testing::Test {
 protected:
   CraftFactory *craftFactory = nullptr;
   FabricatorFactory *fabricatorFactory = nullptr;
   ContentEntityStore *sourceMaterial = nullptr;
   SegmentEntityStore *store = nullptr;
   ContentFixtures *fake = nullptr;
-  Segment *segment4 = nullptr;
   Chain *chain1 = nullptr;
-  InstrumentAudio *audioKick = nullptr;
-  InstrumentAudio *audioSnare = nullptr;
+  Segment *segment4 = nullptr;
 
   void SetUp() override {
     craftFactory = new CraftFactory();
@@ -48,9 +46,10 @@ protected:
     sourceMaterial = new ContentEntityStore();
     fake->setupFixtureB1(sourceMaterial);
     fake->setupFixtureB2(sourceMaterial);
-    setupCustomFixtures();
+    fake->setupFixtureB3(sourceMaterial);
 
-    // Chain "Test Print #1" has 5 total segments
+
+    // Chain "Test Print #1" is fabricating segments
     chain1 = store->put(SegmentFixtures::buildChain(&fake->project1, "Test Print #1", Chain::Type::Production, Chain::State::Fabricate, &fake->template1, ""));
     store->put(SegmentFixtures::buildSegment(
         chain1,
@@ -83,31 +82,17 @@ protected:
     delete sourceMaterial;
     delete store;
     delete fake;
-    delete segment4;
     delete chain1;
-    delete audioKick;
-    delete audioSnare;
+    delete segment4;
   }
 
   /**
-   Some custom fixtures for testing
+   Insert fixture segments 3 and 4, including the beat choice for segment 3 only if specified
 
-   @return list of all entities
+   @param excludeBeatChoiceForSegment3 if desired for the purpose of this test
    */
-  void setupCustomFixtures() {
-    // Instrument "808"
-    const auto instrument1 = sourceMaterial->put(ContentFixtures::buildInstrument(&fake->library2, Instrument::Type::Transition, Instrument::Mode::Event, Instrument::State::Published, "Bongo Loop"));
-    sourceMaterial->put(ContentFixtures::buildMeme(instrument1, "heavy"));
-    audioKick = sourceMaterial->put(ContentFixtures::buildAudio(instrument1, "Kick", "19801735098q47895897895782138975898.wav", 0.01f, 2.123f, 120.0f, 0.6f, "KICK", "Eb", 1.0f));
-    audioSnare = sourceMaterial->put(ContentFixtures::buildAudio(instrument1, "Snare", "a1g9f8u0k1v7f3e59o7j5e8s98.wav", 0.01f, 1.5f, 120.0f, 0.6f, "SNARE", "Ab", 1.0f));
-  }
-
-  /**
-   Insert fixture segments 3 and 4, including the transition choice for segment 3 only if specified
-   */
-  void insertSegments3and4() {
+  void insertSegments3and4(bool excludeBeatChoiceForSegment3) {
     // segment just crafted
-    // Testing entities for reference
     const auto segment3 = store->put(SegmentFixtures::buildSegment(
         chain1,
         Segment::Type::Continue,
@@ -131,6 +116,12 @@ protected:
         SegmentChoice::DELTA_UNLIMITED,
         &fake->program5,
         &fake->program5_sequence0_binding0));
+    if (!excludeBeatChoiceForSegment3)
+      store->put(SegmentFixtures::buildSegmentChoice(
+          segment3,
+          SegmentChoice::DELTA_UNLIMITED,
+          SegmentChoice::DELTA_UNLIMITED,
+          &fake->program35));
 
     // segment crafting
     segment4 = store->put(SegmentFixtures::buildSegment(
@@ -163,9 +154,22 @@ protected:
   }
 };
 
-TEST_F(CraftTransitionProgramVoiceContinueTest, CraftTransitionVoiceContinue_okIfNoTransitionChoice) {
-  insertSegments3and4();
+TEST_F(CraftBeatContinueTest, CraftBeatContinue) {
+  insertSegments3and4(false);
   const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, 48000.0f, 2, std::nullopt);
 
-  craftFactory->transition(fabricator).doWork();
+  craftFactory->beat(fabricator).doWork();
+  // assert choice of beat-type sequence
+  const auto segmentChoices = store->readAllSegmentChoices(segment4->id);
+  ASSERT_EQ(SegmentUtils::findFirstOfType(segmentChoices, Program::Type::Beat).has_value(), true);
+}
+
+TEST_F(CraftBeatContinueTest, CraftBeatContinue_okEvenWithoutPreviousSegmentBeatChoice) {
+  insertSegments3and4(true);
+  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, 48000.0f, 2, std::nullopt);
+  craftFactory->beat(fabricator).doWork();
+
+  // assert choice of beat-type sequence
+  const auto segmentChoices = store->readAllSegmentChoices(segment4->id);
+  ASSERT_EQ(SegmentUtils::findFirstOfType(segmentChoices, Program::Type::Beat).has_value(), true);
 }

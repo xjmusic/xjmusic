@@ -131,8 +131,8 @@ public class CraftDetailInitialTest {
     craftFactory->detail(fabricator).doWork();
 
     // assert choice of detail-type sequence
-    Collection<SegmentChoice> choices = store->readAll(segment6->id, SegmentChoice.class);
-    assertNotNull(SegmentUtils::findFirstOfType(choices, Program::Type::Detail));
+    Collection<SegmentChoice> choices = store->readAllSegmentChoices(segment6->id);
+    ASSERT_EQ(SegmentUtils::findFirstOfType(choices, Program::Type::Detail).has_value(), true);
 
     // Detail Craft v1 -- segment chords voicings belong to chords and segments https://github.com/xjmusic/xjmusic/issues/284
     Collection<SegmentChordVoicing> voicings = store->readAll(segment6->id, SegmentChordVoicing.class);

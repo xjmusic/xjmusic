@@ -122,6 +122,6 @@ public class CraftHookInitialTest {
 //    // assert choice of hook-type sequence
 //    auto segmentChoices =
 //      store->getAll(segment6->id, SegmentChoice.class);
-//    assertNotNull(Segments.findFirstOfType(segmentChoices, Instrument::Type::Hook));
+//    ASSERT_EQ(Segments.findFirstOfType(segmentChoices, Instrument::Type::Hook).has_value(), true);
   }
 }

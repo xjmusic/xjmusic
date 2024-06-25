@@ -125,7 +125,7 @@ namespace XJ {
      @param choices to get segment arrangements for
      @return segments arrangements for the given segment choice
      */
-    virtual std::set<SegmentChoiceArrangement *> getArrangements(const std::set<SegmentChoice *> &choices);
+    virtual std::set<SegmentChoiceArrangement *> getArrangements(std::set<const SegmentChoice *> &choices);
 
     /**
      Get the Chain
@@ -441,7 +441,7 @@ namespace XJ {
 
      @return randomly selected sequence
      */
-    virtual std::optional<ProgramSequence *> getRandomlySelectedSequence(const Program *program);
+    virtual std::optional<const ProgramSequence *> getRandomlySelectedSequence(const Program *program);
 
     /**
      Selects one (at random) of all available patterns of a given type within a sequence. https://github.com/xjmusic/xjmusic/issues/204
@@ -909,7 +909,7 @@ namespace XJ {
     int outputChannels;
     std::map<double, std::optional<SegmentChord *>> chordAtPosition;
     std::map<Instrument::Type, NoteRange> voicingNoteRange;
-    std::map<SegmentChoice, ProgramSequence *> sequenceForChoice;
+    std::map<const SegmentChoice *, const ProgramSequence *> sequenceForChoice;
     std::map<std::string, const InstrumentAudio *> preferredAudios;
     std::map<std::string, InstrumentConfig> instrumentConfigs;
     std::map<std::string, InstrumentConfig> pickInstrumentConfigs;

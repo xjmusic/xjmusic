@@ -41,6 +41,15 @@ add_executable(xjmusic_test
         craft/background/CraftBackgroundProgramVoiceNextMacroTest.cpp
         craft/background/CraftBackgroundProgramVoiceNextMainTest.cpp
         craft/background/CraftBackground_LayeredVoicesTest.cpp
+        craft/beat/CraftBeatContinueTest.cpp
+        craft/beat/CraftBeatInitialTest.cpp
+        craft/beat/CraftBeatNextMacroTest.cpp
+        craft/beat/CraftBeatNextMainTest.cpp
+        craft/beat/CraftBeatProgramVoiceContinueTest.cpp
+        craft/beat/CraftBeatProgramVoiceInitialTest.cpp
+        craft/beat/CraftBeatProgramVoiceNextMacroTest.cpp
+        craft/beat/CraftBeatProgramVoiceNextMainTest.cpp
+        craft/beat/CraftBeat_LayeredVoicesTest.cpp
         craft/macro_main/CraftFoundationContinueTest.cpp
         craft/macro_main/CraftFoundationInitialTest.cpp
         craft/macro_main/CraftFoundationNextMacroTest.cpp

@@ -113,7 +113,7 @@ public class CraftPercLoopNextMacroTest {
 //    // assert choice of percLoop-type sequence
 //    auto segmentChoices =
 //      store->getAll(segment4->id, SegmentChoice.class);
-//    assertNotNull(Segments.findFirstOfType(segmentChoices, Instrument::Type::Percussion));
+//    ASSERT_EQ(Segments.findFirstOfType(segmentChoices, Instrument::Type::Percussion).has_value(), true);
   }
 
   /**

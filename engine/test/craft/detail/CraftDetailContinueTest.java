@@ -123,8 +123,8 @@ public class CraftDetailContinueTest {
     craftFactory->detail(fabricator).doWork();
     // assert choice of detail-type sequence
     auto segmentChoices =
-      store->readAll(segment4->id, SegmentChoice.class);
-    assertNotNull(SegmentUtils::findFirstOfType(segmentChoices, Program::Type::Detail));
+      store->readAllSegmentChoices(segment4->id);
+    ASSERT_EQ(SegmentUtils::findFirstOfType(segmentChoices, Program::Type::Detail).has_value(), true);
   }
 
   @Test
@@ -135,8 +135,8 @@ public class CraftDetailContinueTest {
 
     // assert choice of detail-type sequence
     auto segmentChoices =
-      store->readAll(segment4->id, SegmentChoice.class);
-    assertNotNull(SegmentUtils::findFirstOfType(segmentChoices, Program::Type::Detail));
+      store->readAllSegmentChoices(segment4->id);
+    ASSERT_EQ(SegmentUtils::findFirstOfType(segmentChoices, Program::Type::Detail).has_value(), true);
   }
 
   /**

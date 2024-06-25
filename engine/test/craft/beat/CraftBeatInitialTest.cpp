@@ -23,7 +23,7 @@ using ::testing::ReturnRef;
 
 using namespace XJ;
 
-class CraftTransitionInitialTest : public ::testing::Test {
+class CraftBeatInitialTest : public ::testing::Test {
 protected:
   CraftFactory *craftFactory = nullptr;
   FabricatorFactory *fabricatorFactory = nullptr;
@@ -46,6 +46,7 @@ protected:
     fake->setupFixtureB2(sourceMaterial);
     fake->setupFixtureB3(sourceMaterial);
 
+
     // Chain "Print #2" has 1 initial segment in crafting state - Foundation is complete
     const auto tmpl = ContentFixtures::buildTemplate(&fake->project1, "Test");
     const auto chain2 = store->put(SegmentFixtures::buildChain(
@@ -66,8 +67,7 @@ protected:
         16,
         0.55f,
         130.0f,
-        "chains-1-segments-9f7s89d8a7892.wav",
-        true));
+        "chains-1-segments-9f7s89d8a7892.wav", true));
     store->put(SegmentFixtures::buildSegmentChoice(
         segment6,
         SegmentChoice::DELTA_UNLIMITED,
@@ -96,8 +96,13 @@ protected:
   }
 };
 
-TEST_F(CraftTransitionInitialTest, CraftTransitionInitial) {
+TEST_F(CraftBeatInitialTest, CraftBeatInitial) {
   const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment6->id, 48000.0f, 2, std::nullopt);
 
-  craftFactory->transition(fabricator).doWork();
+  craftFactory->beat(fabricator).doWork();
+
+  // assert choice of beat-type sequence
+  const auto segmentChoices =
+      store->readAllSegmentChoices(segment6->id);
+  ASSERT_EQ(SegmentUtils::findFirstOfType(segmentChoices, Program::Type::Beat).has_value(), true);
 }

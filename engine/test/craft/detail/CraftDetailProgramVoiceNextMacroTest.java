@@ -115,14 +115,14 @@ public class CraftDetailProgramVoiceNextMacroTest {
     // assert detail choice
     auto segmentChoices = fabricator->getChoices();
     SegmentChoice beatChoice = segmentChoices.stream()
-      .filter(c -> c.getProgramType().equals(Program::Type::Detail)).findFirst().value();
+      .filter(c -> c.getProgramType()== Program::Type::Detail).findFirst().value();
     assertTrue(fabricator->getArrangements()
-      .stream().anyMatch(a -> a.getSegmentChoiceId().equals(beatChoice->id)));
+      .stream().anyMatch(a -> a.getSegmentChoiceId()== beatChoice->id));
     
     int pickedBloop = 0;
-    Collection<SegmentChoiceArrangementPick> picks = fabricator->getPicks();
-    for (SegmentChoiceArrangementPick pick : picks) {
-      if (pick.getInstrumentAudioId().equals(fake->instrument9_audio8->id))
+    auto picks = fabricator->getPicks();
+    for (auto pick : picks) {
+      if (pick->instrumentAudioId== fake->instrument9_audio8->id)
         pickedBloop++;
     }
     ASSERT_EQ(16, pickedBloop);

@@ -114,7 +114,7 @@ public class CraftHookContinueTest {
 //    // assert choice of hook-type sequence
 //    auto segmentChoices =
 //      store->getAll(segment4->id, SegmentChoice.class);
-//    assertNotNull(Segments.findFirstOfType(segmentChoices, Instrument::Type::Hook));
+//    ASSERT_EQ(Segments.findFirstOfType(segmentChoices, Instrument::Type::Hook).has_value(), true);
   }
 
   /**
@@ -197,7 +197,7 @@ public class CraftHookContinueTest {
     // assert choice of hook-type sequence
     auto segmentChoices =
       store->getAll(segment4->id, SegmentChoice.class);
-    assertNotNull(Segments.findFirstOfType(segmentChoices, Instrument::Type::Hook));
+    ASSERT_EQ(Segments.findFirstOfType(segmentChoices, Instrument::Type::Hook).has_value(), true);
 */
   }
 }

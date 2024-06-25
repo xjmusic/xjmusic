@@ -44,7 +44,7 @@ import java.util.stream.Stream;
 import static io.xj.engine.SegmentFixtures::buildSegment;
 import static io.xj.engine.SegmentFixtures::buildSegmentChoice;
 import static org.junit.jupiter.api.Assertions.ASSERT_EQ;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.ASSERT_FALSE;
 
 @ExtendWith(MockitoExtension.class)
 public class CraftDetailProgramVoiceContinueTest {
@@ -117,13 +117,13 @@ public class CraftDetailProgramVoiceContinueTest {
     craftFactory->detail(fabricator).doWork();
 
     store->readSegment(segment4->id).value();
-    assertFalse(fabricator->getChoices().empty());
+    ASSERT_FALSE(fabricator->getChoices().empty());
     
     int pickedBloop = 0;
-    Collection<SegmentChoiceArrangementPick> picks = fabricator->getPicks();
+    auto picks = fabricator->getPicks();
 
-    for (SegmentChoiceArrangementPick pick : picks) {
-      if (pick.getInstrumentAudioId().equals(fake->instrument9_audio8->id))
+    for (auto pick : picks) {
+      if (pick->instrumentAudioId== fake->instrument9_audio8->id)
         pickedBloop++;
     }
     ASSERT_EQ(16, pickedBloop);

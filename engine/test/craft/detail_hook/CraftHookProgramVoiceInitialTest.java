@@ -93,21 +93,21 @@ public class CraftHookProgramVoiceInitialTest {
     craftFactory->detail(fabricator).doWork();
 
 //    auto result = store->getSegment(segment0->id).value();
-//    assertFalse(store->getAll(result->id, SegmentChoice.class).empty());
+//    ASSERT_FALSE(store->getAll(result->id, SegmentChoice.class).empty());
 //    
 //    int pickedKick = 0;
 //    int pickedSnare = 0;
 //    int pickedBleep = 0;
 //    int pickedToot = 0;
-//    Collection<SegmentChoiceArrangementPick> picks = fabricator->getPicks();
-//    for (SegmentChoiceArrangementPick pick : picks) {
-//      if (pick.getInstrumentAudioId().equals(fake->instrument8_audio8kick->id))
+//    auto picks = fabricator->getPicks();
+//    for (auto pick : picks) {
+//      if (pick->instrumentAudioId== fake->instrument8_audio8kick->id)
 //        pickedKick++;
-//      if (pick.getInstrumentAudioId().equals(fake->instrument8_audio8snare->id))
+//      if (pick->instrumentAudioId== fake->instrument8_audio8snare->id)
 //        pickedSnare++;
-//      if (pick.getInstrumentAudioId().equals(fake->instrument8_audio8bleep->id))
+//      if (pick->instrumentAudioId== fake->instrument8_audio8bleep->id)
 //        pickedBleep++;
-//      if (pick.getInstrumentAudioId().equals(fake->instrument8_audio8toot->id))
+//      if (pick->instrumentAudioId== fake->instrument8_audio8toot->id)
 //        pickedToot++;
 //    }
 //    ASSERT_EQ(12, pickedKick);

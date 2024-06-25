@@ -137,17 +137,17 @@ public class CraftPercLoopProgramVoiceNextMacroTest {
 //    // assert percLoop choice
 //    auto segmentChoices = fabricator->getChoices();
 //    SegmentChoice percLoopChoice = segmentChoices.stream()
-//      .filter(c -> c.getInstrumentType().equals(Instrument::Type::Percussion)).findFirst().value();
+//      .filter(c -> c.getInstrumentType()== Instrument::Type::Percussion).findFirst().value();
 //    assertTrue(fabricator->getArrangements()
-//      .stream().anyMatch(a -> a.getSegmentChoiceId().equals(percLoopChoice->id)));
+//      .stream().anyMatch(a -> a.getSegmentChoiceId()== percLoopChoice->id));
 //    
 //    int pickedKick = 0;
 //    int pickedSnare = 0;
-//    Collection<SegmentChoiceArrangementPick> picks = fabricator->getPicks();
-//    for (SegmentChoiceArrangementPick pick : picks) {
-//      if (pick.getInstrumentAudioId().equals(audioKick->id))
+//    auto picks = fabricator->getPicks();
+//    for (auto pick : picks) {
+//      if (pick->instrumentAudioId== audioKick->id)
 //        pickedKick++;
-//      if (pick.getInstrumentAudioId().equals(audioSnare->id))
+//      if (pick->instrumentAudioId== audioSnare->id)
 //        pickedSnare++;
 //    }
 //    ASSERT_EQ(8, pickedKick);
