@@ -27,6 +27,13 @@ namespace XJ {
      */
     void doWork() const;
 
+   /**
+    will rank all possibilities, and choose the next macro program
+
+    @return macro-type program
+    */
+   const Program *chooseMacroProgram() const;
+
   private:
     /**
      Do the macro-choice work.
@@ -101,13 +108,6 @@ namespace XJ {
      @return program
      */
     const Program *chooseRandomProgram(const std::set<const Program *> &programs, std::set<UUID> avoid) const;
-
-    /**
-     will rank all possibilities, and choose the next macro program
-
-     @return macro-type program
-     */
-    const Program *chooseMacroProgram() const;
 
     /**
      Choose main program

@@ -65,6 +65,7 @@ add_executable(xjmusic_test
         craft/macro_main/CraftFoundationNextMainTest.cpp
         craft/macro_main/CraftSegmentOutputEncoderTest.cpp
         craft/macro_main/CraftSegmentPatternMemeTest.cpp
+        craft/macro_main/MacroFromOverlappingMemeSequencesTest.cpp
 )
 
 # I'm using C++17 in the test
