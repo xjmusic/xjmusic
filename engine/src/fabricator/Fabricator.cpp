@@ -839,7 +839,7 @@ bool Fabricator::hasTwoMoreSequenceBindingOffsets(const SegmentChoice *choice) {
 
 
 bool Fabricator::isContinuationOfMacroProgram() {
-  return Segment::Type::Continue == type || Segment::Type::NextMain == type;
+  return getType() == Segment::Type::Continue || getType() == Segment::Type::NextMain;
 }
 
 
