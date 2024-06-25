@@ -80,7 +80,7 @@ public class CraftDetailInitialTest {
     ).collect(Collectors.toList()));
 
     // Chain "Print #2" has 1 initial segment in crafting state - Foundation is complete
-    auto chain2 = store->put(buildChain(
+    auto chain2 = store->put(SegmentFixtures::buildChain(
       fake->project1,
       fake->template1,
       "Print #2",
