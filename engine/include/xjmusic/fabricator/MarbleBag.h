@@ -4,9 +4,8 @@
 #define XJMUSIC_UTIL_MARBLE_BAG_H
 
 #include <map>
-#include <set>
-#include <random>
 #include <optional>
+#include <random>
 
 #include "xjmusic/content/ContentEntity.h"
 
@@ -30,20 +29,35 @@ namespace XJ {
    * This supports functionality such as “XJ always chooses a directly-bound program or instrument when available”
    */
   class MarbleBag {
-  public:
+   std::map<int /*Phase*/, std::map<UUID /*Id*/, int /*Qty*/>> marbles;
+   std::random_device rd;
+   std::mt19937 gen{rd()};
 
+  public:
     /**
      * Construct a new Marble Bag
      */
     MarbleBag() = default;
 
     /**
-     * Construct an empty marble bag
+     * Construct a new Marble Bag from a copy of another Marble Bag
      */
-    static MarbleBag empty();
+    MarbleBag(const MarbleBag &other);
 
     /**
-     * @return {String} marble picked at random from bag
+     * Assignment operator
+     * @param other marble bag
+     * @return marble bag
+     */
+    MarbleBag &operator=(const MarbleBag &other) {
+      if (this != &other) {
+         marbles = other.marbles;
+      }
+      return *this;
+    }
+
+    /**
+     * @return {std::string} marble picked at random from bag
      */
     UUID pick();
 
@@ -53,7 +67,7 @@ namespace XJ {
      * @param phase of selection
      * @param toAdd map of marble id to quantity
      */
-    void addAll(int phase, const std::map<UUID, int>& toAdd);
+    void addAll(int phase, const std::map<UUID, int> &toAdd);
 
     /**
      * Add one marble to the bag; increments the count of this marble +1
@@ -61,7 +75,7 @@ namespace XJ {
      * @param phase of selection
      * @param id    of the marble to add
      */
-    void add(int phase, const UUID& id);
+    void add(int phase, const UUID &id);
 
     /**
      * Add a quantity of marbles to the bag; increments the count of the specified marble by the specified quantity.
@@ -70,7 +84,7 @@ namespace XJ {
      * @param id    of the marble to add
      * @param qty   quantity of this marble to add
      */
-    void add(int phase, const UUID& id, int qty);
+    void add(int phase, const UUID &id, int qty);
 
     /**
      * Number of marbles in the bag
@@ -87,7 +101,7 @@ namespace XJ {
     /**
      * @return true if the marble bag is completely empty
      */
-    bool isEmpty();
+    bool empty();
 
     /**
      * @return true if there are any marbles in the bag
@@ -109,6 +123,14 @@ namespace XJ {
     static int quickPick(int total);
 
     /**
+     Make a tremendously random boolean selection based on probability
+
+     @param probability 0 <= n < limit
+     @return random integer n, where 0 <= n < limit
+     */
+    static bool quickBooleanChanceOf(float probability);
+
+    /**
      * Group of marbles with a given id
      */
     class Group {
@@ -119,12 +141,6 @@ namespace XJ {
 
       Group(UUID id, int from, int to);
     };
-
-  private:
-    std::map<int/*Phase*/, std::map<UUID/*Id*/, int/*Qty*/>> marbles;
-    std::random_device rd;
-    std::mt19937 gen{rd()};
-
   };
 
 }// namespace XJ

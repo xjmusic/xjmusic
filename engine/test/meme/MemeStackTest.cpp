@@ -85,10 +85,9 @@ TEST(MemeStackTest, StrongMemes_OkayToAddBothStrongAndRegular_ButNotOnlyStrong) 
 TEST(MemeStackTest, StrongMemes_WithTaxonomy) {
   std::set<MapStringToOneOrManyString> input = {
       {{"name", "VOXHOOK"}, {"memes", std::set<std::string>{"DONTLOOK", "NEEDU", "FLOAT", "ALLGO"}}},
-      {{"name", "SEASON"},  {"memes", std::set<std::string>{"WINTER", "SPRING", "SUMMER", "FALL"}}}
-  };
+      {{"name", "SEASON"}, {"memes", std::set<std::string>{"WINTER", "SPRING", "SUMMER", "FALL"}}}};
 
-  auto taxonomy = MemeTaxonomy::fromSet(input);
+  const auto taxonomy = MemeTaxonomy::fromSet(input);
 
   ASSERT_TRUE(MemeStack::from(
       taxonomy,
@@ -133,7 +132,7 @@ TEST(MemeStackTest, StrongMemes_WithTaxonomy) {
  That would tell XJ about the existence of a meme category called City with values `CHICAGO`, `DENVER`, and `PHILADELPHIA`. And these would function as exclusion like numeric memes, e.g. after content having `CHICAGO` is chosen, we can choose nothing with `DENVER` or `PHILADELPHIA`.
  */
 TEST(MemeStackTest, MemeCategories) {
-  auto taxonomy = MemeTaxonomy::fromString("CITY[CHICAGO,DENVER,PHILADELPHIA]");
+  const auto taxonomy = MemeTaxonomy::fromString("CITY[CHICAGO,DENVER,PHILADELPHIA]");
 
   ASSERT_TRUE(MemeStack::from(taxonomy, {"CHICAGO", "ORANGES"}).isAllowed({"PEACHES"}));
   ASSERT_FALSE(MemeStack::from(taxonomy, {"CHICAGO", "ORANGES"}).isAllowed({"DENVER"}));
@@ -143,7 +142,7 @@ TEST(MemeStackTest, MemeCategories) {
 }
 
 TEST(MemeStackTest, MemeCategories_AllowAlreadyPresentFromTaxonomy) {
-  auto taxonomy = MemeTaxonomy::fromString("CITY[ABERDEEN,NAGOYA]");
+  const auto taxonomy = MemeTaxonomy::fromString("CITY[ABERDEEN,NAGOYA]");
 
   ASSERT_TRUE(MemeStack::from(taxonomy, {"ABERDEEN"}).isAllowed({"ABERDEEN"}));
 }

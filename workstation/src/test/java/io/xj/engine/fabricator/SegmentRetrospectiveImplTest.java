@@ -3,27 +3,19 @@
 package io.xj.engine.fabricator;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import io.xj.engine.FabricationException;
+import io.xj.engine.FabricationTopology;
+import io.xj.engine.SegmentFixtures;
 import io.xj.model.HubContent;
 import io.xj.model.HubTopology;
 import io.xj.model.entity.EntityFactoryImpl;
-import io.xj.model.enums.ProgramType;
+import io.xj.model.enums.*;
 import io.xj.model.json.JsonProvider;
 import io.xj.model.json.JsonProviderImpl;
 import io.xj.model.jsonapi.JsonapiPayloadFactory;
 import io.xj.model.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.model.music.StickyBun;
-import io.xj.model.pojos.Program;
-import io.xj.model.pojos.ProgramSequenceBinding;
-import io.xj.engine.FabricationException;
-import io.xj.engine.SegmentFixtures;
-import io.xj.engine.FabricationTopology;
-import io.xj.model.pojos.Chain;
-import io.xj.model.enums.ChainState;
-import io.xj.model.enums.ChainType;
-import io.xj.model.pojos.Segment;
-import io.xj.model.pojos.SegmentChoice;
-import io.xj.model.enums.SegmentState;
-import io.xj.model.enums.SegmentType;
+import io.xj.model.pojos.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,11 +25,8 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.xj.engine.SegmentFixtures.buildSegment;
 import static io.xj.engine.SegmentFixtures.buildSegmentChoice;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 public class SegmentRetrospectiveImplTest {

@@ -2,61 +2,59 @@
 
 #include "SegmentFixtures.h"
 
+#include "ContentFixtures.h"
+
 #include <utility>
+#include <xjmusic/util/ValueUtils.h>
 
 using namespace XJ;
 
 Chain SegmentFixtures::buildChain(
-    const Template &tmpl
-) {
+    const Template *tmpl) {
   return buildChain(tmpl, Chain::State::Fabricate);
 }
 
 Chain SegmentFixtures::buildChain(
-    const Template &tmpl,
-    Chain::State state
-) {
+    const Template *tmpl,
+    const Chain::State state) {
   Chain chain;
   chain.id = EntityUtils::computeUniqueId();
-  chain.templateId = tmpl.id;
+  chain.templateId = tmpl->id;
   chain.name = "Test Chain";
   chain.type = Chain::Type::Production;
-  chain.templateConfig = tmpl.config;
+  chain.templateConfig = tmpl->config;
   chain.state = state;
   return chain;
 }
 
 Chain SegmentFixtures::buildChain(
-    const Project &project,
+    const Project *project,
     const std::string &name,
-    Chain::Type type,
-    Chain::State state,
-    const Template &tmpl
-) {
+    const Chain::Type type,
+    const Chain::State state,
+    const Template *tmpl) {
   return buildChain(project, name, type, state, tmpl, StringUtils::toShipKey(name));
 }
 
 Chain SegmentFixtures::buildChain(
-    const Project &project,
-    const Template &tmpl,
+    const Project *project,
+    const Template *tmpl,
     const std::string &name,
-    Chain::Type type,
-    Chain::State state
-) {
+    const Chain::Type type,
+    const Chain::State state) {
   return buildChain(project, name, type, state, tmpl, StringUtils::toShipKey(name));
 }
 
 Chain SegmentFixtures::buildChain(
-    const Project &project,
+    const Project *project,
     std::string name,
-    Chain::Type type,
-    Chain::State state,
-    const Template &tmpl,
-    const std::string &shipKey
-) {
+    const Chain::Type type,
+    const Chain::State state,
+    const Template *tmpl,
+    const std::string &shipKey) {
   Chain chain;
   chain.id = EntityUtils::computeUniqueId();
-  chain.templateId = tmpl.id;
+  chain.templateId = tmpl->id;
   chain.name = std::move(name);
   chain.type = type;
   chain.state = state;
@@ -72,15 +70,14 @@ Segment SegmentFixtures::buildSegment() {
 }
 
 Segment SegmentFixtures::buildSegment(
-    const Chain &chain,
-    int id,
-    Segment::State state,
+    const Chain *chain,
+    const int id,
+    const Segment::State state,
     std::string key,
-    int total,
-    float intensity,
-    float tempo,
-    std::string storageKey
-) {
+    const int total,
+    const float intensity,
+    const float tempo,
+    std::string storageKey) {
   return buildSegment(chain,
                       0 < id ? Segment::Type::Continue : Segment::Type::Initial,
                       id, 0, state, std::move(key), total, intensity, tempo, std::move(storageKey),
@@ -88,26 +85,25 @@ Segment SegmentFixtures::buildSegment(
 }
 
 Segment SegmentFixtures::buildSegment(
-    const Chain &chain,
-    Segment::Type type,
-    int id,
-    int delta,
-    Segment::State state,
+    const Chain *chain,
+    const Segment::Type type,
+    const int id,
+    const int delta,
+    const Segment::State state,
     std::string key,
-    int total,
-    float intensity,
-    float tempo,
+    const int total,
+    const float intensity,
+    const float tempo,
     std::string storageKey,
-    bool hasEndSet
-) {
+    const bool hasEndSet) {
   Segment segment;
-  segment.chainId = chain.id;
+  segment.chainId = chain->id;
   segment.type = type;
   segment.id = id;
   segment.delta = delta;
   segment.state = state;
   segment.beginAtChainMicros =
-      (long) (id * ValueUtils::MICROS_PER_SECOND * static_cast<float>(total * ValueUtils::SECONDS_PER_MINUTE / tempo));
+      static_cast<long>(id * ValueUtils::MICROS_PER_SECOND * static_cast<float>(total * ValueUtils::SECONDS_PER_MINUTE / tempo));
   segment.key = std::move(key);
   segment.total = total;
   segment.intensity = intensity;
@@ -118,79 +114,74 @@ Segment SegmentFixtures::buildSegment(
 
   if (hasEndSet)
     segment.durationMicros =
-        (long) (ValueUtils::MICROS_PER_SECOND * static_cast<float>(total * ValueUtils::SECONDS_PER_MINUTE / tempo));
+        static_cast<long>(ValueUtils::MICROS_PER_SECOND * static_cast<float>(total * ValueUtils::SECONDS_PER_MINUTE / tempo));
 
   return segment;
 }
 
 Segment SegmentFixtures::buildSegment(
-    const Chain &chain,
+    const Chain *chain,
     std::string key,
-    int total,
-    float intensity,
-    float tempo
-) {
+    const int total,
+    const float intensity,
+    const float tempo) {
   return buildSegment(chain, 0, Segment::State::Crafting, std::move(key), total, intensity, tempo, "segment123");
 }
 
 Segment SegmentFixtures::buildSegment(
-    const Chain &chain,
-    int offset,
+    const Chain *chain,
+    const int offset,
     std::string key,
-    int total,
-    float intensity,
-    float tempo
-) {
+    const int total,
+    const float intensity,
+    const float tempo) {
   return buildSegment(chain, offset, Segment::State::Crafting, std::move(key), total, intensity, tempo, "segment123");
 }
 
 SegmentChoice SegmentFixtures::buildSegmentChoice(
-    const Segment &segment,
-    Program::Type programType,
-    const ProgramSequenceBinding &programSequenceBinding
-) {
+    const Segment *segment,
+    const Program::Type programType,
+    const ProgramSequenceBinding *programSequenceBinding) {
   SegmentChoice segmentChoice;
   segmentChoice.id = EntityUtils::computeUniqueId();
-  segmentChoice.segmentId = segment.id;
+  segmentChoice.segmentId = segment->id;
   segmentChoice.deltaIn = SegmentChoice::DELTA_UNLIMITED;
   segmentChoice.deltaOut = SegmentChoice::DELTA_UNLIMITED;
-  segmentChoice.programId = programSequenceBinding.programId;
-  segmentChoice.programSequenceBindingId = programSequenceBinding.id;
+  segmentChoice.programId = programSequenceBinding->programId;
+  segmentChoice.programSequenceBindingId = programSequenceBinding->id;
   segmentChoice.programType = programType;
   return segmentChoice;
 }
 
 SegmentChoice SegmentFixtures::buildSegmentChoice(
-    const Segment &segment,
-    Program::Type programType,
-    const ProgramSequence &programSequence
-) {
+    const Segment *segment,
+    const Program::Type programType,
+    const ProgramSequence *programSequence) {
   SegmentChoice segmentChoice;
   segmentChoice.id = EntityUtils::computeUniqueId();
-  segmentChoice.segmentId = segment.id;
+  segmentChoice.segmentId = segment->id;
   segmentChoice.deltaIn = SegmentChoice::DELTA_UNLIMITED;
   segmentChoice.deltaOut = SegmentChoice::DELTA_UNLIMITED;
-  segmentChoice.programId = programSequence.programId;
-  segmentChoice.programSequenceId = programSequence.id;
+  segmentChoice.programId = programSequence->programId;
+  segmentChoice.programSequenceId = programSequence->id;
   segmentChoice.programType = programType;
   return segmentChoice;
 }
 
 SegmentChoice SegmentFixtures::buildSegmentChoice(
-    const Segment &segment,
-    int deltaIn,
-    int deltaOut,
-    const Program &program,
-    Instrument::Type instrumentType,
-    Instrument::Mode instrumentMode
-) {
+    const Segment *segment,
+    const int deltaIn,
+    const int deltaOut,
+    const Program *program,
+    const Instrument::Type instrumentType,
+    const Instrument::Mode instrumentMode) {
   SegmentChoice segmentChoice;
   segmentChoice.id = EntityUtils::computeUniqueId();
-  segmentChoice.segmentId = segment.id;
+  segmentChoice.segmentId = segment->id;
   segmentChoice.deltaIn = deltaIn;
   segmentChoice.deltaOut = deltaOut;
-  segmentChoice.programId = program.id;
-  segmentChoice.programType = program.type;
+  segmentChoice.programId = program->id;
+  segmentChoice.programType = program->type;
   segmentChoice.mute = false;
   segmentChoice.instrumentType = instrumentType;
   segmentChoice.instrumentMode = instrumentMode;
@@ -198,200 +189,187 @@ SegmentChoice SegmentFixtures::buildSegmentChoice(
 }
 
 SegmentChoice SegmentFixtures::buildSegmentChoice(
-    const Segment &segment,
-    const Program &program
-) {
+    const Segment *segment,
+    const Program *program) {
   SegmentChoice segmentChoice;
   segmentChoice.id = EntityUtils::computeUniqueId();
-  segmentChoice.segmentId = segment.id;
+  segmentChoice.segmentId = segment->id;
   segmentChoice.deltaIn = SegmentChoice::DELTA_UNLIMITED;
   segmentChoice.deltaOut = SegmentChoice::DELTA_UNLIMITED;
-  segmentChoice.programId = program.id;
-  segmentChoice.programType = program.type;
+  segmentChoice.programId = program->id;
+  segmentChoice.programType = program->type;
   return segmentChoice;
 }
 
 SegmentChoice SegmentFixtures::buildSegmentChoice(
-    const Segment &segment,
-    const Instrument &instrument
-) {
+    const Segment *segment,
+    const Instrument *instrument) {
   SegmentChoice segmentChoice;
   segmentChoice.id = EntityUtils::computeUniqueId();
-  segmentChoice.segmentId = segment.id;
+  segmentChoice.segmentId = segment->id;
   segmentChoice.deltaIn = SegmentChoice::DELTA_UNLIMITED;
   segmentChoice.deltaOut = SegmentChoice::DELTA_UNLIMITED;
-  segmentChoice.instrumentId = instrument.id;
-  segmentChoice.instrumentType = instrument.type;
+  segmentChoice.instrumentId = instrument->id;
+  segmentChoice.instrumentType = instrument->type;
   return segmentChoice;
 }
 
 SegmentMeta SegmentFixtures::buildSegmentMeta(
-    const Segment &segment,
+    const Segment *segment,
     std::string key,
-    std::string value
-) {
+    std::string value) {
   SegmentMeta segmentMeta;
   segmentMeta.id = EntityUtils::computeUniqueId();
-  segmentMeta.segmentId = segment.id;
+  segmentMeta.segmentId = segment->id;
   segmentMeta.key = std::move(key);
   segmentMeta.value = std::move(value);
   return segmentMeta;
 }
 
 SegmentChoice SegmentFixtures::buildSegmentChoice(
-    const Segment &segment,
-    const Program &program,
-    const ProgramSequence &programSequence,
-    const ProgramVoice &voice,
-    const Instrument &instrument
-) {
+    const Segment *segment,
+    const Program *program,
+    const ProgramSequence *programSequence,
+    const ProgramVoice *voice,
+    const Instrument *instrument) {
   SegmentChoice segmentChoice;
   segmentChoice.id = EntityUtils::computeUniqueId();
-  segmentChoice.programVoiceId = voice.id;
-  segmentChoice.instrumentId = instrument.id;
-  segmentChoice.instrumentType = instrument.type;
+  segmentChoice.programVoiceId = voice->id;
+  segmentChoice.instrumentId = instrument->id;
+  segmentChoice.instrumentType = instrument->type;
   segmentChoice.mute = false;
-  segmentChoice.instrumentMode = instrument.mode;
+  segmentChoice.instrumentMode = instrument->mode;
   segmentChoice.deltaIn = SegmentChoice::DELTA_UNLIMITED;
   segmentChoice.deltaOut = SegmentChoice::DELTA_UNLIMITED;
-  segmentChoice.segmentId = segment.id;
-  segmentChoice.programId = program.id;
-  segmentChoice.programSequenceId = programSequence.id;
-  segmentChoice.programType = program.type;
+  segmentChoice.segmentId = segment->id;
+  segmentChoice.programId = program->id;
+  segmentChoice.programSequenceId = programSequence->id;
+  segmentChoice.programType = program->type;
   return segmentChoice;
 }
 
 SegmentChoice SegmentFixtures::buildSegmentChoice(
-    const Segment &segment,
-    int deltaIn,
-    int deltaOut,
-    const Program &program,
-    const ProgramSequenceBinding &programSequenceBinding
-) {
+    const Segment *segment,
+    const int deltaIn,
+    const int deltaOut,
+    const Program *program,
+    const ProgramSequenceBinding *programSequenceBinding) {
   SegmentChoice choice = buildSegmentChoice(segment, deltaIn, deltaOut, program);
-  choice.programSequenceBindingId = programSequenceBinding.id;
+  choice.programSequenceBindingId = programSequenceBinding->id;
   return choice;
 }
 
 SegmentChoice SegmentFixtures::buildSegmentChoice(
-    const Segment &segment,
-    int deltaIn,
-    int deltaOut,
-    const Program &program,
-    const ProgramVoice &voice,
-    const Instrument &instrument
-) {
+    const Segment *segment,
+    const int deltaIn,
+    const int deltaOut,
+    const Program *program,
+    const ProgramVoice *voice,
+    const Instrument *instrument) {
   SegmentChoice choice = buildSegmentChoice(segment, deltaIn, deltaOut, program);
-  choice.programVoiceId = voice.id;
-  choice.instrumentId = instrument.id;
-  choice.instrumentType = instrument.type;
+  choice.programVoiceId = voice->id;
+  choice.instrumentId = instrument->id;
+  choice.instrumentType = instrument->type;
   choice.mute = false;
-  choice.instrumentMode = instrument.mode;
+  choice.instrumentMode = instrument->mode;
   return choice;
 }
 
 SegmentChoice SegmentFixtures::buildSegmentChoice(
-    const Segment &segment,
-    int deltaIn,
-    int deltaOut,
-    const Program &program
-) {
+    const Segment *segment,
+    const int deltaIn,
+    const int deltaOut,
+    const Program *program) {
   SegmentChoice choice;
   choice.id = EntityUtils::computeUniqueId();
-  choice.segmentId = segment.id;
+  choice.segmentId = segment->id;
   choice.deltaIn = deltaIn;
   choice.deltaOut = deltaOut;
-  choice.programId = program.id;
-  choice.programType = program.type;
+  choice.programId = program->id;
+  choice.programType = program->type;
   return choice;
 }
 
 SegmentMeme SegmentFixtures::buildSegmentMeme(
-    const Segment &segment,
-    std::string name
-) {
+    const Segment *segment,
+    std::string name) {
   SegmentMeme segmentMeme;
   segmentMeme.id = EntityUtils::computeUniqueId();
-  segmentMeme.segmentId = segment.id;
+  segmentMeme.segmentId = segment->id;
   segmentMeme.name = std::move(name);
   return segmentMeme;
 }
 
 SegmentChord SegmentFixtures::buildSegmentChord(
-    const Segment &segment,
-    double atPosition,
-    std::string name
-) {
+    const Segment *segment,
+    const float atPosition,
+    std::string name) {
   SegmentChord segmentChord;
   segmentChord.id = EntityUtils::computeUniqueId();
-  segmentChord.segmentId = segment.id;
+  segmentChord.segmentId = segment->id;
   segmentChord.position = atPosition;
   segmentChord.name = std::move(name);
   return segmentChord;
 }
 
 SegmentChordVoicing SegmentFixtures::buildSegmentChordVoicing(
-    const SegmentChord &chord,
-    Instrument::Type type,
-    std::string notes
-) {
+    const SegmentChord *chord,
+    const Instrument::Type type,
+    std::string notes) {
   SegmentChordVoicing segmentChordVoicing;
   segmentChordVoicing.id = EntityUtils::computeUniqueId();
-  segmentChordVoicing.segmentId = chord.segmentId;
-  segmentChordVoicing.segmentChordId = chord.id;
-  segmentChordVoicing.type = Instrument::toString(type);
+  segmentChordVoicing.segmentId = chord->segmentId;
+  segmentChordVoicing.segmentChordId = chord->id;
+  segmentChordVoicing.type = type;
   segmentChordVoicing.notes = std::move(notes);
   return segmentChordVoicing;
 }
 
 SegmentChoiceArrangement SegmentFixtures::buildSegmentChoiceArrangement(
-    const SegmentChoice &segmentChoice
-) {
+    const SegmentChoice *segmentChoice) {
   SegmentChoiceArrangement segmentChoiceArrangement;
   segmentChoiceArrangement.id = EntityUtils::computeUniqueId();
-  segmentChoiceArrangement.segmentId = segmentChoice.segmentId;
-  segmentChoiceArrangement.segmentChoiceId = segmentChoice.id;
+  segmentChoiceArrangement.segmentId = segmentChoice->segmentId;
+  segmentChoiceArrangement.segmentChoiceId = segmentChoice->id;
   return segmentChoiceArrangement;
 }
 
 SegmentChoiceArrangementPick SegmentFixtures::buildSegmentChoiceArrangementPick(
-    const Segment &segment,
-    const SegmentChoiceArrangement &segmentChoiceArrangement,
-    const InstrumentAudio &instrumentAudio,
-    std::string pickEvent
-) {
-  float microsPerBeat = ValueUtils::MICROS_PER_SECOND * ValueUtils::SECONDS_PER_MINUTE / segment.tempo;
+    const Segment *segment,
+    const SegmentChoiceArrangement *segmentChoiceArrangement,
+    const InstrumentAudio *instrumentAudio,
+    std::string pickEvent) {
+  const float microsPerBeat = ValueUtils::MICROS_PER_SECOND * ValueUtils::SECONDS_PER_MINUTE / segment->tempo;
   SegmentChoiceArrangementPick pick;
   pick.id = EntityUtils::computeUniqueId();
-  pick.segmentId = segmentChoiceArrangement.segmentId;
-  pick.segmentChoiceArrangementId = segmentChoiceArrangement.id;
-  pick.instrumentAudioId = instrumentAudio.id;
-  pick.startAtSegmentMicros = (long) (0);
-  pick.lengthMicros = (long) (instrumentAudio.loopBeats * microsPerBeat);
+  pick.segmentId = segmentChoiceArrangement->segmentId;
+  pick.segmentChoiceArrangementId = segmentChoiceArrangement->id;
+  pick.instrumentAudioId = instrumentAudio->id;
+  pick.startAtSegmentMicros = static_cast<long>(0);
+  pick.lengthMicros = static_cast<long>(instrumentAudio->loopBeats * microsPerBeat);
   pick.amplitude = 1;
-  pick.tones = instrumentAudio.tones;
+  pick.tones = instrumentAudio->tones;
   pick.event = std::move(pickEvent);
   return pick;
 }
 
 SegmentChoiceArrangementPick SegmentFixtures::buildSegmentChoiceArrangementPick(
-    const Segment &segment,
-    const SegmentChoiceArrangement &segmentChoiceArrangement,
-    const ProgramSequencePatternEvent &event,
-    const InstrumentAudio &instrumentAudio,
-    std::string pickEvent
-) {
-  float microsPerBeat = ValueUtils::MICROS_PER_SECOND * ValueUtils::SECONDS_PER_MINUTE / segment.tempo;
+    const Segment *segment,
+    const SegmentChoiceArrangement *segmentChoiceArrangement,
+    const ProgramSequencePatternEvent *event,
+    const InstrumentAudio *instrumentAudio,
+    std::string pickEvent) {
+  const float microsPerBeat = ValueUtils::MICROS_PER_SECOND * ValueUtils::SECONDS_PER_MINUTE / segment->tempo;
   SegmentChoiceArrangementPick pick;
   pick.id = EntityUtils::computeUniqueId();
-  pick.segmentId = segmentChoiceArrangement.segmentId;
-  pick.segmentChoiceArrangementId = segmentChoiceArrangement.id;
-  pick.programSequencePatternEventId = event.id;
-  pick.instrumentAudioId = instrumentAudio.id;
-  pick.startAtSegmentMicros = (long) (event.position * microsPerBeat);
-  pick.lengthMicros = (long) (event.duration * microsPerBeat);
-  pick.amplitude = event.velocity;
-  pick.tones = event.tones;
+  pick.segmentId = segmentChoiceArrangement->segmentId;
+  pick.segmentChoiceArrangementId = segmentChoiceArrangement->id;
+  pick.programSequencePatternEventId = event->id;
+  pick.instrumentAudioId = instrumentAudio->id;
+  pick.startAtSegmentMicros = static_cast<long>(event->position * microsPerBeat);
+  pick.lengthMicros = static_cast<long>(event->duration * microsPerBeat);
+  pick.amplitude = event->velocity;
+  pick.tones = event->tones;
   pick.event = std::move(pickEvent);
   return pick;
 }

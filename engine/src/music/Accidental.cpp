@@ -15,11 +15,11 @@ static std::regex accidentalFlattishIn("([^a-z]|^)(m|min|Minor|minor|dim)");
 
 
 Accidental XJ::accidentalOf(const std::string &name) {
-  std::string normalized = accidentalNormalized(name);
-  int numSharps = StringUtils::countMatches('#', normalized);
-  int numFlats = StringUtils::countMatches('b', normalized);
-  int numSharpish = StringUtils::countMatches(accidentalSharpishIn, normalized);
-  int numFlattish = StringUtils::countMatches(accidentalFlattishIn, normalized);
+  const std::string normalized = accidentalNormalized(name);
+  const int numSharps = StringUtils::countMatches('#', normalized);
+  const int numFlats = StringUtils::countMatches('b', normalized);
+  const int numSharpish = StringUtils::countMatches(accidentalSharpishIn, normalized);
+  const int numFlattish = StringUtils::countMatches(accidentalFlattishIn, normalized);
 
   // sharp/flat has precedent over sharpish/flattish; overall default is sharp
   return (numFlats > numSharps || numFlats == numSharps && numFlattish > numSharpish) ? Flat : Sharp;
@@ -27,7 +27,7 @@ Accidental XJ::accidentalOf(const std::string &name) {
 
 
 Accidental XJ::accidentalOfBeginning(const std::string &name) {
-  std::string normalized = accidentalNormalized(name);
+  const std::string normalized = accidentalNormalized(name);
   if (normalized[0] == '#')
     return Accidental::Sharp;
   else if (normalized[0] == 'b')

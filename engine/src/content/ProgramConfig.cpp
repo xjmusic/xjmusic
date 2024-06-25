@@ -1,11 +1,8 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-//
-// Created by Charney Kaye on 3/25/24.
-//
-
 #include <algorithm>
 #include <string>
+#include <sstream>
 
 #include "xjmusic/content/ProgramConfig.h"
 

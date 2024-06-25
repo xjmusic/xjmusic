@@ -15,26 +15,25 @@
 namespace XJ {
 
   class TemplateConfig : public ConfigParser {
-  private:
+  public:
     static const std::string DEFAULT;
     static std::string formatMemeTaxonomy(MemeTaxonomy taxonomy);
     static std::string formatInstrumentTypeList(const std::vector<Instrument::Type> &input);
-
-  public:
+    static std::string formatInstrumentTypeList(const std::set<Instrument::Type> &input);
     explicit TemplateConfig();
 
-    explicit TemplateConfig(const Template &input);
+    explicit TemplateConfig(const Template *input);
 
     explicit TemplateConfig(const std::string &input);
 
     std::vector<Instrument::Type> detailLayerOrder;
-    std::vector<Instrument::Type> instrumentTypesForAudioLengthFinalization;
-    std::vector<Instrument::Type> instrumentTypesForInversionSeeking;
-    std::vector<std::string> eventNamesLarge;
-    std::vector<std::string> eventNamesMedium;
-    std::vector<std::string> eventNamesSmall;
+    std::set<Instrument::Type> instrumentTypesForAudioLengthFinalization;
+    std::set<Instrument::Type> instrumentTypesForInversionSeeking;
+    std::set<std::string> eventNamesLarge;
+    std::set<std::string> eventNamesMedium;
+    std::set<std::string> eventNamesSmall;
     MemeTaxonomy memeTaxonomy;
-    std::vector<std::string> deltaArcBeatLayersToPrioritize;
+    std::set<std::string> deltaArcBeatLayersToPrioritize;
     bool intensityAutoCrescendoEnabled;
     bool deltaArcEnabled;
     bool stickyBunEnabled;
@@ -64,11 +63,41 @@ namespace XJ {
      */
     [[nodiscard]] std::string toString() const;
 
+    /**
+     * Whether the instrument types for inverion seeking contains the given type
+     * @param type  to find
+     * @return  true if found
+     */
+    [[nodiscard]] bool instrumentTypesForInversionSeekingContains(Instrument::Type type) const;
+
 
     /**
-     * Get the default TemplateConfig as a HOCON string
+     * Get the Choice Mute Probability of the given type of instrument
+     * @param type of instrument
+     * @return  The Choice Mute Probability
      */
-    [[nodiscard]] static std::string getDefaultString();
+    float getChoiceMuteProbability(Instrument::Type type);
+
+    /**
+     * Get the Dub Master Volume of the given type of instrument
+     * @param type of instrument
+     * @return The Dub Master Volume
+     */
+    float getDubMasterVolume(Instrument::Type type);
+
+    /**
+     * Get the Intensity Threshold of the given type of instrument
+     * @param type of instrument
+     * @return The Intensity Threshold
+     */
+    float getIntensityThreshold(Instrument::Type type);
+
+    /**
+     * Get the Intensity Layers of the given type of instrument
+     * @param type of instrument
+     * @return The Intensity Layers
+     */
+    int getIntensityLayers(Instrument::Type type);
   };
 
 }// namespace XJ

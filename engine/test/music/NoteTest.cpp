@@ -78,12 +78,12 @@ TEST(Music_Note, delta) {
 }
 
 TEST(Music_Note, NamedTest) {
-  Note note = Note::of("G");
+  const Note note = Note::of("G");
   ASSERT_EQ(PitchClass::G, note.pitchClass);
 }
 
 TEST(Music_Note, OfPitchClassTest) {
-  Note note = Note::of(PitchClass::C, 5);
+  const Note note = Note::of(PitchClass::C, 5);
   ASSERT_EQ(5, note.octave);
   ASSERT_EQ(PitchClass::C, note.pitchClass);
 }
@@ -106,7 +106,7 @@ TEST(Music_Note, compareTo) {
       Note::of("F#2")};
   std::sort(notes.begin(), notes.end());
   std::vector<std::string> noteStrings;
-  std::transform(notes.begin(), notes.end(), std::back_inserter(noteStrings), [](Note note) {
+  std::transform(notes.begin(), notes.end(), std::back_inserter(noteStrings), [](const Note note) {
     return note.toString(Accidental::Sharp);
   });
 

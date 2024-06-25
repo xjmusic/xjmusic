@@ -10,10 +10,10 @@ FabricatorFactory::FabricatorFactory(SegmentEntityStore *segmentEntityStore) : s
 
 Fabricator *FabricatorFactory::fabricate(
     ContentEntityStore *contentEntityStore,
-    int segmentId,
-    float outputFrameRate,
-    int outputChannels,
-    std::optional<Segment::Type> overrideSegmentType
+    const int segmentId,
+    const float outputFrameRate,
+    const int outputChannels,
+    const std::optional<Segment::Type> overrideSegmentType
 ) {
   return new Fabricator(
       contentEntityStore,
@@ -26,8 +26,8 @@ Fabricator *FabricatorFactory::fabricate(
   );
 }
 
-SegmentRetrospective *FabricatorFactory::loadRetrospective(int segmentId) {
-  auto retro = new SegmentRetrospective(segmentEntityStore, segmentId);
+SegmentRetrospective *FabricatorFactory::loadRetrospective(const int segmentId) {
+  const auto retro = new SegmentRetrospective(segmentEntityStore, segmentId);
   retro->load();
   return retro;
 }

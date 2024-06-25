@@ -1,31 +1,22 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 package io.xj.engine.craft.beat;
 
-import io.xj.engine.fabricator.SegmentEntityStoreImpl;
+import io.xj.engine.FabricationTopology;
+import io.xj.engine.SegmentFixtures;
+import io.xj.engine.craft.CraftFactory;
+import io.xj.engine.craft.CraftFactoryImpl;
+import io.xj.engine.fabricator.*;
 import io.xj.model.HubContent;
 import io.xj.model.HubTopology;
 import io.xj.model.entity.EntityFactoryImpl;
-import io.xj.model.enums.ProgramType;
+import io.xj.model.enums.*;
 import io.xj.model.json.JsonProvider;
 import io.xj.model.json.JsonProviderImpl;
 import io.xj.model.jsonapi.JsonapiPayloadFactory;
 import io.xj.model.jsonapi.JsonapiPayloadFactoryImpl;
-import io.xj.engine.SegmentFixtures;
-import io.xj.engine.FabricationTopology;
-import io.xj.engine.craft.CraftFactory;
-import io.xj.engine.craft.CraftFactoryImpl;
-import io.xj.engine.fabricator.Fabricator;
-import io.xj.engine.fabricator.FabricatorFactory;
-import io.xj.engine.fabricator.FabricatorFactoryImpl;
 import io.xj.model.pojos.Chain;
-import io.xj.model.enums.ChainState;
-import io.xj.model.enums.ChainType;
 import io.xj.model.pojos.Segment;
 import io.xj.model.pojos.SegmentChoice;
-import io.xj.model.enums.SegmentState;
-import io.xj.model.enums.SegmentType;
-import io.xj.engine.fabricator.SegmentEntityStore;
-import io.xj.engine.fabricator.SegmentUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,8 +28,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.xj.engine.SegmentFixtures.buildChain;
-import static io.xj.engine.SegmentFixtures.buildSegment;
 import static io.xj.engine.SegmentFixtures.buildSegmentChoice;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -110,18 +99,6 @@ public class CraftBeatContinueTest {
 
   }
 
-  @Test
-  public void craftBeatContinue() throws Exception {
-    insertSegments3and4(false);
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4.getId(), 48000.0f, 2, null);
-
-    craftFactory.beat(fabricator).doWork();
-    // assert choice of beat-type sequence
-    Collection<SegmentChoice> segmentChoices =
-      store.readAll(segment4.getId(), SegmentChoice.class);
-    assertNotNull(SegmentUtils.findFirstOfType(segmentChoices, ProgramType.Beat));
-  }
-
   /**
    Insert fixture segments 3 and 4, including the beat choice for segment 3 only if specified
 
@@ -187,6 +164,18 @@ public class CraftBeatContinueTest {
       store.put(SegmentFixtures.buildSegmentMeme(segment4, memeName));
     store.put(SegmentFixtures.buildSegmentChord(segment4, 0.0f, "A minor"));
     store.put(SegmentFixtures.buildSegmentChord(segment4, 8.0f, "D Major"));
+  }
+
+  @Test
+  public void craftBeatContinue() throws Exception {
+    insertSegments3and4(false);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4.getId(), 48000.0f, 2, null);
+
+    craftFactory.beat(fabricator).doWork();
+    // assert choice of beat-type sequence
+    Collection<SegmentChoice> segmentChoices =
+            store.readAll(segment4.getId(), SegmentChoice.class);
+    assertNotNull(SegmentUtils.findFirstOfType(segmentChoices, ProgramType.Beat));
   }
 
   @Test

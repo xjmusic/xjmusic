@@ -7,7 +7,6 @@
 #include <iterator>
 
 #include "xjmusic/meme/MemeStack.h"
-#include "xjmusic/meme/MemeConstellation.h"
 
 using namespace XJ;
 
@@ -27,11 +26,11 @@ MemeStack MemeStack::from(const MemeTaxonomy &taxonomy, const std::set<std::stri
   return MemeStack(taxonomy, memes);
 }
 
-bool MemeStack::isAllowed(const std::set<std::string> &targets) {
+bool MemeStack::isAllowed(const std::set<std::string> &targets) const {
   return isAllowed(memes, targets);
 }
 
-bool MemeStack::isAllowed(const std::set<std::string> &sources, const std::set<std::string> &targets) {
+bool MemeStack::isAllowed(const std::set<std::string> &sources, const std::set<std::string> &targets) const {
   // this axiom is applied from source to target
   for (const auto &source: sources) {
     std::vector<ParseAnti> antiTargets;
@@ -62,7 +61,7 @@ bool MemeStack::isAllowed(const std::set<std::string> &sources, const std::set<s
 }
 
 bool MemeStack::isValid() {
-  std::vector<std::string> targets(memes.begin(), memes.end());
+  const std::vector<std::string> targets(memes.begin(), memes.end());
   std::vector<std::string> subTargets;
 
   for (int a = 0; a < targets.size(); a++) {
@@ -77,11 +76,11 @@ bool MemeStack::isValid() {
   }
 
   // meme categories https://github.com/xjmusic/xjmusic/issues/209
-  std::set<std::string> targetSet(memes.begin(), memes.end());
+  const std::set<std::string> targetSet(memes.begin(), memes.end());
   return taxonomy.isAllowed(targetSet);
 }
 
-std::string MemeStack::getConstellation() {
+std::string MemeStack::getConstellation() const {
   return MemeConstellation::fromNames(memes);
 }
 

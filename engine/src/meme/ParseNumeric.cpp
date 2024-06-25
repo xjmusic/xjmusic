@@ -16,7 +16,7 @@ ParseNumeric::ParseNumeric(const std::string& raw) {
     return;
   }
 
-  std::string pfx = matcher[1].str();
+  const std::string pfx = matcher[1].str();
   if (pfx.empty()) {
     prefix = 0;
     body = "";

@@ -26,7 +26,7 @@ const std::string TemplateConfig::DEFAULT = R"(
               deltaArcBeatLayersToPrioritize = ["kick"]
               deltaArcDetailLayersIncoming = 1
               deltaArcEnabled = false
-              detailLayerOrder = ["Bass","Stripe","Pad","Sticky","Stab"]
+              detailLayerOrder = ["Bass","Pad","Stab","Sticky","Stripe"]
               dubMasterVolume = {
                   Background = 1.0
                   Bass = 1.0
@@ -39,9 +39,9 @@ const std::string TemplateConfig::DEFAULT = R"(
                   Stripe = 1.0
                   Transition = 1.0
                 }
-              eventNamesLarge = ["LARGE","BIG","HIGH","PRIMARY"]
-              eventNamesMedium = ["MEDIUM","REGULAR","MIDDLE","SECONDARY"]
-              eventNamesSmall = ["SMALL","LITTLE","LOW"]
+              eventNamesLarge = ["BIG","HIGH","LARGE","PRIMARY"]
+              eventNamesMedium = ["MEDIUM","MIDDLE","REGULAR","SECONDARY"]
+              eventNamesSmall = ["LITTLE","LOW","SMALL"]
               instrumentTypesForAudioLengthFinalization = ["Bass","Pad","Stab","Sticky","Stripe"]
               instrumentTypesForInversionSeeking = ["Pad","Stab","Sticky","Stripe"]
               intensityAutoCrescendoEnabled = true
@@ -99,7 +99,7 @@ const std::string TemplateConfig::DEFAULT = R"(
 TemplateConfig::TemplateConfig() : TemplateConfig(DEFAULT) {}
 
 
-TemplateConfig::TemplateConfig(const Template &source) : TemplateConfig(source.config) {}
+TemplateConfig::TemplateConfig(const Template *input) : TemplateConfig(input->config) {}
 
 
 std::map<Instrument::Type, int> parseInstrumentTypeIntMap(ConfigObjectValue objectValue) {
@@ -131,6 +131,15 @@ std::vector<Instrument::Type> parseInstrumentTypeList(ConfigListValue listValue)
   result.reserve(listValue.size());
   for (const auto &value: listValue.asListOfStrings()) {
     result.push_back(Instrument::parseType(value));
+  }
+  return result;
+}
+
+
+std::set<Instrument::Type> parseInstrumentTypeSet(const ConfigListValue &listValue) {
+  std::set<Instrument::Type> result;
+  for (const auto &value: listValue.asListOfStrings()) {
+    result.emplace(Instrument::parseType(value));
   }
   return result;
 }
@@ -214,20 +223,27 @@ std::string TemplateConfig::formatInstrumentTypeList(const std::vector<Instrumen
 }
 
 
+std::string TemplateConfig::formatInstrumentTypeList(const std::set<Instrument::Type> &input) {
+  std::vector<Instrument::Type> sorted(input.begin(), input.end());
+  std::sort(sorted.begin(), sorted.end());
+  return formatInstrumentTypeList(sorted);
+}
+
+
 TemplateConfig::TemplateConfig(const std::string &input) : ConfigParser(input, ConfigParser(DEFAULT)) {
   choiceMuteProbability = parseInstrumentTypeFloatMap(getObjectValue("choiceMuteProbability"));
   deltaArcBeatLayersIncoming = getSingleValue("deltaArcBeatLayersIncoming").getInt();
-  deltaArcBeatLayersToPrioritize = getListValue("deltaArcBeatLayersToPrioritize").asListOfStrings();
+  deltaArcBeatLayersToPrioritize = getListValue("deltaArcBeatLayersToPrioritize").asSetOfStrings();
   deltaArcDetailLayersIncoming = getSingleValue("deltaArcDetailLayersIncoming").getInt();
   deltaArcEnabled = getSingleValue("deltaArcEnabled").getBool();
   detailLayerOrder = parseInstrumentTypeList(getListValue("detailLayerOrder"));
   dubMasterVolume = parseInstrumentTypeFloatMap(getObjectValue("dubMasterVolume"));
-  eventNamesLarge = getListValue("eventNamesLarge").asListOfStrings();
-  eventNamesMedium = getListValue("eventNamesMedium").asListOfStrings();
-  eventNamesSmall = getListValue("eventNamesSmall").asListOfStrings();
-  instrumentTypesForAudioLengthFinalization = parseInstrumentTypeList(
+  eventNamesLarge = getListValue("eventNamesLarge").asSetOfStrings();
+  eventNamesMedium = getListValue("eventNamesMedium").asSetOfStrings();
+  eventNamesSmall = getListValue("eventNamesSmall").asSetOfStrings();
+  instrumentTypesForAudioLengthFinalization = parseInstrumentTypeSet(
       getListValue("instrumentTypesForAudioLengthFinalization"));
-  instrumentTypesForInversionSeeking = parseInstrumentTypeList(
+  instrumentTypesForInversionSeeking = parseInstrumentTypeSet(
       getListValue("instrumentTypesForInversionSeeking"));
   intensityAutoCrescendoEnabled = getSingleValue("intensityAutoCrescendoEnabled").getBool();
   intensityAutoCrescendoMaximum = getSingleValue("intensityAutoCrescendoMaximum").getFloat();
@@ -235,7 +251,7 @@ TemplateConfig::TemplateConfig(const std::string &input) : ConfigParser(input, C
   intensityLayers = parseInstrumentTypeIntMap(getObjectValue("intensityLayers"));
   intensityThreshold = parseInstrumentTypeFloatMap(getObjectValue("intensityThreshold"));
   mainProgramLengthMaxDelta = getSingleValue("mainProgramLengthMaxDelta").getInt();
-  auto setOfMapsOfStrings = getListValue("memeTaxonomy").asListOfMapsOfStrings();
+  const auto setOfMapsOfStrings = getListValue("memeTaxonomy").asListOfMapsOfStrings();
   memeTaxonomy = MemeTaxonomy::fromList(setOfMapsOfStrings);
   mixerCompressAheadSeconds = getSingleValue("mixerCompressAheadSeconds").getFloat();
   mixerCompressDecaySeconds = getSingleValue("mixerCompressDecaySeconds").getFloat();
@@ -300,7 +316,40 @@ std::string TemplateConfig::toString() const {
 }
 
 
-std::string TemplateConfig::getDefaultString() {
-  return DEFAULT;
+bool TemplateConfig::instrumentTypesForInversionSeekingContains(const Instrument::Type type) const {
+  return std::find(instrumentTypesForInversionSeeking.begin(), instrumentTypesForInversionSeeking.end(), type) !=
+         instrumentTypesForInversionSeeking.end();
+}
+
+float TemplateConfig::getChoiceMuteProbability(const Instrument::Type type) {
+  if (choiceMuteProbability.find(type) != choiceMuteProbability.end()) {
+    return choiceMuteProbability[type];
+  } else {
+    return 0.0f;
+  }
+}
+
+float TemplateConfig::getDubMasterVolume(const Instrument::Type type) {
+  if (dubMasterVolume.find(type) != dubMasterVolume.end()) {
+    return dubMasterVolume[type];
+  } else {
+    return 0.0f;
+  }
+}
+
+float TemplateConfig::getIntensityThreshold(const Instrument::Type type) {
+  if (intensityThreshold.find(type) != intensityThreshold.end()) {
+    return intensityThreshold[type];
+  } else {
+    return 0.0f;
+  }
+}
+
+int TemplateConfig::getIntensityLayers(const Instrument::Type type) {
+  if (intensityLayers.find(type) != intensityLayers.end()) {
+    return intensityLayers[type];
+  } else {
+    return 0;
+  }
 }
 

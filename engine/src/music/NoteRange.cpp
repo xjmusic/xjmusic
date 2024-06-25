@@ -10,7 +10,7 @@ using namespace XJ;
 NoteRange::NoteRange() : low(std::nullopt), high(std::nullopt) {}
 
 
-NoteRange::NoteRange(std::optional<Note> low, std::optional<Note> high) : low(low),
+NoteRange::NoteRange(const std::optional<Note> low, const std::optional<Note> high) : low(low),
                                                                           high(high) {
 }
 
@@ -38,8 +38,14 @@ NoteRange NoteRange::copyOf(const NoteRange &range) {
 
 
 NoteRange NoteRange::ofNotes(std::vector<Note> notes) {
-  auto minNote = std::min_element(notes.begin(), notes.end());
-  auto maxNote = std::max_element(notes.begin(), notes.end());
+  const std::set<Note> properNotes(notes.begin(), notes.end());
+  return ofNotes(properNotes);
+}
+
+
+NoteRange NoteRange::ofNotes(const std::set<Note>& notes) {
+  const auto minNote = std::min_element(notes.begin(), notes.end());
+  const auto maxNote = std::max_element(notes.begin(), notes.end());
   std::optional<Note> low = minNote != notes.end() ? std::optional(*minNote) : std::nullopt;
   std::optional<Note> high = maxNote != notes.end() ? std::optional(*maxNote) : std::nullopt;
   return {low, high};
@@ -47,12 +53,12 @@ NoteRange NoteRange::ofNotes(std::vector<Note> notes) {
 
 
 NoteRange NoteRange::ofStrings(const std::vector<std::string> &notes) {
-  std::vector<Note> noteVector;
+  std::set<Note> properNotes;
   for (const auto &note: notes) {
     auto n = Note::ifValid(note);
-    if (n.has_value()) noteVector.push_back(n.value());
+    if (n.has_value()) properNotes.emplace(n.value());
   }
-  return ofNotes(noteVector);
+  return ofNotes(properNotes);
 }
 
 
@@ -61,31 +67,26 @@ NoteRange NoteRange::median(const NoteRange &r1, const NoteRange &r2) {
 }
 
 
-NoteRange NoteRange::empty() {
-  return {};
-}
-
-
-int NoteRange::computeMedianOptimalRangeShiftOctaves(NoteRange sourceRange, NoteRange targetRange) {
-  if (!sourceRange.low.has_value() || !sourceRange.high.has_value() ||
-      !targetRange.low.has_value() || !targetRange.high.has_value())
+int NoteRange::computeMedianOptimalRangeShiftOctaves(const NoteRange *sourceRange, const NoteRange *targetRange) {
+  if (!sourceRange->low.has_value() || !sourceRange->high.has_value() ||
+      !targetRange->low.has_value() || !targetRange->high.has_value())
     return 0;
 
   int shiftOctave = 0;    // search for optimal value
   int baselineDelta = 100;// optimal is the lowest possible integer zero or above
 
   for (int o = 10; o >= -10; o--) {
-    if (!targetRange.low.has_value())
+    if (!targetRange->low.has_value())
       throw std::runtime_error("Can't find low end of target range");
-    if (!sourceRange.low.has_value())
+    if (!sourceRange->low.has_value())
       throw std::runtime_error("Can't find low end of source range");
-    int dLow = targetRange.low->delta(sourceRange.low->shiftOctave(o));
+    const int dLow = targetRange->low->delta(sourceRange->low->shiftOctave(o));
 
-    if (!targetRange.high.has_value())
+    if (!targetRange->high.has_value())
       throw std::runtime_error("Can't find high end of target range");
-    if (!sourceRange.high.has_value())
+    if (!sourceRange->high.has_value())
       throw std::runtime_error("Can't find high end of source range");
-    int dHigh = targetRange.high->delta(sourceRange.high->shiftOctave(o));
+    const int dHigh = targetRange->high->delta(sourceRange->high->shiftOctave(o));
 
     if (0 <= dLow && 0 >= dHigh && std::abs(o) < baselineDelta) {
       baselineDelta = std::abs(o);
@@ -97,7 +98,7 @@ int NoteRange::computeMedianOptimalRangeShiftOctaves(NoteRange sourceRange, Note
 }
 
 
-std::string NoteRange::toString(Accidental accidental) {
+std::string NoteRange::toString(const Accidental accidental) {
   std::stringstream ss;
   if (low.has_value() && high.has_value()) {
     ss << low->toString(accidental) << "-" << high->toString(accidental);
@@ -116,7 +117,7 @@ std::string NoteRange::toString(Accidental accidental) {
 
 
 void NoteRange::expand(const std::vector<Note> &notes) {
-  for (auto note: notes) expand(note);
+  for (const auto note: notes) expand(note);
 }
 
 
@@ -126,15 +127,15 @@ void NoteRange::expand(Note note) {
 }
 
 
-void NoteRange::expand(const NoteRange &range) {
-  if (range.low.has_value()) expand(range.low.value());
-  if (range.high.has_value()) expand(range.high.value());
+void NoteRange::expand(const NoteRange *range) {
+  if (range->low.has_value()) expand(range->low.value());
+  if (range->high.has_value()) expand(range->high.value());
 }
 
 
 int NoteRange::getDeltaSemitones(NoteRange target) {
-  auto s = getMedianNote();
-  auto t = target.getMedianNote();
+  const auto s = getMedianNote();
+  const auto t = target.getMedianNote();
   if (!s.has_value() || !t.has_value()) return 0;
   return s.value().delta(t.value());
 }
@@ -148,20 +149,20 @@ std::optional<Note> NoteRange::getMedianNote() {
 }
 
 
-NoteRange NoteRange::shifted(int inc) {
+NoteRange NoteRange::shifted(const int inc) const {
   return {
       low.has_value() ? std::optional(low->shift(inc)) : std::nullopt,
       high.has_value() ? std::optional(high->shift(inc)) : std::nullopt};
 }
 
 
-bool NoteRange::isEmpty() {
+bool NoteRange::empty() const {
   return !low.has_value() || !high.has_value() || PitchClass::Atonal == low->pitchClass ||
          PitchClass::Atonal == high->pitchClass;
 }
 
 
-std::optional<Note> NoteRange::getNoteNearestMedian(PitchClass root) {
+std::optional<Note> NoteRange::getNoteNearestMedian(const PitchClass root) {
   if (PitchClass::Atonal == root) return std::nullopt;
   auto median = getMedianNote();
   if (!median.has_value()) return std::nullopt;
@@ -172,7 +173,7 @@ std::optional<Note> NoteRange::getNoteNearestMedian(PitchClass root) {
 }
 
 
-Note NoteRange::toAvailableOctave(Note note) {
+Note NoteRange::toAvailableOctave(const Note note) const {
   if (!low.has_value() || !high.has_value()) return note;
 
   int d = 0;
@@ -192,7 +193,7 @@ Note NoteRange::toAvailableOctave(Note note) {
 }
 
 
-bool NoteRange::includes(Note note) {
+bool NoteRange::includes(const Note note) const {
   if (!low.has_value() && !high.has_value()) return false;
   if (!low.has_value() && high.value() == note) return true;
   if (!high.has_value() && low.value() == note) return true;

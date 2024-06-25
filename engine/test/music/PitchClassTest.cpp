@@ -8,11 +8,11 @@ using namespace XJ;
 
 void assertPitchClassOf(
     const std::string &name,
-    PitchClass expectPitchClass,
+    const PitchClass expectPitchClass,
     const std::string &expectStringSharp,
     const std::string &expectStringFlat
 ) {
-  PitchClass pitchClass = pitchClassOf(name);
+  const PitchClass pitchClass = pitchClassOf(name);
   ASSERT_EQ(expectPitchClass, pitchClass) << name << " -> " << stringOf(pitchClass, Natural);
   ASSERT_EQ(expectStringSharp, stringOf(pitchClass, Sharp)) << name << " -> " << stringOf(pitchClass, Sharp);
   ASSERT_EQ(expectStringFlat, stringOf(pitchClass, Flat)) << name << " -> " << stringOf(pitchClass, Flat);

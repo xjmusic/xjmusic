@@ -11,13 +11,6 @@
 using namespace XJ;
 
 /**
- * Construct an empty marble bag
- */
-MarbleBag MarbleBag::empty() {
-  return {};
-}
-
-/**
  * @return {std::string} marble picked at random from bag
  */
 UUID MarbleBag::pick() {
@@ -43,7 +36,7 @@ UUID MarbleBag::pick() {
  * @param phase of selection
  * @param toAdd map of marble id to quantity
  */
-void MarbleBag::addAll(int phase, const std::map<UUID, int> &toAdd) {
+void MarbleBag::addAll(const int phase, const std::map<UUID, int> &toAdd) {
   for (const auto &entry: toAdd)
     add(phase, entry.first, entry.second);
 }
@@ -54,7 +47,7 @@ void MarbleBag::addAll(int phase, const std::map<UUID, int> &toAdd) {
  * @param phase of selection
  * @param id    of the marble to add
  */
-void MarbleBag::add(int phase, const UUID &id) {
+void MarbleBag::add(const int phase, const UUID &id) {
   add(phase, id, 1);
 }
 
@@ -65,7 +58,7 @@ void MarbleBag::add(int phase, const UUID &id) {
  * @param id    of the marble to add
  * @param qty   quantity of this marble to add
  */
-void MarbleBag::add(int phase, const UUID &id, int qty) {
+void MarbleBag::add(const int phase, const UUID &id, const int qty) {
   if (marbles.find(phase) == marbles.end())
     marbles[phase] = std::map<UUID, int>();
   if (marbles[phase].find(id) != marbles[phase].end())
@@ -116,7 +109,7 @@ std::string MarbleBag::toString() {
 /**
  * @return true if the marble bag is completely empty
  */
-bool MarbleBag::isEmpty() {
+bool MarbleBag::empty() {
   return 0 == size();
 }
 
@@ -133,7 +126,7 @@ bool MarbleBag::isPresent() {
  * @param phase from which to pick a marble
  * @return marble if available
  */
-std::optional<UUID> MarbleBag::pickPhase(int phase) {
+std::optional<UUID> MarbleBag::pickPhase(const int phase) {
   int total = 0;
   std::vector<Group> blocks;
 
@@ -151,7 +144,7 @@ std::optional<UUID> MarbleBag::pickPhase(int phase) {
     return blocks[0].id;
 
   std::uniform_int_distribution<> distrib(0, total - 1);
-  int pickIdx = distrib(gen);
+  const int pickIdx = distrib(gen);
 
   for (const Group &block: blocks) {
     if (pickIdx >= block.from && pickIdx < block.to)
@@ -161,13 +154,13 @@ std::optional<UUID> MarbleBag::pickPhase(int phase) {
   return std::nullopt;
 }
 
-MarbleBag::Group::Group(UUID id, int from, int to) {
+MarbleBag::Group::Group(UUID id, const int from, const int to) {
   this->id = std::move(id);
   this->from = from;
   this->to = to;
 }
 
-int MarbleBag::quickPick(int total) {
+int MarbleBag::quickPick(const int total) {
   if (1 == total)
     return 0;
   if (0 == total)
@@ -177,3 +170,18 @@ int MarbleBag::quickPick(int total) {
   std::uniform_int_distribution<> distrib(0, total - 1);
   return distrib(gen);
 }
+
+bool MarbleBag::quickBooleanChanceOf(const float probability) {
+  if (probability < 0 || probability >= 1)
+    throw FabricationException("Probability must be 0 <= n < 1");
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_real_distribution<> distrib(0, 1);
+  return distrib(gen) < probability;
+}
+
+MarbleBag::MarbleBag(const MarbleBag &other) {
+  marbles = other.marbles;
+}
+
+

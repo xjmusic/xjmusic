@@ -11,10 +11,10 @@ std::vector<std::string> CsvUtils::split(const std::string &csv) {
   std::stringstream ss(csv);
   std::string item;
   while (std::getline(ss, item, ',')) {
-    item.erase(item.begin(), std::find_if(item.begin(), item.end(), [](unsigned char ch) {
+    item.erase(item.begin(), std::find_if(item.begin(), item.end(), [](const unsigned char ch) {
       return !std::isspace(ch);
     }));
-    item.erase(std::find_if(item.rbegin(), item.rend(), [](unsigned char ch) {
+    item.erase(std::find_if(item.rbegin(), item.rend(), [](const unsigned char ch) {
       return !std::isspace(ch);
     }).base(), item.end());
     result.push_back(item);

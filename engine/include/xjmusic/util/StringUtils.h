@@ -14,6 +14,7 @@ namespace XJ {
     static std::regex leadingScores;
     static std::regex nonAlphabetical;
     static std::regex nonAlphanumeric;
+    static std::regex nonEvent;
     static std::regex nonMeme;
     static std::regex nonScored;
     static std::regex nonSlug;
@@ -28,7 +29,7 @@ namespace XJ {
      * @param delimiter  The delimiter
      * @return           The split string
      */
-    static std::vector<std::string> split(const std::string &input, char delimiter);
+    static std::vector<std::string> split(const std::string &input, const char delimiter);
 
     /**
      * Join a vector of strings with a delimiter
@@ -36,22 +37,21 @@ namespace XJ {
      * @param delimiter  The delimiter
      * @return           The joined string
      */
-    static std::string join(const std::vector<std::string> &input, const std::string &delimiter);
+   static std::string join(const std::vector<std::string> &input, const std::string &delimiter);
 
     /**
      * Function to trim whitespace from the start and end of a string
      * @param str  The string to trim
      * @return     The trimmed string
      */
-    static std::string trim(const std::string &str);
+   static std::string trim(const std::string &str);
 
     /**
      * Conform to Upper-slug including some special characters, e.g. "BUN!"
      * @param   raw input
      * @return  purified
      */
-    static std::string toMeme(const std::string &raw);
-
+   static std::string toMeme(const std::string &raw);
 
     /**
      * Conform to Upper-slug (e.g. "BUN"), else default value
@@ -60,6 +60,14 @@ namespace XJ {
      * @return              purified
      */
     static std::string toMeme(const std::string *raw, const std::string &defaultValue);
+
+    /**
+     Conform to Upper-slug non-numeric and strip special characters, e.g. "BUN"
+
+     @param raw input
+     @return purified
+     */
+    static std::string toEvent(const std::string &raw);
 
     /**
      * Check if a string is null or empty
@@ -110,7 +118,6 @@ namespace XJ {
      */
     static std::string stripExtraSpaces(const std::string &value);
 
-
     /**
      * First group matching pattern in text, else null
      *
@@ -134,39 +141,39 @@ namespace XJ {
      * @param basicString  to search
      * @return number of matches
      */
-    static int countMatches(const char match, const std::string &basicString);
+    static int countMatches(const char regex, const std::string &basicString);
 
     /**
      * Convert a string to a ship key
      * @param name  The name to convert
      * @return    The ship key
      */
-    static std::string toShipKey(const std::string& name);
+    static std::string toShipKey(const std::string &name);
 
     /**
      * Conform to Lower-scored (e.g. "buns_and_jams")
      * @param raw input
      * @return purified
      */
-    static std::string toLowerScored(const std::string& raw);
+    static std::string toLowerScored(const std::string &raw);
 
     /**
      * Conform to Upper-scored (e.g. "BUNS_AND_JAMS")
      * @param raw input
      * @return purified
      */
-    static std::string toUpperScored(const std::string& raw);
+    static std::string toUpperScored(const std::string &raw);
 
     /**
      * Conform to toScored (e.g. "mush_bun")
      * @param raw input
      * @return purified
      */
-    static std::string toScored(const std::string& raw);
+    static std::string toScored(const std::string &raw);
 
     /**
      Conform to Proper (e.g. "Jam")
-    
+
      @param raw input
      @return purified
      */
@@ -178,34 +185,31 @@ namespace XJ {
      @param raw input
      @return purified
      */
-    static std::string toProperSlug(std::string raw);
-    
+    static std::string toProperSlug(const std::string &raw);
 
     /**
      Conform to Slug (e.g. "jim")
-    
+
      @param raw input
      @return purified
      */
     static std::string toSlug(std::string raw);
 
-
     /**
      Conform to Lowercase slug (e.g. "mush")
-  
+
      @param raw input
      @return purified
      */
-    static std::string toLowerSlug(std::string raw);
+    static std::string toLowerSlug(const std::string &raw);
 
     /**
      Conform to Uppercase slug (e.g. "MUSH")
-  
+
      @param raw input
      @return purified
      */
-    static std::string toUpperSlug(std::string raw);
-
+    static std::string toUpperSlug(const std::string &raw);
   };
 
 

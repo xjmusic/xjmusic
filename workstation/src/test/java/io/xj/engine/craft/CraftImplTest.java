@@ -3,37 +3,18 @@
 package io.xj.engine.craft;
 
 import io.xj.engine.ContentFixtures;
-import io.xj.engine.SegmentFixtures;
 import io.xj.engine.FabricationException;
+import io.xj.engine.SegmentFixtures;
 import io.xj.engine.fabricator.Fabricator;
 import io.xj.engine.fabricator.MemeIsometry;
 import io.xj.engine.fabricator.SegmentRetrospective;
-import io.xj.model.pojos.Chain;
-import io.xj.model.enums.ChainState;
-import io.xj.model.enums.ChainType;
-import io.xj.model.pojos.Segment;
-import io.xj.model.pojos.SegmentChoice;
-import io.xj.model.pojos.SegmentChoiceArrangement;
-import io.xj.model.pojos.SegmentChoiceArrangementPick;
-import io.xj.model.enums.SegmentState;
-import io.xj.model.enums.SegmentType;
 import io.xj.model.HubContent;
 import io.xj.model.InstrumentConfig;
 import io.xj.model.TemplateConfig;
-import io.xj.model.enums.InstrumentMode;
-import io.xj.model.enums.InstrumentState;
-import io.xj.model.enums.InstrumentType;
-import io.xj.model.enums.ProgramState;
-import io.xj.model.enums.ProgramType;
+import io.xj.model.enums.*;
 import io.xj.model.meme.MemeTaxonomy;
 import io.xj.model.music.Chord;
-import io.xj.model.pojos.Instrument;
-import io.xj.model.pojos.InstrumentAudio;
-import io.xj.model.pojos.InstrumentMeme;
-import io.xj.model.pojos.Library;
-import io.xj.model.pojos.Program;
-import io.xj.model.pojos.Project;
-import io.xj.model.pojos.Template;
+import io.xj.model.pojos.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -47,9 +28,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static io.xj.model.pojos.Segment.DELTA_UNLIMITED;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.when;
 
@@ -220,18 +199,18 @@ public class CraftImplTest {
     Project project1 = ContentFixtures.buildProject("testing");
     Library library1 = ContentFixtures.buildLibrary(project1, "leaves");
     Instrument instrument1 = ContentFixtures.buildInstrument(library1, InstrumentType.Percussion, InstrumentMode.Loop, InstrumentState.Published, "Test loop audio");
-    instrument1.setConfig("isAudioSelectionPersistent=true");
-    InstrumentConfig instrumentConfig = new InstrumentConfig(instrument1);
+    //Should pick one of these two at intensity 0.2
     InstrumentAudio instrument1audio1a = ContentFixtures.buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.2f, "PERC", "X", 1.0f);
     InstrumentAudio instrument1audio1b = ContentFixtures.buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.2f, "PERC", "X", 1.0f);
+    //Should pick one of these two at intensity 0.5
     InstrumentAudio instrument1audio2a = ContentFixtures.buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.5f, "PERC", "X", 1.0f);
     InstrumentAudio instrument1audio2b = ContentFixtures.buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.5f, "PERC", "X", 1.0f);
+    //Should pick one of these two at intensity 0.8
     InstrumentAudio instrument1audio3a = ContentFixtures.buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.8f, "PERC", "X", 1.0f);
     InstrumentAudio instrument1audio3b = ContentFixtures.buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.8f, "PERC", "X", 1.0f);
     sourceMaterial.putAll(Set.of(instrument1, instrument1audio1a, instrument1audio1b, instrument1audio2a, instrument1audio2b, instrument1audio3a, instrument1audio3b));
     when(fabricator.sourceMaterial()).thenReturn(sourceMaterial);
     when(fabricator.retrospective()).thenReturn(segmentRetrospective);
-    when(fabricator.getInstrumentConfig(same(instrument1))).thenReturn(instrumentConfig);
 
     var result = subject.selectGeneralAudioIntensityLayers(instrument1).stream()
       .sorted(Comparator.comparing(InstrumentAudio::getIntensity))

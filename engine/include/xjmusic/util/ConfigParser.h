@@ -3,9 +3,9 @@
 #ifndef XJMUSIC_CONFIG_PARSER_H
 #define XJMUSIC_CONFIG_PARSER_H
 
-#include <iostream>
+#include <regex>
 #include <map>
-#include <sstream>
+#include <set>
 #include <string>
 #include <utility>
 #include <variant>
@@ -24,7 +24,7 @@ namespace XJ {
   /**
  * A single value in a HOCON configuration
  */
-  class ConfigSingleValue : public ConfigValue {
+  class ConfigSingleValue final : public ConfigValue {
   private:
     std::variant<std::string, int, float, bool> value;
 
@@ -65,7 +65,7 @@ namespace XJ {
   /**
  * An object value in a HOCON configuration
  */
-  class ConfigObjectValue : public ConfigValue {
+  class ConfigObjectValue final : public ConfigValue {
   private:
     std::map<std::string, std::variant<ConfigSingleValue, std::vector<ConfigSingleValue>>> data;
 
@@ -113,7 +113,7 @@ namespace XJ {
   /**
  * A list value in a HOCON configuration
  */
-  class ConfigListValue : public ConfigValue {
+  class ConfigListValue final : public ConfigValue {
   private:
     std::vector<std::variant<ConfigSingleValue, ConfigObjectValue>> data;
 
@@ -129,6 +129,12 @@ namespace XJ {
    * @return  The list as a vector of strings
    */
     [[nodiscard]] std::vector<std::string> asListOfStrings() const;
+
+    /**
+   * Get the list as a vector of strings
+   * @return  The list as a vector of strings
+   */
+    [[nodiscard]] std::set<std::string> asSetOfStrings() const;
 
     /*
    * Get the list as a vector of maps of strings to strings
@@ -160,7 +166,7 @@ namespace XJ {
   /**
  * Configuration exception
  */
-  class ConfigException : public std::exception {
+  class ConfigException final : public std::exception {
   private:
     std::string message;
 
@@ -176,8 +182,7 @@ namespace XJ {
  * A lightweight HOCON parser and formatter
  */
   class ConfigParser {
-  private:
-    std::map<std::string, std::variant<ConfigSingleValue, ConfigObjectValue, ConfigListValue>> config;
+   std::map<std::string, std::variant<ConfigSingleValue, ConfigObjectValue, ConfigListValue>> config;
 
   public:
     /**
@@ -217,39 +222,46 @@ namespace XJ {
     ConfigObjectValue getObjectValue(const std::string &key);
 
     /**
-   * Format a bool value as a string
-   * @param value  The bool value
-   * @return       The string representation of the bool value
-   */
+     * Format a bool value as a string
+     * @param value  The bool value
+     * @return       The string representation of the bool value
+     */
     static std::string format(const bool &value);
 
     /**
-   * Format an integer value as a string
-   * @param value  The integer value
-   * @return       The string representation of the integer value
-   */
+     * Format an integer value as a string
+     * @param value  The integer value
+     * @return       The string representation of the integer value
+     */
     static std::string format(const int &value);
 
     /**
-   * Format a float value as a string
-   * @param value  The float value
-   * @return       The string representation of the float value
-   */
+     * Format a float value as a string
+     * @param value  The float value
+     * @return       The string representation of the float value
+     */
     static std::string format(const float &value);
 
     /**
-   * Format a string value as a (quoted) string
-   * @param value  The string value
-   * @return       The string representation of the quoted string value
-   */
+     * Format a string value as a (quoted) string
+     * @param value  The string value
+     * @return       The string representation of the quoted string value
+     */
     static std::string format(const std::string &value);
 
     /**
-   * Format a list of strings as a comma-separated list of quoted strings in square brackets
-   * @param values
-   * @return
-   */
+     * Format a list of strings as a comma-separated list of quoted strings in square brackets
+     * @param values
+     * @return
+     */
     static std::string format(const std::vector<std::string> &values);
+
+    /**
+     * Format a list of strings as a comma-separated list of quoted strings in square brackets
+     * @param values
+     * @return
+     */
+    static std::string format(const std::set<std::string> &values);
   };
 
 }// namespace XJ

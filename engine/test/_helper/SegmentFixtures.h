@@ -3,33 +3,15 @@
 #ifndef XJMUSIC_FABRICATION_CONTENT_TWO_FIXTURES_H
 #define XJMUSIC_FABRICATION_CONTENT_TWO_FIXTURES_H
 
-#include <chrono>
-#include <iomanip>
-#include <random>
-#include <sstream>
-#include <utility>
-
-#include "ContentFixtures.h"
-#include "LoremIpsum.h"
 #include "xjmusic/content/Instrument.h"
 #include "xjmusic/content/InstrumentAudio.h"
-#include "xjmusic/content/InstrumentMeme.h"
-#include "xjmusic/content/Library.h"
 #include "xjmusic/content/Program.h"
-#include "xjmusic/content/ProgramMeme.h"
 #include "xjmusic/content/ProgramSequence.h"
 #include "xjmusic/content/ProgramSequenceBinding.h"
-#include "xjmusic/content/ProgramSequenceBindingMeme.h"
-#include "xjmusic/content/ProgramSequenceChord.h"
-#include "xjmusic/content/ProgramSequenceChordVoicing.h"
-#include "xjmusic/content/ProgramSequencePattern.h"
 #include "xjmusic/content/ProgramSequencePatternEvent.h"
 #include "xjmusic/content/ProgramVoice.h"
-#include "xjmusic/content/ProgramVoiceTrack.h"
 #include "xjmusic/content/Project.h"
 #include "xjmusic/content/Template.h"
-#include "xjmusic/content/TemplateBinding.h"
-#include "xjmusic/content/TemplateConfig.h"
 #include "xjmusic/segment/Chain.h"
 #include "xjmusic/segment/Segment.h"
 #include "xjmusic/segment/SegmentChoice.h"
@@ -39,8 +21,6 @@
 #include "xjmusic/segment/SegmentChordVoicing.h"
 #include "xjmusic/segment/SegmentMeme.h"
 #include "xjmusic/segment/SegmentMeta.h"
-#include "xjmusic/util/StringUtils.h"
-#include "xjmusic/util/ValueUtils.h"
 
 namespace XJ {
 
@@ -57,31 +37,31 @@ namespace XJ {
      * Build a chain from a template
      */
     static Chain buildChain(
-        const Template &tmpl);
+        const Template *tmpl);
 
     /**
      * Build a chain from a template
      */
     static Chain buildChain(
-        const Template &tmpl,
+        const Template *tmpl,
         Chain::State state);
 
     /**
      * Build a chain from a template
      */
     static Chain buildChain(
-        const Project &project,
+        const Project *project,
         const std::string &name,
         Chain::Type type,
         Chain::State state,
-        const Template &tmpl);
+        const Template *tmpl);
 
     /**
      * Build a chain from a template
      */
     static Chain buildChain(
-        const Project &project,
-        const Template &tmpl,
+        const Project *project,
+        const Template *tmpl,
         const std::string &name,
         Chain::Type type,
         Chain::State state);
@@ -90,11 +70,11 @@ namespace XJ {
      * Build a chain from a template
      */
     static Chain buildChain(
-        const Project &project,
+        const Project *project,
         std::string name,
         Chain::Type type,
         Chain::State state,
-        const Template &tmpl,
+        const Template *tmpl,
         const std::string &shipKey);
 
     /**
@@ -106,7 +86,7 @@ namespace XJ {
      * Build a Segment for a chain
      */
     static Segment buildSegment(
-        const Chain& chain,
+        const Chain *chain,
         int id,
         Segment::State state,
         std::string key,
@@ -119,7 +99,7 @@ namespace XJ {
      * Build a Segment for a chain
      */
     static Segment buildSegment(
-        const Chain &chain,
+        const Chain *chain,
         Segment::Type type,
         int id,
         int delta,
@@ -135,7 +115,7 @@ namespace XJ {
      * Build a Segment for a chain
      */
     static Segment buildSegment(
-        const Chain& chain,
+        const Chain *chain,
         std::string key,
         int total,
         float intensity,
@@ -145,7 +125,7 @@ namespace XJ {
      * Build a Segment for a chain
      */
     static Segment buildSegment(
-        const Chain& chain,
+        const Chain *chain,
         int offset,
         std::string key,
         int total,
@@ -156,26 +136,26 @@ namespace XJ {
      * Build a choice for a segment
      */
     static SegmentChoice buildSegmentChoice(
-        const Segment& segment,
+        const Segment *segment,
         Program::Type programType,
-        const ProgramSequenceBinding& programSequenceBinding);
+        const ProgramSequenceBinding *programSequenceBinding);
 
     /**
      * Build a choice for a segment
      */
     static SegmentChoice buildSegmentChoice(
-        const Segment& segment,
+        const Segment *segment,
         Program::Type programType,
-        const ProgramSequence& programSequence);
+        const ProgramSequence *programSequence);
 
     /**
      * Build a choice for a segment
      */
     static SegmentChoice buildSegmentChoice(
-        const Segment& segment,
+        const Segment *segment,
         int deltaIn,
         int deltaOut,
-        const Program& program,
+        const Program *program,
         Instrument::Type instrumentType,
         Instrument::Mode instrumentMode);
 
@@ -183,21 +163,21 @@ namespace XJ {
      * Build a choice for a segment
      */
     static SegmentChoice buildSegmentChoice(
-        const Segment& segment,
-        const Program& program);
+        const Segment *segment,
+        const Program *program);
 
     /**
      * Build a choice for a segment
      */
     static SegmentChoice buildSegmentChoice(
-        const Segment& segment,
-        const Instrument& instrument);
+        const Segment *segment,
+        const Instrument *instrument);
 
     /**
      * Build a meta for a segment
      */
     static SegmentMeta buildSegmentMeta(
-        const Segment& segment,
+        const Segment *segment,
         std::string key,
         std::string value);
 
@@ -205,62 +185,62 @@ namespace XJ {
      * Build a choice for a segment
      */
     static SegmentChoice buildSegmentChoice(
-        const Segment& segment,
-        const Program& program,
-        const ProgramSequence& programSequence,
-        const ProgramVoice& voice,
-        const Instrument& instrument);
+        const Segment *segment,
+        const Program *program,
+        const ProgramSequence *programSequence,
+        const ProgramVoice *voice,
+        const Instrument *instrument);
 
     /**
      * Build a choice of program and binding for a segment
      */
     static SegmentChoice buildSegmentChoice(
-        const Segment& segment,
+        const Segment *segment,
         int deltaIn,
         int deltaOut,
-        const Program& program,
-        const ProgramSequenceBinding& programSequenceBinding);
+        const Program *program,
+        const ProgramSequenceBinding *programSequenceBinding);
 
     /**
      * Build a choice of program, voice, and instrument for a segment
      */
     static SegmentChoice buildSegmentChoice(
-        const Segment& segment,
+        const Segment *segment,
         int deltaIn,
         int deltaOut,
-        const Program& program,
-        const ProgramVoice& voice,
-        const Instrument& instrument);
+        const Program *program,
+        const ProgramVoice *voice,
+        const Instrument *instrument);
 
     /**
      * Build a choice of program for a segment
      */
     static SegmentChoice buildSegmentChoice(
-        const Segment& segment,
+        const Segment *segment,
         int deltaIn,
         int deltaOut,
-        const Program& program);
+        const Program *program);
 
     /**
      * Build a meme for a segment
      */
     static SegmentMeme buildSegmentMeme(
-        const Segment& segment,
+        const Segment *segment,
         std::string name);
 
     /**
      * Build a chord for a segment
      */
     static SegmentChord buildSegmentChord(
-        const Segment& segment,
-        double atPosition,
+        const Segment *segment,
+        float atPosition,
         std::string name);
 
     /**
      * Build a voicing for a segment chord
      */
     static SegmentChordVoicing buildSegmentChordVoicing(
-        const SegmentChord& chord,
+        const SegmentChord *chord,
         Instrument::Type type,
         std::string notes);
 
@@ -268,25 +248,25 @@ namespace XJ {
      * Build an arrangement for a segment choice
      */
     static SegmentChoiceArrangement buildSegmentChoiceArrangement(
-        const SegmentChoice& segmentChoice);
+        const SegmentChoice *segmentChoice);
 
     /**
      * Build a pick for a segment choice arrangement
      */
     static SegmentChoiceArrangementPick buildSegmentChoiceArrangementPick(
-        const Segment& segment,
-        const SegmentChoiceArrangement& segmentChoiceArrangement,
-        const InstrumentAudio& instrumentAudio,
+        const Segment *segment,
+        const SegmentChoiceArrangement *segmentChoiceArrangement,
+        const InstrumentAudio *instrumentAudio,
         std::string pickEvent);
 
     /**
      * Build a pick for a segment choice arrangement
      */
     static SegmentChoiceArrangementPick buildSegmentChoiceArrangementPick(
-        const Segment& segment,
-        const SegmentChoiceArrangement& segmentChoiceArrangement,
-        const ProgramSequencePatternEvent& event,
-        const InstrumentAudio& instrumentAudio,
+        const Segment *segment,
+        const SegmentChoiceArrangement *segmentChoiceArrangement,
+        const ProgramSequencePatternEvent *event,
+        const InstrumentAudio *instrumentAudio,
         std::string pickEvent);
   };
 

@@ -1,11 +1,11 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
+#include <cmath>
 #include <map>
 #include <sstream>
 #include <string>
 #include <variant>
 #include <vector>
-#include <cmath>
 
 #include "xjmusic/util/ConfigParser.h"
 #include "xjmusic/util/StringUtils.h"
@@ -13,13 +13,17 @@
 using namespace XJ;
 
 
+// Only accept simple floats with no scientific notation
+static std::regex rgxIsFloat("^[-+]?[0-9]*\\.?[0-9]+$");
+
 /**
  * Parse a float value
  * @param s      The string to parse
  * @param value  The float value
  * @return       True if the string was successfully parsed, false otherwise
  */
-bool parseFloat(const std::string &s, float &value) {
+static bool parseFloat(const std::string &s, float &value) {
+  if (!std::regex_match(s, rgxIsFloat)) return false;
   try {
     value = std::stof(s);
     return true;
@@ -115,7 +119,7 @@ ConfigObjectValue parseObjectValue(const std::string &input) {
   // Parse each piece of the members vector
   std::string value;
   for (const auto &member: members) {
-    auto pos = member.find('=');
+    const auto pos = member.find('=');
     if (pos != std::string::npos) {
       key = StringUtils::trim(member.substr(0, pos));
       value = StringUtils::trim(member.substr(pos + 1));
@@ -192,7 +196,6 @@ ConfigParser::ConfigParser(const std::string &input) {
   std::istringstream iss(StringUtils::trim(input));
   std::vector<std::string> members;
   std::string piece;
-  std::string key;
   int inObject = 0;// depth inside an object
   int inList = 0;  // depth inside a list
   while (std::getline(iss, piece)) {
@@ -210,12 +213,11 @@ ConfigParser::ConfigParser(const std::string &input) {
   }
 
   // Parse each piece of the members vector
-  std::string value;
   for (const auto &member: members) {
-    auto pos = member.find('=');
+    const auto pos = member.find('=');
     if (pos != std::string::npos) {
-      key = StringUtils::trim(member.substr(0, pos));
-      value = StringUtils::trim(member.substr(pos + 1));
+      std::string key = StringUtils::trim(member.substr(0, pos));
+      std::string value = StringUtils::trim(member.substr(pos + 1));
       config[key] = parseValue(value);
     }
   }
@@ -329,6 +331,18 @@ std::string ConfigParser::format(const std::vector<std::string> &values) {
 }
 
 
+std::string ConfigParser::format(const std::set<std::string> &values) {
+  std::vector<std::string> sortedValues(values.begin(), values.end());
+  std::sort(sortedValues.begin(), sortedValues.end());
+  std::vector<std::string> quotedValues;
+  quotedValues.reserve(sortedValues.size());
+  for (const auto &value: sortedValues) {
+    quotedValues.push_back("\"" + value + "\"");
+  }
+  return "[" + StringUtils::join(quotedValues, ",") + "]";
+}
+
+
 unsigned long ConfigObjectValue::size() {
   return data.size();
 }
@@ -400,6 +414,18 @@ std::vector<std::string> ConfigListValue::asListOfStrings() const {
     if (std::holds_alternative<ConfigSingleValue>(value)) {
       ConfigSingleValue single = std::get<ConfigSingleValue>(value);
       values.push_back(single.getString());
+    }
+  }
+  return values;
+}
+
+
+std::set<std::string> ConfigListValue::asSetOfStrings() const {
+  std::set<std::string> values;
+  for (const auto &value: data) {
+    if (std::holds_alternative<ConfigSingleValue>(value)) {
+      ConfigSingleValue single = std::get<ConfigSingleValue>(value);
+      values.emplace(single.getString());
     }
   }
   return values;

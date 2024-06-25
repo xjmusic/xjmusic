@@ -18,6 +18,6 @@ unsigned long long SegmentChordVoicing::hashCode() const {
   return std::hash<std::string>{}(id) ^
          std::hash<int>{}(segmentId) ^
          std::hash<std::string>{}(segmentChordId) ^
-         std::hash<std::string>{}(type) ^
+         std::hash<int>{}(type) ^
          std::hash<std::string>{}(notes);
 }

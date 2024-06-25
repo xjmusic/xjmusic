@@ -1,0 +1,21 @@
+#  Based on arrangement test #6
+#  https://docs.google.com/document/d/1bamMTDDD7XM7_ceh8ecyd9t3h_fy6JSUPVi9RCO2img/
+#
+#  Even when some of the detail program is X notes
+#  Bass always prefers the lowest end of the available voicings
+#  https://github.com/xjmusic/xjmusic/issues/247
+#
+#  X notes in basslines don't affect the lowest-range finding algorithm
+#  https://github.com/xjmusic/xjmusic/issues/295
+---
+input:
+  instrumentType: Bass
+  chord: C
+  range:
+    from: C1
+    to: C2
+  voicingNotes: C1, E1, G1, C2, E2, G2, C3, E3, G3, C4, E4, G4
+  eventNotes: X
+
+assertion:
+  count: 1

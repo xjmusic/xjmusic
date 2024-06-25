@@ -35,36 +35,35 @@ protected:
     fake.setupFixtureB2(sourceMaterial);
 
     // Chain "Test Print #1" has 5 total segments
-    Chain chain1 = store->put(
-        SegmentFixtures::buildChain(fake.project1, "Test Print #1", Chain::Type::Production, Chain::State::Fabricate,
-                                    fake.template1));
-    segment0 = constructSegmentAndChoices(chain1, Segment::Type::Continue, 10, 4, fake.program4,
-                                          fake.program4_sequence1_binding0, fake.program15,
-                                          fake.program15_sequence1_binding0);
-    segment1 = constructSegmentAndChoices(chain1, Segment::Type::NextMain, 11, 0, fake.program4,
-                                          fake.program4_sequence1_binding0, fake.program5,
-                                          fake.program5_sequence0_binding0);
-    constructSegmentAndChoices(chain1, Segment::Type::Continue, 12, 1, fake.program4, fake.program4_sequence1_binding0,
-                               fake.program5, fake.program5_sequence1_binding0);
-    segment3 = constructSegmentAndChoices(chain1, Segment::Type::Continue, 13, 2, fake.program4,
-                                          fake.program4_sequence1_binding0, fake.program5,
-                                          fake.program5_sequence1_binding0);
-    segment4 = constructSegmentAndChoices(chain1, Segment::Type::NextMacro, 14, 0, fake.program3,
-                                          fake.program3_sequence0_binding0, fake.program15,
-                                          fake.program15_sequence0_binding0);
+    Chain *chain1 = store->put(
+        SegmentFixtures::buildChain(&fake.project1, "Test Print #1", Chain::Type::Production, Chain::State::Fabricate,
+                                    &fake.template1));
+    segment0 = constructSegmentAndChoices(chain1, Segment::Type::Continue, 10, 4, &fake.program4,
+                                                     &fake.program4_sequence1_binding0, &fake.program15,
+                                                     &fake.program15_sequence1_binding0);
+    segment1 = constructSegmentAndChoices(chain1, Segment::Type::NextMain, 11, 0, &fake.program4,
+                                                     &fake.program4_sequence1_binding0, &fake.program5,
+                                                     &fake.program5_sequence0_binding0);
+    constructSegmentAndChoices(chain1, Segment::Type::Continue, 12, 1, &fake.program4, &fake.program4_sequence1_binding0,
+                                          &fake.program5, &fake.program5_sequence1_binding0);
+    segment3 = constructSegmentAndChoices(chain1, Segment::Type::Continue, 13, 2, &fake.program4,
+                                                     &fake.program4_sequence1_binding0, &fake.program5,
+                                                     &fake.program5_sequence1_binding0);
+    segment4 = constructSegmentAndChoices(chain1, Segment::Type::NextMacro, 14, 0, &fake.program3,
+                                                     &fake.program3_sequence0_binding0, &fake.program15,
+                                                     &fake.program15_sequence0_binding0);
   }
 
   Segment constructSegmentAndChoices(
-      Chain chain,
-      Segment::Type type,
-      int offset,
-      int delta,
-      const Program& macro,
-      const ProgramSequenceBinding& macroSB,
-      const Program& main,
-      const ProgramSequenceBinding& mainSB
-  ) {
-    auto segment = store->put(SegmentFixtures::buildSegment(
+      Chain *chain,
+      const Segment::Type type,
+      const int offset,
+      const int delta,
+      const Program *macro,
+      const ProgramSequenceBinding *macroSB,
+      const Program *main,
+      const ProgramSequenceBinding *mainSB) const {
+    const auto segment = store->put(SegmentFixtures::buildSegment(
         chain,
         type,
         offset,
@@ -89,44 +88,44 @@ protected:
         main,
         mainSB));
 
-    return segment;
+    return *segment;
   }
 };
 
 TEST_F(SegmentRetrospectiveTest, GetPreviousChoiceOfType) {
-  auto subject = fabricatorFactory->loadRetrospective(segment3.id);
+  const auto subject = fabricatorFactory->loadRetrospective(segment3.id);
 
-  auto result = subject->getPreviousChoiceOfType(Program::Type::Main);
+  const auto result = subject->getPreviousChoiceOfType(Program::Type::Main);
 
   ASSERT_TRUE(result.has_value());
-  ASSERT_EQ(result.value().programId, fake.program5.id);
+  ASSERT_EQ(result.value()->programId, fake.program5.id);
 }
 
 TEST_F(SegmentRetrospectiveTest, getPreviousChoiceOfType_forNextMacroSegment) {
-  auto subject = fabricatorFactory->loadRetrospective(segment4.id);
+  const auto subject = fabricatorFactory->loadRetrospective(segment4.id);
 
-  auto result = subject->getPreviousChoiceOfType(Program::Type::Main);
+  const auto result = subject->getPreviousChoiceOfType(Program::Type::Main);
 
   ASSERT_TRUE(result.has_value());
-  ASSERT_EQ(result.value().programId, fake.program5.id);
+  ASSERT_EQ(result.value()->programId, fake.program5.id);
 }
 
 TEST_F(SegmentRetrospectiveTest, GetPreviousChoiceOfType_forNextMainSegment) {
-  auto subject = fabricatorFactory->loadRetrospective(segment1.id);
+  const auto subject = fabricatorFactory->loadRetrospective(segment1.id);
 
-  auto result = subject->getPreviousChoiceOfType(Program::Type::Main);
+  const auto result = subject->getPreviousChoiceOfType(Program::Type::Main);
 
   ASSERT_TRUE(result.has_value());
-  ASSERT_EQ(result.value().programId, fake.program15.id);
+  ASSERT_EQ(result.value()->programId, fake.program15.id);
 }
 
 /**
  Failure requiring a chain restart https://github.com/xjmusic/xjmusic/issues/263
  */
 TEST_F(SegmentRetrospectiveTest, FailureToReadMainChoiceIsFatal) {
-  for (const SegmentChoice& c: store->readAllSegmentChoices(segment0.id))
-    if (c.programType == Program::Type::Main)
-      store->deleteSegmentChoice(segment0.id, c.id);
+  for (const SegmentChoice *c: store->readAllSegmentChoices(segment0.id))
+    if (c->programType == Program::Type::Main)
+      store->deleteSegmentChoice(segment0.id, c->id);
 
   try {
     fabricatorFactory->loadRetrospective(segment1.id);
@@ -153,12 +152,12 @@ TEST_F(SegmentRetrospectiveTest, FailureToReadFirstSegmentIsFatal) {
  */
 TEST_F(SegmentRetrospectiveTest, GetPreviousMeta) {
   auto bun = StickyBun(patternId, 1);
-  std::string json = bun.serialize();
-  store->put(SegmentFixtures::buildSegmentMeta(segment3, "StickyBun_0f650ae7-42b7-4023-816d-168759f37d2e", json));
-  auto subject = fabricatorFactory->loadRetrospective(segment4.id);
+  const std::string json = bun.serialize();
+  store->put(SegmentFixtures::buildSegmentMeta(&segment3, "StickyBun_0f650ae7-42b7-4023-816d-168759f37d2e", json));
+  const auto subject = fabricatorFactory->loadRetrospective(segment4.id);
 
-  auto result = subject->getPreviousMeta("StickyBun_0f650ae7-42b7-4023-816d-168759f37d2e");
+  const auto result = subject->getPreviousMeta("StickyBun_0f650ae7-42b7-4023-816d-168759f37d2e");
 
   ASSERT_TRUE(result.has_value());
-  ASSERT_EQ(json, result.value().value);
+  ASSERT_EQ(json, result.value()->value);
 }

@@ -44,7 +44,7 @@ TEST(MemeTaxonomyTest, CategoryHasMemes) {
 }
 
 TEST(MemeTaxonomyTest, FromStringToString) {
-  MemeTaxonomy subject("COLOR[RED,GREEN,BLUE];SIZE[LARGE,MEDIUM,SMALL]");
+  const MemeTaxonomy subject("COLOR[RED,GREEN,BLUE];SIZE[LARGE,MEDIUM,SMALL]");
 
   ASSERT_EQ("COLOR[BLUE,GREEN,RED];SIZE[LARGE,MEDIUM,SMALL]", subject.toString());
 }
@@ -57,7 +57,7 @@ TEST(MemeTaxonomyTest, FromSetToList) {
 
   MemeTaxonomy subject(input);
 
-  std::set<MapStringToOneOrManyString> expected = {
+  const std::set<MapStringToOneOrManyString> expected = {
       {{"name", "COLOR"}, {"memes", std::set<std::string>{"RED", "GREEN", "BLUE"}}},
       {{"name", "SIZE"}, {"memes", std::set<std::string>{"LARGE", "MEDIUM", "SMALL"}}}
   };
@@ -66,7 +66,7 @@ TEST(MemeTaxonomyTest, FromSetToList) {
 }
 
 TEST(MemeTaxonomyTest, TestStripNonAlphabetical) {
-  MemeTaxonomy subject("COLOR [RED, GREEN, BLUE];    SIZE [LARGE, MEDIUM, SMALL ]");
+  const MemeTaxonomy subject("COLOR [RED, GREEN, BLUE];    SIZE [LARGE, MEDIUM, SMALL ]");
 
   ASSERT_EQ("COLOR[BLUE,GREEN,RED];SIZE[LARGE,MEDIUM,SMALL]", subject.toString());
 }

@@ -7,6 +7,8 @@
 #include <utility>
 
 #include "xjmusic/util/EntityUtils.h"
+#include "xjmusic/content/Instrument.h"
+
 #include "SegmentEntity.h"
 
 namespace XJ {
@@ -17,7 +19,7 @@ namespace XJ {
     SegmentChordVoicing() = default;
 
     UUID segmentChordId;
-    std::string type;
+    Instrument::Type type;
     std::string notes;
 
     /**

@@ -211,7 +211,7 @@ std::map<PitchClass, std::map<PitchClass, int>> Step::deltaMap = {
 };
 
 
-Step::Step(PitchClass pitchClass, int deltaOctave) {
+Step::Step(const PitchClass pitchClass, const int deltaOctave) {
   this->pitchClass = pitchClass;
   this->deltaOctave = deltaOctave;
 }
@@ -222,13 +222,13 @@ Step Step::to(PitchClass pitchClass, int deltaOctave) {
 }
 
 
-int Step::delta(PitchClass from, PitchClass to) {
+int Step::delta(const PitchClass from, const PitchClass to) {
   if (from == Atonal || to == Atonal) return 0;
   return deltaMap.at(from).at(to);
 }
 
 
-Step Step::step(PitchClass from, int inc) {
+Step Step::step(PitchClass from, const int inc) {
   if (0 < inc)
     return stepUp(from, inc);
   else if (0 > inc)
@@ -238,11 +238,11 @@ Step Step::step(PitchClass from, int inc) {
 }
 
 
-Step Step::stepUp(PitchClass from, int inc) {
+Step Step::stepUp(const PitchClass from, const int inc) {
   PitchClass to = from;
   int newOctave = 0;
   for (int i = 0; i < inc; i++) {
-    Step step = stepUpMap.at(to);
+    const Step step = stepUpMap.at(to);
     to = step.pitchClass;
     newOctave += step.deltaOctave;
   }
@@ -250,11 +250,11 @@ Step Step::stepUp(PitchClass from, int inc) {
 }
 
 
-Step Step::stepDown(PitchClass from, int inc) {
+Step Step::stepDown(const PitchClass from, const int inc) {
   PitchClass to = from;
   int newOctave = 0;
   for (int i = 0; i < inc; i++) {
-    Step step = stepDownMap.at(to);
+    const Step step = stepDownMap.at(to);
     to = step.pitchClass;
     newOctave += step.deltaOctave;
   }

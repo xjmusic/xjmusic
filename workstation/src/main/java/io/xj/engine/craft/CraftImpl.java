@@ -141,7 +141,9 @@ public class CraftImpl extends FabricationWrapperImpl {
         choice.setDeltaOut(priorChoice.get().getDeltaOut());
         choice.setInstrumentId(priorChoice.get().getInstrumentId());
         choice.setInstrumentMode(priorChoice.get().getInstrumentMode());
-        this.craftNoteEventArrangements(tempo, fabricator.put(choice, false), false);
+        var storedChoice = fabricator.put(choice, false);
+        if (storedChoice.isPresent())
+          this.craftNoteEventArrangements(tempo, storedChoice.get(), false);
         continue;
       }
 
@@ -155,7 +157,9 @@ public class CraftImpl extends FabricationWrapperImpl {
       choice.setDeltaOut(computeDeltaOut(choice));
       choice.setInstrumentId(instrument.get().getId());
       choice.setInstrumentMode(instrument.get().getMode());
-      this.craftNoteEventArrangements(tempo, fabricator.put(choice, false), false);
+      var storedChoice = fabricator.put(choice, false);
+      if (storedChoice.isPresent())
+        this.craftNoteEventArrangements(tempo, storedChoice.get(), false);
     }
   }
 
@@ -185,7 +189,9 @@ public class CraftImpl extends FabricationWrapperImpl {
       choice.setDeltaIn(priorChoice.get().getDeltaIn());
       choice.setDeltaOut(priorChoice.get().getDeltaOut());
       choice.setInstrumentId(priorChoice.get().getInstrumentId());
-      this.craftChordParts(tempo, instrument, fabricator.put(choice, false));
+      var storedChoice = fabricator.put(choice, false);
+      if (storedChoice.isPresent())
+        this.craftChordParts(tempo, instrument, storedChoice.get());
       return;
     }
 
@@ -193,7 +199,9 @@ public class CraftImpl extends FabricationWrapperImpl {
     choice.setDeltaIn(computeDeltaIn(choice));
     choice.setDeltaOut(computeDeltaOut(choice));
     choice.setInstrumentId(instrument.getId());
-    this.craftChordParts(tempo, instrument, fabricator.put(choice, false));
+    var storedChoice = fabricator.put(choice, false);
+    if (storedChoice.isPresent())
+      this.craftChordParts(tempo, instrument, storedChoice.get());
   }
 
   /**
@@ -213,7 +221,7 @@ public class CraftImpl extends FabricationWrapperImpl {
     arrangement.setId(UUID.randomUUID());
     arrangement.setSegmentId(choice.getSegmentId());
     arrangement.segmentChoiceId(choice.getId());
-    fabricator.put(arrangement, false);
+    fabricator.put(arrangement);
 
     // Pick for each section
     for (var section : computeSections()) {
@@ -241,7 +249,7 @@ public class CraftImpl extends FabricationWrapperImpl {
       pick.setEvent(StringUtils.toEvent(instrument.getType().toString()));
       pick.setLengthMicros(lengthMicros);
       pick.setAmplitude(volRatio);
-      fabricator.put(pick, false);
+      fabricator.put(pick);
     }
 
     // Final pass to set the actual length of one-shot audio picks
@@ -490,7 +498,7 @@ public class CraftImpl extends FabricationWrapperImpl {
     arrangement.setSegmentId(choice.getSegmentId());
     arrangement.segmentChoiceId(choice.getId());
     arrangement.setProgramSequencePatternId(pattern.getId());
-    fabricator.put(arrangement, false);
+    fabricator.put(arrangement);
 
     var instrument = fabricator.sourceMaterial().getInstrument(choice.getInstrumentId()).orElseThrow(() -> new FabricationException("Failed to retrieve instrument"));
     for (ProgramSequencePatternEvent event : events)
@@ -570,13 +578,13 @@ public class CraftImpl extends FabricationWrapperImpl {
 
       if (nextCutoffAtSegmentMicros.isPresent()) {
         pick.setLengthMicros(nextCutoffAtSegmentMicros.get() - pick.getStartAtSegmentMicros());
-        fabricator.put(pick, false);
+        fabricator.put(pick);
         continue;
       }
 
       if (pick.getStartAtSegmentMicros() < fabricator.getTotalSegmentMicros()) {
         pick.setLengthMicros(fabricator.getTotalSegmentMicros() - pick.getStartAtSegmentMicros());
-        fabricator.put(pick, false);
+        fabricator.put(pick);
         continue;
       }
 
@@ -736,7 +744,7 @@ public class CraftImpl extends FabricationWrapperImpl {
     pick.setAmplitude(event.getVelocity() * volRatio);
     pick.setTones(fabricator.getInstrumentConfig(instrument).isTonal() ? note : Note.ATONAL);
     if (Objects.nonNull(segmentChordVoicingId)) pick.setSegmentChordVoicingId(segmentChordVoicingId);
-    fabricator.put(pick, false);
+    fabricator.put(pick);
   }
 
   /**
@@ -765,7 +773,7 @@ public class CraftImpl extends FabricationWrapperImpl {
     pick.setEvent(event);
     pick.setAmplitude((float) 1.0);
     pick.setInstrumentAudioId(audio.getId());
-    fabricator.put(pick, false);
+    fabricator.put(pick);
   }
 
   /**
@@ -776,7 +784,7 @@ public class CraftImpl extends FabricationWrapperImpl {
    */
   protected Collection<InstrumentAudio> selectGeneralAudioIntensityLayers(Instrument instrument) {
     var previous = fabricator.retrospective().getPreviousPicksForInstrument(instrument.getId());
-    if (fabricator.getInstrumentConfig(instrument).isAudioSelectionPersistent() && !previous.isEmpty()) {
+    if (!previous.isEmpty() && fabricator.getInstrumentConfig(instrument).isAudioSelectionPersistent()) {
       return previous.stream()
         .map(SegmentChoiceArrangementPick::getInstrumentAudioId)
         .collect(Collectors.toSet()) // unique audio ids

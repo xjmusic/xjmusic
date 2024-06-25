@@ -2,35 +2,25 @@
 package io.xj.engine.craft.transition;
 
 import io.xj.engine.ContentFixtures;
-import io.xj.engine.SegmentFixtures;
 import io.xj.engine.FabricationException;
 import io.xj.engine.FabricationTopology;
+import io.xj.engine.SegmentFixtures;
 import io.xj.engine.craft.CraftFactory;
 import io.xj.engine.craft.CraftFactoryImpl;
-import io.xj.engine.fabricator.SegmentEntityStore;
-import io.xj.engine.fabricator.SegmentEntityStoreImpl;
-import io.xj.engine.fabricator.Fabricator;
-import io.xj.engine.fabricator.FabricatorFactory;
-import io.xj.engine.fabricator.FabricatorFactoryImpl;
-import io.xj.model.pojos.Chain;
-import io.xj.model.enums.ChainState;
-import io.xj.model.enums.ChainType;
-import io.xj.model.pojos.Segment;
-import io.xj.model.enums.SegmentState;
-import io.xj.model.enums.SegmentType;
+import io.xj.engine.fabricator.*;
 import io.xj.model.HubContent;
 import io.xj.model.HubTopology;
 import io.xj.model.entity.EntityFactoryImpl;
 import io.xj.model.entity.EntityUtils;
-import io.xj.model.enums.InstrumentMode;
-import io.xj.model.enums.InstrumentState;
-import io.xj.model.enums.InstrumentType;
+import io.xj.model.enums.*;
 import io.xj.model.json.JsonProvider;
 import io.xj.model.json.JsonProviderImpl;
 import io.xj.model.jsonapi.JsonapiPayloadFactory;
 import io.xj.model.jsonapi.JsonapiPayloadFactoryImpl;
+import io.xj.model.pojos.Chain;
 import io.xj.model.pojos.Instrument;
 import io.xj.model.pojos.InstrumentAudio;
+import io.xj.model.pojos.Segment;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -128,34 +118,6 @@ public class CraftTransitionProgramVoiceNextMacroTest {
     return entities;
   }
 
-
-  @Test
-  public void craftTransitionVoiceNextMacro() throws Exception {
-    insertSegments3and4(true);
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4.getId(), 48000.0f, 2, null);
-
-    craftFactory.transition(fabricator).doWork();
-
-//    // assert transition choice
-//    Collection<SegmentChoice> segmentChoices = fabricator.getChoices();
-//    SegmentChoice transitionChoice = segmentChoices.stream()
-//      .filter(c -> c.getInstrumentType().equals(InstrumentType.Transition, InstrumentMode.Event)).findFirst().orElseThrow();
-//    assertTrue(fabricator.getArrangements()
-//      .stream().anyMatch(a -> a.getSegmentChoiceId().equals(transitionChoice.getId())));
-//    
-//    int pickedKick = 0;
-//    int pickedSnare = 0;
-//    Collection<SegmentChoiceArrangementPick> picks = fabricator.getPicks();
-//    for (SegmentChoiceArrangementPick pick : picks) {
-//      if (pick.getInstrumentAudioId().equals(audioKick.getId()))
-//        pickedKick++;
-//      if (pick.getInstrumentAudioId().equals(audioSnare.getId()))
-//        pickedSnare++;
-//    }
-//    assertEquals(8, pickedKick);
-//    assertEquals(8, pickedSnare);
-  }
-
   /**
    Insert fixture segments 3 and 4, including the transition choice for segment 3 only if specified
 
@@ -222,6 +184,14 @@ public class CraftTransitionProgramVoiceNextMacroTest {
       store.put(SegmentFixtures.buildSegmentMeme(segment4, memeName));
     store.put(SegmentFixtures.buildSegmentChord(segment4, 0.0f, "F minor"));
     store.put(SegmentFixtures.buildSegmentChord(segment4, 8.0f, "Gb minor"));
+  }
+
+  @Test
+  public void craftTransitionVoiceNextMacro() throws Exception {
+    insertSegments3and4(true);
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4.getId(), 48000.0f, 2, null);
+
+    craftFactory.transition(fabricator).doWork();
   }
 
 }

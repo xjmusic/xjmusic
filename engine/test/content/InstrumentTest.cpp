@@ -70,6 +70,31 @@ TEST(InstrumentTest, ToStringInstrumentType) {
   ASSERT_EQ("Background", Instrument::toString(Instrument::Type::Background));
 }
 
+TEST(InstrumentTest, ToStringsInstrumentType) {
+  const std::vector<Instrument::Type> types = {
+      Instrument::Type::Drum,
+      Instrument::Type::Bass,
+      Instrument::Type::Pad,
+      Instrument::Type::Sticky,
+      Instrument::Type::Stripe,
+      Instrument::Type::Stab,
+      Instrument::Type::Hook,
+      Instrument::Type::Percussion,
+      Instrument::Type::Transition,
+      Instrument::Type::Background};
+  const std::vector<std::string> typeStrings = Instrument::toStrings(types);
+  ASSERT_EQ("Drum", typeStrings[0]);
+  ASSERT_EQ("Bass", typeStrings[1]);
+  ASSERT_EQ("Pad", typeStrings[2]);
+  ASSERT_EQ("Sticky", typeStrings[3]);
+  ASSERT_EQ("Stripe", typeStrings[4]);
+  ASSERT_EQ("Stab", typeStrings[5]);
+  ASSERT_EQ("Hook", typeStrings[6]);
+  ASSERT_EQ("Percussion", typeStrings[7]);
+  ASSERT_EQ("Transition", typeStrings[8]);
+  ASSERT_EQ("Background", typeStrings[9]);
+}
+
 TEST(InstrumentTest, ToStringInstrumentMode) {
   ASSERT_EQ("Event", Instrument::toString(Instrument::Mode::Event));
   ASSERT_EQ("Chord", Instrument::toString(Instrument::Mode::Chord));

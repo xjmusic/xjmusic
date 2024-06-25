@@ -2,12 +2,12 @@
 package io.xj.engine.craft.background;
 
 
-import io.xj.model.enums.InstrumentType;
-import io.xj.model.pojos.Instrument;
-import io.xj.model.pojos.InstrumentAudio;
 import io.xj.engine.FabricationException;
 import io.xj.engine.craft.CraftImpl;
 import io.xj.engine.fabricator.Fabricator;
+import io.xj.model.enums.InstrumentType;
+import io.xj.model.pojos.Instrument;
+import io.xj.model.pojos.InstrumentAudio;
 import io.xj.model.pojos.SegmentChoice;
 import io.xj.model.pojos.SegmentChoiceArrangement;
 import io.xj.model.pojos.SegmentChoiceArrangementPick;
@@ -24,7 +24,7 @@ import java.util.UUID;
 public class BackgroundCraftImpl extends CraftImpl implements BackgroundCraft {
 
   public BackgroundCraftImpl(
-      Fabricator fabricator
+    Fabricator fabricator
   ) {
     super(fabricator);
   }
@@ -34,8 +34,8 @@ public class BackgroundCraftImpl extends CraftImpl implements BackgroundCraft {
     Optional<SegmentChoice> previousChoice = fabricator.retrospective().getPreviousChoiceOfType(InstrumentType.Background);
 
     var instrument = previousChoice.isPresent() ?
-        fabricator.sourceMaterial().getInstrument(previousChoice.get().getInstrumentId()) :
-        chooseFreshInstrument(InstrumentType.Background, List.of());
+      fabricator.sourceMaterial().getInstrument(previousChoice.get().getInstrumentId()) :
+      chooseFreshInstrument(InstrumentType.Background, List.of());
 
     if (instrument.isEmpty()) {
       return;
@@ -58,12 +58,12 @@ public class BackgroundCraftImpl extends CraftImpl implements BackgroundCraft {
     choice.setInstrumentType(instrument.getType());
     choice.setInstrumentMode(instrument.getMode());
     choice.setInstrumentId(instrument.getId());
-    fabricator.put(choice, false);
+    if (fabricator.put(choice, false).isEmpty()) return;
     var arrangement = new SegmentChoiceArrangement();
     arrangement.setId(UUID.randomUUID());
     arrangement.setSegmentId(fabricator.getSegment().getId());
     arrangement.segmentChoiceId(choice.getId());
-    fabricator.put(arrangement, false);
+    fabricator.put(arrangement);
 
     for (InstrumentAudio audio : selectGeneralAudioIntensityLayers(instrument)) {
       var pick = new SegmentChoiceArrangementPick();
@@ -75,7 +75,7 @@ public class BackgroundCraftImpl extends CraftImpl implements BackgroundCraft {
       pick.setAmplitude(1.0f);
       pick.setEvent("BACKGROUND");
       pick.setInstrumentAudioId(audio.getId());
-      fabricator.put(pick, false);
+      fabricator.put(pick);
     }
   }
 }

@@ -32,7 +32,7 @@ std::random_device ValueUtils::rd;
 std::mt19937 ValueUtils::gen(rd());
 
 
-float ValueUtils::eitherOr(float d1, float d2) {
+float ValueUtils::eitherOr(const float d1, const float d2) {
   if (!std::isnan(d1) && d1 != 0.0f)
     return d1;
   else
@@ -50,14 +50,14 @@ std::string ValueUtils::eitherOr(std::string s1, std::string s2) {
 
 std::set<int> ValueUtils::dividedBy(float divisor, const std::set<int> &originals) {
   std::vector<int> result(originals.size());
-  std::transform(originals.begin(), originals.end(), result.begin(), [divisor](int original) {
+  std::transform(originals.begin(), originals.end(), result.begin(), [divisor](const int original) {
     return static_cast<int>(std::floor(static_cast<float>(original) / divisor));
   });
   return {result.begin(), result.end()};
 }
 
 
-float ValueUtils::ratio(float value, float limit) {
+float ValueUtils::ratio(const float value, const float limit) {
   return std::max(std::min(1.0f, value / limit), 0.0f);
 }
 
@@ -67,25 +67,25 @@ bool ValueUtils::isInteger(const std::string &raw) {
 }
 
 
-float ValueUtils::limitDecimalPrecision(float value) {
+float ValueUtils::limitDecimalPrecision(const float value) {
   return std::floor(value * roundPositionMultiplier) / roundPositionMultiplier;
 }
 
 
-std::string ValueUtils::k(int value) {
-  return std::to_string((int) std::floor((float) value / 1000)) + K;
+std::string ValueUtils::k(const int value) {
+  return std::to_string(static_cast<int>(std::floor((float) value / 1000))) + K;
 }
 
 
 std::string ValueUtils::randomFrom(std::vector<std::string> from) {
   if (from.empty()) return "";
   std::uniform_int_distribution<> distrib(0, static_cast<int>(from.size()) - 1);
-  int randomIndex = distrib(gen);
+  const int randomIndex = distrib(gen);
   return from[randomIndex];
 }
 
 
-std::vector<std::string> ValueUtils::randomFrom(std::vector<std::string> from, int num) {
+std::vector<std::string> ValueUtils::randomFrom(std::vector<std::string> from, const int num) {
   std::vector<std::string> result;
   std::sample(from.begin(), from.end(), std::back_inserter(result), num, gen);
   return result;
@@ -94,7 +94,7 @@ std::vector<std::string> ValueUtils::randomFrom(std::vector<std::string> from, i
 
 long ValueUtils::gcd(long a, long b) {
   while (b > 0) {
-    long temp = b;
+    const long temp = b;
     b = a % b; // % is remainder
     a = temp;
   }
@@ -104,14 +104,14 @@ long ValueUtils::gcd(long a, long b) {
 
 std::vector<int> ValueUtils::factors(long target, std::vector<int> testFactors) {
   std::vector<int> result;
-  std::copy_if(testFactors.begin(), testFactors.end(), std::back_inserter(result), [target](int tf) {
+  std::copy_if(testFactors.begin(), testFactors.end(), std::back_inserter(result), [target](const int tf) {
     return target % tf == 0;
   });
   return result;
 }
 
 
-int ValueUtils::subDiv(int numerator, int denominator) {
+int ValueUtils::subDiv(const int numerator, const int denominator) {
   if (numerator % denominator != 0 || numerator <= denominator) return numerator;
   int result = numerator;
   while (result % denominator == 0 && result > denominator)
@@ -122,18 +122,18 @@ int ValueUtils::subDiv(int numerator, int denominator) {
 }
 
 
-int ValueUtils::multipleFloor(int factor, float value) {
-  auto factorF = static_cast<float>(factor);
+int ValueUtils::multipleFloor(const int factor, const float value) {
+  const auto factorF = static_cast<float>(factor);
   return static_cast<int>(std::floor(value / factorF) * factorF);
 }
 
 
-float ValueUtils::interpolate(float floor, float ceiling, float position, float multiplier) {
+float ValueUtils::interpolate(const float floor, const float ceiling, const float position, const float multiplier) {
   return floor + (ceiling - floor) * position * multiplier;
 }
 
 
-void ValueUtils::enforceMaxStereo(int value) {
+void ValueUtils::enforceMaxStereo(const int value) {
   if (value > 2)
     throw std::runtime_error("more than 2 input audio channels not allowed");
 }
@@ -142,7 +142,7 @@ void ValueUtils::enforceMaxStereo(int value) {
 std::optional<UUID> ValueUtils::getKeyOfHighestValue(const std::map<UUID, int> &map) {
   if (map.empty()) return std::nullopt;
 
-  auto max_it = std::max_element(map.begin(), map.end(),
+  const auto max_it = std::max_element(map.begin(), map.end(),
                                  [](const auto &a, const auto &b) {
                                    return a.second < b.second;
                                  });
@@ -151,17 +151,17 @@ std::optional<UUID> ValueUtils::getKeyOfHighestValue(const std::map<UUID, int> &
 }
 
 
-int ValueUtils::roundToNearest(int N, int value) {
+int ValueUtils::roundToNearest(const int N, const int value) {
   return std::max(0, static_cast<int>(std::round(static_cast<float>(value) / static_cast<float>(N)))) * N;
 }
 
 
-std::vector<UUID> ValueUtils::withIdsRemoved(std::vector<UUID> fromIds, int count) {
+std::vector<UUID> ValueUtils::withIdsRemoved(std::vector<UUID> fromIds, const int count) {
   std::vector<UUID> ids = std::move(fromIds);
   for (int i = 0; i < count; i++) {
     if (!ids.empty()) {
       std::uniform_int_distribution<> distrib(0, static_cast<int>(ids.size()) - 1);
-      int randomIndex = distrib(gen);
+      const int randomIndex = distrib(gen);
       ids.erase(ids.begin() + randomIndex);
     }
   }
@@ -169,11 +169,11 @@ std::vector<UUID> ValueUtils::withIdsRemoved(std::vector<UUID> fromIds, int coun
 }
 
 
-std::string ValueUtils::emptyZero(int value) {
+std::string ValueUtils::emptyZero(const int value) {
   return (0 != value) ? std::to_string(value) : "";
 }
 
-std::vector<std::string> ValueUtils::last(int num, std::vector<std::string> list) {
+std::vector<std::string> ValueUtils::last(const int num, std::vector<std::string> list) {
   if (num < 1) return {};
   return {list.begin() + std::max(0, static_cast<int>(list.size()) - num), list.end()};
 }

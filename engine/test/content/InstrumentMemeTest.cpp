@@ -18,3 +18,20 @@ TEST(InstrumentMemeTest, FieldValues) {
   ASSERT_EQ("0c39f908-5eb3-4c94-a8c6-ac87ec02f7e9", subject.instrumentId);
   ASSERT_EQ("Test Meme", subject.name);
 }
+
+
+TEST(InstrumentMemeTest, GetNames) {
+  std::set<const InstrumentMeme *> instrumentMemes;
+  InstrumentMeme instrumentMeme1;
+  instrumentMeme1.name = "Test Meme 1";
+  instrumentMemes.emplace(&instrumentMeme1);
+  InstrumentMeme instrumentMeme2;
+  instrumentMeme2.name = "Test Meme 2";
+  instrumentMemes.emplace(&instrumentMeme2);
+
+  std::set<std::string> names = InstrumentMeme::getNames(instrumentMemes);
+
+  ASSERT_EQ(2, names.size());
+  ASSERT_TRUE(names.find("Test Meme 1") != names.end());
+  ASSERT_TRUE(names.find("Test Meme 2") != names.end());
+}

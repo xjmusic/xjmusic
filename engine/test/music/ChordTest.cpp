@@ -2,7 +2,7 @@
 
 #include <algorithm>
 
-#include "yaml-cpp/yaml.h"
+#include <yaml-cpp/yaml.h>
 #include <gtest/gtest.h>
 
 #include "xjmusic/music/Chord.h"
@@ -57,7 +57,7 @@ TEST(Music_Chord, of) {
 
 
 TEST(Music_Chord, TestOf_Invalid) {
-  Chord chord = Chord::of("P-funk");
+  const Chord chord = Chord::of("P-funk");
   ASSERT_EQ(Atonal, chord.root);
 }
 

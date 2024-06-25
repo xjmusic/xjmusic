@@ -11,14 +11,14 @@ std::string ChainUtils::getFullKey(const std::string &key) {
 }
 
 
-std::string ChainUtils::getIdentifier(const std::optional<Chain> &chain) {
+std::string ChainUtils::getIdentifier(const std::optional<Chain *> &chain) {
   if (!chain.has_value()) return "N/A";
-  return chain->shipKey.empty() ? chain->id : chain->shipKey;
+  return chain.value()->shipKey.empty() ? chain.value()->id : chain.value()->shipKey;
 }
 
 
 std::set<UUID>
-ChainUtils::targetIdsOfType(const std::set<const TemplateBinding *> &chainBindings, TemplateBinding::Type type) {
+ChainUtils::targetIdsOfType(const std::set<const TemplateBinding *> &chainBindings, const TemplateBinding::Type type) {
   std::set<UUID> result;
   for (const auto &binding: chainBindings) {
     if (binding->type == type) {
@@ -34,12 +34,12 @@ std::string ChainUtils::getShipKey(const std::string &chainKey, const std::strin
 }
 
 
-long ChainUtils::computeFabricatedToChainMicros(const std::vector<Segment> &segments) {
-  auto lastDubbedSegment = SegmentUtils::getLastCrafted(segments);
+long ChainUtils::computeFabricatedToChainMicros(const std::vector<Segment *> &segments) {
+  const auto lastDubbedSegment = SegmentUtils::getLastCrafted(segments);
   if (lastDubbedSegment.has_value()) {
-    return lastDubbedSegment.value().durationMicros.has_value() ? lastDubbedSegment.value().beginAtChainMicros +
-                                                                  lastDubbedSegment.value().durationMicros.value()
-                                                                : lastDubbedSegment.value().beginAtChainMicros;
+    return lastDubbedSegment.value()->durationMicros.has_value() ? lastDubbedSegment.value()->beginAtChainMicros +
+                                                                  lastDubbedSegment.value()->durationMicros.value()
+                                                                : lastDubbedSegment.value()->beginAtChainMicros;
   }
   return 0;
 }

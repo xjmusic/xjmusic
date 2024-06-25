@@ -3,18 +3,16 @@
 #ifndef TEMPLATE_BINDING_H
 #define TEMPLATE_BINDING_H
 
-#include <string>
-#include <utility>
 #include <set>
+#include <string>
 
-#include "xjmusic/util/EntityUtils.h"
 #include "ContentEntity.h"
+#include "xjmusic/util/EntityUtils.h"
 
 namespace XJ {
 
   class TemplateBinding : public ContentEntity {
   public:
-
     enum Type {
       Library,
       Program,
@@ -52,7 +50,7 @@ namespace XJ {
      * @param templateBindings  The set of TemplateBinding pointers
      * @return                The string representation of the set of TemplateBinding pointers
      */
-    static std::string toPrettyCsv(const std::set<const TemplateBinding *>& templateBindings);
+    static std::string toPrettyCsv(const std::set<const TemplateBinding *> &templateBindings);
   };
 
 }// namespace XJ

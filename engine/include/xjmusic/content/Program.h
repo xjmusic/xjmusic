@@ -34,7 +34,7 @@ namespace XJ {
     std::string name;
     std::string config;
     bool isDeleted{};
-    long long updatedAt{currentTimeMillis()};
+    long long updatedAt{EntityUtils::currentTimeMillis()};
 
     /**
      * Parse the Program Type enum value from a string

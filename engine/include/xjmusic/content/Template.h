@@ -20,7 +20,7 @@ namespace XJ {
     std::string config;
     std::string shipKey;
     bool isDeleted{false};
-    long long updatedAt{currentTimeMillis()};
+    long long updatedAt{EntityUtils::currentTimeMillis()};
   };
 
 }// namespace XJ

@@ -27,8 +27,8 @@ TEST(Music_Bar, Instance_failsFromNull) {
 
 
 TEST(Music_Bar, ComputeSubsectionBeats) {
-  auto bar_3beat = Bar::of(3);
-  auto bar_4beat = Bar::of(4);
+  const auto bar_3beat = Bar::of(3);
+  const auto bar_4beat = Bar::of(4);
 
   ASSERT_EQ(12, bar_3beat.computeSubsectionBeats(12));
   ASSERT_EQ(12, bar_3beat.computeSubsectionBeats(12));

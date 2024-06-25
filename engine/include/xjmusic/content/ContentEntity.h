@@ -13,7 +13,7 @@ using json = nlohmann::json;
 
 namespace XJ {
 
-  class ContentEntity : public EntityUtils {
+  class ContentEntity {
   public:
 
     ContentEntity() = default;

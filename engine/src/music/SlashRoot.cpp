@@ -18,8 +18,8 @@ SlashRoot::SlashRoot(const std::string &name) {
   post = StringUtils::match(rgxSlashPost, name).value_or("");
   pre = post.empty() ? name : StringUtils::match(rgxSlashPre, name).value_or("");
 
-  auto modifiedPitchClass = StringUtils::match(rgxSlashNoteModified, name);
-  auto slashNotePitchClass = StringUtils::match(rgxSlashNote, name);
+  const auto modifiedPitchClass = StringUtils::match(rgxSlashNoteModified, name);
+  const auto slashNotePitchClass = StringUtils::match(rgxSlashNote, name);
   if (modifiedPitchClass.has_value()) {
     pitchClass = pitchClassOf(modifiedPitchClass.value());
   } else if (slashNotePitchClass.has_value()) {
@@ -63,7 +63,7 @@ bool SlashRoot::has_value() const {
 }
 
 
-std::string SlashRoot::display(Accidental withOptional) const {
+std::string SlashRoot::display(const Accidental withOptional) const {
   if (pitchClass.has_value() && PitchClass::Atonal != pitchClass) {
     std::ostringstream oss;
     oss << "/" << stringOf(pitchClass.value(), withOptional);

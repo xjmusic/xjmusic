@@ -12,7 +12,7 @@
 
 namespace XJ {
 
-  class SegmentEntity : public EntityUtils {
+  class SegmentEntity {
   public:
     SegmentEntity() = default;
 

@@ -66,7 +66,7 @@ TEST(Music_SlashRoot, display) {
  * https://www.pivotaltracker.com/story/show/183738228
  */
 TEST(Music_SlashRoot, constructor_dontConfuseTensionWithSlash) {
-  auto tension = SlashRoot::of("C 7/9");
+  const auto tension = SlashRoot::of("C 7/9");
   ASSERT_EQ("C 7/9", tension.pre);
   ASSERT_FALSE(tension.pitchClass.has_value());
   ASSERT_EQ("", tension.post);

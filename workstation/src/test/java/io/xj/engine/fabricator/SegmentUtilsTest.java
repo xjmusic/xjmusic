@@ -3,25 +3,10 @@
 package io.xj.engine.fabricator;
 
 import io.xj.engine.ContentFixtures;
-import io.xj.engine.SegmentFixtures;
 import io.xj.engine.FabricationException;
-import io.xj.model.pojos.Chain;
-import io.xj.model.enums.ChainState;
-import io.xj.model.enums.ChainType;
-import io.xj.model.pojos.Segment;
-import io.xj.model.pojos.SegmentChoice;
-import io.xj.model.pojos.SegmentChoiceArrangement;
-import io.xj.model.pojos.SegmentChoiceArrangementPick;
-import io.xj.model.pojos.SegmentChord;
-import io.xj.model.pojos.SegmentChordVoicing;
-import io.xj.model.pojos.SegmentMeme;
-import io.xj.model.pojos.SegmentMessage;
-import io.xj.model.pojos.SegmentMeta;
-import io.xj.model.enums.SegmentState;
-import io.xj.model.enums.SegmentType;
-import io.xj.model.enums.ProgramType;
-import io.xj.model.pojos.Project;
-import io.xj.model.pojos.Template;
+import io.xj.engine.SegmentFixtures;
+import io.xj.model.enums.*;
+import io.xj.model.pojos.*;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
@@ -29,10 +14,7 @@ import java.util.List;
 
 import static io.xj.engine.SegmentFixtures.buildChain;
 import static io.xj.model.util.ValueUtils.MICROS_PER_SECOND;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class SegmentUtilsTest {
   final Project project = ContentFixtures.buildProject("Test");

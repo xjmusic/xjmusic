@@ -26,6 +26,13 @@ add_library(xjmusic
         content/Template.cpp
         content/TemplateBinding.cpp
         content/TemplateConfig.cpp
+        craft/BackgroundCraft.cpp
+        craft/BeatCraft.cpp
+        craft/Craft.cpp
+        craft/CraftFactory.cpp
+        craft/DetailCraft.cpp
+        craft/MacroMainCraft.cpp
+        craft/TransitionCraft.cpp
         fabricator/ChainUtils.cpp
         fabricator/FabricationException.cpp
         fabricator/FabricationFatalException.cpp
@@ -33,6 +40,8 @@ add_library(xjmusic
         fabricator/Fabricator.cpp
         fabricator/FabricatorFactory.cpp
         fabricator/MarbleBag.cpp
+        fabricator/NotePicker.cpp
+        fabricator/RankedNote.cpp
         fabricator/SegmentRetrospective.cpp
         fabricator/SegmentUtils.cpp
         fabricator/TemplateUtils.cpp

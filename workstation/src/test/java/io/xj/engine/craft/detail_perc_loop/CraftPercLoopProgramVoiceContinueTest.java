@@ -2,35 +2,25 @@
 package io.xj.engine.craft.detail_perc_loop;
 
 import io.xj.engine.ContentFixtures;
-import io.xj.engine.SegmentFixtures;
 import io.xj.engine.FabricationException;
 import io.xj.engine.FabricationTopology;
+import io.xj.engine.SegmentFixtures;
 import io.xj.engine.craft.CraftFactory;
 import io.xj.engine.craft.CraftFactoryImpl;
-import io.xj.engine.fabricator.SegmentEntityStore;
-import io.xj.engine.fabricator.SegmentEntityStoreImpl;
-import io.xj.engine.fabricator.Fabricator;
-import io.xj.engine.fabricator.FabricatorFactory;
-import io.xj.engine.fabricator.FabricatorFactoryImpl;
-import io.xj.model.pojos.Chain;
-import io.xj.model.enums.ChainState;
-import io.xj.model.enums.ChainType;
-import io.xj.model.pojos.Segment;
-import io.xj.model.enums.SegmentState;
-import io.xj.model.enums.SegmentType;
+import io.xj.engine.fabricator.*;
 import io.xj.model.HubContent;
 import io.xj.model.HubTopology;
 import io.xj.model.entity.EntityFactoryImpl;
 import io.xj.model.entity.EntityUtils;
-import io.xj.model.enums.InstrumentMode;
-import io.xj.model.enums.InstrumentState;
-import io.xj.model.enums.InstrumentType;
+import io.xj.model.enums.*;
 import io.xj.model.json.JsonProvider;
 import io.xj.model.json.JsonProviderImpl;
 import io.xj.model.jsonapi.JsonapiPayloadFactory;
 import io.xj.model.jsonapi.JsonapiPayloadFactoryImpl;
+import io.xj.model.pojos.Chain;
 import io.xj.model.pojos.Instrument;
 import io.xj.model.pojos.InstrumentAudio;
+import io.xj.model.pojos.Segment;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -110,6 +100,11 @@ public class CraftPercLoopProgramVoiceContinueTest {
       "chains-1-segments-9f7s89d8a7892.wav", true));
   }
 
+  @AfterEach
+  public void tearDown() {
+
+  }
+
   /**
    Some custom fixtures for testing
 
@@ -127,19 +122,6 @@ public class CraftPercLoopProgramVoiceContinueTest {
     audioSnare = EntityUtils.add(entities, ContentFixtures.buildAudio(instrument1, "Snare", "a1g9f8u0k1v7f3e59o7j5e8s98.wav", 0.01f, 1.5f, 120.0f, 0.6f, "SNARE", "Ab", 1.0f));
 
     return entities;
-  }
-
-  @AfterEach
-  public void tearDown() {
-
-  }
-
-  @Test
-  public void craftPercLoopVoiceContinue_okIfNoPercLoopChoice() throws Exception {
-    insertSegments3and4();
-    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4.getId(), 48000.0f, 2, null);
-
-    craftFactory.detail(fabricator).doWork();
   }
 
   /**
@@ -200,6 +182,14 @@ public class CraftPercLoopProgramVoiceContinueTest {
       store.put(SegmentFixtures.buildSegmentMeme(segment4, memeName));
     store.put(SegmentFixtures.buildSegmentChord(segment4, 0.0f, "A minor"));
     store.put(SegmentFixtures.buildSegmentChord(segment4, 8.0f, "D Major"));
+  }
+
+  @Test
+  public void craftPercLoopVoiceContinue_okIfNoPercLoopChoice() throws Exception {
+    insertSegments3and4();
+    Fabricator fabricator = fabricatorFactory.fabricate(sourceMaterial, segment4.getId(), 48000.0f, 2, null);
+
+    craftFactory.detail(fabricator).doWork();
   }
 
 

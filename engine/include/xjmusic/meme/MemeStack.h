@@ -45,7 +45,7 @@ namespace XJ {
      @param targets memes to test
      @return true if the specified set of memes is allowed into this meme stack
      */
-    bool isAllowed(const std::set<std::string> &targets);
+    bool isAllowed(const std::set<std::string> &targets) const;
 
     /**
      Test whether an incoming set of memes is allowed by this meme
@@ -53,7 +53,7 @@ namespace XJ {
      @param targets memes to test
      @return true if the specified set of memes is allowed into this meme stack
      */
-    bool isAllowed(const std::set<std::string> &sources, const std::set<std::string> &targets);
+    bool isAllowed(const std::set<std::string> &sources, const std::set<std::string> &targets) const;
 
     /**
      Test whether all of our own memes are allowed, while avoiding testing any meme against itself
@@ -69,7 +69,7 @@ namespace XJ {
 
      @return normalized string representation of an unordered set of memes
      */
-    std::string getConstellation();
+    std::string getConstellation() const;
 
   private:
     std::set<std::string> memes;
