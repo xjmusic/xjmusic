@@ -66,7 +66,7 @@ public class CraftBeatInitialTest {
     store->clear();
 
     // Mock request via HubClientFactory returns fake generated library of model content
-    SegmentFixtures fake = new ContentFixtures();
+    auto fake = new ContentFixtures();
     sourceMaterial = new ContentEntityStore(Stream.concat(
       Stream.concat(fake->setupFixtureB1().stream(),
         fake->setupFixtureB2().stream()),

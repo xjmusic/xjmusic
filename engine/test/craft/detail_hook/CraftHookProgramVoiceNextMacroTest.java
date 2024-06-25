@@ -137,7 +137,7 @@ public class CraftHookProgramVoiceNextMacroTest {
 //    // assert hook choice
 //    auto segmentChoices = fabricator->getChoices();
 //    SegmentChoice hookChoice = segmentChoices.stream()
-//      .filter(c -> c.getInstrumentType().equals(Instrument::Type::Hook)).findFirst().orElseThrow();
+//      .filter(c -> c.getInstrumentType().equals(Instrument::Type::Hook)).findFirst().value();
 //    assertTrue(fabricator->getArrangements()
 //      .stream().anyMatch(a -> a.getSegmentChoiceId().equals(hookChoice->id)));
 //    
@@ -196,7 +196,7 @@ public class CraftHookProgramVoiceNextMacroTest {
     // Chain "Test Print #1" has a segment in crafting state - Foundation is complete
     segment4 = store->put(SegmentFixtures::buildSegment(
       chain1,
-      SegmentType.NEXT_MACRO,
+      Segment::Type::NextMacro,
       3,
       0,
       Segment::State::Crafting,

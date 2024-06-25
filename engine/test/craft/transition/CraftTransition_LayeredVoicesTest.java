@@ -175,7 +175,7 @@ public class CraftTransition_LayeredVoicesTest {
 
     craftFactory->transition(fabricator).doWork();
 
-//    auto result = store->getSegment(segment4->id).orElseThrow();
+//    auto result = store->getSegment(segment4->id).value();
 //    assertFalse(store->getAll(result->id, SegmentChoice.class).empty());
 //    
 //    int pickedKick = 0;

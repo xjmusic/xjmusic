@@ -115,7 +115,7 @@ public class CraftDetailProgramVoiceNextMacroTest {
     // assert detail choice
     auto segmentChoices = fabricator->getChoices();
     SegmentChoice beatChoice = segmentChoices.stream()
-      .filter(c -> c.getProgramType().equals(Program::Type::Detail)).findFirst().orElseThrow();
+      .filter(c -> c.getProgramType().equals(Program::Type::Detail)).findFirst().value();
     assertTrue(fabricator->getArrangements()
       .stream().anyMatch(a -> a.getSegmentChoiceId().equals(beatChoice->id)));
     

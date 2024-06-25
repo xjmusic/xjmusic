@@ -57,7 +57,7 @@ public class CraftSegmentOutputEncoderTest {
     store->clear();
 
     // Mock request via HubClientFactory returns fake generated library of model content
-    SegmentFixtures fake = new ContentFixtures();
+    auto fake = new ContentFixtures();
     sourceMaterial = new ContentEntityStore(fake->setupFixtureB1());
 
     // Chain "Print #2" has 1 initial planned segment
@@ -85,7 +85,7 @@ public class CraftSegmentOutputEncoderTest {
 
     craftFactory->macroMain(fabricator, null, null).doWork();
 
-    auto result = store->readSegment(segment6->id).orElseThrow();
+    auto result = store->readSegment(segment6->id).value();
     ASSERT_EQ(segment6->id, result->id);
     ASSERT_EQ(Segment::Type::Initial, result->type);
   }

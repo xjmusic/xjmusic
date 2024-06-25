@@ -164,7 +164,7 @@ public class CraftBeatProgramVoiceNextMainTest {
 
     craftFactory->beat(fabricator).doWork();
 
-    assertNotNull(fabricator->getArrangements(List.of(fabricator->getCurrentBeatChoice().orElseThrow())));
+    assertNotNull(fabricator->getArrangements(List.of(fabricator->getCurrentBeatChoice().value())));
 
 
     int pickedKick = 0;

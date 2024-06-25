@@ -92,7 +92,7 @@ public class CraftHookProgramVoiceInitialTest {
 
     craftFactory->detail(fabricator).doWork();
 
-//    auto result = store->getSegment(segment0->id).orElseThrow();
+//    auto result = store->getSegment(segment0->id).value();
 //    assertFalse(store->getAll(result->id, SegmentChoice.class).empty());
 //    
 //    int pickedKick = 0;

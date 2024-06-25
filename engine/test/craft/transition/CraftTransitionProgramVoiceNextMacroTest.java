@@ -137,7 +137,7 @@ public class CraftTransitionProgramVoiceNextMacroTest {
 //    // assert transition choice
 //    auto segmentChoices = fabricator->getChoices();
 //    SegmentChoice transitionChoice = segmentChoices.stream()
-//      .filter(c -> c.getInstrumentType().equals(Instrument::Type::Transition, Instrument::Mode::Event)).findFirst().orElseThrow();
+//      .filter(c -> c.getInstrumentType().equals(Instrument::Type::Transition, Instrument::Mode::Event)).findFirst().value();
 //    assertTrue(fabricator->getArrangements()
 //      .stream().anyMatch(a -> a.getSegmentChoiceId().equals(transitionChoice->id)));
 //    
@@ -195,7 +195,7 @@ public class CraftTransitionProgramVoiceNextMacroTest {
     // Chain "Test Print #1" has a segment in crafting state - Foundation is complete
     segment4 = store->put(SegmentFixtures::buildSegment(
       chain1,
-      SegmentType.NEXT_MACRO,
+      Segment::Type::NextMacro,
       3,
       0,
       Segment::State::Crafting,

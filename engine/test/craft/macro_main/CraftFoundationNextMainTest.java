@@ -130,7 +130,7 @@ public class CraftFoundationNextMainTest {
 
     craftFactory->macroMain(fabricator, null, null).doWork();
 
-    auto result = store->readSegment(segment4->id).orElseThrow();
+    auto result = store->readSegment(segment4->id).value();
     ASSERT_EQ(SegmentType.NEXT_MAIN, result->type);
     ASSERT_EQ(16 * MICROS_PER_MINUTE / 140, result->durationMicros);
     ASSERT_EQ(16, result->total);

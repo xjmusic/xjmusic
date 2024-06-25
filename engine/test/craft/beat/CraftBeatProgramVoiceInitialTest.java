@@ -93,7 +93,7 @@ public class CraftBeatProgramVoiceInitialTest {
 
     craftFactory->beat(fabricator).doWork();
 
-    auto result = store->readSegment(segment0->id).orElseThrow();
+    auto result = store->readSegment(segment0->id).value();
     assertFalse(store->readAllSegmentChoices(result->id).empty());
 
   }

@@ -76,7 +76,7 @@ public class CraftSegmentPatternMemeTest {
       store->clear();
 
       // Mock request via HubClientFactory returns fake generated library of model content
-      SegmentFixtures fake = new ContentFixtures();
+      auto fake = new ContentFixtures();
       ContentEntityStore sourceMaterial = new ContentEntityStore(Stream.concat(
         fake->setupFixtureB1().stream(),
         fake->setupFixtureB2().stream()
@@ -104,8 +104,8 @@ public class CraftSegmentPatternMemeTest {
 
       craftFactory->macroMain(fabricatorFactory->fabricate(sourceMaterial, segment->id, 48000.0f, 2, null), null, null).doWork();
 
-      auto result = store->readSegment(segment->id).orElseThrow();
-      ASSERT_EQ(SegmentType.NEXT_MACRO, result->type);
+      auto result = store->readSegment(segment->id).value();
+      ASSERT_EQ(Segment::Type::NextMacro, result->type);
       ASSERT_EQ(List.of("REGRET", "HINDSIGHT", "CHUNKY", "TANGY"),
         SegmentMeme::getNames(store->readAllSegmentMemes(result->id)));
     }

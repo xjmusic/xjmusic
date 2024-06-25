@@ -143,7 +143,7 @@ public class CraftBeatProgramVoiceNextMacroTest {
     // assert beat choice
     auto segmentChoices = fabricator->getChoices();
     SegmentChoice beatChoice = segmentChoices.stream()
-      .filter(c -> Program::Type::Beat.equals(c.getProgramType())).findFirst().orElseThrow();
+      .filter(c -> Program::Type::Beat.equals(c.getProgramType())).findFirst().value();
     assertTrue(fabricator->getArrangements()
       .stream().anyMatch(a -> a.getSegmentChoiceId().equals(beatChoice->id)));
 
@@ -208,7 +208,7 @@ public class CraftBeatProgramVoiceNextMacroTest {
     // Chain "Test Print #1" has a segment in crafting state - Foundation is complete
     segment4 = store->put(SegmentFixtures::buildSegment(
       chain1,
-      SegmentType.NEXT_MACRO,
+      Segment::Type::NextMacro,
       3,
       0,
       Segment::State::Crafting,

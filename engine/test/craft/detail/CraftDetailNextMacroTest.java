@@ -179,7 +179,7 @@ public class CraftDetailNextMacroTest {
     // Chain "Test Print #1" has a segment in crafting state - Foundation is complete
     segment4 = store->put(SegmentFixtures::buildSegment(
       chain1,
-      SegmentType.NEXT_MACRO,
+      Segment::Type::NextMacro,
       3,
       0,
       Segment::State::Crafting,

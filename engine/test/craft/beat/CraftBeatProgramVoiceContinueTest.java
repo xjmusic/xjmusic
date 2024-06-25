@@ -143,7 +143,7 @@ public class CraftBeatProgramVoiceContinueTest {
 
     craftFactory->beat(fabricator).doWork();
 
-    auto result = store->readSegment(segment4->id).orElseThrow();
+    auto result = store->readSegment(segment4->id).value();
     assertFalse(store->readAllSegmentChoices(result->id).empty());
 
     int pickedKick = 0;

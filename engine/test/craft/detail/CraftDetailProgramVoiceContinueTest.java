@@ -117,7 +117,7 @@ public class CraftDetailProgramVoiceContinueTest {
 
     craftFactory->detail(fabricator).doWork();
 
-    store->readSegment(segment4->id).orElseThrow();
+    store->readSegment(segment4->id).value();
     assertFalse(fabricator->getChoices().empty());
     
     int pickedBloop = 0;
