@@ -193,7 +193,7 @@ public class CraftBeatProgramVoiceNextMainTest {
 
    @param excludeBeatChoiceForSegment3 if desired for the purpose of this test
    */
-  void insertSegments3and4(boolean excludeBeatChoiceForSegment3)  {
+  void insertSegments3and4(bool excludeBeatChoiceForSegment3)  {
     // segment just crafted
     // Testing entities for reference
     const auto segment3 = store->put(SegmentFixtures::buildSegment(

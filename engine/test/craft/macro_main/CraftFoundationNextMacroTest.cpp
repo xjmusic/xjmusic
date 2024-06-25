@@ -31,11 +31,7 @@ static int TEST_REPEAT_ITERATIONS = 14;
    */
 TEST(CraftFoundationNextMacroTest, CraftFoundationNextMacro) {
   for (int i = 0; i < TEST_REPEAT_ITERATIONS; i++) {
-
-
     auto craftFactory = new CraftFactory();
-
-
     auto store = new SegmentEntityStore();
     auto fabricatorFactory = new FabricatorFactory(store);
 

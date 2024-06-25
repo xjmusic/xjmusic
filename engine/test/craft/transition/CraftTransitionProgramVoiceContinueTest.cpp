@@ -76,6 +76,18 @@ protected:
         "chains-1-segments-9f7s89d8a7892.wav", true));
   }
 
+  void TearDown() override {
+    delete craftFactory;
+    delete fabricatorFactory;
+    delete sourceMaterial;
+    delete store;
+    delete fake;
+    delete segment4;
+    delete chain1;
+    delete audioKick;
+    delete audioSnare;
+  }
+
   /**
    Some custom fixtures for testing
 
@@ -147,19 +159,6 @@ protected:
       store->put(SegmentFixtures::buildSegmentMeme(segment4, memeName));
     store->put(SegmentFixtures::buildSegmentChord(segment4, 0.0f, "A minor"));
     store->put(SegmentFixtures::buildSegmentChord(segment4, 8.0f, "D Major"));
-  }
-
-
-  void TearDown() override {
-    delete craftFactory;
-    delete fabricatorFactory;
-    delete sourceMaterial;
-    delete store;
-    delete fake;
-    delete segment4;
-    delete chain1;
-    delete audioKick;
-    delete audioSnare;
   }
 };
 

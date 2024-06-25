@@ -22,7 +22,7 @@ using ::testing::ReturnRef;
 
 using namespace XJ;
 
-class CraftTransitionProgramVoiceInitialTest : public ::testing::Test {
+class CraftBackgroundProgramVoiceInitialTest : public ::testing::Test {
 protected:
   CraftFactory *craftFactory = nullptr;
   FabricatorFactory *fabricatorFactory = nullptr;
@@ -40,7 +40,7 @@ protected:
     // Manipulate the underlying entity store; reset before each test
     store->clear();
 
-    // force known transition selection by destroying program 35
+    // force known background selection by destroying program 35
     // Mock request via HubClientFactory returns fake generated library of model content
     fake = new ContentFixtures();
     sourceMaterial = new ContentEntityStore();
@@ -68,8 +68,8 @@ protected:
   }
 
   /**
-   Insert fixture segment 6, including the transition choice only if specified
-   */
+ Insert fixture segment 6, including the background choice only if specified
+ */
   void insertSegment() {
     segment0 = store->put(SegmentFixtures::buildSegment(
         chain2,
@@ -90,17 +90,16 @@ protected:
   }
 };
 
-TEST_F(CraftTransitionProgramVoiceInitialTest, CraftTransitionVoiceInitial) {
+TEST_F(CraftBackgroundProgramVoiceInitialTest, CraftBackgroundVoiceInitial) {
   insertSegment();
-
   const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment0->id, 48000.0f, 2, std::nullopt);
 
-  craftFactory->transition(fabricator).doWork();
+  craftFactory->background(fabricator).doWork();
 }
 
-TEST_F(CraftTransitionProgramVoiceInitialTest, CraftTransitionVoiceInitial_okWhenNoTransitionChoice) {
+TEST_F(CraftBackgroundProgramVoiceInitialTest, CraftBackgroundVoiceInitial_okWhenNoBackgroundChoice) {
   insertSegment();
   const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment0->id, 48000.0f, 2, std::nullopt);
 
-  craftFactory->transition(fabricator).doWork();
+  craftFactory->background(fabricator).doWork();
 }

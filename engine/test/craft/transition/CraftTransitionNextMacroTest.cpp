@@ -75,6 +75,16 @@ protected:
         true));
   }
 
+  void TearDown() override {
+    delete craftFactory;
+    delete fabricatorFactory;
+    delete fake;
+    delete store;
+    delete sourceMaterial;
+    delete chain1;
+    delete segment4;
+  }
+
   /**
    Insert fixture segments 3 and 4, including the transition choice for segment 3 only if specified
    */
@@ -132,16 +142,6 @@ protected:
       store->put(SegmentFixtures::buildSegmentMeme(segment4, memeName));
     store->put(SegmentFixtures::buildSegmentChord(segment4, 0.0f, "F minor"));
     store->put(SegmentFixtures::buildSegmentChord(segment4, 8.0f, "Gb minor"));
-  }
-
-  void TearDown() override {
-    delete craftFactory;
-    delete fabricatorFactory;
-    delete fake;
-    delete store;
-    delete sourceMaterial;
-    delete chain1;
-    delete segment4;
   }
 };
 

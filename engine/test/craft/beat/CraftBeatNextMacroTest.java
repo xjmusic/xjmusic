@@ -77,7 +77,7 @@ public class CraftBeatNextMacroTest {
 
 
     // Chain "Test Print #1" has 5 total segments
-    chain1 = store->put(SegmentFixtures::buildChain(fake->project1, "Test Print #1", Chain::Type::Production, Chain::State::Fabricate, fake->template1, ""));
+    chain1 = store->put(SegmentFixtures::buildChain(&fake->project1, "Test Print #1", Chain::Type::Production, Chain::State::Fabricate, &fake->template1, ""));
     store->put(SegmentFixtures::buildSegment(
       chain1,
       Segment::Type::Initial,
@@ -138,7 +138,7 @@ public class CraftBeatNextMacroTest {
 
    @param excludeBeatChoiceForSegment3 if desired for the purpose of this test
    */
-  void insertSegments3and4(boolean excludeBeatChoiceForSegment3)  {
+  void insertSegments3and4(bool excludeBeatChoiceForSegment3)  {
     // Chain "Test Print #1" has this segment that was just crafted
     const auto segment3 = store->put(SegmentFixtures::buildSegment(
       chain1,

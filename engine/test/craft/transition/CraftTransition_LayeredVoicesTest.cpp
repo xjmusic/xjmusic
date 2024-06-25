@@ -113,7 +113,6 @@ protected:
     store->put(SegmentFixtures::buildSegmentChord(segment4, 8.0f, "D Major"));
   }
 
-
   /**
    Some custom fixtures for testing
 

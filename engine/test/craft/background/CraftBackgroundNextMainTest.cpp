@@ -22,7 +22,7 @@ using ::testing::ReturnRef;
 
 using namespace XJ;
 
-class CraftTransitionNextMainTest : public ::testing::Test {
+class CraftBackgroundNextMainTest : public ::testing::Test {
 protected:
   CraftFactory *craftFactory = nullptr;
   FabricatorFactory *fabricatorFactory = nullptr;
@@ -80,8 +80,8 @@ protected:
   }
 
   /**
-   Insert fixture segments 3 and 4, including the transition choice for segment 3 only if specified
-   */
+ Insert fixture segments 3 and 4, including the background choice for segment 3 only if specified
+ */
   void insertSegments3and4() {
     // segment just crafted
     // Testing entities for reference
@@ -137,9 +137,9 @@ protected:
   }
 };
 
-TEST_F(CraftTransitionNextMainTest, CraftTransitionNextMain_okEvenWithoutPreviousSegmentTransitionChoice) {
+TEST_F(CraftBackgroundNextMainTest, CraftBackgroundNextMain_okEvenWithoutPreviousSegmentBackgroundChoice) {
   insertSegments3and4();
   const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, 48000.0f, 2, std::nullopt);
 
-  craftFactory->transition(fabricator).doWork();
+  craftFactory->background(fabricator).doWork();
 }

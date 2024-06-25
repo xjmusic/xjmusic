@@ -79,6 +79,18 @@ protected:
         "chains-1-segments-9f7s89d8a7892.wav", true));
   }
 
+  void TearDown() override {
+    delete craftFactory;
+    delete fabricatorFactory;
+    delete fake;
+    delete store;
+    delete sourceMaterial;
+    delete chain1;
+    delete segment4;
+    delete audioKick;
+    delete audioSnare;
+  }
+
   /**
    Some custom fixtures for testing
 
@@ -114,8 +126,8 @@ protected:
   }
 
   /**
- Insert fixture segments 3 and 4, including the transition choice for segment 3 only if specified
- */
+   Insert fixture segments 3 and 4, including the transition choice for segment 3 only if specified
+   */
   void insertSegments3and4() {
     // segment just crafted
     // Testing entities for reference
@@ -173,18 +185,6 @@ protected:
 
     store->put(SegmentFixtures::buildSegmentChord(segment4, 0.0f, "G minor"));
     store->put(SegmentFixtures::buildSegmentChord(segment4, 8.0f, "Ab minor"));
-  }
-
-  void TearDown() override {
-    delete craftFactory;
-    delete fabricatorFactory;
-    delete fake;
-    delete store;
-    delete sourceMaterial;
-    delete chain1;
-    delete segment4;
-    delete audioKick;
-    delete audioSnare;
   }
 };
 

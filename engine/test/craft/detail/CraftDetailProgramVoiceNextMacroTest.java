@@ -79,7 +79,7 @@ public class CraftDetailProgramVoiceNextMacroTest {
 
 
     // Chain "Test Print #1" has 5 total segments
-    chain1 = store->put(SegmentFixtures::buildChain(fake->project1, "Test Print #1", Chain::Type::Production, Chain::State::Fabricate, fake->template1, ""));
+    chain1 = store->put(SegmentFixtures::buildChain(&fake->project1, "Test Print #1", Chain::Type::Production, Chain::State::Fabricate, &fake->template1, ""));
     store->put(SegmentFixtures::buildSegment(
       chain1,
       Segment::Type::Initial,
@@ -141,7 +141,7 @@ public class CraftDetailProgramVoiceNextMacroTest {
 
    @param excludeDetailChoiceForSegment3 if desired for the purpose of this test
    */
-  void insertSegments3and4(boolean excludeDetailChoiceForSegment3)  {
+  void insertSegments3and4(bool excludeDetailChoiceForSegment3)  {
     // Chain "Test Print #1" has this segment that was just crafted
     const auto segment3 = store->put(SegmentFixtures::buildSegment(
       chain1,

@@ -71,12 +71,12 @@ public class CraftPercLoop_LayeredVoicesTest {
     // Mock request via HubClientFactory returns fake generated library of model content
     fake = new ContentFixtures();
     sourceMaterial = new ContentEntityStore();
-      fake->setupFixtureB1().stream().filter(entity -> !EntityUtils.isSame(entity, fake->program35) && !EntityUtils.isChild(entity, fake->program35)),
+      fake->setupFixtureB1(sourceMaterial, false);
       setupCustomFixtures();
 
 
     // Chain "Test Print #1" has 5 total segments
-    const auto chain1 = store->put(SegmentFixtures::buildChain(fake->project1, "Test Print #1", Chain::Type::Production, Chain::State::Fabricate, fake->template1, ""));
+    const auto chain1 = store->put(SegmentFixtures::buildChain(&fake->project1, "Test Print #1", Chain::Type::Production, Chain::State::Fabricate, &fake->template1, ""));
     store->put(SegmentFixtures::buildSegment(
       chain1,
       Segment::Type::Initial,
