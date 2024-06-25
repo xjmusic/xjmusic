@@ -72,16 +72,16 @@ public class CraftDetailNextMacroTest {
 
     // Mock request via HubClientFactory returns fake generated library of model content
     fake = new ContentFixtures();
-    sourceMaterial = new ContentEntityStore(Stream.concat(
+    sourceMaterial = new ContentEntityStore();
       Stream.concat(
-        Stream.concat(fake->setupFixtureB1().stream(),
-          fake->setupFixtureB2().stream()),
-        fake->setupFixtureB3().stream()),
+        fake->setupFixtureB1(sourceMaterial);
+          fake->setupFixtureB2(sourceMaterial);
+        fake->setupFixtureB3(sourceMaterial);
       fake->setupFixtureB4_DetailBass().stream()
-    ).collect(Collectors.toList()));
+
 
     // Chain "Test Print #1" has 5 total segments
-    chain1 = store->put(SegmentFixtures::buildChain(fake->project1, "Test Print #1", Chain::Type::Production, Chain::State::Fabricate, fake->template1, null));
+    chain1 = store->put(SegmentFixtures::buildChain(fake->project1, "Test Print #1", Chain::Type::Production, Chain::State::Fabricate, fake->template1, ""));
     store->put(SegmentFixtures::buildSegment(
       chain1,
       Segment::Type::Initial,
@@ -107,15 +107,14 @@ public class CraftDetailNextMacroTest {
       "chains-1-segments-9f7s89d8a7892.wav", true));
   }
 
-  @AfterEach
-  public void tearDown() {
+  void TearDown() override {
 
   }
 
   @Test
   public void craftDetailNextMacro()  {
     insertSegments3and4(true);
-    auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, 48000.0f, 2, null);
+    auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, 48000.0f, 2, std::nullopt);
 
     craftFactory->detail(fabricator).doWork();
 
@@ -128,7 +127,7 @@ public class CraftDetailNextMacroTest {
   @Test
   public void craftDetailNextMacro_okEvenWithoutPreviousSegmentDetailChoice()  {
     insertSegments3and4(false);
-    auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, 48000.0f, 2, null);
+    auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, 48000.0f, 2, std::nullopt);
 
     craftFactory->detail(fabricator).doWork();
 
@@ -143,7 +142,7 @@ public class CraftDetailNextMacroTest {
 
    @param excludeDetailChoiceForSegment3 if desired for the purpose of this test
    */
-  void insertSegments3and4(boolean excludeDetailChoiceForSegment3) throws FabricationException {
+  void insertSegments3and4(boolean excludeDetailChoiceForSegment3)  {
     // Chain "Test Print #1" has this segment that was just crafted
     const auto segment3 = store->put(SegmentFixtures::buildSegment(
       chain1,
@@ -200,7 +199,7 @@ public class CraftDetailNextMacroTest {
       SegmentChoice::DELTA_UNLIMITED,
       fake->program15,
       fake->program15_sequence0_binding0));
-    for (std::string memeName : List.of("Hindsight", "Chunky", "Regret", "Tangy"))
+    for (std::string memeName : std::set<std::string>({"Hindsight", "Chunky", "Regret", "Tangy"}))
       store->put(SegmentFixtures::buildSegmentMeme(segment4, memeName));
     SegmentChord chord0 = store->put(SegmentFixtures::buildSegmentChord(segment4, 0.0f, "F minor"));
     store->put(SegmentFixtures::buildSegmentChordVoicing(chord0, Instrument::Type::Bass, "F2, Ab2, B2"));

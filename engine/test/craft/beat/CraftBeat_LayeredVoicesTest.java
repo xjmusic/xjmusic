@@ -86,13 +86,13 @@ public class CraftBeat_LayeredVoicesTest {
 
     // Mock request via HubClientFactory returns fake generated library of model content
     fake = new ContentFixtures();
-    sourceMaterial = new ContentEntityStore(Stream.concat(
+    sourceMaterial = new ContentEntityStore();
       fake->setupFixtureB1().stream().filter(entity -> !EntityUtils.isSame(entity, fake->program35) && !EntityUtils.isChild(entity, fake->program35)),
-      customFixtures().stream()
-    ).collect(Collectors.toList()));
+      setupCustomFixtures();
+
 
     // Chain "Test Print #1" has 5 total segments
-    const auto chain1 = store->put(SegmentFixtures::buildChain(fake->project1, "Test Print #1", Chain::Type::Production, Chain::State::Fabricate, fake->template1, null));
+    const auto chain1 = store->put(SegmentFixtures::buildChain(fake->project1, "Test Print #1", Chain::Type::Production, Chain::State::Fabricate, fake->template1, ""));
     store->put(SegmentFixtures::buildSegment(
       chain1,
       Segment::Type::Initial,
@@ -149,7 +149,7 @@ public class CraftBeat_LayeredVoicesTest {
     store->put(SegmentFixtures::buildSegmentChoice(segment4, Program::Type::Macro, fake->program4_sequence0_binding0));
     store->put(SegmentFixtures::buildSegmentChoice(segment4, Program::Type::Main, fake->program5_sequence1_binding0));
 
-    for (std::string memeName : List.of("Cozy", "Classic", "Outlook", "Rosy"))
+    for (std::string memeName : std::set<std::string>({"Cozy", "Classic", "Outlook", "Rosy"}))
       store->put(SegmentFixtures::buildSegmentMeme(segment4, memeName));
 
     store->put(SegmentFixtures::buildSegmentChord(segment4, 0.0f, "A minor"));
@@ -162,52 +162,51 @@ public class CraftBeat_LayeredVoicesTest {
 
    @return list of all entities
    */
-  Collection<Object> customFixtures() {
-    Collection<Object> entities = new ArrayList<>();
+  void setupCustomFixtures() const {
+
 
     // Instrument "808"
-    Instrument instrument1 = EntityUtils.add(entities, ContentFixtures::buildInstrument(fake->library2, Instrument::Type::Drum, Instrument::Mode::Event, Instrument::State::Published, "808 Drums"));
-    EntityUtils.add(entities, ContentFixtures::buildMeme(instrument1, "heavy"));
+    Instrument instrument1 = sourceMaterial->put(ContentFixtures::buildInstrument(fake->library2, Instrument::Type::Drum, Instrument::Mode::Event, Instrument::State::Published, "808 Drums"));
+    sourceMaterial->put(ContentFixtures::buildMeme(instrument1, "heavy"));
     //
-    audioKick = EntityUtils.add(entities, ContentFixtures::buildAudio(instrument1, "Kick", "19801735098q47895897895782138975898.wav", 0.01f, 2.123f, 120.0f, 0.6f, "KICK", "Eb", 1.0f));
+    audioKick = sourceMaterial->put(ContentFixtures::buildAudio(instrument1, "Kick", "19801735098q47895897895782138975898.wav", 0.01f, 2.123f, 120.0f, 0.6f, "KICK", "Eb", 1.0f));
     //
-    audioSnare = EntityUtils.add(entities, ContentFixtures::buildAudio(instrument1, "Snare", "a1g9f8u0k1v7f3e59o7j5e8s98.wav", 0.01f, 1.5f, 120.0f, 0.6f, "SNARE", "Ab", 1.0f));
+    audioSnare = sourceMaterial->put(ContentFixtures::buildAudio(instrument1, "Snare", "a1g9f8u0k1v7f3e59o7j5e8s98.wav", 0.01f, 1.5f, 120.0f, 0.6f, "SNARE", "Ab", 1.0f));
     //
-    audioHihat = EntityUtils.add(entities, ContentFixtures::buildAudio(instrument1, "Hihat", "iop0803k1k2l3h5a3s2d3f4g.wav", 0.01f, 1.5f, 120.0f, 0.6f, "HIHAT", "Ab", 1.0f));
+    audioHihat = sourceMaterial->put(ContentFixtures::buildAudio(instrument1, "Hihat", "iop0803k1k2l3h5a3s2d3f4g.wav", 0.01f, 1.5f, 120.0f, 0.6f, "HIHAT", "Ab", 1.0f));
 
     // A basic beat from scratch with layered voices
-    program42 = EntityUtils.add(entities, ContentFixtures::buildProgram(fake->library2, Program::Type::Beat, Program::State::Published, "Basic Beat", "C", 121f));
-    EntityUtils.add(entities, ContentFixtures::buildMeme(program42, "Basic"));
-    ProgramVoice program42_locomotion = EntityUtils.add(entities, ContentFixtures::buildVoice(program42, Instrument::Type::Drum, "Locomotion"));
-    ProgramVoice program42_kickSnare = EntityUtils.add(entities, ContentFixtures::buildVoice(program42, Instrument::Type::Drum, "BoomBap"));
-    auto sequence35a = EntityUtils.add(entities, ContentFixtures::buildSequence(program42, 16, "Base", 0.5f, "C"));
+    program42 = sourceMaterial->put(ContentFixtures::buildProgram(fake->library2, Program::Type::Beat, Program::State::Published, "Basic Beat", "C", 121f));
+    sourceMaterial->put(ContentFixtures::buildMeme(program42, "Basic"));
+    ProgramVoice program42_locomotion = sourceMaterial->put(ContentFixtures::buildVoice(program42, Instrument::Type::Drum, "Locomotion"));
+    ProgramVoice program42_kickSnare = sourceMaterial->put(ContentFixtures::buildVoice(program42, Instrument::Type::Drum, "BoomBap"));
+    auto sequence35a = sourceMaterial->put(ContentFixtures::buildSequence(program42, 16, "Base", 0.5f, "C"));
     //
-    auto pattern35a1 = EntityUtils.add(entities, ContentFixtures::buildPattern(sequence35a, program42_locomotion, 1, "Hi-hat"));
-    auto trackHihat = EntityUtils.add(entities, ContentFixtures::buildTrack(program42_locomotion, "HIHAT"));
-    EntityUtils.add(entities, ContentFixtures::buildEvent(pattern35a1, trackHihat, 0.0f, 1.0f, "C2", 1.0f));
-    EntityUtils.add(entities, ContentFixtures::buildEvent(pattern35a1, trackHihat, 0.25f, 1.0f, "G5", 0.4f));
-    EntityUtils.add(entities, ContentFixtures::buildEvent(pattern35a1, trackHihat, 0.5f, 1.0f, "C2", 0.6f));
-    EntityUtils.add(entities, ContentFixtures::buildEvent(pattern35a1, trackHihat, 0.75f, 1.0f, "C2", 0.3f));
+    auto pattern35a1 = sourceMaterial->put(ContentFixtures::buildPattern(sequence35a, program42_locomotion, 1, "Hi-hat"));
+    auto trackHihat = sourceMaterial->put(ContentFixtures::buildTrack(program42_locomotion, "HIHAT"));
+    sourceMaterial->put(ContentFixtures::buildEvent(pattern35a1, trackHihat, 0.0f, 1.0f, "C2", 1.0f));
+    sourceMaterial->put(ContentFixtures::buildEvent(pattern35a1, trackHihat, 0.25f, 1.0f, "G5", 0.4f));
+    sourceMaterial->put(ContentFixtures::buildEvent(pattern35a1, trackHihat, 0.5f, 1.0f, "C2", 0.6f));
+    sourceMaterial->put(ContentFixtures::buildEvent(pattern35a1, trackHihat, 0.75f, 1.0f, "C2", 0.3f));
     //
-    auto pattern35a2 = EntityUtils.add(entities, ContentFixtures::buildPattern(sequence35a, program42_kickSnare, 4, "Kick/Snare"));
-    auto trackKick = EntityUtils.add(entities, ContentFixtures::buildTrack(program42_kickSnare, "KICK"));
-    auto trackSnare = EntityUtils.add(entities, ContentFixtures::buildTrack(program42_kickSnare, "SNARE"));
-    EntityUtils.add(entities, ContentFixtures::buildEvent(pattern35a2, trackKick, 0.0f, 1.0f, "B5", 0.9f));
-    EntityUtils.add(entities, ContentFixtures::buildEvent(pattern35a2, trackSnare, 1.0f, 1.0f, "D2", 1.0f));
-    EntityUtils.add(entities, ContentFixtures::buildEvent(pattern35a2, trackKick, 2.5f, 1.0f, "E4", 0.7f));
-    EntityUtils.add(entities, ContentFixtures::buildEvent(pattern35a2, trackSnare, 3.0f, 1.0f, "c3", 0.5f));
+    auto pattern35a2 = sourceMaterial->put(ContentFixtures::buildPattern(sequence35a, program42_kickSnare, 4, "Kick/Snare"));
+    auto trackKick = sourceMaterial->put(ContentFixtures::buildTrack(program42_kickSnare, "KICK"));
+    auto trackSnare = sourceMaterial->put(ContentFixtures::buildTrack(program42_kickSnare, "SNARE"));
+    sourceMaterial->put(ContentFixtures::buildEvent(pattern35a2, trackKick, 0.0f, 1.0f, "B5", 0.9f));
+    sourceMaterial->put(ContentFixtures::buildEvent(pattern35a2, trackSnare, 1.0f, 1.0f, "D2", 1.0f));
+    sourceMaterial->put(ContentFixtures::buildEvent(pattern35a2, trackKick, 2.5f, 1.0f, "E4", 0.7f));
+    sourceMaterial->put(ContentFixtures::buildEvent(pattern35a2, trackSnare, 3.0f, 1.0f, "c3", 0.5f));
 
     return entities;
   }
 
-  @AfterEach
-  public void tearDown() {
+  void TearDown() override {
 
   }
 
   @Test
   public void craftBeatVoiceContinue()  {
-    auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, 48000.0f, 2, null);
+    auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, 48000.0f, 2, std::nullopt);
 
     craftFactory->beat(fabricator).doWork();
 

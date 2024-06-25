@@ -74,9 +74,9 @@ public class CraftDetailProgramVoiceInitialTest {
     // force known detail selection by destroying program 35
     // Mock request via HubClientFactory returns fake generated library of model content
     fake = new ContentFixtures();
-    sourceMaterial = new ContentEntityStore(Stream.concat(
-        Stream.concat(fake->setupFixtureB1().stream(),
-          fake->setupFixtureB3().stream()),
+    sourceMaterial = new ContentEntityStore();
+        fake->setupFixtureB1(sourceMaterial);
+          fake->setupFixtureB3(sourceMaterial);
         fake->setupFixtureB4_DetailBass().stream())
       .filter(entity -> !EntityUtils.isSame(entity, fake->program35) && !EntityUtils.isChild(entity, fake->program35))
       .collect(Collectors.toList()));
@@ -91,8 +91,7 @@ public class CraftDetailProgramVoiceInitialTest {
     ));
   }
 
-  @AfterEach
-  public void tearDown() {
+  void TearDown() override {
 
   }
 
@@ -100,7 +99,7 @@ public class CraftDetailProgramVoiceInitialTest {
   public void craftDetailVoiceInitial()  {
     insertSegments();
 
-    auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment1->id, 48000.0f, 2, null);
+    auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment1->id, 48000.0f, 2, std::nullopt);
 
     craftFactory->detail(fabricator).doWork();
 
@@ -118,7 +117,7 @@ public class CraftDetailProgramVoiceInitialTest {
   @Test
   public void craftDetailVoiceInitial_okWhenNoDetailChoice()  {
     insertSegments();
-    auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment1->id, 48000.0f, 2, null);
+    auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment1->id, 48000.0f, 2, std::nullopt);
 
     craftFactory->detail(fabricator).doWork();
   }
@@ -126,7 +125,7 @@ public class CraftDetailProgramVoiceInitialTest {
   /**
    Insert fixture segment 6, including the detail choice only if specified
    */
-  void insertSegments() throws FabricationException {
+  void insertSegments()  {
     // segment crafted
     Segment segment0 = store->put(SegmentFixtures::buildSegment(
       chain2,
@@ -175,7 +174,7 @@ public class CraftDetailProgramVoiceInitialTest {
       SegmentChoice::DELTA_UNLIMITED,
       fake->program5,
       fake->program5_sequence0_binding0));
-    for (std::string memeName : List.of("Special", "Wild", "Pessimism", "Outlook"))
+    for (std::string memeName : std::set<std::string>({"Special", "Wild", "Pessimism", "Outlook"}))
       store->put(SegmentFixtures::buildSegmentMeme(segment1, memeName));
     SegmentChord chord0 = store->put(SegmentFixtures::buildSegmentChord(segment1, 0.0f, "C minor"));
     store->put(SegmentFixtures::buildSegmentChordVoicing(chord0, Instrument::Type::Bass, "C2, Eb2, G2"));

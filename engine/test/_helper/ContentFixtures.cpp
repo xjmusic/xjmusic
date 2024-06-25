@@ -630,7 +630,7 @@ InstrumentMeme ContentFixtures::buildInstrumentMeme(
   return instrumentMeme;
 }
 
-void ContentFixtures::setupFixtureB1(ContentEntityStore *store) {
+void ContentFixtures::setupFixtureB1(ContentEntityStore *store, bool includeBeat) {
 
   // Project "bananas"
   project1 = buildProject("bananas");
@@ -748,24 +748,6 @@ void ContentFixtures::setupFixtureB1(ContentEntityStore *store) {
   // Put all entities into the given content store
   store->put(project1);
   store->put(library2);
-  store->put(program35);
-  store->put(program35_voice0);
-  store->put(program35_voice0_track0);
-  store->put(program35_voice0_track1);
-  store->put(program35_voice0_track2);
-  store->put(program35_voice0_track3);
-  store->put(program35_meme0);
-  store->put(program35_sequence0);
-  store->put(program35_sequence0_pattern0);
-  store->put(program35_sequence0_pattern0_event0);
-  store->put(program35_sequence0_pattern0_event1);
-  store->put(program35_sequence0_pattern0_event2);
-  store->put(program35_sequence0_pattern0_event3);
-  store->put(program35_sequence0_pattern1);
-  store->put(program35_sequence0_pattern1_event0);
-  store->put(program35_sequence0_pattern1_event1);
-  store->put(program35_sequence0_pattern1_event2);
-  store->put(program35_sequence0_pattern1_event3);
   store->put(program4);
   store->put(program4_meme0);
   store->put(program4_sequence0);
@@ -802,6 +784,26 @@ void ContentFixtures::setupFixtureB1(ContentEntityStore *store) {
   store->put(program5_sequence1_chord1_voicing);
   store->put(template1);
   store->put(templateBinding1);
+  if (includeBeat) {
+    store->put(program35);
+    store->put(program35_voice0);
+    store->put(program35_voice0_track0);
+    store->put(program35_voice0_track1);
+    store->put(program35_voice0_track2);
+    store->put(program35_voice0_track3);
+    store->put(program35_meme0);
+    store->put(program35_sequence0);
+    store->put(program35_sequence0_pattern0);
+    store->put(program35_sequence0_pattern0_event0);
+    store->put(program35_sequence0_pattern0_event1);
+    store->put(program35_sequence0_pattern0_event2);
+    store->put(program35_sequence0_pattern0_event3);
+    store->put(program35_sequence0_pattern1);
+    store->put(program35_sequence0_pattern1_event0);
+    store->put(program35_sequence0_pattern1_event1);
+    store->put(program35_sequence0_pattern1_event2);
+    store->put(program35_sequence0_pattern1_event3);
+  }
 }
 
 void ContentFixtures::setupFixtureB2(ContentEntityStore *store) {

@@ -70,14 +70,14 @@ public class CraftBeatNextMainTest {
 
     // Mock request via HubClientFactory returns fake generated library of model content
     fake = new ContentFixtures();
-    sourceMaterial = new ContentEntityStore(Stream.concat(
-      Stream.concat(fake->setupFixtureB1().stream(),
-        fake->setupFixtureB2().stream()),
-      fake->setupFixtureB3().stream()
-    ).collect(Collectors.toList()));
+    sourceMaterial = new ContentEntityStore();
+      fake->setupFixtureB1(sourceMaterial);
+        fake->setupFixtureB2(sourceMaterial);
+      fake->setupFixtureB3(sourceMaterial);
+
 
     // Chain "Test Print #1" has 5 total segments
-    chain1 = store->put(SegmentFixtures::buildChain(fake->project1, "Test Print #1", Chain::Type::Production, Chain::State::Fabricate, fake->template1, null));
+    chain1 = store->put(SegmentFixtures::buildChain(fake->project1, "Test Print #1", Chain::Type::Production, Chain::State::Fabricate, fake->template1, ""));
     store->put(SegmentFixtures::buildSegment(
       chain1,
       Segment::Type::Initial,
@@ -102,15 +102,14 @@ public class CraftBeatNextMainTest {
     ));
   }
 
-  @AfterEach
-  public void tearDown() {
+  void TearDown() override {
 
   }
 
   @Test
   public void craftBeatNextMain()  {
     insertSegments3and4(false);
-    auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, 48000.0f, 2, null);
+    auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, 48000.0f, 2, std::nullopt);
 
     craftFactory->beat(fabricator).doWork();
 
@@ -123,7 +122,7 @@ public class CraftBeatNextMainTest {
   @Test
   public void craftBeatNextMain_okEvenWithoutPreviousSegmentBeatChoice()  {
     insertSegments3and4(true);
-    auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, 48000.0f, 2, null);
+    auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, 48000.0f, 2, std::nullopt);
 
     craftFactory->beat(fabricator).doWork();
 
@@ -138,7 +137,7 @@ public class CraftBeatNextMainTest {
 
    @param excludeBeatChoiceForSegment3 if desired for the purpose of this test
    */
-  void insertSegments3and4(boolean excludeBeatChoiceForSegment3) throws FabricationException {
+  void insertSegments3and4(boolean excludeBeatChoiceForSegment3)  {
     // segment just crafted
     // Testing entities for reference
     const auto segment3 = store->put(SegmentFixtures::buildSegment(
@@ -195,7 +194,7 @@ public class CraftBeatNextMainTest {
       SegmentChoice::DELTA_UNLIMITED,
       fake->program15,
       fake->program15_sequence0_binding0));
-    for (std::string memeName : List.of("Regret", "Sky", "Hindsight", "Tropical"))
+    for (std::string memeName : std::set<std::string>({"Regret", "Sky", "Hindsight", "Tropical"}))
       store->put(SegmentFixtures::buildSegmentMeme(segment4, memeName));
     store->put(SegmentFixtures::buildSegmentChord(segment4, 0.0f, "G minor"));
     store->put(SegmentFixtures::buildSegmentChord(segment4, 8.0f, "Ab minor"));

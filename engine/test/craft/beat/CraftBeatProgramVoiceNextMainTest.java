@@ -78,11 +78,11 @@ public class CraftBeatProgramVoiceNextMainTest {
 
     // Mock request via HubClientFactory returns fake generated library of model content
     fake = new ContentFixtures();
-    sourceMaterial = new ContentEntityStore(Stream.concat(
-      Stream.concat(fake->setupFixtureB1().stream(),
-        fake->setupFixtureB2().stream()),
-      customFixtures().stream()
-    ).collect(Collectors.toList()));
+    sourceMaterial = new ContentEntityStore();
+      fake->setupFixtureB1(sourceMaterial);
+        fake->setupFixtureB2(sourceMaterial);
+      setupCustomFixtures();
+
 
     // Chain "Test Print #1" has 5 total segments
     chain1 = store->put(SegmentFixtures::buildChain(
@@ -119,18 +119,18 @@ public class CraftBeatProgramVoiceNextMainTest {
 
    @return list of all entities
    */
-  Collection<Object> customFixtures() {
-    Collection<Object> entities = new ArrayList<>();
+  void setupCustomFixtures() const {
+
 
     // Instrument "808"
-    Instrument instrument1 = EntityUtils.add(entities, ContentFixtures::buildInstrument(
+    Instrument instrument1 = sourceMaterial->put(ContentFixtures::buildInstrument(
       fake->library2,
       Instrument::Type::Drum,
       Instrument::Mode::Event, Instrument::State::Published,
       "808 Drums"));
-    EntityUtils.add(entities, ContentFixtures::buildInstrumentMeme(instrument1, "heavy"));
+    sourceMaterial->put(ContentFixtures::buildInstrumentMeme(instrument1, "heavy"));
     //
-    audioKick = EntityUtils.add(entities, ContentFixtures::buildInstrumentAudio(
+    audioKick = sourceMaterial->put(ContentFixtures::buildInstrumentAudio(
       instrument1,
       "Kick",
       "19801735098q47895897895782138975898.wav",
@@ -142,7 +142,7 @@ public class CraftBeatProgramVoiceNextMainTest {
       "Eb",
       1.0f));
     //
-    audioSnare = EntityUtils.add(entities, ContentFixtures::buildInstrumentAudio(
+    audioSnare = sourceMaterial->put(ContentFixtures::buildInstrumentAudio(
       instrument1,
       "Snare",
       "a1g9f8u0k1v7f3e59o7j5e8s98.wav",
@@ -160,7 +160,7 @@ public class CraftBeatProgramVoiceNextMainTest {
   @Test
   public void craftBeatVoiceNextMain()  {
     insertSegments3and4(true);
-    auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, 48000.0f, 2, null);
+    auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, 48000.0f, 2, std::nullopt);
 
     craftFactory->beat(fabricator).doWork();
 
@@ -183,7 +183,7 @@ public class CraftBeatProgramVoiceNextMainTest {
   @Test
   public void craftBeatVoiceNextMain_okIfNoBeatChoice()  {
     insertSegments3and4(false);
-    auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, 48000.0f, 2, null);
+    auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, 48000.0f, 2, std::nullopt);
 
     craftFactory->beat(fabricator).doWork();
   }
@@ -193,7 +193,7 @@ public class CraftBeatProgramVoiceNextMainTest {
 
    @param excludeBeatChoiceForSegment3 if desired for the purpose of this test
    */
-  void insertSegments3and4(boolean excludeBeatChoiceForSegment3) throws FabricationException {
+  void insertSegments3and4(boolean excludeBeatChoiceForSegment3)  {
     // segment just crafted
     // Testing entities for reference
     const auto segment3 = store->put(SegmentFixtures::buildSegment(
@@ -251,7 +251,7 @@ public class CraftBeatProgramVoiceNextMainTest {
       SegmentChoice::DELTA_UNLIMITED,
       fake->program15,
       fake->program15_sequence0_binding0));
-    for (std::string memeName : List.of("Regret", "Sky", "Hindsight", "Tropical"))
+    for (std::string memeName : std::set<std::string>({"Regret", "Sky", "Hindsight", "Tropical"}))
       store->put(SegmentFixtures::buildSegmentMeme(segment4, memeName));
 
     store->put(SegmentFixtures::buildSegmentChord(segment4, 0.0f, "G minor"));

@@ -62,11 +62,11 @@ public class CraftBackgroundInitialTest {
 
     // Mock request via HubClientFactory returns fake generated library of model content
     auto fake = new ContentFixtures();
-    sourceMaterial = new ContentEntityStore(Stream.concat(
-      Stream.concat(fake->setupFixtureB1().stream(),
-        fake->setupFixtureB2().stream()),
-      fake->setupFixtureB3().stream()
-    ).collect(Collectors.toList()));
+    sourceMaterial = new ContentEntityStore();
+      fake->setupFixtureB1(sourceMaterial);
+        fake->setupFixtureB2(sourceMaterial);
+      fake->setupFixtureB3(sourceMaterial);
+
 
     // Chain "Print #2" has 1 initial segment in crafting state - Foundation is complete
     auto chain2 = store->put(SegmentFixtures::buildChain(
@@ -102,21 +102,20 @@ public class CraftBackgroundInitialTest {
       SegmentChoice::DELTA_UNLIMITED,
       fake->program5,
       fake->program5_sequence0_binding0));
-    for (std::string memeName : List.of("Special", "Wild", "Pessimism", "Outlook"))
+    for (std::string memeName : std::set<std::string>({"Special", "Wild", "Pessimism", "Outlook"}))
       store->put(SegmentFixtures::buildSegmentMeme(segment6, memeName));
 
     store->put(SegmentFixtures::buildSegmentChord(segment6, 0.0f, "C minor"));
     store->put(SegmentFixtures::buildSegmentChord(segment6, 8.0f, "Db minor"));
   }
 
-  @AfterEach
-  public void tearDown() {
+  void TearDown() override {
 
   }
 
   @Test
   public void craftBackgroundInitial()  {
-    auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment6->id, 48000.0f, 2, null);
+    auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment6->id, 48000.0f, 2, std::nullopt);
 
     craftFactory->background(fabricator).doWork();
 

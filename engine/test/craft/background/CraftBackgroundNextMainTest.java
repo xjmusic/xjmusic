@@ -65,14 +65,14 @@ public class CraftBackgroundNextMainTest {
 
     // Mock request via HubClientFactory returns fake generated library of model content
     fake = new ContentFixtures();
-    sourceMaterial = new ContentEntityStore(Stream.concat(
-      Stream.concat(fake->setupFixtureB1().stream(),
-        fake->setupFixtureB2().stream()),
-      fake->setupFixtureB3().stream()
-    ).collect(Collectors.toList()));
+    sourceMaterial = new ContentEntityStore();
+      fake->setupFixtureB1(sourceMaterial);
+        fake->setupFixtureB2(sourceMaterial);
+      fake->setupFixtureB3(sourceMaterial);
+
 
     // Chain "Test Print #1" has 5 total segments
-    chain1 = store->put(SegmentFixtures::buildChain(fake->project1, "Test Print #1", Chain::Type::Production, Chain::State::Fabricate, fake->template1, null));
+    chain1 = store->put(SegmentFixtures::buildChain(fake->project1, "Test Print #1", Chain::Type::Production, Chain::State::Fabricate, fake->template1, ""));
     store->put(SegmentFixtures::buildSegment(
       chain1,
       0,
@@ -95,15 +95,14 @@ public class CraftBackgroundNextMainTest {
     ));
   }
 
-  @AfterEach
-  public void tearDown() {
+  void TearDown() override {
 
   }
 
   @Test
   public void craftBackgroundNextMain_okEvenWithoutPreviousSegmentBackgroundChoice()  {
     insertSegments3and4();
-    auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, 48000.0f, 2, null);
+    auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, 48000.0f, 2, std::nullopt);
 
     craftFactory->background(fabricator).doWork();
   }
@@ -111,7 +110,7 @@ public class CraftBackgroundNextMainTest {
   /**
    Insert fixture segments 3 and 4, including the background choice for segment 3 only if specified
    */
-  void insertSegments3and4() throws FabricationException {
+  void insertSegments3and4()  {
     // segment just crafted
     // Testing entities for reference
     const auto segment3 = store->put(SegmentFixtures::buildSegment(
@@ -159,7 +158,7 @@ public class CraftBackgroundNextMainTest {
       SegmentChoice::DELTA_UNLIMITED,
       fake->program15,
       fake->program15_sequence0_binding0));
-    for (std::string memeName : List.of("Regret", "Sky", "Hindsight", "Tropical")) {
+    for (std::string memeName : std::set<std::string>({"Regret", "Sky", "Hindsight", "Tropical"})) {
       store->put(SegmentFixtures::buildSegmentMeme(segment4, memeName));
     }
     store->put(SegmentFixtures::buildSegmentChord(segment4, 0.0f, "G minor"));

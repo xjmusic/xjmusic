@@ -70,14 +70,14 @@ public class CraftBeatContinueTest {
 
     // Mock request via HubClientFactory returns fake generated library of model content
     fake = new ContentFixtures();
-    sourceMaterial = new ContentEntityStore(Stream.concat(
-      Stream.concat(fake->setupFixtureB1().stream(),
-        fake->setupFixtureB2().stream()),
-      fake->setupFixtureB3().stream()
-    ).collect(Collectors.toList()));
+    sourceMaterial = new ContentEntityStore();
+      fake->setupFixtureB1(sourceMaterial);
+        fake->setupFixtureB2(sourceMaterial);
+      fake->setupFixtureB3(sourceMaterial);
+
 
     // Chain "Test Print #1" is fabricating segments
-    chain1 = store->put(SegmentFixtures::buildChain(fake->project1, "Test Print #1", Chain::Type::Production, Chain::State::Fabricate, fake->template1, null));
+    chain1 = store->put(SegmentFixtures::buildChain(fake->project1, "Test Print #1", Chain::Type::Production, Chain::State::Fabricate, fake->template1, ""));
     store->put(SegmentFixtures::buildSegment(
       chain1,
       Segment::Type::Initial,
@@ -103,15 +103,14 @@ public class CraftBeatContinueTest {
       "chains-1-segments-9f7s89d8a7892.wav", true));
   }
 
-  @AfterEach
-  public void tearDown() {
+  void TearDown() override {
 
   }
 
   @Test
   public void craftBeatContinue()  {
     insertSegments3and4(false);
-    auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, 48000.0f, 2, null);
+    auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, 48000.0f, 2, std::nullopt);
 
     craftFactory->beat(fabricator).doWork();
     // assert choice of beat-type sequence
@@ -181,7 +180,7 @@ public class CraftBeatContinueTest {
       SegmentChoice::DELTA_UNLIMITED,
       fake->program5,
       fake->program5_sequence1_binding0));
-    for (std::string memeName : List.of("Cozy", "Classic", "Outlook", "Rosy"))
+    for (std::string memeName : std::set<std::string>({"Cozy", "Classic", "Outlook", "Rosy"}))
       store->put(SegmentFixtures::buildSegmentMeme(segment4, memeName));
     store->put(SegmentFixtures::buildSegmentChord(segment4, 0.0f, "A minor"));
     store->put(SegmentFixtures::buildSegmentChord(segment4, 8.0f, "D Major"));
@@ -190,7 +189,7 @@ public class CraftBeatContinueTest {
   @Test
   public void craftBeatContinue_okEvenWithoutPreviousSegmentBeatChoice()  {
     insertSegments3and4(true);
-    auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, 48000.0f, 2, null);
+    auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, 48000.0f, 2, std::nullopt);
     craftFactory->beat(fabricator).doWork();
 
     // assert choice of beat-type sequence

@@ -72,11 +72,11 @@ public class CraftDetailContinueTest {
 
     // Mock request via HubClientFactory returns fake generated library of model content
     fake = new ContentFixtures();
-    sourceMaterial = new ContentEntityStore(Stream.concat(
-      Stream.concat(fake->setupFixtureB1().stream(),
-        fake->setupFixtureB2().stream()),
+    sourceMaterial = new ContentEntityStore();
+      fake->setupFixtureB1(sourceMaterial);
+        fake->setupFixtureB2(sourceMaterial);
       fake->setupFixtureB4_DetailBass().stream()
-    ).collect(Collectors.toList()));
+
 
     // Chain "Test Print #1" is fabricating segments
     chain1 = store->put(SegmentFixtures::buildChain(
@@ -112,14 +112,13 @@ public class CraftDetailContinueTest {
       true));
   }
 
-  @AfterEach
-  public void tearDown() {
+  void TearDown() override {
   }
 
   @Test
   public void craftDetailContinue()  {
     insertSegments3and4(false);
-    auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, 48000.0f, 2, null);
+    auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, 48000.0f, 2, std::nullopt);
 
     craftFactory->detail(fabricator).doWork();
     // assert choice of detail-type sequence
@@ -131,7 +130,7 @@ public class CraftDetailContinueTest {
   @Test
   public void craftDetailContinue_okEvenWithoutPreviousSegmentDetailChoice()  {
     insertSegments3and4(true);
-    auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, 48000.0f, 2, null);
+    auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, 48000.0f, 2, std::nullopt);
     craftFactory->detail(fabricator).doWork();
 
     // assert choice of detail-type sequence
@@ -202,7 +201,7 @@ public class CraftDetailContinueTest {
       SegmentChoice::DELTA_UNLIMITED,
       fake->program5,
       fake->program5_sequence1_binding0));
-    for (std::string memeName : List.of("Cozy", "Classic", "Outlook", "Rosy"))
+    for (std::string memeName : std::set<std::string>({"Cozy", "Classic", "Outlook", "Rosy"}))
       store->put(SegmentFixtures::buildSegmentMeme(segment4, memeName));
     SegmentChord chord0 = store->put(SegmentFixtures::buildSegmentChord(segment4, 0.0f, "A minor"));
     store->put(SegmentFixtures::buildSegmentChordVoicing(chord0, Instrument::Type::Bass, "A2, C3, E3"));

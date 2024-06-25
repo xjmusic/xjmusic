@@ -32,6 +32,22 @@ add_executable(xjmusic_test
         content/TemplateTest.cpp
         craft/ArrangementTest.cpp
         craft/CraftTest.cpp
+        craft/macro_main/CraftFoundationContinueTest.cpp
+        craft/macro_main/CraftFoundationInitialTest.cpp
+        craft/macro_main/CraftFoundationNextMacroTest.cpp
+        craft/macro_main/CraftFoundationNextMainTest.cpp
+        craft/macro_main/CraftSegmentOutputEncoderTest.cpp
+        craft/macro_main/CraftSegmentPatternMemeTest.cpp
+        craft/macro_main/MacroFromOverlappingMemeSequencesTest.cpp
+        craft/transition/CraftTransitionContinueTest.cpp
+        craft/transition/CraftTransitionInitialTest.cpp
+        craft/transition/CraftTransitionNextMacroTest.cpp
+        craft/transition/CraftTransitionNextMainTest.cpp
+        craft/transition/CraftTransitionProgramVoiceContinueTest.cpp
+        craft/transition/CraftTransitionProgramVoiceInitialTest.cpp
+        craft/transition/CraftTransitionProgramVoiceNextMacroTest.cpp
+        craft/transition/CraftTransitionProgramVoiceNextMainTest.cpp
+        craft/transition/CraftTransition_LayeredVoicesTest.cpp
         fabricator/FabricatorTest.cpp
         fabricator/MarbleBagTest.cpp
         fabricator/NotePickerTest.cpp
@@ -59,13 +75,6 @@ add_executable(xjmusic_test
         util/CsvUtilsTest.cpp
         util/StringUtilsTest.cpp
         util/ValueUtilsTest.cpp
-        craft/macro_main/CraftFoundationInitialTest.cpp
-        craft/macro_main/CraftFoundationContinueTest.cpp
-        craft/macro_main/CraftFoundationNextMacroTest.cpp
-        craft/macro_main/CraftFoundationNextMainTest.cpp
-        craft/macro_main/CraftSegmentOutputEncoderTest.cpp
-        craft/macro_main/CraftSegmentPatternMemeTest.cpp
-        craft/macro_main/MacroFromOverlappingMemeSequencesTest.cpp
 )
 
 # I'm using C++17 in the test

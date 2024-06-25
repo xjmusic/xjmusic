@@ -635,7 +635,7 @@ namespace XJ {
 
      @return collection of entities
      */
-    void setupFixtureB1(ContentEntityStore *store);
+    void setupFixtureB1(ContentEntityStore *store, bool includeBeat = true);
 
     /**
      Library of Content B-2 (shared test fixture)
@@ -670,6 +670,7 @@ namespace XJ {
     /**
      Generate a Library comprising many related entities
 
+     @param store entity store
      @param N magnitude of library to generate
      @return entities
      */

@@ -144,6 +144,6 @@ TEST_F(CraftFoundationNextMainTest, CraftFoundationNextMain_revertsAndRequeueOnF
 
   // TODO: convert to C++
   // assertThrows(FabricationFatalException.class, () ->
-  // fabricatorFactory->fabricate(sourceMaterial, segment5->id, 48000.0f, 2, null));
+  // fabricatorFactory->fabricate(sourceMaterial, segment5->id, 48000.0f, 2, ""));
   ASSERT_THROW(fabricatorFactory->fabricate(sourceMaterial, segment5->id, 48000.0f, 2, std::nullopt), FabricationFatalException);
 }

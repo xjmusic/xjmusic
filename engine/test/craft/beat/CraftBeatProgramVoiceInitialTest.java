@@ -69,9 +69,9 @@ public class CraftBeatProgramVoiceInitialTest {
     // force known beat selection by destroying program 35
     // Mock request via HubClientFactory returns fake generated library of model content
     fake = new ContentFixtures();
-    sourceMaterial = new ContentEntityStore(Stream.concat(
-        fake->setupFixtureB1().stream(),
-        fake->setupFixtureB3().stream())
+    sourceMaterial = new ContentEntityStore();
+        fake->setupFixtureB1(sourceMaterial);
+        fake->setupFixtureB3(sourceMaterial);
       .filter(entity -> !EntityUtils.isSame(entity, fake->program35) && !EntityUtils.isChild(entity, fake->program35))
       .collect(Collectors.toList()));
 
@@ -89,7 +89,7 @@ public class CraftBeatProgramVoiceInitialTest {
   public void craftBeatVoiceInitial()  {
     insertSegment();
 
-    auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment0->id, 48000.0f, 2, null);
+    auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment0->id, 48000.0f, 2, std::nullopt);
 
     craftFactory->beat(fabricator).doWork();
 
@@ -101,7 +101,7 @@ public class CraftBeatProgramVoiceInitialTest {
   @Test
   public void craftBeatVoiceInitial_okWhenNoBeatChoice()  {
     insertSegment();
-    auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment0->id, 48000.0f, 2, null);
+    auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment0->id, 48000.0f, 2, std::nullopt);
 
     craftFactory->beat(fabricator).doWork();
   }
@@ -109,7 +109,7 @@ public class CraftBeatProgramVoiceInitialTest {
   /**
    Insert fixture segment 6, including the beat choice only if specified
    */
-  void insertSegment() throws FabricationException {
+  void insertSegment()  {
     segment0 = store->put(SegmentFixtures::buildSegment(
       chain2,
       Segment::Type::Initial,
@@ -133,7 +133,7 @@ public class CraftBeatProgramVoiceInitialTest {
       SegmentChoice::DELTA_UNLIMITED,
       fake->program5,
       fake->program5_sequence0_binding0));
-    for (std::string memeName : List.of("Special", "Wild", "Pessimism", "Outlook"))
+    for (std::string memeName : std::set<std::string>({"Special", "Wild", "Pessimism", "Outlook"}))
       store->put(SegmentFixtures::buildSegmentMeme(segment0, memeName));
 
     store->put(SegmentFixtures::buildSegmentChord(segment0, 0.0f, "C minor"));

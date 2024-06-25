@@ -70,13 +70,13 @@ public class CraftBackground_LayeredVoicesTest {
 
     // Mock request via HubClientFactory returns fake generated library of model content
     fake = new ContentFixtures();
-    sourceMaterial = new ContentEntityStore(Stream.concat(
+    sourceMaterial = new ContentEntityStore();
       fake->setupFixtureB1().stream().filter(entity -> !EntityUtils.isSame(entity, fake->program35) && !EntityUtils.isChild(entity, fake->program35)),
-      customFixtures().stream()
-    ).collect(Collectors.toList()));
+      setupCustomFixtures();
+
 
     // Chain "Test Print #1" has 5 total segments
-    const auto chain1 = store->put(SegmentFixtures::buildChain(fake->project1, "Test Print #1", Chain::Type::Production, Chain::State::Fabricate, fake->template1, null));
+    const auto chain1 = store->put(SegmentFixtures::buildChain(fake->project1, "Test Print #1", Chain::Type::Production, Chain::State::Fabricate, fake->template1, ""));
     store->put(SegmentFixtures::buildSegment(
       chain1,
       Segment::Type::Initial,
@@ -135,7 +135,7 @@ public class CraftBackground_LayeredVoicesTest {
     store->put(SegmentFixtures::buildSegmentChoice(segment4, Program::Type::Macro, fake->program4_sequence0_binding0));
     store->put(SegmentFixtures::buildSegmentChoice(segment4, Program::Type::Main, fake->program5_sequence1_binding0));
 
-    for (std::string memeName : List.of("Cozy", "Classic", "Outlook", "Rosy"))
+    for (std::string memeName : std::set<std::string>({"Cozy", "Classic", "Outlook", "Rosy"}))
       store->put(SegmentFixtures::buildSegmentMeme(segment4, memeName));
 
     store->put(SegmentFixtures::buildSegmentChord(segment4, 0.0f, "A minor"));
@@ -148,30 +148,29 @@ public class CraftBackground_LayeredVoicesTest {
 
    @return list of all entities
    */
-  Collection<Object> customFixtures() {
-    Collection<Object> entities = new ArrayList<>();
+  void setupCustomFixtures() const {
+
 
     // Instrument "808"
-    Instrument instrument1 = EntityUtils.add(entities, ContentFixtures::buildInstrument(fake->library2, Instrument::Type::Background, Instrument::Mode::Loop, Instrument::State::Published, "Bongo Loop"));
-    EntityUtils.add(entities, ContentFixtures::buildMeme(instrument1, "heavy"));
+    Instrument instrument1 = sourceMaterial->put(ContentFixtures::buildInstrument(fake->library2, Instrument::Type::Background, Instrument::Mode::Loop, Instrument::State::Published, "Bongo Loop"));
+    sourceMaterial->put(ContentFixtures::buildMeme(instrument1, "heavy"));
     //
-    EntityUtils.add(entities, ContentFixtures::buildAudio(instrument1, "Kick", "19801735098q47895897895782138975898.wav", 0.01f, 2.123f, 120.0f, 0.6f, "KICK", "Eb", 1.0f));
+    sourceMaterial->put(ContentFixtures::buildAudio(instrument1, "Kick", "19801735098q47895897895782138975898.wav", 0.01f, 2.123f, 120.0f, 0.6f, "KICK", "Eb", 1.0f));
     //
-    EntityUtils.add(entities, ContentFixtures::buildAudio(instrument1, "Snare", "a1g9f8u0k1v7f3e59o7j5e8s98.wav", 0.01f, 1.5f, 120.0f, 0.6f, "SNARE", "Ab", 1.0f));
+    sourceMaterial->put(ContentFixtures::buildAudio(instrument1, "Snare", "a1g9f8u0k1v7f3e59o7j5e8s98.wav", 0.01f, 1.5f, 120.0f, 0.6f, "SNARE", "Ab", 1.0f));
     //
-    EntityUtils.add(entities, ContentFixtures::buildAudio(instrument1, "Hihat", "iop0803k1k2l3h5a3s2d3f4g.wav", 0.01f, 1.5f, 120.0f, 0.6f, "HIHAT", "Ab", 1.0f));
+    sourceMaterial->put(ContentFixtures::buildAudio(instrument1, "Hihat", "iop0803k1k2l3h5a3s2d3f4g.wav", 0.01f, 1.5f, 120.0f, 0.6f, "HIHAT", "Ab", 1.0f));
 
     return entities;
   }
 
-  @AfterEach
-  public void tearDown() {
+  void TearDown() override {
 
   }
 
   @Test
   public void craftBackgroundVoiceContinue()  {
-    auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, 48000.0f, 2, null);
+    auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, 48000.0f, 2, std::nullopt);
 
     craftFactory->background(fabricator).doWork();
 

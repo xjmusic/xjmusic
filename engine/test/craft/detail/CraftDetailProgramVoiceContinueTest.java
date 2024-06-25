@@ -71,14 +71,14 @@ public class CraftDetailProgramVoiceContinueTest {
 
     // Mock request via HubClientFactory returns fake generated library of model content
     fake = new ContentFixtures();
-    sourceMaterial = new ContentEntityStore(Stream.concat(
-      Stream.concat(fake->setupFixtureB1().stream(),
-        fake->setupFixtureB2().stream()),
+    sourceMaterial = new ContentEntityStore();
+      fake->setupFixtureB1(sourceMaterial);
+        fake->setupFixtureB2(sourceMaterial);
       fake->setupFixtureB4_DetailBass().stream()
-    ).collect(Collectors.toList()));
+
 
     // Chain "Test Print #1" has 5 total segments
-    chain1 = store->put(SegmentFixtures::buildChain(fake->project1, "Test Print #1", Chain::Type::Production, Chain::State::Fabricate, fake->template1, null));
+    chain1 = store->put(SegmentFixtures::buildChain(fake->project1, "Test Print #1", Chain::Type::Production, Chain::State::Fabricate, fake->template1, ""));
     store->put(SegmentFixtures::buildSegment(
       chain1,
       Segment::Type::Initial,
@@ -105,15 +105,14 @@ public class CraftDetailProgramVoiceContinueTest {
       true));
   }
 
-  @AfterEach
-  public void tearDown() {
+  void TearDown() override {
 
   }
 
   @Test
   public void craftDetailVoiceContinue()  {
     insertSegments3and4(false);
-    auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, 48000.0f, 2, null);
+    auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, 48000.0f, 2, std::nullopt);
 
     craftFactory->detail(fabricator).doWork();
 
@@ -133,7 +132,7 @@ public class CraftDetailProgramVoiceContinueTest {
   @Test
   public void craftDetailVoiceContinue_okIfNoDetailChoice()  {
     insertSegments3and4(true);
-    auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, 48000.0f, 2, null);
+    auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, 48000.0f, 2, std::nullopt);
 
     craftFactory->detail(fabricator).doWork();
   }
@@ -143,7 +142,7 @@ public class CraftDetailProgramVoiceContinueTest {
 
    @param excludeDetailChoiceForSegment3 if desired for the purpose of this test
    */
-  void insertSegments3and4(boolean excludeDetailChoiceForSegment3) throws FabricationException {
+  void insertSegments3and4(boolean excludeDetailChoiceForSegment3)  {
     // segment just crafted
     // Testing entities for reference
     const auto segment3 = store->put(SegmentFixtures::buildSegment(
@@ -200,7 +199,7 @@ public class CraftDetailProgramVoiceContinueTest {
       SegmentChoice::DELTA_UNLIMITED,
       fake->program5,
       fake->program5_sequence1_binding0));
-    for (std::string memeName : List.of("Cozy", "Classic", "Outlook", "Rosy"))
+    for (std::string memeName : std::set<std::string>({"Cozy", "Classic", "Outlook", "Rosy"}))
       store->put(SegmentFixtures::buildSegmentMeme(segment4, memeName));
     SegmentChord chord0 = store->put(SegmentFixtures::buildSegmentChord(segment4, 0.0f, "A minor"));
     store->put(SegmentFixtures::buildSegmentChordVoicing(chord0, Instrument::Type::Bass, "A2, C3, E3"));
