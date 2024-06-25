@@ -60,7 +60,7 @@ public class CraftSegmentPatternMemeTest {
       LOG.info("ATTEMPT NUMBER {}", i);
 
       CraftFactory craftFactory = new CraftFactory();
-      auto jsonProvider = new JsonProviderImpl();
+
 
       auto store = new SegmentEntityStore();
 

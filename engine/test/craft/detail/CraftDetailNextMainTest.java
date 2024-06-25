@@ -148,7 +148,7 @@ public class CraftDetailNextMainTest {
     // Testing entities for reference
     const auto segment3 = store->put(SegmentFixtures::buildSegment(
       chain1,
-      SegmentType.NEXT_MAIN,
+      Segment::Type::NextMain,
       2,
       2,
       Segment::State::Crafted,

@@ -170,7 +170,7 @@ public class CraftDetailProgramVoiceNextMainTest {
         fake->program10));
     segment4 = store->put(SegmentFixtures::buildSegment(
       chain1,
-      SegmentType.NEXT_MAIN,
+      Segment::Type::NextMain,
       3,
       3,
       Segment::State::Crafting,

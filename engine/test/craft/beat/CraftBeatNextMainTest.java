@@ -174,7 +174,7 @@ public class CraftBeatNextMainTest {
     // segment crafting
     segment4 = store->put(SegmentFixtures::buildSegment(
       chain1,
-      SegmentType.NEXT_MAIN,
+      Segment::Type::NextMain,
       3,
       0,
       Segment::State::Crafting,

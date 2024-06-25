@@ -11,10 +11,9 @@
 #include "xjmusic/craft/CraftFactory.h"
 #include "xjmusic/fabricator/ChainUtils.h"
 #include "xjmusic/fabricator/FabricatorFactory.h"
+#include "xjmusic/fabricator/SegmentUtils.h"
 #include "xjmusic/util/CsvUtils.h"
-
-#include <xjmusic/fabricator/SegmentUtils.h>
-#include <xjmusic/util/ValueUtils.h>
+#include "xjmusic/util/ValueUtils.h"
 
 // NOLINTNEXTLINE
 using ::testing::_;

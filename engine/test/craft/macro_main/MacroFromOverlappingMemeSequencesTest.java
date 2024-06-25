@@ -53,7 +53,7 @@ public class MacroFromOverlappingMemeSequencesTest {
   Program macro2a;
 
   void SetUp() override {
-    auto jsonProvider = new JsonProviderImpl();
+
 
     auto store = new SegmentEntityStore();
 

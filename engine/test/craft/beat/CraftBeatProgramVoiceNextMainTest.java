@@ -230,7 +230,7 @@ public class CraftBeatProgramVoiceNextMainTest {
     // segment crafting
     segment4 = store->put(SegmentFixtures::buildSegment(
       chain1,
-      SegmentType.NEXT_MAIN,
+      Segment::Type::NextMain,
       0,
       3,
       Segment::State::Crafting,

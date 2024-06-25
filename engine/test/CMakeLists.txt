@@ -62,6 +62,7 @@ add_executable(xjmusic_test
         craft/macro_main/CraftFoundationInitialTest.cpp
         craft/macro_main/CraftFoundationContinueTest.cpp
         craft/macro_main/CraftFoundationNextMacroTest.cpp
+        craft/macro_main/CraftFoundationNextMainTest.cpp
 )
 
 # I'm using C++17 in the test
