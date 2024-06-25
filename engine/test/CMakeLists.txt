@@ -58,6 +58,23 @@ add_executable(xjmusic_test
         craft/detail/CraftDetailProgramVoiceInitialTest.cpp
         craft/detail/CraftDetailProgramVoiceNextMacroTest.cpp
         craft/detail/CraftDetailProgramVoiceNextMainTest.cpp
+        craft/detail_hook/CraftHookContinueTest.cpp
+        craft/detail_hook/CraftHookInitialTest.cpp
+        craft/detail_hook/CraftHookNextMacroTest.cpp
+        craft/detail_hook/CraftHookNextMainTest.cpp
+        craft/detail_hook/CraftHookProgramVoiceContinueTest.cpp
+        craft/detail_hook/CraftHookProgramVoiceInitialTest.cpp
+        craft/detail_hook/CraftHookProgramVoiceNextMacroTest.cpp
+        craft/detail_hook/CraftHookProgramVoiceNextMainTest.cpp
+        craft/detail_perc_loop/CraftPercLoopContinueTest.cpp
+        craft/detail_perc_loop/CraftPercLoopInitialTest.cpp
+        craft/detail_perc_loop/CraftPercLoopNextMacroTest.cpp
+        craft/detail_perc_loop/CraftPercLoopNextMainTest.cpp
+        craft/detail_perc_loop/CraftPercLoopProgramVoiceContinueTest.cpp
+        craft/detail_perc_loop/CraftPercLoopProgramVoiceInitialTest.cpp
+        craft/detail_perc_loop/CraftPercLoopProgramVoiceNextMacroTest.cpp
+        craft/detail_perc_loop/CraftPercLoopProgramVoiceNextMainTest.cpp
+        craft/detail_perc_loop/CraftPercLoop_LayeredVoicesTest.cpp
         craft/macro_main/CraftFoundationContinueTest.cpp
         craft/macro_main/CraftFoundationInitialTest.cpp
         craft/macro_main/CraftFoundationNextMacroTest.cpp

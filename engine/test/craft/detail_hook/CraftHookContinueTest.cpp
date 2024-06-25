@@ -1,6 +1,8 @@
+#include <set>
+#include <vector>
+
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <set>
 
 #include "../../_helper/ContentFixtures.h"
 #include "../../_helper/SegmentFixtures.h"
@@ -11,6 +13,8 @@
 #include "xjmusic/fabricator/ChainUtils.h"
 #include "xjmusic/fabricator/FabricatorFactory.h"
 #include "xjmusic/fabricator/SegmentUtils.h"
+#include "xjmusic/util/CsvUtils.h"
+#include "xjmusic/util/ValueUtils.h"
 
 // NOLINTNEXTLINE
 using ::testing::_;
@@ -19,7 +23,7 @@ using ::testing::ReturnRef;
 
 using namespace XJ;
 
-class CraftBackgroundContinueTest : public ::testing::Test {
+class CraftHookContinueTest : public ::testing::Test {
 protected:
   CraftFactory *craftFactory = nullptr;
   FabricatorFactory *fabricatorFactory = nullptr;
@@ -43,6 +47,7 @@ protected:
     fake->setupFixtureB1(sourceMaterial);
     fake->setupFixtureB2(sourceMaterial);
     fake->setupFixtureB3(sourceMaterial);
+
 
     // Chain "Test Print #1" is fabricating segments
     chain1 = store->put(SegmentFixtures::buildChain(&fake->project1, "Test Print #1", Chain::Type::Production, Chain::State::Fabricate, &fake->template1, ""));
@@ -83,11 +88,11 @@ protected:
   }
 
   /**
-   Insert fixture segments 3 and 4, including the background choice for segment 3 only if specified
+   Insert fixture segments 3 and 4, including the hook choice for segment 3 only if specified
 
-   @param excludeBackgroundChoiceForSegment3 if desired for the purpose of this test
+   @param excludeHookChoiceForSegment3 if desired for the purpose of this test
    */
-  void insertSegments3and4(const bool excludeBackgroundChoiceForSegment3) {
+  void insertSegments3and4(bool excludeHookChoiceForSegment3) {
     // segment just crafted
     const auto segment3 = store->put(SegmentFixtures::buildSegment(
         chain1,
@@ -112,13 +117,13 @@ protected:
         SegmentChoice::DELTA_UNLIMITED,
         &fake->program5,
         &fake->program5_sequence0_binding0));
-    if (!excludeBackgroundChoiceForSegment3)
+    if (!excludeHookChoiceForSegment3)
       store->put(SegmentFixtures::buildSegmentChoice(
           segment3,
           SegmentChoice::DELTA_UNLIMITED,
           SegmentChoice::DELTA_UNLIMITED,
           &fake->program35,
-          Instrument::Type::Background,
+          Instrument::Type::Hook,
           Instrument::Mode::Loop));
 
     // segment crafting
@@ -153,17 +158,17 @@ protected:
   }
 };
 
-TEST_F(CraftBackgroundContinueTest, craftBackgroundContinue) {
+TEST_F(CraftHookContinueTest, CraftHookContinue) {
   insertSegments3and4(false);
   const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, 48000.0f, 2, std::nullopt);
 
-  craftFactory->background(fabricator).doWork();
+  craftFactory->detail(fabricator).doWork();
 }
 
 
-TEST_F(CraftBackgroundContinueTest, craftBackgroundContinue_okEvenWithoutPreviousSegmentBackgroundChoice) {
+TEST_F(CraftHookContinueTest, CraftHookContinue_okEvenWithoutPreviousSegmentHookChoice) {
   insertSegments3and4(true);
   const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, 48000.0f, 2, std::nullopt);
 
-  craftFactory->background(fabricator).doWork();
+  craftFactory->detail(fabricator).doWork();
 }
