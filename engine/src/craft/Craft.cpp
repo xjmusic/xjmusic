@@ -970,6 +970,8 @@ Craft::selectNewNoteEventInstrumentAudio(const Instrument *instrument, const Pro
       score.emplace(audio->id, fabricator->getTrackName(event) == audio->event ? 300 : 0);
     else if (Note::of(audio->tones) == Note::of(event->tones))
       score.emplace(audio->id, 100);
+    else
+      score.emplace(audio->id, 0);
 
   // chosen audio event
   const auto pickId = ValueUtils::getKeyOfHighestValue(score);

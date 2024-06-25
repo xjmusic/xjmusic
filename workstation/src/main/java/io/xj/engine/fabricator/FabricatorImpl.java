@@ -274,7 +274,7 @@ public class FabricatorImpl implements Fabricator {
 
   @Override
   public Collection<SegmentChoice> getCurrentDetailChoices() {
-    return getBeatChoices();
+    return getChoices().stream().filter(c -> Objects.equals(c.getProgramType(), ProgramType.Detail)).toList();
   }
 
   @Override

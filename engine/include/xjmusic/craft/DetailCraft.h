@@ -30,7 +30,7 @@ namespace XJ {
      @param tempo of main program
      @param instrument for which to craft
      */
-    void craftLoopParts(double tempo, const Instrument *instrument);
+    void craftLoopParts(double tempo, const Instrument *instrument) const;
   };
 
 }// namespace XJ

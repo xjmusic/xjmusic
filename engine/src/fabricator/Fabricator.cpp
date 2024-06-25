@@ -165,8 +165,17 @@ std::optional<const SegmentChoice *> Fabricator::getCurrentMainChoice() {
 }
 
 
-std::vector<const SegmentChoice *> Fabricator::getCurrentDetailChoices() {
-  return getBeatChoices();
+std::set<const SegmentChoice *> Fabricator::getCurrentDetailChoices() {
+  const std::set<SegmentChoice *> allChoices = getChoices();
+  std::set<const SegmentChoice *> detailChoices;
+
+  for (const auto &choice: allChoices) {
+    if (choice->programType == Program::Type::Detail) {
+      detailChoices.insert(choice);
+    }
+  }
+
+  return detailChoices;
 }
 
 
@@ -1026,13 +1035,15 @@ std::optional<const SegmentChoice *> Fabricator::getChoiceOfType(Program::Type p
 }
 
 
-std::vector<const SegmentChoice *> Fabricator::getBeatChoices() const {
-  std::set<SegmentChoice *> allChoices = getChoices();
-  std::vector<const SegmentChoice *> beatChoices;
+std::set<const SegmentChoice *> Fabricator::getBeatChoices() const {
+  const std::set<SegmentChoice *> allChoices = getChoices();
+  std::set<const SegmentChoice *> beatChoices;
 
-  std::copy_if(allChoices.begin(), allChoices.end(), std::back_inserter(beatChoices), [](const SegmentChoice *choice) {
-    return choice->programType == Program::Type::Beat;
-  });
+  for (const auto &choice: allChoices) {
+    if (choice->programType == Program::Type::Beat) {
+      beatChoices.insert(choice);
+    }
+  }
 
   return beatChoices;
 }
