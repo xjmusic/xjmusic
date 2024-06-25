@@ -16,7 +16,7 @@ Chain SegmentFixtures::buildChain(
 
 Chain SegmentFixtures::buildChain(
     const Template *tmpl,
-    Chain::State state) {
+    const Chain::State state) {
   Chain chain;
   chain.id = EntityUtils::computeUniqueId();
   chain.templateId = tmpl->id;
@@ -48,8 +48,8 @@ Chain SegmentFixtures::buildChain(
 Chain SegmentFixtures::buildChain(
     const Project *project,
     std::string name,
-    Chain::Type type,
-    Chain::State state,
+    const Chain::Type type,
+    const Chain::State state,
     const Template *tmpl,
     const std::string &shipKey) {
   Chain chain;
@@ -71,12 +71,12 @@ Segment SegmentFixtures::buildSegment() {
 
 Segment SegmentFixtures::buildSegment(
     const Chain *chain,
-    int id,
-    Segment::State state,
+    const int id,
+    const Segment::State state,
     std::string key,
-    int total,
-    float intensity,
-    float tempo,
+    const int total,
+    const float intensity,
+    const float tempo,
     std::string storageKey) {
   return buildSegment(chain,
                       0 < id ? Segment::Type::Continue : Segment::Type::Initial,
@@ -86,16 +86,16 @@ Segment SegmentFixtures::buildSegment(
 
 Segment SegmentFixtures::buildSegment(
     const Chain *chain,
-    Segment::Type type,
-    int id,
-    int delta,
-    Segment::State state,
+    const Segment::Type type,
+    const int id,
+    const int delta,
+    const Segment::State state,
     std::string key,
-    int total,
-    float intensity,
-    float tempo,
+    const int total,
+    const float intensity,
+    const float tempo,
     std::string storageKey,
-    bool hasEndSet) {
+    const bool hasEndSet) {
   Segment segment;
   segment.chainId = chain->id;
   segment.type = type;
@@ -122,25 +122,25 @@ Segment SegmentFixtures::buildSegment(
 Segment SegmentFixtures::buildSegment(
     const Chain *chain,
     std::string key,
-    int total,
-    float intensity,
-    float tempo) {
+    const int total,
+    const float intensity,
+    const float tempo) {
   return buildSegment(chain, 0, Segment::State::Crafting, std::move(key), total, intensity, tempo, "segment123");
 }
 
 Segment SegmentFixtures::buildSegment(
     const Chain *chain,
-    int offset,
+    const int offset,
     std::string key,
-    int total,
-    float intensity,
-    float tempo) {
+    const int total,
+    const float intensity,
+    const float tempo) {
   return buildSegment(chain, offset, Segment::State::Crafting, std::move(key), total, intensity, tempo, "segment123");
 }
 
 SegmentChoice SegmentFixtures::buildSegmentChoice(
     const Segment *segment,
-    Program::Type programType,
+    const Program::Type programType,
     const ProgramSequenceBinding *programSequenceBinding) {
   SegmentChoice segmentChoice;
   segmentChoice.id = EntityUtils::computeUniqueId();
@@ -170,11 +170,11 @@ SegmentChoice SegmentFixtures::buildSegmentChoice(
 
 SegmentChoice SegmentFixtures::buildSegmentChoice(
     const Segment *segment,
-    int deltaIn,
-    int deltaOut,
+    const int deltaIn,
+    const int deltaOut,
     const Program *program,
-    Instrument::Type instrumentType,
-    Instrument::Mode instrumentMode) {
+    const Instrument::Type instrumentType,
+    const Instrument::Mode instrumentMode) {
   SegmentChoice segmentChoice;
   segmentChoice.id = EntityUtils::computeUniqueId();
   segmentChoice.segmentId = segment->id;
@@ -302,7 +302,7 @@ SegmentMeme SegmentFixtures::buildSegmentMeme(
 
 SegmentChord SegmentFixtures::buildSegmentChord(
     const Segment *segment,
-    float atPosition,
+    const float atPosition,
     std::string name) {
   SegmentChord segmentChord;
   segmentChord.id = EntityUtils::computeUniqueId();
@@ -314,7 +314,7 @@ SegmentChord SegmentFixtures::buildSegmentChord(
 
 SegmentChordVoicing SegmentFixtures::buildSegmentChordVoicing(
     const SegmentChord *chord,
-    Instrument::Type type,
+    const Instrument::Type type,
     std::string notes) {
   SegmentChordVoicing segmentChordVoicing;
   segmentChordVoicing.id = EntityUtils::computeUniqueId();
@@ -339,7 +339,7 @@ SegmentChoiceArrangementPick SegmentFixtures::buildSegmentChoiceArrangementPick(
     const SegmentChoiceArrangement *segmentChoiceArrangement,
     const InstrumentAudio *instrumentAudio,
     std::string pickEvent) {
-  float microsPerBeat = ValueUtils::MICROS_PER_SECOND * ValueUtils::SECONDS_PER_MINUTE / segment->tempo;
+  const float microsPerBeat = ValueUtils::MICROS_PER_SECOND * ValueUtils::SECONDS_PER_MINUTE / segment->tempo;
   SegmentChoiceArrangementPick pick;
   pick.id = EntityUtils::computeUniqueId();
   pick.segmentId = segmentChoiceArrangement->segmentId;
@@ -359,7 +359,7 @@ SegmentChoiceArrangementPick SegmentFixtures::buildSegmentChoiceArrangementPick(
     const ProgramSequencePatternEvent *event,
     const InstrumentAudio *instrumentAudio,
     std::string pickEvent) {
-  float microsPerBeat = ValueUtils::MICROS_PER_SECOND * ValueUtils::SECONDS_PER_MINUTE / segment->tempo;
+  const float microsPerBeat = ValueUtils::MICROS_PER_SECOND * ValueUtils::SECONDS_PER_MINUTE / segment->tempo;
   SegmentChoiceArrangementPick pick;
   pick.id = EntityUtils::computeUniqueId();
   pick.segmentId = segmentChoiceArrangement->segmentId;

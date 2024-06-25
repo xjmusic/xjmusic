@@ -16,8 +16,8 @@ using namespace XJ;
  * @param expectRemainingText expected
  * @throws Exception on failure
  */
-static void assertRoot(const std::string& text, PitchClass expectPitchClass, const std::string& expectRemainingText) {
-  Root root = Root::of(text);
+static void assertRoot(const std::string& text, const PitchClass expectPitchClass, const std::string& expectRemainingText) {
+  const Root root = Root::of(text);
   ASSERT_EQ(expectPitchClass, root.pitchClass);
   ASSERT_EQ(expectRemainingText, root.remainingText);
 }

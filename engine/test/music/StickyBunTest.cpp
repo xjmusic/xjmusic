@@ -15,7 +15,7 @@ using namespace XJ;
 static UUID eventId = "0f650ae7-42b7-4023-816d-168759f37d2e";
 
 TEST(Music_StickyBun, getValues) {
-  auto subject = StickyBun(eventId, 3);
+  const auto subject = StickyBun(eventId, 3);
 
   ASSERT_EQ(3, subject.values.size());
 }
@@ -24,7 +24,7 @@ TEST(Music_StickyBun, getValues) {
  * super-key on program-sequence-event id, measuring delta from the first event seen in that event
  */
 TEST(Music_StickyBun, getParentId) {
-  auto subject = StickyBun(eventId, 3);
+  const auto subject = StickyBun(eventId, 3);
 
   ASSERT_EQ(eventId, subject.eventId);
 }
@@ -41,11 +41,11 @@ TEST(Music_StickyBun, computeMetaKey) {
  * Replace any number of members of the set, when atonal, by computing the sticky bun
  */
 TEST(Music_StickyBun, replaceAtonal) {
-  auto source = std::vector{Note::of("Bb7"), Note::of("X"), Note::of("X"), Note::of("X")};
-  auto voicingNotes = std::vector{Note::of("C4"), Note::of("E5"), Note::of("G6"), Note::of("Bb7")};
-  auto bun = StickyBun(eventId, std::vector{42, 67, 100, 0});
+  const auto source = std::vector{Note::of("Bb7"), Note::of("X"), Note::of("X"), Note::of("X")};
+  const auto voicingNotes = std::vector{Note::of("C4"), Note::of("E5"), Note::of("G6"), Note::of("Bb7")};
+  const auto bun = StickyBun(eventId, std::vector{42, 67, 100, 0});
 
-  auto result = bun.replaceAtonal(source, voicingNotes);
+  const auto result = bun.replaceAtonal(source, voicingNotes);
 
   TestHelpers::assertNote("Bb7", result.at(0));
   TestHelpers::assertNote("G6", result.at(1));
@@ -57,8 +57,8 @@ TEST(Music_StickyBun, replaceAtonal) {
  * Pick one
  */
 TEST(Music_StickyBun, compute) {
-  auto voicingNotes = std::vector{Note::of("C4"), Note::of("E5"), Note::of("G6"), Note::of("Bb7")};
-  auto bun = StickyBun(eventId, std::vector{42, 67, 100, 0});
+  const auto voicingNotes = std::vector{Note::of("C4"), Note::of("E5"), Note::of("G6"), Note::of("Bb7")};
+  const auto bun = StickyBun(eventId, std::vector{42, 67, 100, 0});
 
   TestHelpers::assertNote("E5", bun.compute(voicingNotes, 0));
   TestHelpers::assertNote("G6", bun.compute(voicingNotes, 1));
@@ -72,9 +72,9 @@ TEST(Music_StickyBun, compute) {
 TEST(Music_StickyBun, Serialize_Deserialize) {
   auto bun = StickyBun(eventId, std::vector{42, 67, 100, 0});
 
-  auto json = bun.serialize();
+  const auto json = bun.serialize();
 
-  auto result = StickyBun::deserializeFrom(json);
+  const auto result = StickyBun::deserializeFrom(json);
 
   ASSERT_EQ(bun.eventId, result.eventId);
   ASSERT_EQ(bun.values, result.values);

@@ -30,7 +30,7 @@ protected:
 
     // add base fixtures
     const Project fakeProject = ContentFixtures::buildProject("fake");
-    auto tmpl = ContentFixtures::buildTemplate(&fakeProject, "Test");
+    const auto tmpl = ContentFixtures::buildTemplate(&fakeProject, "Test");
     fakeChain = SegmentFixtures::buildChain(
         &fakeProject,
         "Print #2",
@@ -247,7 +247,7 @@ TEST_F(SegmentEntityStoreTest, CreateAll_ReadAll) {
 }
 
 TEST_F(SegmentEntityStoreTest, ReadSegment) {
-  Segment *result = subject->readSegment(segment2->id).value();
+  const Segment *result = subject->readSegment(segment2->id).value();
 
   ASSERT_EQ(segment2->id, result->id);
   ASSERT_EQ(chain3->id, result->chainId);
@@ -292,28 +292,28 @@ TEST_F(SegmentEntityStoreTest, ReadSegmentsFromToOffset) {
 
 
 TEST_F(SegmentEntityStoreTest, ReadSegmentsFromToOffset_AcceptsNegativeOffsets_returnsEmptyCollection) {
-  auto result = subject->readSegmentsFromToOffset(-1, -1);
+  const auto result = subject->readSegmentsFromToOffset(-1, -1);
 
   ASSERT_EQ(0L, result.size());
 }
 
 
 TEST_F(SegmentEntityStoreTest, ReadSegmentsFromToOffset_TrimsIfEndOffsetOutOfBounds) {
-  auto result = subject->readSegmentsFromToOffset(2, 12);
+  const auto result = subject->readSegmentsFromToOffset(2, 12);
 
   ASSERT_EQ(3L, result.size());
 }
 
 
 TEST_F(SegmentEntityStoreTest, ReadSegmentsFromToOffset_OnlyOneIfEndOffsetSameAsStart) {
-  auto result = subject->readSegmentsFromToOffset(2, 2);
+  const auto result = subject->readSegmentsFromToOffset(2, 2);
 
   ASSERT_EQ(1L, result.size());
 }
 
 
 TEST_F(SegmentEntityStoreTest, ReadSegmentsFromToOffset_EmptyIfStartOffsetOutOfBounds) {
-  auto result = subject->readSegmentsFromToOffset(14, 17);
+  const auto result = subject->readSegmentsFromToOffset(14, 17);
 
   ASSERT_EQ(0, result.size());
 }
@@ -325,23 +325,23 @@ TEST_F(SegmentEntityStoreTest, ReadAllSegments) {
   ASSERT_EQ(5L, result.size());
   auto it = result.begin();
 
-  Segment *result0 = *it;
+  const Segment *result0 = *it;
   ASSERT_EQ(Segment::State::Crafted, result0->state);
 
   ++it;
-  Segment *result1 = *it;
+  const Segment *result1 = *it;
   ASSERT_EQ(Segment::State::Crafting, result1->state);
 
   ++it;
-  Segment *result2 = *it;
+  const Segment *result2 = *it;
   ASSERT_EQ(Segment::State::Crafted, result2->state);
 
   ++it;
-  Segment *result3 = *it;
+  const Segment *result3 = *it;
   ASSERT_EQ(Segment::State::Crafting, result3->state);
 
   ++it;
-  Segment *result4 = *it;
+  const Segment *result4 = *it;
   ASSERT_EQ(Segment::State::Planned, result4->state);
 }
 

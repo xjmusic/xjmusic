@@ -9,11 +9,11 @@ import io.xj.engine.SegmentFixtures;
 import io.xj.engine.FabricationTopology;
 import io.xj.engine.craft.CraftFactory;
 import io.xj.engine.craft.CraftFactoryImpl;
-import io.xj.engine.fabricator.SegmentEntityStore;
-import io.xj.engine.fabricator.SegmentEntityStoreImpl;
-import io.xj.engine.fabricator.Fabricator;
-import io.xj.engine.fabricator.FabricatorFactory;
-import io.xj.engine.fabricator.FabricatorFactoryImpl;
+import io.xj.engine.fabricator->SegmentEntityStore;
+import io.xj.engine.fabricator->SegmentEntityStoreImpl;
+import io.xj.engine.fabricator->Fabricator;
+import io.xj.engine.fabricator->FabricatorFactory;
+import io.xj.engine.fabricator->FabricatorFactoryImpl;
 import io.xj.model.enums.ChainState;
 import io.xj.model.enums.ChainType;
 import io.xj.model.pojos.Segment;
@@ -50,7 +50,7 @@ public class CraftBackgroundInitialTest {
   void SetUp() override {
 
 
-    craftFactory = new CraftFactoryImpl();
+    craftFactory = new CraftFactory();
 
 
 
@@ -83,23 +83,23 @@ public class CraftBackgroundInitialTest {
       Segment::Type::Initial,
       0,
       0,
-      SegmentState.CRAFTING,
+      Segment::State::Crafting,
       "C minor",
       16,
       0.55f,
       130.0f,
       "chains-1-segments-9f7s89d8a7892.wav",
       true));
-    store->put(buildSegmentChoice(
+    store->put(SegmentFixtures::buildSegmentChoice(
       segment6,
-      Segment.DELTA_UNLIMITED,
-      Segment.DELTA_UNLIMITED,
+      SegmentChoice::DELTA_UNLIMITED,
+      SegmentChoice::DELTA_UNLIMITED,
       fake->program4,
       fake->program4_sequence0_binding0));
-    store->put(buildSegmentChoice(
+    store->put(SegmentFixtures::buildSegmentChoice(
       segment6,
-      Segment.DELTA_UNLIMITED,
-      Segment.DELTA_UNLIMITED,
+      SegmentChoice::DELTA_UNLIMITED,
+      SegmentChoice::DELTA_UNLIMITED,
       fake->program5,
       fake->program5_sequence0_binding0));
     for (std::string memeName : List.of("Special", "Wild", "Pessimism", "Outlook"))
@@ -115,13 +115,13 @@ public class CraftBackgroundInitialTest {
   }
 
   @Test
-  public void craftBackgroundInitial() throws Exception {
+  public void craftBackgroundInitial()  {
     auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment6->id, 48000.0f, 2, null);
 
     craftFactory->background(fabricator).doWork();
 
 //    // assert choice of background-type sequence
-//    Collection<SegmentChoice> segmentChoices =
+//    auto segmentChoices =
 //      store->getAll(segment6->id, SegmentChoice.class);
 //    assertNotNull(Segments.findFirstOfType(segmentChoices, Instrument::Type::Background));
   }

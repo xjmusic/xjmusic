@@ -8,9 +8,9 @@ using namespace XJ;
 
 
 TEST(StringUtilsTest, Split) {
-  std::string s = "\n  one,     two,\nthree";
-  char delimiter = ',';
-  std::vector<std::string> result = StringUtils::split(s, delimiter);
+  const std::string s = "\n  one,     two,\nthree";
+  const char delimiter = ',';
+  const std::vector<std::string> result = StringUtils::split(s, delimiter);
 
   ASSERT_EQ(3, result.size());
   ASSERT_EQ("one", result[0]);
@@ -19,16 +19,16 @@ TEST(StringUtilsTest, Split) {
 }
 
 TEST(StringUtilsTest, Join) {
-  std::vector<std::string> v = {"one", "two", "three"};
-  std::string delimiter = ",";
-  std::string result = StringUtils::join(v, delimiter);
+  const std::vector<std::string> v = {"one", "two", "three"};
+  const std::string delimiter = ",";
+  const std::string result = StringUtils::join(v, delimiter);
 
   ASSERT_EQ("one,two,three", result);
 }
 
 TEST(StringUtilsTest, Trim) {
-  std::string s = "  test string\n  ";
-  std::string result = StringUtils::trim(s);
+  const std::string s = "  test string\n  ";
+  const std::string result = StringUtils::trim(s);
 
   ASSERT_EQ("test string", result);
 }
@@ -36,10 +36,10 @@ TEST(StringUtilsTest, Trim) {
 TEST(StringUtilsTest, ToMeme) {
   ASSERT_EQ("JAMMYB!NS", StringUtils::toMeme("jaMMy b#!ns"));
   ASSERT_EQ("JAMMY", StringUtils::toMeme("jaMMy"));
-  std::string i1 = "j#MMy";
+  const std::string i1 = "j#MMy";
   ASSERT_EQ("JMMY", StringUtils::toMeme(&i1, "neuf"));
   ASSERT_EQ("NEUF", StringUtils::toMeme(nullptr, "neuf"));
-  std::string i2 = "%&(#";
+  const std::string i2 = "%&(#";
   ASSERT_EQ("NEUF", StringUtils::toMeme(&i2, "neuf"));
   ASSERT_EQ("P", StringUtils::toMeme("%&(#p"));
   ASSERT_EQ("", StringUtils::toMeme("%&(#"));
@@ -47,8 +47,8 @@ TEST(StringUtilsTest, ToMeme) {
 }
 
 TEST(StringUtilsTest, IsNullOrEmpty) {
-  std::string s1 = "test";
-  std::string s2;
+  const std::string s1 = "test";
+  const std::string s2;
   ASSERT_TRUE(StringUtils::isNullOrEmpty(nullptr));
   ASSERT_FALSE(StringUtils::isNullOrEmpty(&s1));
   ASSERT_TRUE(StringUtils::isNullOrEmpty(&s2));
@@ -94,8 +94,8 @@ TEST(StringUtilsTest, StripExtraSpaces) {
 }
 
 TEST(StringUtilsTest, Match) {
-  std::regex abc("^([ABC]+)$");
-  std::regex rgxSlashPost("[^/]*/([A-G♯#♭b]+)$");
+  const std::regex abc("^([ABC]+)$");
+  const std::regex rgxSlashPost("[^/]*/([A-G♯#♭b]+)$");
 
   ASSERT_FALSE(StringUtils::match(abc, "123").has_value());
   ASSERT_EQ("A", StringUtils::match(abc, "A"));
@@ -103,9 +103,9 @@ TEST(StringUtilsTest, Match) {
 }
 
 TEST(StringUtilsTest, CountMatches) {
-  std::regex abc("[ABC]");
-  std::regex accidentalSharp("[♯#]");
-  std::regex accidentalFlat("[♭b]");
+  const std::regex abc("[ABC]");
+  const std::regex accidentalSharp("[♯#]");
+  const std::regex accidentalFlat("[♭b]");
 
   ASSERT_EQ(3, StringUtils::countMatches(abc, "A B C"));
   ASSERT_EQ(1, StringUtils::countMatches(accidentalSharp, "C#/Eb"));

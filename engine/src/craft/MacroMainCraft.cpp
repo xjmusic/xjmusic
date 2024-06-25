@@ -13,18 +13,17 @@ MacroMainCraft::MacroMainCraft(
   this->overrideMemes = overrideMemes;
 }
 
-void MacroMainCraft::doWork() {
-  auto segment = fabricator->getSegment();
+void MacroMainCraft::doWork() const {
+  const auto segment = fabricator->getSegment();
 
   // Prepare variables to hold result of macro and main choice
   // Depending on whether we have override memes, we may perform main then macro (override), or macro then main (auto)
   const ProgramSequence *macroSequence;
   const ProgramSequence *mainSequence;
-  const Program *mainProgram;
 
   // If we are overriding memes, start by adding them to the workbench segment, and do main before macro
   if (!overrideMemes.empty()) {
-    for (const std::string& meme: overrideMemes) {
+    for (const std::string &meme: overrideMemes) {
       auto segmentMeme = SegmentMeme();
       segmentMeme.id = EntityUtils::computeUniqueId();
       segmentMeme.segmentId = fabricator->getSegment()->id;
@@ -39,18 +38,17 @@ void MacroMainCraft::doWork() {
     macroSequence = doMacroChoiceWork(segment);
     mainSequence = doMainChoiceWork(segment);
   }
-  auto mainProgramOpt = fabricator->getSourceMaterial()->getProgram(mainSequence->programId);
+  const auto mainProgramOpt = fabricator->getSourceMaterial()->getProgram(mainSequence->programId);
   if (!mainProgramOpt.has_value())
     throw FabricationException("Unable to determine main program for Segment[" + std::to_string(segment->id) + "]");
-  mainProgram = mainProgramOpt.value();
+  const Program *mainProgram = mainProgramOpt.value();
 
   // 3. Chords and voicings
-  for (auto sequenceChord: fabricator->getProgramSequenceChords(mainSequence)) {
+  for (const auto sequenceChord: fabricator->getProgramSequenceChords(mainSequence)) {
     // don't of chord past end of Segment
-    std::string name;
     if (sequenceChord->position < static_cast<int>(mainSequence->total)) {
       // delta the chord name
-      name = Chord(sequenceChord->name).getName();
+      const std::string name = Chord(sequenceChord->name).getName();
       // of the chord
       auto chord = SegmentChord();
       chord.id = EntityUtils::computeUniqueId();
@@ -58,7 +56,7 @@ void MacroMainCraft::doWork() {
       chord.position = sequenceChord->position;
       chord.name = name;
       fabricator->put(chord);
-      for (auto voicing: fabricator->getSourceMaterial()->getVoicingsOfChord(sequenceChord)) {
+      for (const auto voicing: fabricator->getSourceMaterial()->getVoicingsOfChord(sequenceChord)) {
         auto segmentChordVoicing = SegmentChordVoicing();
         segmentChordVoicing.id = EntityUtils::computeUniqueId();
         segmentChordVoicing.segmentId = segment->id;
@@ -90,17 +88,17 @@ void MacroMainCraft::doWork() {
   fabricator->updateSegment(*segment);
 }
 
-const ProgramSequence *MacroMainCraft::doMacroChoiceWork(const Segment *segment) {
-  auto macroProgram = chooseMacroProgram();
-  int macroSequenceBindingOffset = computeMacroSequenceBindingOffset();
+const ProgramSequence *MacroMainCraft::doMacroChoiceWork(const Segment *segment) const {
+  const auto macroProgram = chooseMacroProgram();
+  const int macroSequenceBindingOffset = computeMacroSequenceBindingOffset();
 
-  auto macroSequenceBinding =
+  const auto macroSequenceBinding =
       fabricator->getRandomlySelectedSequenceBindingAtOffset(macroProgram, macroSequenceBindingOffset);
   if (!macroSequenceBinding.has_value())
     throw FabricationException(
         "Unable to determine macro sequence binding for Segment[" + std::to_string(segment->id) + "]");
 
-  auto macroSequence = fabricator->getSourceMaterial()->getSequenceOfBinding(macroSequenceBinding.value());
+  const auto macroSequence = fabricator->getSourceMaterial()->getSequenceOfBinding(macroSequenceBinding.value());
   if (!macroSequence.has_value())
     throw FabricationException(
         "Unable to determine macro sequence for Segment[" + std::to_string(segment->id) + "]");
@@ -119,17 +117,17 @@ const ProgramSequence *MacroMainCraft::doMacroChoiceWork(const Segment *segment)
   return macroSequence.value();
 }
 
-const ProgramSequence *MacroMainCraft::doMainChoiceWork(const Segment *segment) {
-  auto mainProgram = chooseMainProgram();
-  int mainSequenceBindingOffset = computeMainProgramSequenceBindingOffset();
+const ProgramSequence *MacroMainCraft::doMainChoiceWork(const Segment *segment) const {
+  const auto mainProgram = chooseMainProgram();
+  const int mainSequenceBindingOffset = computeMainProgramSequenceBindingOffset();
 
-  auto mainSequenceBinding =
+  const auto mainSequenceBinding =
       fabricator->getRandomlySelectedSequenceBindingAtOffset(mainProgram, mainSequenceBindingOffset);
   if (!mainSequenceBinding.has_value())
     throw FabricationException(
         "Unable to determine main sequence binding for Segment[" + std::to_string(segment->id) + "]");
 
-  auto mainSequence =
+  const auto mainSequence =
       fabricator->getSourceMaterial()->getSequenceOfBinding(mainSequenceBinding.value());
   if (!mainSequence.has_value())
     throw FabricationException(
@@ -149,10 +147,10 @@ const ProgramSequence *MacroMainCraft::doMainChoiceWork(const Segment *segment) 
   return mainSequence.value();
 }
 
-const std::string MacroMainCraft::computeSegmentKey(const ProgramSequence *mainSequence) {
+std::string MacroMainCraft::computeSegmentKey(const ProgramSequence *mainSequence) const {
   std::string mainKey = mainSequence->key;
   if (mainKey.empty()) {
-    auto mainProgram = fabricator->getSourceMaterial()->getProgram(mainSequence->programId);
+    const auto mainProgram = fabricator->getSourceMaterial()->getProgram(mainSequence->programId);
     if (!mainProgram.has_value())
       throw FabricationException(
           "Unable to determine key for Main-Program[" + mainSequence->programId + "] " + mainSequence->name);
@@ -161,30 +159,29 @@ const std::string MacroMainCraft::computeSegmentKey(const ProgramSequence *mainS
   return Chord::of(mainKey).getName();
 }
 
-const double MacroMainCraft::computeSegmentIntensity(
+double MacroMainCraft::computeSegmentIntensity(
     const int delta,
-    std::optional<const ProgramSequence *> macroSequence,
-    std::optional<const ProgramSequence *> mainSequence
-) {
+    const std::optional<const ProgramSequence *> macroSequence,
+    const std::optional<const ProgramSequence *> mainSequence) const {
   return fabricator->getTemplateConfig().intensityAutoCrescendoEnabled
          ?
          ValueUtils::limitDecimalPrecision(ValueUtils::interpolate(
              fabricator->getTemplateConfig().intensityAutoCrescendoMinimum,
              fabricator->getTemplateConfig().intensityAutoCrescendoMaximum,
-             (double) delta / fabricator->getTemplateConfig().mainProgramLengthMaxDelta,
+             static_cast<double>(delta) / fabricator->getTemplateConfig().mainProgramLengthMaxDelta,
              computeIntensity(macroSequence, mainSequence)
          ))
          :
          computeIntensity(macroSequence, mainSequence);
 }
 
-const float MacroMainCraft::computeIntensity(
-    std::optional<const ProgramSequence *> macroSequence,
-    std::optional<const ProgramSequence *> mainSequence
-) {
-  std::optional<float> macroIntensity = macroSequence.has_value() ? std::optional<float>(
-      macroSequence.value()->intensity) : std::nullopt;
-  std::optional<float> mainIntensity = mainSequence.has_value() ? std::optional<float>(mainSequence.value()->intensity)
+float MacroMainCraft::computeIntensity(
+    const std::optional<const ProgramSequence *> macroSequence,
+    const std::optional<const ProgramSequence *> mainSequence) {
+  const std::optional<float> macroIntensity = macroSequence.has_value() ? std::optional<float>(
+                                                                              macroSequence.value()->intensity)
+                                                                        : std::nullopt;
+  const std::optional<float> mainIntensity = mainSequence.has_value() ? std::optional<float>(mainSequence.value()->intensity)
                                                                 : std::nullopt;
   if (macroIntensity.has_value() && mainIntensity.has_value())
     return (macroIntensity.value() + mainIntensity.value()) / 2;
@@ -195,13 +192,13 @@ const float MacroMainCraft::computeIntensity(
   throw FabricationException("Failed to compute Intensity!");
 }
 
-const int MacroMainCraft::computeMacroSequenceBindingOffset() {
+int MacroMainCraft::computeMacroSequenceBindingOffset() const {
   if (fabricator->getType() == Segment::Type::Initial || fabricator->getType() == Segment::Type::NextMacro)
     return overrideMacroProgram.has_value()
-           ? fabricator->getSecondMacroSequenceBindingOffset(overrideMacroProgram.value())
-           : 0;
+               ? fabricator->getSecondMacroSequenceBindingOffset(overrideMacroProgram.value())
+               : 0;
 
-  auto previousMacroChoice = fabricator->getMacroChoiceOfPreviousSegment();
+  const auto previousMacroChoice = fabricator->getMacroChoiceOfPreviousSegment();
   if (!previousMacroChoice.has_value())
     return 0;
 
@@ -215,7 +212,7 @@ const int MacroMainCraft::computeMacroSequenceBindingOffset() {
       "Cannot get Macro-type sequence for known fabricator type=" + Segment::toString(fabricator->getType()));
 }
 
-const int MacroMainCraft::computeMainProgramSequenceBindingOffset() {
+int MacroMainCraft::computeMainProgramSequenceBindingOffset() const {
   switch (fabricator->getType()) {
 
     case Segment::Type::Initial:
@@ -224,7 +221,7 @@ const int MacroMainCraft::computeMainProgramSequenceBindingOffset() {
       return 0;
 
     case Segment::Type::Continue: {
-      auto previousMainChoice = fabricator->getPreviousMainChoice();
+      const auto previousMainChoice = fabricator->getPreviousMainChoice();
       if (!previousMainChoice.has_value())
         throw FabricationException("Cannot get retrieve previous main choice");
       return fabricator->getNextSequenceBindingOffset(previousMainChoice.value());
@@ -235,12 +232,12 @@ const int MacroMainCraft::computeMainProgramSequenceBindingOffset() {
   }
 }
 
-const Program *MacroMainCraft::chooseRandomProgram(std::set<const Program *> programs, std::set<UUID> avoid) {
+const Program *MacroMainCraft::chooseRandomProgram(const std::set<const Program *> &programs, std::set<UUID> avoid) const {
   auto bag = MarbleBag();
 
   // Phase 1: Directly Bound Programs, besides those we should avoid
   // Phase 2: Any Directly Bound Programs
-  for (auto program: programsDirectlyBound(programs)) {
+  for (const auto program: programsDirectlyBound(programs)) {
     if (avoid.find(program->id) == avoid.end())
       bag.add(1, program->id);
     bag.add(2, program->id);
@@ -248,23 +245,23 @@ const Program *MacroMainCraft::chooseRandomProgram(std::set<const Program *> pro
 
   // Phase 3: All Published Programs, besides those we should avoid
   // Phase 4: Any Published Programs
-  for (auto program: programsPublished(programs)) {
+  for (const auto program: programsPublished(programs)) {
     if (avoid.find(program->id) == avoid.end())
       bag.add(3, program->id);
     bag.add(4, program->id);
   }
 
   // Phase 5: Any Program
-  for (auto program: programs)
+  for (const auto program: programs)
     bag.add(5, program->id);
 
   // if the bag is empty, problems
   if (bag.empty())
     throw FabricationException("Failed to choose any random program. No candidates available!");
 
-  auto program = fabricator->getSourceMaterial()->getProgram(bag.pick());
+  const auto program = fabricator->getSourceMaterial()->getProgram(bag.pick());
   if (!program.has_value()) {
-    auto message =
+    const auto message =
         "Unable to choose main program for Segment[" + std::to_string(fabricator->getSegment()->id) + "]";
     fabricator->addErrorMessage(message);
     spdlog::error(message);
@@ -273,7 +270,7 @@ const Program *MacroMainCraft::chooseRandomProgram(std::set<const Program *> pro
   return program.value();
 }
 
-const Program *MacroMainCraft::chooseMacroProgram() {
+const Program *MacroMainCraft::chooseMacroProgram() const {
   if (overrideMacroProgram.has_value())
     return overrideMacroProgram.value();
 
@@ -350,7 +347,7 @@ const Program *MacroMainCraft::chooseMacroProgram() {
   return program.value();
 }
 
-const Program *MacroMainCraft::chooseMainProgram() {
+const Program *MacroMainCraft::chooseMainProgram() const {
   auto bag = MarbleBag();
   auto candidates = fabricator->getSourceMaterial()->getProgramsOfType(Program::Type::Main);
 
@@ -422,6 +419,6 @@ const Program *MacroMainCraft::chooseMainProgram() {
   return program.value();
 }
 
-long MacroMainCraft::segmentLengthMicros(const Program *mainProgram, const ProgramSequence *mainSequence) {
+long MacroMainCraft::segmentLengthMicros(const Program *mainProgram, const ProgramSequence *mainSequence) const {
   return fabricator->getSegmentMicrosAtPosition(mainProgram->tempo, static_cast<float>(mainSequence->total));
 }

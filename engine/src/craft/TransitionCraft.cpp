@@ -15,10 +15,10 @@ TransitionCraft::TransitionCraft(
 
 
 void TransitionCraft::doWork() {
-  auto previousChoice =
+  const auto previousChoice =
       fabricator->getRetrospective()->getPreviousChoiceOfType(Instrument::Type::Transition);
 
-  auto instrument = previousChoice.has_value() ?
+  const auto instrument = previousChoice.has_value() ?
                     fabricator->getSourceMaterial()->getInstrument(previousChoice.value()->instrumentId) :
                     chooseFreshInstrument(Instrument::Type::Transition, {});
 
@@ -42,10 +42,10 @@ bool TransitionCraft::isBigTransitionSegment() {
 
 bool TransitionCraft::isMediumTransitionSegment() {
   if (fabricator->getType() != Segment::Type::Continue) return false;
-  auto mainSequence = fabricator->getCurrentMainSequence();
+  const auto mainSequence = fabricator->getCurrentMainSequence();
   if (!mainSequence.has_value())
     throw FabricationException("Can't get current main sequence");
-  auto previousMainSequence = fabricator->getPreviousMainSequence();
+  const auto previousMainSequence = fabricator->getPreviousMainSequence();
   if (!previousMainSequence.has_value())
     throw FabricationException("Can't get previous main sequence");
   return mainSequence.value()->id != previousMainSequence.value()->id;
@@ -103,7 +103,7 @@ std::set<const InstrumentAudio *> TransitionCraft::selectAudiosForInstrument(con
   }
   if (fabricator->getInstrumentConfig(instrument).isAudioSelectionPersistent && !previous.empty()) {
     std::set<const InstrumentAudio *> result;
-    for (auto pick : previous) {
+    for (const auto pick : previous) {
       auto audio = fabricator->getSourceMaterial()->getInstrumentAudio(pick->instrumentAudioId);
       if (audio.has_value())
         result.emplace(audio.value());

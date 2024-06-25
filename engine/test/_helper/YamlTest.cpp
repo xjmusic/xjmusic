@@ -26,16 +26,16 @@ void YamlTest::TearDown() {
 
 
 YAML::Node YamlTest::loadYaml(const std::string &prefix, const std::string &filename) {
-  std::string fullPath = prefix + filename;
+  const std::string fullPath = prefix + filename;
   YAML::Node data = YAML::LoadFile(fullPath);
   assert(data.IsMap());
   return data;
 }
 
 
-void YamlTest::assertSame(const std::string &description, int expected, int actual) {
+void YamlTest::assertSame(const std::string &description, const int expected, const int actual) {
   if (expected != actual) {
-    std::string failure =
+    const std::string failure =
         description + " — Expected: " + std::to_string(expected) + " — Actual: " + std::to_string(actual);
     failures.insert(failure);
   }
@@ -44,7 +44,7 @@ void YamlTest::assertSame(const std::string &description, int expected, int actu
 
 void YamlTest::assertSameNote(const std::string &description, const Note &expected, const Note &actual) {
   if (!(expected == actual)) {
-    std::string failure = description + " — Expected: " + expected.toString(Accidental::Sharp) + " — Actual: " +
+    const std::string failure = description + " — Expected: " + expected.toString(Accidental::Sharp) + " — Actual: " +
                           actual.toString(Accidental::Sharp);
     failures.insert(failure);
   }
@@ -68,7 +68,7 @@ void YamlTest::assertSameNotes(const std::string &description, const std::set<st
   // iterate through all notes and compare
   for (size_t i = 0; i < expectedNotes.size(); i++) {
     if (!(expectedNotes[i] == actualNotes[i])) {
-      std::string failure =
+      const std::string failure =
           description + " — Expected: " + expectedNotes[i].toString(Accidental::Sharp) + " — Actual: " +
           actualNotes[i].toString(Accidental::Sharp);
       failures.insert(failure);

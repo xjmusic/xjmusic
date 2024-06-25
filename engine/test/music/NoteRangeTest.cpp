@@ -204,9 +204,9 @@ TEST(Music_NoteRange, MedianNote) {
 
 
 TEST(Music_NoteRange, Shifted) {
-  auto input = NoteRange::from("C5", "G5");
+  const auto input = NoteRange::from("C5", "G5");
 
-  auto result = input.shifted(2);
+  const auto result = input.shifted(2);
 
   TestHelpers::assertNote("D5", result.low.value());
   TestHelpers::assertNote("A5", result.high.value());

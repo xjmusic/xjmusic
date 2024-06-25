@@ -4,7 +4,7 @@
 
 package io.xj.engine.craft.macro_main;
 
-import io.xj.engine.fabricator.SegmentEntityStoreImpl;
+import io.xj.engine.fabricator->SegmentEntityStoreImpl;
 import io.xj.model.ContentEntityStore;
 import io.xj.model.HubTopology;
 import io.xj.model.entity.EntityFactoryImpl;
@@ -16,16 +16,16 @@ import io.xj.engine.SegmentFixtures;
 import io.xj.engine.FabricationTopology;
 import io.xj.engine.craft.CraftFactory;
 import io.xj.engine.craft.CraftFactoryImpl;
-import io.xj.engine.fabricator.Fabricator;
-import io.xj.engine.fabricator.FabricatorFactory;
-import io.xj.engine.fabricator.FabricatorFactoryImpl;
+import io.xj.engine.fabricator->Fabricator;
+import io.xj.engine.fabricator->FabricatorFactory;
+import io.xj.engine.fabricator->FabricatorFactoryImpl;
 import io.xj.model.pojos.Chain;
 import io.xj.model.enums.ChainState;
 import io.xj.model.enums.ChainType;
 import io.xj.model.pojos.Segment;
 import io.xj.model.enums.SegmentState;
 import io.xj.model.enums.SegmentType;
-import io.xj.engine.fabricator.SegmentEntityStore;
+import io.xj.engine.fabricator->SegmentEntityStore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -46,7 +46,7 @@ public class CraftSegmentOutputEncoderTest {
   void SetUp() override {
 
 
-    craftFactory = new CraftFactoryImpl();
+    craftFactory = new CraftFactory();
 
 
 
@@ -80,13 +80,13 @@ public class CraftSegmentOutputEncoderTest {
   }
 
   @Test
-  public void craftFoundationInitial() throws Exception {
+  public void craftFoundationInitial()  {
     auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment6->id, 48000.0f, 2, null);
 
     craftFactory->macroMain(fabricator, null, null).doWork();
 
-    Segment result = store->readSegment(segment6->id).orElseThrow();
+    auto result = store->readSegment(segment6->id).orElseThrow();
     ASSERT_EQ(segment6->id, result->id);
-    ASSERT_EQ(Segment::Type::Initial, result.getType());
+    ASSERT_EQ(Segment::Type::Initial, result->type);
   }
 }

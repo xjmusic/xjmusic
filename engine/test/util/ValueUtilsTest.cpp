@@ -65,7 +65,7 @@ TEST(ValueUtils, k) {
 TEST(ValueUtils, randomFrom) {
   std::vector<std::string> input = {"A", "B", "C"};
 
-  auto result = ValueUtils::randomFrom(input);
+  const auto result = ValueUtils::randomFrom(input);
 
   ASSERT_TRUE(std::find(input.begin(), input.end(), result) != input.end());
 }
@@ -73,7 +73,7 @@ TEST(ValueUtils, randomFrom) {
 TEST(ValueUtils, randomFrom_multiple) {
   std::vector<std::string> input = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J"};
 
-  auto result = ValueUtils::randomFrom(input, 4);
+  const auto result = ValueUtils::randomFrom(input, 4);
 
   for (auto &s: result) {
     ASSERT_TRUE(std::find(input.begin(), input.end(), s) != input.end());
@@ -83,7 +83,7 @@ TEST(ValueUtils, randomFrom_multiple) {
 TEST(ValueUtils, randomFrom_notEnough) {
   std::vector<std::string> input = {"A", "B", "C"};
 
-  auto result = ValueUtils::randomFrom(input, 5);
+  const auto result = ValueUtils::randomFrom(input, 5);
 
   for (auto &s: result) {
     ASSERT_TRUE(std::find(input.begin(), input.end(), s) != input.end());
@@ -96,7 +96,7 @@ TEST(ValueUtils, randomFrom_noSource) {
 }
 
 TEST(ValueUtils, randomFrom_targetZero) {
-  std::vector<std::string> input = {"A", "B", "C"};
+  const std::vector<std::string> input = {"A", "B", "C"};
 
   ASSERT_EQ(0, ValueUtils::randomFrom(input, 0).size());
 }
@@ -150,7 +150,7 @@ TEST(ValueUtils, enforceMaxStereo) {
 }
 
 TEST(ValueUtils, withIdsRemoved) {
-  std::vector<UUID> input = {
+  const std::vector<UUID> input = {
       "c72084a7-797e-46a0-bf1d-791a9529c166",
       "acc9a249-4925-4cc8-98fd-c7c6fe1a3562",
       "0e2ffe25-4118-4a23-86e6-7d9e3570d994",
@@ -167,7 +167,7 @@ TEST(ValueUtils, emptyZero) {
 }
 
 TEST(ValueUtils, last) {
-  std::vector<std::string> input = {"One", "Two", "Three"};
+  const std::vector<std::string> input = {"One", "Two", "Three"};
 
   ASSERT_ARRAY_EQ(std::vector<std::string>{}, ValueUtils::last(-1, input));
   ASSERT_ARRAY_EQ(std::vector<std::string>{}, ValueUtils::last(0, input));

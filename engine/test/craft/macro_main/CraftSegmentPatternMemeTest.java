@@ -4,7 +4,7 @@
 
 package io.xj.engine.craft.macro_main;
 
-import io.xj.engine.fabricator.SegmentEntityStoreImpl;
+import io.xj.engine.fabricator->SegmentEntityStoreImpl;
 import io.xj.model.ContentEntityStore;
 import io.xj.model.HubTopology;
 import io.xj.model.entity.EntityFactoryImpl;
@@ -17,8 +17,8 @@ import io.xj.engine.SegmentFixtures;
 import io.xj.engine.FabricationTopology;
 import io.xj.engine.craft.CraftFactory;
 import io.xj.engine.craft.CraftFactoryImpl;
-import io.xj.engine.fabricator.FabricatorFactory;
-import io.xj.engine.fabricator.FabricatorFactoryImpl;
+import io.xj.engine.fabricator->FabricatorFactory;
+import io.xj.engine.fabricator->FabricatorFactoryImpl;
 import io.xj.model.pojos.Chain;
 import io.xj.model.enums.ChainState;
 import io.xj.model.enums.ChainType;
@@ -36,7 +36,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.xj.model.util.Assertion.assertSameItems;
+import static io.xj.model.util.Assertion.ASSERT_EQ;
 import static io.xj.engine.SegmentFixtures::buildChain;
 import static io.xj.engine.SegmentFixtures::buildSegment;
 import static org.junit.jupiter.api.Assertions.ASSERT_EQ;
@@ -55,11 +55,11 @@ public class CraftSegmentPatternMemeTest {
    Macro program sequence should advance after each main program https://github.com/xjmusic/xjmusic/issues/299
    */
   @Test
-  public void craftSegment() throws Exception {
+  public void craftSegment()  {
     for (int i = 1; i <= TEST_REPEAT_ITERATIONS; i++) {
       LOG.info("ATTEMPT NUMBER {}", i);
 
-      CraftFactory craftFactory = new CraftFactoryImpl();
+      CraftFactory craftFactory = new CraftFactory();
       auto jsonProvider = new JsonProviderImpl();
 
       auto store = new SegmentEntityStore();
@@ -89,7 +89,7 @@ public class CraftSegmentPatternMemeTest {
       Segment previousSegment = store->put(SegmentFixtures::buildSegment(
         chain,
         1,
-        SegmentState.CRAFTING,
+        Segment::State::Crafting,
         "F Major",
         64,
         0.30f,
@@ -105,9 +105,9 @@ public class CraftSegmentPatternMemeTest {
       craftFactory->macroMain(fabricatorFactory->fabricate(sourceMaterial, segment->id, 48000.0f, 2, null), null, null).doWork();
 
       auto result = store->readSegment(segment->id).orElseThrow();
-      ASSERT_EQ(SegmentType.NEXT_MACRO, result.getType());
-      assertSameItems(List.of("REGRET", "HINDSIGHT", "CHUNKY", "TANGY"),
-        EntityUtils.namesOf(store->readAll(result->id, SegmentMeme.class)));
+      ASSERT_EQ(SegmentType.NEXT_MACRO, result->type);
+      ASSERT_EQ(List.of("REGRET", "HINDSIGHT", "CHUNKY", "TANGY"),
+        SegmentMeme::getNames(store->readAllSegmentMemes(result->id)));
     }
   }
 }

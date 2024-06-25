@@ -10,7 +10,7 @@ using namespace XJ;
 NoteRange::NoteRange() : low(std::nullopt), high(std::nullopt) {}
 
 
-NoteRange::NoteRange(std::optional<Note> low, std::optional<Note> high) : low(low),
+NoteRange::NoteRange(const std::optional<Note> low, const std::optional<Note> high) : low(low),
                                                                           high(high) {
 }
 
@@ -38,14 +38,14 @@ NoteRange NoteRange::copyOf(const NoteRange &range) {
 
 
 NoteRange NoteRange::ofNotes(std::vector<Note> notes) {
-  std::set<Note> properNotes(notes.begin(), notes.end());
+  const std::set<Note> properNotes(notes.begin(), notes.end());
   return ofNotes(properNotes);
 }
 
 
 NoteRange NoteRange::ofNotes(const std::set<Note>& notes) {
-  auto minNote = std::min_element(notes.begin(), notes.end());
-  auto maxNote = std::max_element(notes.begin(), notes.end());
+  const auto minNote = std::min_element(notes.begin(), notes.end());
+  const auto maxNote = std::max_element(notes.begin(), notes.end());
   std::optional<Note> low = minNote != notes.end() ? std::optional(*minNote) : std::nullopt;
   std::optional<Note> high = maxNote != notes.end() ? std::optional(*maxNote) : std::nullopt;
   return {low, high};
@@ -80,13 +80,13 @@ int NoteRange::computeMedianOptimalRangeShiftOctaves(const NoteRange *sourceRang
       throw std::runtime_error("Can't find low end of target range");
     if (!sourceRange->low.has_value())
       throw std::runtime_error("Can't find low end of source range");
-    int dLow = targetRange->low->delta(sourceRange->low->shiftOctave(o));
+    const int dLow = targetRange->low->delta(sourceRange->low->shiftOctave(o));
 
     if (!targetRange->high.has_value())
       throw std::runtime_error("Can't find high end of target range");
     if (!sourceRange->high.has_value())
       throw std::runtime_error("Can't find high end of source range");
-    int dHigh = targetRange->high->delta(sourceRange->high->shiftOctave(o));
+    const int dHigh = targetRange->high->delta(sourceRange->high->shiftOctave(o));
 
     if (0 <= dLow && 0 >= dHigh && std::abs(o) < baselineDelta) {
       baselineDelta = std::abs(o);
@@ -98,7 +98,7 @@ int NoteRange::computeMedianOptimalRangeShiftOctaves(const NoteRange *sourceRang
 }
 
 
-std::string NoteRange::toString(Accidental accidental) {
+std::string NoteRange::toString(const Accidental accidental) {
   std::stringstream ss;
   if (low.has_value() && high.has_value()) {
     ss << low->toString(accidental) << "-" << high->toString(accidental);
@@ -117,7 +117,7 @@ std::string NoteRange::toString(Accidental accidental) {
 
 
 void NoteRange::expand(const std::vector<Note> &notes) {
-  for (auto note: notes) expand(note);
+  for (const auto note: notes) expand(note);
 }
 
 
@@ -134,8 +134,8 @@ void NoteRange::expand(const NoteRange *range) {
 
 
 int NoteRange::getDeltaSemitones(NoteRange target) {
-  auto s = getMedianNote();
-  auto t = target.getMedianNote();
+  const auto s = getMedianNote();
+  const auto t = target.getMedianNote();
   if (!s.has_value() || !t.has_value()) return 0;
   return s.value().delta(t.value());
 }

@@ -90,11 +90,11 @@ TEST(HoconLiteTest, ParseConfig) {
 }
 
 TEST(HoconLiteTest, ParseConfigWithDefaults) {
-  std::string defaults = R"(
+  const std::string defaults = R"(
             quotedStringValue = "Hello, World!"
             stringValue = Apples
     )";
-  std::string input = R"(
+  const std::string input = R"(
             booleanValue = false
             floatValue = 2.64872
             intValue = 12
@@ -116,7 +116,7 @@ TEST(HoconLiteTest, FormatBoolValue) {
 }
 
 TEST(HoconLiteTest, FormatQuotedListValue) {
-  std::vector<std::string> values = {"Apples", "Bananas", "Oranges"};
+  const std::vector<std::string> values = {"Apples", "Bananas", "Oranges"};
 
   ASSERT_EQ("[\"Apples\",\"Bananas\",\"Oranges\"]", ConfigParser::format(values));
 }

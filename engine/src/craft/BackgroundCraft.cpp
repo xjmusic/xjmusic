@@ -9,9 +9,9 @@ BackgroundCraft::BackgroundCraft(
 ) : Craft(fabricator) {}
 
 void BackgroundCraft::doWork() {
-  auto previousChoice = fabricator->getRetrospective()->getPreviousChoiceOfType(Instrument::Type::Background);
+  const auto previousChoice = fabricator->getRetrospective()->getPreviousChoiceOfType(Instrument::Type::Background);
 
-  auto instrument = previousChoice.has_value() ?
+  const auto instrument = previousChoice.has_value() ?
                     fabricator->getSourceMaterial()->getInstrument(previousChoice.value()->instrumentId) :
                     chooseFreshInstrument(Instrument::Type::Background, {});
 

@@ -501,7 +501,7 @@ ContentEntityStore::getBindingsAtOffsetOfProgram(const UUID &programId, const in
     int minDifference = std::numeric_limits<int>::max();
     int actualOffset = offset;
     for (const auto &candidate: candidates) {
-      int difference = std::abs(candidate->offset - offset);
+      const int difference = std::abs(candidate->offset - offset);
       if (difference < minDifference) {
         minDifference = difference;
         actualOffset = candidate->offset;
@@ -738,7 +738,7 @@ std::set<const Instrument *> ContentEntityStore::getInstrumentsOfLibrary(const U
 
 Instrument::Type ContentEntityStore::getInstrumentTypeOfAudio(const UUID &instrumentAudioId) const {
   if (!instrumentAudios.count(instrumentAudioId)) throw std::runtime_error("Can't find Instrument Audio!");
-  auto audio = instrumentAudios.at(instrumentAudioId);
+  const auto audio = instrumentAudios.at(instrumentAudioId);
   if (!instruments.count(audio.instrumentId)) throw std::runtime_error("Can't find Instrument!");
   return instruments.at(audio.instrumentId).type;
 }
@@ -835,7 +835,7 @@ std::set<const Program *> ContentEntityStore::getProgramsOfLibrary(const UUID &l
   return result;
 }
 
-std::set<const Program *> ContentEntityStore::getProgramsOfType(Program::Type type) const {
+std::set<const Program *> ContentEntityStore::getProgramsOfType(const Program::Type type) const {
   std::set<const Program *> result;
   for (const auto &[_, program]: programs) {
     if (program.type == type) {

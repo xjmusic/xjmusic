@@ -5,14 +5,14 @@
 using namespace XJ;
 
 
-NotePicker::NotePicker(const NoteRange& targetRange, const std::set<Note>& voicingNotes, bool seekInversions)  {
+NotePicker::NotePicker(const NoteRange& targetRange, const std::set<Note>& voicingNotes, const bool seekInversions)  {
   this->targetRange = NoteRange::copyOf(targetRange);
   this->voicingNotes = std::set<Note>(voicingNotes);
   this->voicingRange = NoteRange::ofNotes(voicingNotes);
   this->seekInversions = seekInversions;
 }
 
-NotePicker::NotePicker(const NoteRange& targetRange, const std::vector<Note>& voicingNotes, bool seekInversions)  {
+NotePicker::NotePicker(const NoteRange& targetRange, const std::vector<Note>& voicingNotes, const bool seekInversions)  {
   this->targetRange = NoteRange::copyOf(targetRange);
   this->voicingNotes = std::set<Note>(voicingNotes.begin(), voicingNotes.end());
   this->voicingRange = NoteRange::ofNotes(voicingNotes);
@@ -20,8 +20,8 @@ NotePicker::NotePicker(const NoteRange& targetRange, const std::vector<Note>& vo
 }
 
 
-Note NotePicker::pick(Note eventNote) {
-  auto noteInAvailableOctave = voicingRange.toAvailableOctave(eventNote);
+Note NotePicker::pick(const Note eventNote) {
+  const auto noteInAvailableOctave = voicingRange.toAvailableOctave(eventNote);
 
   std::optional<Note> picked = std::nullopt;
 
@@ -35,13 +35,13 @@ Note NotePicker::pick(Note eventNote) {
     }
 
     // Find the minimum delta
-    auto minElementIter = std::min_element(rankedNotes.begin(), rankedNotes.end(), [](RankedNote &a, RankedNote &b) {
+    const auto minElementIter = std::min_element(rankedNotes.begin(), rankedNotes.end(), [](RankedNote &a, RankedNote &b) {
       return abs(a.getDelta()) < abs(b.getDelta());
     });
 
     // If a minimum element was found
     if (minElementIter != rankedNotes.end()) {
-      Note voicingNote = minElementIter->getTones();
+      const Note voicingNote = minElementIter->getTones();
       picked = {seekInversion(voicingNote, targetRange, voicingNotes)};
     }
   }
@@ -62,8 +62,8 @@ NoteRange NotePicker::getTargetRange()  {
 }
 
 
-Note NotePicker::removePicked(Note picked)  {
-  auto it = voicingNotes.find(picked);
+Note NotePicker::removePicked(const Note picked)  {
+  const auto it = voicingNotes.find(picked);
   if (it != voicingNotes.end()) {
     Note pickedNote = *it;
     voicingNotes.erase(it);
@@ -72,14 +72,14 @@ Note NotePicker::removePicked(Note picked)  {
 }
 
 
-Note NotePicker::seekInversion(Note source, NoteRange range, std::set<Note> options) {
+Note NotePicker::seekInversion(const Note source, NoteRange range, std::set<Note> options) {
   if (!seekInversions) return source;
 
   if (range.high.has_value() && range.high.value() < source) {
     std::optional<Note> alt = std::nullopt;
     for (const auto &o : options) {
       if (range.high.value() >= o) {
-        auto delta = std::abs(o.delta(range.high.value()));
+        const auto delta = std::abs(o.delta(range.high.value()));
         if (!alt.has_value() || delta < alt.value().delta(range.high.value())) {
           alt = {o};
         }
@@ -92,7 +92,7 @@ Note NotePicker::seekInversion(Note source, NoteRange range, std::set<Note> opti
     std::optional<Note> alt = std::nullopt;
     for (const auto &o : options) {
       if (range.low.value() <= o) {
-        auto delta = std::abs(o.delta(range.low.value()));
+        const auto delta = std::abs(o.delta(range.low.value()));
         if (!alt.has_value() || delta < alt.value().delta(range.low.value())) {
           alt = {o};
         }

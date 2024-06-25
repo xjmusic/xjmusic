@@ -18,16 +18,16 @@ import io.xj.engine.SegmentFixtures;
 import io.xj.engine.FabricationTopology;
 import io.xj.engine.craft.CraftFactory;
 import io.xj.engine.craft.CraftFactoryImpl;
-import io.xj.engine.fabricator.Fabricator;
-import io.xj.engine.fabricator.FabricatorFactory;
-import io.xj.engine.fabricator.FabricatorFactoryImpl;
+import io.xj.engine.fabricator->Fabricator;
+import io.xj.engine.fabricator->FabricatorFactory;
+import io.xj.engine.fabricator->FabricatorFactoryImpl;
 import io.xj.model.pojos.Chain;
 import io.xj.model.enums.ChainState;
 import io.xj.model.enums.ChainType;
 import io.xj.model.pojos.Segment;
 import io.xj.model.enums.SegmentState;
-import io.xj.engine.fabricator.SegmentEntityStore;
-import io.xj.engine.fabricator.SegmentEntityStoreImpl;
+import io.xj.engine.fabricator->SegmentEntityStore;
+import io.xj.engine.fabricator->SegmentEntityStoreImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -54,7 +54,7 @@ public class CraftBackgroundProgramVoiceInitialTest {
   void SetUp() override {
 
 
-    craftFactory = new CraftFactoryImpl();
+    craftFactory = new CraftFactory();
 
 
 
@@ -85,21 +85,21 @@ public class CraftBackgroundProgramVoiceInitialTest {
   }
 
   @Test
-  public void craftBackgroundVoiceInitial() throws Exception {
+  public void craftBackgroundVoiceInitial()  {
     insertSegment();
 
     auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment0->id, 48000.0f, 2, null);
 
     craftFactory->background(fabricator).doWork();
 
-//    Segment result = store->getSegment(segment0->id).orElseThrow();
+//    auto result = store->getSegment(segment0->id).orElseThrow();
 //    assertFalse(store->getAll(result->id, SegmentChoice.class).empty());
 //    
 //    int pickedKick = 0;
 //    int pickedSnare = 0;
 //    int pickedBleep = 0;
 //    int pickedToot = 0;
-//    Collection<SegmentChoiceArrangementPick> picks = fabricator.getPicks();
+//    Collection<SegmentChoiceArrangementPick> picks = fabricator->getPicks();
 //    for (SegmentChoiceArrangementPick pick : picks) {
 //      if (pick.getInstrumentAudioId().equals(fake->instrument8_audio8kick->id))
 //        pickedKick++;
@@ -117,7 +117,7 @@ public class CraftBackgroundProgramVoiceInitialTest {
   }
 
   @Test
-  public void craftBackgroundVoiceInitial_okWhenNoBackgroundChoice() throws Exception {
+  public void craftBackgroundVoiceInitial_okWhenNoBackgroundChoice()  {
     insertSegment();
     auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment0->id, 48000.0f, 2, null);
 
@@ -131,15 +131,15 @@ public class CraftBackgroundProgramVoiceInitialTest {
     segment0 = store->put(SegmentFixtures::buildSegment(
       chain2,
       0,
-      SegmentState.CRAFTING,
+      Segment::State::Crafting,
       "D Major",
       32,
       0.55f,
       130.0f,
       "chains-1-segments-9f7s89d8a7892.wav"
     ));
-    store->put(buildSegmentChoice(segment0, Segment.DELTA_UNLIMITED, Segment.DELTA_UNLIMITED, fake->program4, fake->program4_sequence0_binding0));
-    store->put(buildSegmentChoice(segment0, Segment.DELTA_UNLIMITED, Segment.DELTA_UNLIMITED, fake->program5, fake->program5_sequence0_binding0));
+    store->put(SegmentFixtures::buildSegmentChoice(segment0, SegmentChoice::DELTA_UNLIMITED, SegmentChoice::DELTA_UNLIMITED, fake->program4, fake->program4_sequence0_binding0));
+    store->put(SegmentFixtures::buildSegmentChoice(segment0, SegmentChoice::DELTA_UNLIMITED, SegmentChoice::DELTA_UNLIMITED, fake->program5, fake->program5_sequence0_binding0));
     for (std::string memeName : List.of("Special", "Wild", "Pessimism", "Outlook"))
       store->put(SegmentFixtures::buildSegmentMeme(segment0, memeName));
 

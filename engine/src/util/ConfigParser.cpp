@@ -119,7 +119,7 @@ ConfigObjectValue parseObjectValue(const std::string &input) {
   // Parse each piece of the members vector
   std::string value;
   for (const auto &member: members) {
-    auto pos = member.find('=');
+    const auto pos = member.find('=');
     if (pos != std::string::npos) {
       key = StringUtils::trim(member.substr(0, pos));
       value = StringUtils::trim(member.substr(pos + 1));

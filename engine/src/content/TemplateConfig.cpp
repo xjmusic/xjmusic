@@ -251,7 +251,7 @@ TemplateConfig::TemplateConfig(const std::string &input) : ConfigParser(input, C
   intensityLayers = parseInstrumentTypeIntMap(getObjectValue("intensityLayers"));
   intensityThreshold = parseInstrumentTypeFloatMap(getObjectValue("intensityThreshold"));
   mainProgramLengthMaxDelta = getSingleValue("mainProgramLengthMaxDelta").getInt();
-  auto setOfMapsOfStrings = getListValue("memeTaxonomy").asListOfMapsOfStrings();
+  const auto setOfMapsOfStrings = getListValue("memeTaxonomy").asListOfMapsOfStrings();
   memeTaxonomy = MemeTaxonomy::fromList(setOfMapsOfStrings);
   mixerCompressAheadSeconds = getSingleValue("mixerCompressAheadSeconds").getFloat();
   mixerCompressDecaySeconds = getSingleValue("mixerCompressDecaySeconds").getFloat();
@@ -316,12 +316,12 @@ std::string TemplateConfig::toString() const {
 }
 
 
-bool TemplateConfig::instrumentTypesForInversionSeekingContains(Instrument::Type type) const {
+bool TemplateConfig::instrumentTypesForInversionSeekingContains(const Instrument::Type type) const {
   return std::find(instrumentTypesForInversionSeeking.begin(), instrumentTypesForInversionSeeking.end(), type) !=
          instrumentTypesForInversionSeeking.end();
 }
 
-float TemplateConfig::getChoiceMuteProbability(Instrument::Type type) {
+float TemplateConfig::getChoiceMuteProbability(const Instrument::Type type) {
   if (choiceMuteProbability.find(type) != choiceMuteProbability.end()) {
     return choiceMuteProbability[type];
   } else {
@@ -329,7 +329,7 @@ float TemplateConfig::getChoiceMuteProbability(Instrument::Type type) {
   }
 }
 
-float TemplateConfig::getDubMasterVolume(Instrument::Type type) {
+float TemplateConfig::getDubMasterVolume(const Instrument::Type type) {
   if (dubMasterVolume.find(type) != dubMasterVolume.end()) {
     return dubMasterVolume[type];
   } else {
@@ -337,7 +337,7 @@ float TemplateConfig::getDubMasterVolume(Instrument::Type type) {
   }
 }
 
-float TemplateConfig::getIntensityThreshold(Instrument::Type type) {
+float TemplateConfig::getIntensityThreshold(const Instrument::Type type) {
   if (intensityThreshold.find(type) != intensityThreshold.end()) {
     return intensityThreshold[type];
   } else {
@@ -345,7 +345,7 @@ float TemplateConfig::getIntensityThreshold(Instrument::Type type) {
   }
 }
 
-int TemplateConfig::getIntensityLayers(Instrument::Type type) {
+int TemplateConfig::getIntensityLayers(const Instrument::Type type) {
   if (intensityLayers.find(type) != intensityLayers.end()) {
     return intensityLayers[type];
   } else {

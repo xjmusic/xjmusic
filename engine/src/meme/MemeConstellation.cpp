@@ -23,7 +23,7 @@ std::set<std::string> MemeConstellation::toNames(const std::string &constellatio
 std::string MemeConstellation::join(const std::string &delimiter, const std::set<std::string> &pieces) {
   std::ostringstream joined;
   std::copy(pieces.begin(), pieces.end(), std::ostream_iterator<std::string>(joined, delimiter.c_str()));
-  std::string result = joined.str();
+  const std::string result = joined.str();
   return result.substr(0, result.size() - delimiter.size()); // remove the last delimiter
 }
 

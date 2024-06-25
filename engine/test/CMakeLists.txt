@@ -60,6 +60,7 @@ add_executable(xjmusic_test
         util/StringUtilsTest.cpp
         util/ValueUtilsTest.cpp
         craft/macro_main/CraftFoundationInitialTest.cpp
+        craft/macro_main/CraftFoundationContinueTest.cpp
 )
 
 # I'm using C++17 in the test

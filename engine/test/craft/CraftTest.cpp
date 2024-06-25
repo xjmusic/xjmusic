@@ -39,13 +39,13 @@ protected:
   void SetUp() override {
     sourceMaterial = new ContentEntityStore();
     segmentEntityStore = new SegmentEntityStore();
-    Project *project1 = sourceMaterial->put(ContentFixtures::buildProject("fish"));
-    Library *library1 = sourceMaterial->put(ContentFixtures::buildLibrary(project1, "sea"));
+    const Project *project1 = sourceMaterial->put(ContentFixtures::buildProject("fish"));
+    const Library *library1 = sourceMaterial->put(ContentFixtures::buildLibrary(project1, "sea"));
     program1 = sourceMaterial->put(ContentFixtures::buildProgram(library1, Program::Type::Detail, Program::State::Published, "swimming",
                                                                  "C", 120.0f));
-    Template *template1 = sourceMaterial->put(ContentFixtures::buildTemplate(project1, "Test Template 1", "test1"));
+    const Template *template1 = sourceMaterial->put(ContentFixtures::buildTemplate(project1, "Test Template 1", "test1"));
     // Chain "Test Print #1" is fabricating segments
-    Chain *chain1 = segmentEntityStore->put(SegmentFixtures::buildChain(project1, "Test Print #1", Chain::Type::Production,
+    const Chain *chain1 = segmentEntityStore->put(SegmentFixtures::buildChain(project1, "Test Print #1", Chain::Type::Production,
                                                                         Chain::State::Fabricate, template1));
 
     segment0 = segmentEntityStore->put(SegmentFixtures::buildSegment(chain1, Segment::Type::Initial, 2, 128, Segment::State::Crafted, "D major",
@@ -235,7 +235,7 @@ TEST_F(CraftTest, ChooseFreshInstrumentAudio) {
       .WillOnce(Return(MemeIsometry::of(MemeTaxonomy::empty(), {"70BPM"})));
 
   // Call the method under test
-  auto result = subject->chooseFreshInstrumentAudio({Instrument::Type::Percussion}, {Instrument::Mode::Event},
+  const auto result = subject->chooseFreshInstrumentAudio({Instrument::Type::Percussion}, {Instrument::Mode::Event},
                                                     {instrument1audio->instrumentId}, {"PRIMARY"});
 
   // Check the result
@@ -276,30 +276,30 @@ TEST_F(CraftTest, selectNewChordPartInstrumentAudio_chordSynonyms) {
 }
 
 TEST_F(CraftTest, SelectGeneralAudioIntensityLayers_ThreeLayers) {
-  Project *project1 = sourceMaterial->put(ContentFixtures::buildProject("testing"));
-  Library *library1 = sourceMaterial->put(ContentFixtures::buildLibrary(project1, "leaves"));
-  Instrument *instrument1 = sourceMaterial->put(
+  const Project *project1 = sourceMaterial->put(ContentFixtures::buildProject("testing"));
+  const Library *library1 = sourceMaterial->put(ContentFixtures::buildLibrary(project1, "leaves"));
+  const Instrument *instrument1 = sourceMaterial->put(
       ContentFixtures::buildInstrument(library1, Instrument::Type::Percussion, Instrument::Mode::Loop,
                                        Instrument::State::Published, "Test loop audio"));
   //Should pick one of these two at intensity 0.2
-  InstrumentAudio *instrument1audio1a = sourceMaterial->put(
+  const InstrumentAudio *instrument1audio1a = sourceMaterial->put(
       ContentFixtures::buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.2f, "PERC", "X",
                                             1.0f));
-  InstrumentAudio *instrument1audio1b = sourceMaterial->put(
+  const InstrumentAudio *instrument1audio1b = sourceMaterial->put(
       ContentFixtures::buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.2f, "PERC", "X",
                                             1.0f));
   //Should pick one of these two at intensity 0.5
-  InstrumentAudio *instrument1audio2a = sourceMaterial->put(
+  const InstrumentAudio *instrument1audio2a = sourceMaterial->put(
       ContentFixtures::buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.5f, "PERC", "X",
                                             1.0f));
-  InstrumentAudio *instrument1audio2b = sourceMaterial->put(
+  const InstrumentAudio *instrument1audio2b = sourceMaterial->put(
       ContentFixtures::buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.5f, "PERC", "X",
                                             1.0f));
   //Should pick one of these two at intensity 0.8
-  InstrumentAudio *instrument1audio3a = sourceMaterial->put(
+  const InstrumentAudio *instrument1audio3a = sourceMaterial->put(
       ContentFixtures::buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.8f, "PERC", "X",
                                             1.0f));
-  InstrumentAudio *instrument1audio3b = sourceMaterial->put(
+  const InstrumentAudio *instrument1audio3b = sourceMaterial->put(
       ContentFixtures::buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.8f, "PERC", "X",
                                             1.0f));
 

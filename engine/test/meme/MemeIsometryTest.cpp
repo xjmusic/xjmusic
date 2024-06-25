@@ -10,20 +10,20 @@ using namespace XJ;
 
 TEST(MemeIsometryTest, Of) {
   MemeIsometry result = MemeIsometry::of({"Smooth", "Catlike"});
-  std::set<std::string> expected = {"CATLIKE", "SMOOTH"};
+  const std::set<std::string> expected = {"CATLIKE", "SMOOTH"};
   ASSERT_EQ(expected, result.getSources());
 }
 
 TEST(MemeIsometryTest, Add) {
   MemeIsometry result = MemeIsometry::of({"Smooth"});
   result.add("Catlike");
-  std::set<std::string> expected = {"CATLIKE", "SMOOTH"};
+  const std::set<std::string> expected = {"CATLIKE", "SMOOTH"};
   ASSERT_EQ(expected, result.getSources());
 }
 
 TEST(MemeIsometryTest, GetSourceStems) {
-  std::set<std::string> result = MemeIsometry::of({"Intensity", "Cool", "Dark"}).getSources();
-  std::set<std::string> expected = {"COOL", "DARK", "INTENSITY"};
+  const std::set<std::string> result = MemeIsometry::of({"Intensity", "Cool", "Dark"}).getSources();
+  const std::set<std::string> expected = {"COOL", "DARK", "INTENSITY"};
   ASSERT_EQ(expected, result);
 }
 
@@ -44,7 +44,7 @@ TEST(MemeIsometryTest, Of_List) {
   std::vector<std::string> sourcesVector(sources.begin(), sources.end());
   std::sort(sourcesVector.begin(), sourcesVector.end());
 
-  std::vector<std::string> expected = {"CATLIKE", "SMOOTH"};
+  const std::vector<std::string> expected = {"CATLIKE", "SMOOTH"};
   ASSERT_EQ(expected, sourcesVector);
 }
 
@@ -61,14 +61,14 @@ TEST(MemeIsometryTest, AddMore) {
   std::vector<std::string> sourcesVector(sources.begin(), sources.end());
   std::sort(sourcesVector.begin(), sourcesVector.end());
 
-  std::vector<std::string> expected = {"CATLIKE", "SMOOTH"};
+  const std::vector<std::string> expected = {"CATLIKE", "SMOOTH"};
   ASSERT_EQ(expected, sourcesVector);
 }
 
 TEST(MemeIsometryTest, DoNotMutate) {
   auto subject = MemeIsometry::of(MemeTaxonomy::empty(), {"Intensity", "Cool", "Dark"}).getSources();
 
-  std::vector<std::string> expected = {"COOL", "DARK", "INTENSITY"};
+  const std::vector<std::string> expected = {"COOL", "DARK", "INTENSITY"};
   std::vector<std::string> sourcesVector(subject.begin(), subject.end());
   std::sort(sourcesVector.begin(), sourcesVector.end());
 

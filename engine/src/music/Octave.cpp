@@ -14,7 +14,7 @@ static std::regex octaveRgx("(-*[0-9]+)$");
 
 int XJ::octaveOf(const std::string &text) {
   std::smatch matcher;
-  std::string prepared = std::regex_replace(StringUtils::stripExtraSpaces(text), std::regex("--"), "-");
+  const std::string prepared = std::regex_replace(StringUtils::stripExtraSpaces(text), std::regex("--"), "-");
   if (std::regex_search(prepared, matcher, octaveRgx)) {
     return std::stoi(matcher[1].str());
   } else {

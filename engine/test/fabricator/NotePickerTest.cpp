@@ -100,7 +100,7 @@ protected:
 
     YAML::Node obj = data["assertion"];
 
-    if (auto range = getOptionalNoteRange(obj); !range.empty()) {
+    if (const auto range = getOptionalNoteRange(obj); !range.empty()) {
       if (range.low.has_value()) {
         assertSameNote("Range Low-end", range.low.value(), subject->getTargetRange().low.value());
       }

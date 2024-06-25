@@ -10,7 +10,7 @@
 using namespace XJ;
 
 
-ChordSynonym::ChordSynonym(const std::string &match, bool caseSensitive) {
+ChordSynonym::ChordSynonym(const std::string &match, const bool caseSensitive) {
   this->match = match;
   this->caseSensitive = caseSensitive;
 }
@@ -50,7 +50,7 @@ bool ChordForm::matches(
 
 
 std::size_t ChordForm::hashCode() {
-  std::size_t h1 = std::hash<std::string>{}(description);
+  const std::size_t h1 = std::hash<std::string>{}(description);
   std::size_t h2 = 0;
   for (const auto &synonym: synonyms) {
     h2 ^= std::hash<std::string>{}(synonym.match) + 0x9e3779b9 + (h2 << 6) + (h2 >> 2);
@@ -183,20 +183,20 @@ Chord::Chord(const std::string &input) : slashRoot(SlashRoot::none()) {
   }
 
   // store original name
-  auto name = StringUtils::stripExtraSpaces(input);
+  const auto name = StringUtils::stripExtraSpaces(input);
 
   // determine whether the name is "sharps" or "flats"
   accidental = accidentalOf(name);
 
   // Root utility separates root from remaining text
-  Root rooter = Root::of(name);
+  const Root rooter = Root::of(name);
 
   // parse the root, and keep the remaining string
   root = rooter.pitchClass;
 
   // parse the description all together, before removing the slash root
-  auto raw = StringUtils::stripExtraSpaces(rooter.remainingText);
-  auto normalized = normalize(raw);
+  const auto raw = StringUtils::stripExtraSpaces(rooter.remainingText);
+  const auto normalized = normalize(raw);
 
   // parse the slash root
   slashRoot = SlashRoot::of(normalized);
@@ -234,7 +234,7 @@ PitchClass Chord::slashRootPitchClass() {
 
 
 std::string Chord::normalize(const std::string &input) {
-  auto it = std::find_if(forms.begin(), forms.end(), [&input](const ChordForm &form) {
+  const auto it = std::find_if(forms.begin(), forms.end(), [&input](const ChordForm &form) {
     return form.matches(input);
   });
 

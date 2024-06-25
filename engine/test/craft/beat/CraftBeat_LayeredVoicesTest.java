@@ -9,11 +9,11 @@ import io.xj.engine.SegmentFixtures;
 import io.xj.engine.FabricationTopology;
 import io.xj.engine.craft.CraftFactory;
 import io.xj.engine.craft.CraftFactoryImpl;
-import io.xj.engine.fabricator.SegmentEntityStore;
-import io.xj.engine.fabricator.SegmentEntityStoreImpl;
-import io.xj.engine.fabricator.Fabricator;
-import io.xj.engine.fabricator.FabricatorFactory;
-import io.xj.engine.fabricator.FabricatorFactoryImpl;
+import io.xj.engine.fabricator->SegmentEntityStore;
+import io.xj.engine.fabricator->SegmentEntityStoreImpl;
+import io.xj.engine.fabricator->Fabricator;
+import io.xj.engine.fabricator->FabricatorFactory;
+import io.xj.engine.fabricator->FabricatorFactoryImpl;
 import io.xj.model.pojos.Chain;
 import io.xj.model.enums.ChainState;
 import io.xj.model.enums.ChainType;
@@ -74,7 +74,7 @@ public class CraftBeat_LayeredVoicesTest {
   void SetUp() override {
 
 
-    craftFactory = new CraftFactoryImpl();
+    craftFactory = new CraftFactory();
 
 
 
@@ -92,7 +92,7 @@ public class CraftBeat_LayeredVoicesTest {
     ).collect(Collectors.toList()));
 
     // Chain "Test Print #1" has 5 total segments
-    Chain chain1 = store->put(SegmentFixtures::buildChain(fake->project1, "Test Print #1", Chain::Type::Production, Chain::State::Fabricate, fake->template1, null));
+    const auto chain1 = store->put(SegmentFixtures::buildChain(fake->project1, "Test Print #1", Chain::Type::Production, Chain::State::Fabricate, fake->template1, null));
     store->put(SegmentFixtures::buildSegment(
       chain1,
       Segment::Type::Initial,
@@ -107,10 +107,10 @@ public class CraftBeat_LayeredVoicesTest {
       true));
     store->put(SegmentFixtures::buildSegment(
       chain1,
-      SegmentType.CONTINUE,
+      Segment::Type::Continue,
       1,
       1,
-      SegmentState.CRAFTING,
+      Segment::State::Crafting,
       "Db minor",
       64,
       0.85f,
@@ -119,9 +119,9 @@ public class CraftBeat_LayeredVoicesTest {
 
     // segment just crafted
     // Testing entities for reference
-    Segment segment3 = store->put(SegmentFixtures::buildSegment(
+    const auto segment3 = store->put(SegmentFixtures::buildSegment(
       chain1,
-      SegmentType.CONTINUE,
+      Segment::Type::Continue,
       2,
       2,
       Segment::State::Crafted,
@@ -130,24 +130,24 @@ public class CraftBeat_LayeredVoicesTest {
       0.30f,
       120.0f,
       "chains-1-segments-9f7s89d8a7892.wav", true));
-    store->put(buildSegmentChoice(segment3, Program::Type::Macro, fake->program4_sequence0_binding0));
-    store->put(buildSegmentChoice(segment3, Program::Type::Main, fake->program5_sequence0_binding0));
+    store->put(SegmentFixtures::buildSegmentChoice(segment3, Program::Type::Macro, fake->program4_sequence0_binding0));
+    store->put(SegmentFixtures::buildSegmentChoice(segment3, Program::Type::Main, fake->program5_sequence0_binding0));
     store->put(SegmentFixtures::buildSegmentChoice(segment3, program42));
 
     // segment crafting
     segment4 = store->put(SegmentFixtures::buildSegment(
       chain1,
-      SegmentType.CONTINUE,
+      Segment::Type::Continue,
       3,
       3,
-      SegmentState.CRAFTING,
+      Segment::State::Crafting,
       "D Major",
       16,
       0.45f,
       120.0f,
       "chains-1-segments-9f7s89d8a7892.wav", true));
-    store->put(buildSegmentChoice(segment4, Program::Type::Macro, fake->program4_sequence0_binding0));
-    store->put(buildSegmentChoice(segment4, Program::Type::Main, fake->program5_sequence1_binding0));
+    store->put(SegmentFixtures::buildSegmentChoice(segment4, Program::Type::Macro, fake->program4_sequence0_binding0));
+    store->put(SegmentFixtures::buildSegmentChoice(segment4, Program::Type::Main, fake->program5_sequence1_binding0));
 
     for (std::string memeName : List.of("Cozy", "Classic", "Outlook", "Rosy"))
       store->put(SegmentFixtures::buildSegmentMeme(segment4, memeName));
@@ -206,18 +206,18 @@ public class CraftBeat_LayeredVoicesTest {
   }
 
   @Test
-  public void craftBeatVoiceContinue() throws Exception {
+  public void craftBeatVoiceContinue()  {
     auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, 48000.0f, 2, null);
 
     craftFactory->beat(fabricator).doWork();
 
-    Segment result = store->readSegment(segment4->id).orElseThrow();
+    auto result = store->readSegment(segment4->id).orElseThrow();
     assertFalse(store->readAllSegmentChoices(result->id).empty());
 
     int pickedKick = 0;
     int pickedSnare = 0;
     int pickedHihat = 0;
-    Collection<SegmentChoiceArrangementPick> picks = fabricator.getPicks();
+    Collection<SegmentChoiceArrangementPick> picks = fabricator->getPicks();
     for (SegmentChoiceArrangementPick pick : picks) {
       if (pick.getInstrumentAudioId().equals(audioKick->id))
         pickedKick++;

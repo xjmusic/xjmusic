@@ -30,7 +30,7 @@ void DetailCraft::doWork() {
           return typeString;
         }
       });
-  std::function<bool(const SegmentChoice *)> choiceFilter = [](const SegmentChoice *choice) {
+  const std::function<bool(const SegmentChoice *)> choiceFilter = [](const SegmentChoice *choice) {
     return Program::Type::Detail == choice->programType;
   };
 
@@ -118,7 +118,7 @@ void DetailCraft::craftLoopParts(double tempo, const Instrument *instrument) {
       long startAtSegmentMicros = fabricator->getSegmentMicrosAtPosition(tempo, beats);
       long lengthMicros = fmin(
           fabricator->getTotalSegmentMicros() - startAtSegmentMicros,
-          (long) (audio->loopBeats * fabricator->getMicrosPerBeat(tempo))
+          static_cast<long>(audio->loopBeats * fabricator->getMicrosPerBeat(tempo))
       );
 
       // of pick

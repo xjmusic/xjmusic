@@ -13,7 +13,7 @@ namespace XJ {
    [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
    */
   class MacroMainCraft : protected Craft {
-    std::optional<XJ::Program *> overrideMacroProgram;
+    std::optional<Program *> overrideMacroProgram;
     std::set<std::string> overrideMemes;
 
   public:
@@ -25,7 +25,7 @@ namespace XJ {
     /**
      perform macro craft for the current segment
      */
-    void doWork();
+    void doWork() const;
 
   private:
     /**
@@ -34,7 +34,7 @@ namespace XJ {
      @param segment of which to compute main choice
      @return the macro sequence
      */
-    const ProgramSequence *doMacroChoiceWork(const Segment *segment);
+    const ProgramSequence *doMacroChoiceWork(const Segment *segment) const;
 
     /**
      Do the main-choice work.
@@ -42,7 +42,7 @@ namespace XJ {
      @param segment of which to compute main choice
      @return the main sequence
      */
-    const ProgramSequence *doMainChoiceWork(const Segment *segment);
+    const ProgramSequence *doMainChoiceWork(const Segment *segment) const;
 
     /**
      Compute the key of the current segment key, the key of the current main program sequence
@@ -50,7 +50,7 @@ namespace XJ {
      @param mainSequence of which to compute key
      @return key
      */
-    const std::string computeSegmentKey(const ProgramSequence *mainSequence);
+    std::string computeSegmentKey(const ProgramSequence *mainSequence) const;
 
     /**
      Compute the intensity of the current segment
@@ -63,11 +63,10 @@ namespace XJ {
      @param mainSequence  of which to compute segment tempo
      @return intensity
      */
-    const double computeSegmentIntensity(
+    double computeSegmentIntensity(
         int delta,
         std::optional<const ProgramSequence *> macroSequence,
-        std::optional<const ProgramSequence *> mainSequence
-    );
+        std::optional<const ProgramSequence *> mainSequence) const;
 
     /**
      Compute the average intensity of the two given sequences
@@ -76,24 +75,23 @@ namespace XJ {
      @param mainSequence  of which to compute segment tempo
      @return intensity
      */
-    const float computeIntensity(
+    static float computeIntensity(
         std::optional<const ProgramSequence *> macroSequence,
-        std::optional<const ProgramSequence *> mainSequence
-    );
+        std::optional<const ProgramSequence *> mainSequence);
 
     /**
      compute the macroSequenceBindingOffset
 
      @return macroSequenceBindingOffset
      */
-    const int computeMacroSequenceBindingOffset();
+    int computeMacroSequenceBindingOffset() const;
 
     /**
      compute the mainSequenceBindingOffset
 
      @return mainSequenceBindingOffset
      */
-    const int computeMainProgramSequenceBindingOffset();
+    int computeMainProgramSequenceBindingOffset() const;
 
     /**
      Choose program completely at random
@@ -102,14 +100,14 @@ namespace XJ {
      @param avoid    to avoid
      @return program
      */
-    const Program *chooseRandomProgram(std::set<const Program*> programs, std::set<UUID> avoid);
+    const Program *chooseRandomProgram(const std::set<const Program *> &programs, std::set<UUID> avoid) const;
 
     /**
      will rank all possibilities, and choose the next macro program
 
      @return macro-type program
      */
-    const Program *chooseMacroProgram();
+    const Program *chooseMacroProgram() const;
 
     /**
      Choose main program
@@ -118,7 +116,7 @@ namespace XJ {
 
      @return main-type Program
      */
-    const Program *chooseMainProgram();
+    const Program *chooseMainProgram() const;
 
     /**
      Get Segment length, in nanoseconds
@@ -127,7 +125,7 @@ namespace XJ {
      @param mainSequence the end of which marks the end of the segment
      @return segment length, in nanoseconds
      */
-    long segmentLengthMicros(const Program *mainProgram, const ProgramSequence *mainSequence);
+    long segmentLengthMicros(const Program *mainProgram, const ProgramSequence *mainSequence) const;
   };
 
 }// namespace XJ

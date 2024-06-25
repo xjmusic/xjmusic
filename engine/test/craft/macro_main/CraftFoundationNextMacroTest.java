@@ -16,8 +16,8 @@ import io.xj.model.jsonapi.JsonapiPayloadFactoryImpl;
 import io.xj.engine.SegmentFixtures;
 import io.xj.engine.FabricationTopology;
 import io.xj.engine.craft.CraftFactoryImpl;
-import io.xj.engine.fabricator.Fabricator;
-import io.xj.engine.fabricator.FabricatorFactoryImpl;
+import io.xj.engine.fabricator->Fabricator;
+import io.xj.engine.fabricator->FabricatorFactoryImpl;
 import io.xj.model.pojos.Chain;
 import io.xj.model.enums.ChainState;
 import io.xj.model.enums.ChainType;
@@ -27,8 +27,8 @@ import io.xj.model.pojos.SegmentChord;
 import io.xj.model.pojos.SegmentMeme;
 import io.xj.model.enums.SegmentState;
 import io.xj.model.enums.SegmentType;
-import io.xj.engine.fabricator.SegmentEntityStoreImpl;
-import io.xj.engine.fabricator.SegmentUtils;
+import io.xj.engine.fabricator->SegmentEntityStoreImpl;
+import io.xj.engine.fabricator->SegmentUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -39,7 +39,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.xj.model.util.Assertion.assertSameItems;
+import static io.xj.model.util.Assertion.ASSERT_EQ;
 import static io.xj.model.util.ValueUtils.MICROS_PER_MINUTE;
 import static io.xj.engine.SegmentFixtures::buildChain;
 import static io.xj.engine.SegmentFixtures::buildSegment;
@@ -55,11 +55,11 @@ public class CraftFoundationNextMacroTest {
    matching the last sequence-binding meme of the preceding Macro-Program
    */
   @Test
-  public void craftFoundationNextMacro() throws Exception {
+  public void craftFoundationNextMacro()  {
     for (int i = 0; i < TEST_REPEAT_ITERATIONS; i++) {
 
 
-      auto craftFactory = new CraftFactoryImpl();
+      auto craftFactory = new CraftFactory();
 
 
 
@@ -81,7 +81,7 @@ public class CraftFoundationNextMacroTest {
       ).collect(Collectors.toList()));
 
       // Chain "Test Print #1" has 5 total segments
-      Chain chain1 = store->put(SegmentFixtures::buildChain(fake->project1, "Test Print #1", Chain::Type::Production, Chain::State::Fabricate, fake->template1, null));
+      const auto chain1 = store->put(SegmentFixtures::buildChain(fake->project1, "Test Print #1", Chain::Type::Production, Chain::State::Fabricate, fake->template1, null));
       store->put(SegmentFixtures::buildSegment(
         chain1,
         0,
@@ -95,7 +95,7 @@ public class CraftFoundationNextMacroTest {
       store->put(SegmentFixtures::buildSegment(
         chain1,
         1,
-        SegmentState.CRAFTING,
+        Segment::State::Crafting,
         "Db minor",
         64,
         0.85f,
@@ -104,7 +104,7 @@ public class CraftFoundationNextMacroTest {
       ));
 
       // Chain "Test Print #1" has this segment that was just crafted
-      Segment segment3 = store->put(SegmentFixtures::buildSegment(
+      const auto segment3 = store->put(SegmentFixtures::buildSegment(
         chain1,
         2,
         Segment::State::Crafted,
@@ -124,31 +124,31 @@ public class CraftFoundationNextMacroTest {
 
       craftFactory->macroMain(fabricator, null, null).doWork();
 
-      Segment result = store->readSegment(segment4->id).orElseThrow();
-      ASSERT_EQ(SegmentType.NEXT_MACRO, result.getType());
-      ASSERT_EQ(16 * MICROS_PER_MINUTE / 140, (long) Objects.requireNonNull(result.getDurationMicros()));
-      ASSERT_EQ(Integer.valueOf(16), result.total);
-      ASSERT_NEAR(0.2, result.intensity, 0.01);
-      ASSERT_EQ("G -", result.getKey());
-      ASSERT_NEAR(140, result.getTempo(), 0.01);
+      auto result = store->readSegment(segment4->id).orElseThrow();
+      ASSERT_EQ(SegmentType.NEXT_MACRO, result->type);
+      ASSERT_EQ(16 * MICROS_PER_MINUTE / 140, result->durationMicros);
+      ASSERT_EQ(16, result->total);
+      ASSERT_NEAR(0.2, result->intensity, 0.01);
+      ASSERT_EQ("G -", result->key);
+      ASSERT_NEAR(140, result->tempo, 0.01);
       // assert memes
-      assertSameItems(
+      ASSERT_EQ(
         List.of("REGRET", "CHUNKY", "HINDSIGHT", "TANGY"),
-        EntityUtils.namesOf(store->readAll(result->id, SegmentMeme.class)));
+        SegmentMeme::getNames(store->readAllSegmentMemes(result->id)));
       // assert chords
-      assertSameItems(List.of("Ab -", "G -"),
-        EntityUtils.namesOf(store->readAll(result->id, SegmentChord.class)));
+      ASSERT_EQ(List.of("Ab -", "G -"),
+        SegmentChord::getNames(store->readAllSegmentChords(result->id)));
       // assert choices
-      Collection<SegmentChoice> segmentChoices =
+      auto segmentChoices =
         store->readAllSegmentChoices(result->id);
       // assert macro choice
       auto macroChoice = SegmentUtils::findFirstOfType(segmentChoices, Program::Type::Macro);
       ASSERT_EQ(fake->program3_sequence0_binding0->id, macroChoice.getProgramSequenceBindingId());
-      ASSERT_EQ(0, fabricator.getSequenceBindingOffsetForChoice(macroChoice));
+      ASSERT_EQ(0, fabricator->getSequenceBindingOffsetForChoice(macroChoice));
       // assert main choice
       auto mainChoice = SegmentUtils::findFirstOfType(segmentChoices, Program::Type::Main);
       ASSERT_EQ(fake->program15_sequence0_binding0->id, mainChoice.getProgramSequenceBindingId());
-      ASSERT_EQ(0, fabricator.getSequenceBindingOffsetForChoice(mainChoice));
+      ASSERT_EQ(0, fabricator->getSequenceBindingOffsetForChoice(mainChoice));
     }
   }
 }

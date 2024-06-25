@@ -36,8 +36,8 @@ namespace XJ {
 
     int id{};
     UUID chainId{};
-    Segment::Type type{};
-    Segment::State state{};
+    Type type{};
+    State state{};
     long beginAtChainMicros{}; // Segment begin-at time in microseconds since beginning of chain
     std::optional<long> durationMicros{}; // @Nullable
     std::string key{};
@@ -56,28 +56,28 @@ namespace XJ {
      * @param value  The string to parse
      * @return      The Segment Type enum value
      */
-    static Segment::Type parseType(const std::string &value);
+    static Type parseType(const std::string &value);
 
     /**
      * Parse the Segment State enum value from a string
      * @param value  The string to parse
      * @return      The Segment State enum value
      */
-    static Segment::State parseState(const std::string &value);
+    static State parseState(const std::string &value);
 
     /**
      * Convert an Segment Type enum value to a string
      * @param type  The Segment Type enum value
      * @return      The string representation of the Segment Type
      */
-    static std::string toString(const Segment::Type &type);
+    static std::string toString(const Type &type);
 
     /**
      * Convert an Segment State enum value to a string
      * @param state  The Segment State enum value
      * @return      The string representation of the Segment State
      */
-    static std::string toString(const Segment::State &state);
+    static std::string toString(const State &state);
 
     /**
      * Assert equality with another Segment

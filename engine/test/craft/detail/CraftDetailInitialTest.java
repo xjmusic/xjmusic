@@ -4,7 +4,7 @@
 
 package io.xj.engine.craft.detail;
 
-import io.xj.engine.fabricator.SegmentEntityStoreImpl;
+import io.xj.engine.fabricator->SegmentEntityStoreImpl;
 import io.xj.model.ContentEntityStore;
 import io.xj.model.HubTopology;
 import io.xj.model.entity.EntityFactoryImpl;
@@ -18,9 +18,9 @@ import io.xj.engine.SegmentFixtures;
 import io.xj.engine.FabricationTopology;
 import io.xj.engine.craft.CraftFactory;
 import io.xj.engine.craft.CraftFactoryImpl;
-import io.xj.engine.fabricator.Fabricator;
-import io.xj.engine.fabricator.FabricatorFactory;
-import io.xj.engine.fabricator.FabricatorFactoryImpl;
+import io.xj.engine.fabricator->Fabricator;
+import io.xj.engine.fabricator->FabricatorFactory;
+import io.xj.engine.fabricator->FabricatorFactoryImpl;
 import io.xj.model.enums.ChainState;
 import io.xj.model.enums.ChainType;
 import io.xj.model.pojos.Segment;
@@ -29,8 +29,8 @@ import io.xj.model.pojos.SegmentChord;
 import io.xj.model.pojos.SegmentChordVoicing;
 import io.xj.model.enums.SegmentState;
 import io.xj.model.enums.SegmentType;
-import io.xj.engine.fabricator.SegmentEntityStore;
-import io.xj.engine.fabricator.SegmentUtils;
+import io.xj.engine.fabricator->SegmentEntityStore;
+import io.xj.engine.fabricator->SegmentUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -59,7 +59,7 @@ public class CraftDetailInitialTest {
   void SetUp() override {
 
 
-    craftFactory = new CraftFactoryImpl();
+    craftFactory = new CraftFactory();
 
 
 
@@ -94,22 +94,22 @@ public class CraftDetailInitialTest {
       Segment::Type::Initial,
       0,
       0,
-      SegmentState.CRAFTING,
+      Segment::State::Crafting,
       "C minor",
       16,
       0.55f,
       130.0f,
       "chains-1-segments-9f7s89d8a7892.wav", true));
-    store->put(buildSegmentChoice(
+    store->put(SegmentFixtures::buildSegmentChoice(
       segment6,
-      Segment.DELTA_UNLIMITED,
-      Segment.DELTA_UNLIMITED,
+      SegmentChoice::DELTA_UNLIMITED,
+      SegmentChoice::DELTA_UNLIMITED,
       fake->program4,
       fake->program4_sequence0_binding0));
-    store->put(buildSegmentChoice(
+    store->put(SegmentFixtures::buildSegmentChoice(
       segment6,
-      Segment.DELTA_UNLIMITED,
-      Segment.DELTA_UNLIMITED,
+      SegmentChoice::DELTA_UNLIMITED,
+      SegmentChoice::DELTA_UNLIMITED,
       fake->program5,
       fake->program5_sequence0_binding0));
     for (std::string memeName : List.of("Special", "Wild", "Pessimism", "Outlook"))
@@ -126,7 +126,7 @@ public class CraftDetailInitialTest {
   }
 
   @Test
-  public void craftDetailInitial() throws Exception {
+  public void craftDetailInitial()  {
     auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment6->id, 48000.0f, 2, null);
 
     craftFactory->detail(fabricator).doWork();

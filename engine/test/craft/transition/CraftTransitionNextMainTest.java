@@ -16,17 +16,17 @@ import io.xj.engine.SegmentFixtures;
 import io.xj.engine.FabricationTopology;
 import io.xj.engine.craft.CraftFactory;
 import io.xj.engine.craft.CraftFactoryImpl;
-import io.xj.engine.fabricator.Fabricator;
-import io.xj.engine.fabricator.FabricatorFactory;
-import io.xj.engine.fabricator.FabricatorFactoryImpl;
+import io.xj.engine.fabricator->Fabricator;
+import io.xj.engine.fabricator->FabricatorFactory;
+import io.xj.engine.fabricator->FabricatorFactoryImpl;
 import io.xj.model.pojos.Chain;
 import io.xj.model.enums.ChainState;
 import io.xj.model.enums.ChainType;
 import io.xj.model.pojos.Segment;
 import io.xj.model.enums.SegmentState;
 import io.xj.model.enums.SegmentType;
-import io.xj.engine.fabricator.SegmentEntityStore;
-import io.xj.engine.fabricator.SegmentEntityStoreImpl;
+import io.xj.engine.fabricator->SegmentEntityStore;
+import io.xj.engine.fabricator->SegmentEntityStoreImpl;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -53,7 +53,7 @@ public class CraftTransitionNextMainTest {
   void SetUp() override {
 
 
-    craftFactory = new CraftFactoryImpl();
+    craftFactory = new CraftFactory();
 
 
 
@@ -86,7 +86,7 @@ public class CraftTransitionNextMainTest {
     store->put(SegmentFixtures::buildSegment(
       chain1,
       1,
-      SegmentState.CRAFTING,
+      Segment::State::Crafting,
       "Db minor",
       64,
       0.85f,
@@ -101,7 +101,7 @@ public class CraftTransitionNextMainTest {
   }
 
   @Test
-  public void craftTransitionNextMain_okEvenWithoutPreviousSegmentTransitionChoice() throws Exception {
+  public void craftTransitionNextMain_okEvenWithoutPreviousSegmentTransitionChoice()  {
     insertSegments3and4();
     auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, 48000.0f, 2, null);
 
@@ -114,7 +114,7 @@ public class CraftTransitionNextMainTest {
   void insertSegments3and4() throws FabricationException {
     // segment just crafted
     // Testing entities for reference
-    Segment segment3 = store->put(SegmentFixtures::buildSegment(
+    const auto segment3 = store->put(SegmentFixtures::buildSegment(
       chain1,
       2,
       Segment::State::Crafted,
@@ -124,16 +124,16 @@ public class CraftTransitionNextMainTest {
       120.0f,
       "chains-1-segments-9f7s89d8a7892.wav"
     ));
-    store->put(buildSegmentChoice(
+    store->put(SegmentFixtures::buildSegmentChoice(
       segment3,
-      Segment.DELTA_UNLIMITED,
-      Segment.DELTA_UNLIMITED,
+      SegmentChoice::DELTA_UNLIMITED,
+      SegmentChoice::DELTA_UNLIMITED,
       fake->program4,
       fake->program4_sequence0_binding0));
-    store->put(buildSegmentChoice(
+    store->put(SegmentFixtures::buildSegmentChoice(
       segment3,
-      Segment.DELTA_UNLIMITED,
-      Segment.DELTA_UNLIMITED,
+      SegmentChoice::DELTA_UNLIMITED,
+      SegmentChoice::DELTA_UNLIMITED,
       fake->program15,
       fake->program15_sequence1_binding0));
 
@@ -143,20 +143,20 @@ public class CraftTransitionNextMainTest {
       SegmentType.NEXT_MAIN,
       3,
       0,
-      SegmentState.CRAFTING,
+      Segment::State::Crafting,
       "G minor",
       16,
       0.45f,
       120.0f,
       "chains-1-segments-9f7s89d8a7892.wav", true));
-    store->put(buildSegmentChoice(segment4,
-      Segment.DELTA_UNLIMITED,
-      Segment.DELTA_UNLIMITED,
+    store->put(SegmentFixtures::buildSegmentChoice(segment4,
+      SegmentChoice::DELTA_UNLIMITED,
+      SegmentChoice::DELTA_UNLIMITED,
       fake->program4,
       fake->program4_sequence1_binding0));
-    store->put(buildSegmentChoice(segment4,
-      Segment.DELTA_UNLIMITED,
-      Segment.DELTA_UNLIMITED,
+    store->put(SegmentFixtures::buildSegmentChoice(segment4,
+      SegmentChoice::DELTA_UNLIMITED,
+      SegmentChoice::DELTA_UNLIMITED,
       fake->program15,
       fake->program15_sequence0_binding0));
     for (std::string memeName : List.of("Regret", "Sky", "Hindsight", "Tropical")) {

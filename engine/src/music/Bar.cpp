@@ -21,10 +21,10 @@ Bar Bar::of(const int &beats) {
 }
 
 
-int Bar::computeSubsectionBeats(int subBeats) const {
-  auto subDiv = ValueUtils::subDiv(subBeats, beats);
+int Bar::computeSubsectionBeats(const int subBeats) const {
+  const auto subDiv = ValueUtils::subDiv(subBeats, beats);
   auto factors = ValueUtils::factors(subBeats, FACTORS_TO_TEST);
-  auto minFactor = factors.empty() ? 1 : *std::min_element(factors.begin(), factors.end());
+  const auto minFactor = factors.empty() ? 1 : *std::min_element(factors.begin(), factors.end());
   return std::min(subBeats, std::max(this->beats * minFactor, this->beats * subDiv));
 }
 

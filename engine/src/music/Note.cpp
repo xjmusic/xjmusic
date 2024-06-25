@@ -49,7 +49,7 @@ Note::Note() : pitchClass(PitchClass::Atonal), octave(0) {}// Default constructo
 Note::Note(const std::string &name) : pitchClass(pitchClassOf(name)), octave(octaveOf(name)) {}
 
 
-Note::Note(PitchClass pitchClass, int octave) : pitchClass(pitchClass), octave(octave) {}
+Note::Note(const PitchClass pitchClass, const int octave) : pitchClass(pitchClass), octave(octave) {}
 
 
 Note Note::of(const std::string &name) {
@@ -125,18 +125,18 @@ int Note::delta(const Note &target) const {
 }
 
 
-std::string Note::toString(Accidental accidental) const {
+std::string Note::toString(const Accidental accidental) const {
   return stringOf(pitchClass, accidental) + std::to_string(octave);
 }
 
 
-Note Note::shift(int inc) const {
+Note Note::shift(const int inc) const {
   Step step = Step::step(pitchClass, inc);
   return {step.pitchClass, octave + step.deltaOctave};
 }
 
 
-Note Note::shiftOctave(int inc) const {
+Note Note::shiftOctave(const int inc) const {
   return shift(12 * inc);
 }
 
@@ -146,7 +146,7 @@ Note Note::copy() const {
 }
 
 
-Note Note::setOctaveNearest(Note fromNote) {
+Note Note::setOctaveNearest(const Note fromNote) {
   if (fromNote.pitchClass == Atonal)
     return *this;
   Note toNote = fromNote.shift(-6);
@@ -162,17 +162,17 @@ bool Note::isAtonal() const {
 }
 
 
-Note Note::nextUp(PitchClass target) {
+Note Note::nextUp(const PitchClass target) {
   return next(target, 1);
 }
 
 
-Note Note::nextDown(PitchClass target) {
+Note Note::nextDown(const PitchClass target) {
   return next(target, -1);
 }
 
 
-Note Note::next(PitchClass target, int delta) {
+Note Note::next(const PitchClass target, const int delta) {
   if (isAtonal() || pitchClass == target)
     return *this;
   Note n = *this;

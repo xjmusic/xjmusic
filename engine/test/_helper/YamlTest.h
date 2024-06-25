@@ -15,7 +15,7 @@ namespace XJ {
 /**
  XJ has a serviceable voicing algorithm https://github.com/xjmusic/xjmusic/issues/221
  */
-class YamlTest : public ::testing::Test {
+class YamlTest : public testing::Test {
 protected:
   std::set<std::string> failures;
 

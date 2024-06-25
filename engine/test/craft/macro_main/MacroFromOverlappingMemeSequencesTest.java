@@ -9,8 +9,8 @@ import io.xj.engine.ContentFixtures;
 import io.xj.engine.SegmentFixtures;
 import io.xj.engine.FabricationException;
 import io.xj.engine.FabricationTopology;
-import io.xj.engine.fabricator.SegmentEntityStoreImpl;
-import io.xj.engine.fabricator.FabricatorFactoryImpl;
+import io.xj.engine.fabricator->SegmentEntityStoreImpl;
+import io.xj.engine.fabricator->FabricatorFactoryImpl;
 import io.xj.model.pojos.Chain;
 import io.xj.model.enums.ChainState;
 import io.xj.model.enums.ChainType;
@@ -137,7 +137,7 @@ public class MacroFromOverlappingMemeSequencesTest {
     ));
 
     // Chain "Test Print #1" has 5 total segments
-    Chain chain1 = store->put(SegmentFixtures::buildChain(project1, "Test Print #1", Chain::Type::Production, Chain::State::Fabricate, template1, null));
+    const auto chain1 = store->put(SegmentFixtures::buildChain(project1, "Test Print #1", Chain::Type::Production, Chain::State::Fabricate, template1, null));
     Segment segment1 = store->put(SegmentFixtures::buildSegment(
       chain1,
       0,
@@ -148,13 +148,13 @@ public class MacroFromOverlappingMemeSequencesTest {
       120.0f,
       "chains-1-segments-9f7s89d8a7892"
     ));
-    store->put(buildSegmentChoice(segment1, Program::Type::Macro, macro1_sequenceA_binding));
-    store->put(buildSegmentChoice(segment1, Program::Type::Main, main5_sequenceA_binding));
+    store->put(SegmentFixtures::buildSegmentChoice(segment1, Program::Type::Macro, macro1_sequenceA_binding));
+    store->put(SegmentFixtures::buildSegmentChoice(segment1, Program::Type::Main, main5_sequenceA_binding));
 
     Segment segment2 = store->put(SegmentFixtures::buildSegment(
       chain1,
       1,
-      SegmentState.CRAFTING,
+      Segment::State::Crafting,
       "Db minor",
       64,
       0.85f,

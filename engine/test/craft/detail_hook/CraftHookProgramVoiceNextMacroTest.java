@@ -10,11 +10,11 @@ import io.xj.engine.FabricationException;
 import io.xj.engine.FabricationTopology;
 import io.xj.engine.craft.CraftFactory;
 import io.xj.engine.craft.CraftFactoryImpl;
-import io.xj.engine.fabricator.SegmentEntityStore;
-import io.xj.engine.fabricator.SegmentEntityStoreImpl;
-import io.xj.engine.fabricator.Fabricator;
-import io.xj.engine.fabricator.FabricatorFactory;
-import io.xj.engine.fabricator.FabricatorFactoryImpl;
+import io.xj.engine.fabricator->SegmentEntityStore;
+import io.xj.engine.fabricator->SegmentEntityStoreImpl;
+import io.xj.engine.fabricator->Fabricator;
+import io.xj.engine.fabricator->FabricatorFactory;
+import io.xj.engine.fabricator->FabricatorFactoryImpl;
 import io.xj.model.pojos.Chain;
 import io.xj.model.enums.ChainState;
 import io.xj.model.enums.ChainType;
@@ -62,7 +62,7 @@ public class CraftHookProgramVoiceNextMacroTest {
   void SetUp() override {
 
 
-    craftFactory = new CraftFactoryImpl();
+    craftFactory = new CraftFactory();
 
 
 
@@ -96,10 +96,10 @@ public class CraftHookProgramVoiceNextMacroTest {
       true));
     store->put(SegmentFixtures::buildSegment(
       chain1,
-      SegmentType.CONTINUE,
+      Segment::Type::Continue,
       1,
       1,
-      SegmentState.CRAFTING,
+      Segment::State::Crafting,
       "Db minor",
       64,
       0.85f,
@@ -128,22 +128,22 @@ public class CraftHookProgramVoiceNextMacroTest {
 
 
   @Test
-  public void craftHookVoiceNextMacro() throws Exception {
+  public void craftHookVoiceNextMacro()  {
     insertSegments3and4(true);
     auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, 48000.0f, 2, null);
 
     craftFactory->detail(fabricator).doWork();
 
 //    // assert hook choice
-//    Collection<SegmentChoice> segmentChoices = fabricator.getChoices();
+//    auto segmentChoices = fabricator->getChoices();
 //    SegmentChoice hookChoice = segmentChoices.stream()
 //      .filter(c -> c.getInstrumentType().equals(Instrument::Type::Hook)).findFirst().orElseThrow();
-//    assertTrue(fabricator.getArrangements()
+//    assertTrue(fabricator->getArrangements()
 //      .stream().anyMatch(a -> a.getSegmentChoiceId().equals(hookChoice->id)));
 //    
 //    int pickedKick = 0;
 //    int pickedSnare = 0;
-//    Collection<SegmentChoiceArrangementPick> picks = fabricator.getPicks();
+//    Collection<SegmentChoiceArrangementPick> picks = fabricator->getPicks();
 //    for (SegmentChoiceArrangementPick pick : picks) {
 //      if (pick.getInstrumentAudioId().equals(audioKick->id))
 //        pickedKick++;
@@ -161,9 +161,9 @@ public class CraftHookProgramVoiceNextMacroTest {
    */
   void insertSegments3and4(boolean excludeHookChoiceForSegment3) throws FabricationException {
     // Chain "Test Print #1" has this segment that was just crafted
-    Segment segment3 = store->put(SegmentFixtures::buildSegment(
+    const auto segment3 = store->put(SegmentFixtures::buildSegment(
       chain1,
-      SegmentType.CONTINUE,
+      Segment::Type::Continue,
       2,
       2,
       Segment::State::Crafted,
@@ -172,23 +172,23 @@ public class CraftHookProgramVoiceNextMacroTest {
       0.30f,
       120.0f,
       "chains-1-segments-9f7s89d8a7892.wav", true));
-    store->put(buildSegmentChoice(
+    store->put(SegmentFixtures::buildSegmentChoice(
       segment3,
-      Segment.DELTA_UNLIMITED,
-      Segment.DELTA_UNLIMITED,
+      SegmentChoice::DELTA_UNLIMITED,
+      SegmentChoice::DELTA_UNLIMITED,
       fake->program4,
       fake->program4_sequence2_binding0));
-    store->put(buildSegmentChoice(
+    store->put(SegmentFixtures::buildSegmentChoice(
       segment3,
-      Segment.DELTA_UNLIMITED,
-      Segment.DELTA_UNLIMITED,
+      SegmentChoice::DELTA_UNLIMITED,
+      SegmentChoice::DELTA_UNLIMITED,
       fake->program5,
       fake->program5_sequence1_binding0));
     if (!excludeHookChoiceForSegment3)
-      store->put(buildSegmentChoice(
+      store->put(SegmentFixtures::buildSegmentChoice(
         segment3,
-        Segment.DELTA_UNLIMITED,
-        Segment.DELTA_UNLIMITED,
+        SegmentChoice::DELTA_UNLIMITED,
+        SegmentChoice::DELTA_UNLIMITED,
         fake->program35,
         Instrument::Type::Hook,
         Instrument::Mode::Loop));
@@ -199,22 +199,22 @@ public class CraftHookProgramVoiceNextMacroTest {
       SegmentType.NEXT_MACRO,
       3,
       0,
-      SegmentState.CRAFTING,
+      Segment::State::Crafting,
       "F minor",
       16,
       0.45f,
       125.0f,
       "chains-1-segments-9f7s89d8a7892.wav", true));
-    store->put(buildSegmentChoice(
+    store->put(SegmentFixtures::buildSegmentChoice(
       segment4,
-      Segment.DELTA_UNLIMITED,
-      Segment.DELTA_UNLIMITED,
+      SegmentChoice::DELTA_UNLIMITED,
+      SegmentChoice::DELTA_UNLIMITED,
       fake->program3,
       fake->program4_sequence0_binding0));
-    store->put(buildSegmentChoice(
+    store->put(SegmentFixtures::buildSegmentChoice(
       segment4,
-      Segment.DELTA_UNLIMITED,
-      Segment.DELTA_UNLIMITED,
+      SegmentChoice::DELTA_UNLIMITED,
+      SegmentChoice::DELTA_UNLIMITED,
       fake->program15,
       fake->program15_sequence0_binding0));
     for (std::string memeName : List.of("Hindsight", "Chunky", "Regret", "Tangy"))

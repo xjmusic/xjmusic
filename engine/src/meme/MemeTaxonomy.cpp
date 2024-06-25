@@ -26,9 +26,9 @@ static std::string sanitize(const std::string &raw) {
 
 std::set<std::string>
 MemeCategory::parseMemeList(const MapStringToOneOrManyString &data) {
-  auto it = data.find(KEY_MEMES);
+  const auto it = data.find(KEY_MEMES);
   if (it != data.end() && std::holds_alternative<std::set<std::string>>(it->second)) {
-    std::set<std::string> rawList = std::get<std::set<std::string>>(it->second);
+    const std::set<std::string> rawList = std::get<std::set<std::string>>(it->second);
     std::set<std::string> sanitizedList;
     for (const auto &raw: rawList) {
       sanitizedList.insert(sanitize(raw));
@@ -77,7 +77,7 @@ MemeCategory::MemeCategory(const std::string *raw) {
 
 
 MemeCategory::MemeCategory(const MapStringToOneOrManyString &data) {
-  auto it = data.find(KEY_NAME);
+  const auto it = data.find(KEY_NAME);
   name = (it != data.end() && std::holds_alternative<std::string>(it->second))
          ? sanitize(std::get<std::string>(it->second))
          : DEFAULT_CATEGORY_NAME;

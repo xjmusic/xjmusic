@@ -8,7 +8,7 @@
 
 using namespace XJ;
 
-SegmentRetrospective::SegmentRetrospective(SegmentEntityStore *entityStore, int segmentId) {
+SegmentRetrospective::SegmentRetrospective(SegmentEntityStore *entityStore, const int segmentId) {
   this->entityStore = entityStore;
   this->segmentId = segmentId;
 }
@@ -55,7 +55,7 @@ void SegmentRetrospective::load() {
 
 std::optional<SegmentChoice *>
 SegmentRetrospective::getPreviousChoiceOfType(const Segment *segment, const Program::Type programType) {
-  auto c = entityStore->readChoice(segment->id, programType);
+  const auto c = entityStore->readChoice(segment->id, programType);
   return (c.has_value() && programType == c.value()->programType) ? c : std::nullopt;
 }
 
@@ -68,7 +68,7 @@ std::optional<Segment *> SegmentRetrospective::getPreviousSegment() {
   return previousSegment;
 }
 
-std::optional<SegmentChoice *> SegmentRetrospective::getPreviousChoiceOfType(Program::Type programType) {
+std::optional<SegmentChoice *> SegmentRetrospective::getPreviousChoiceOfType(const Program::Type programType) {
   if (!previousSegment.has_value()) return std::nullopt;
   return getPreviousChoiceOfType(previousSegment.value(), programType);
 }
@@ -98,7 +98,7 @@ SegmentRetrospective::getPreviousChoicesOfTypeMode(const Instrument::Type instru
   return result;
 }
 
-std::optional<SegmentChoice *> SegmentRetrospective::getPreviousChoiceOfType(Instrument::Type instrumentType) {
+std::optional<SegmentChoice *> SegmentRetrospective::getPreviousChoiceOfType(const Instrument::Type instrumentType) {
   if (!previousSegment.has_value()) return std::nullopt;
   const auto choices = entityStore->readAllSegmentChoices(previousSegment.value()->id);
   for (const auto &choice: choices) {

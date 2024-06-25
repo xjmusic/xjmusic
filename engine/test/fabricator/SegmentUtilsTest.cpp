@@ -131,7 +131,7 @@ TEST_F(SegmentUtilsTest, GetLastDubbed) {
 
 // Test for getLast
 TEST_F(SegmentUtilsTest, GetLast) {
-  std::optional<Segment *> last = SegmentUtils::getLast(segments);
+  const std::optional<Segment *> last = SegmentUtils::getLast(segments);
 
   ASSERT_TRUE(last.has_value());
   ASSERT_EQ(seg3.id, last.value()->id);
@@ -140,9 +140,9 @@ TEST_F(SegmentUtilsTest, GetLast) {
 
 // Test for getDubbed
 TEST_F(SegmentUtilsTest, GetDubbed) {
-  std::vector<Segment *> expected = {&seg0, &seg1, &seg2};
+  const std::vector<Segment *> expected = {&seg0, &seg1, &seg2};
 
-  auto actual = SegmentUtils::getCrafted(segments);
+  const auto actual = SegmentUtils::getCrafted(segments);
 
   ASSERT_EQ(expected.size(), actual.size());
   for (int i = 0; i < expected.size(); i++) {

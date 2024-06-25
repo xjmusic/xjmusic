@@ -18,7 +18,7 @@ std::uniform_int_distribution<> StickyBun::distrib(0, static_cast<int>(MAX_VALUE
 std::string StickyBun::META_KEY_TEMPLATE = "StickyBun_";
 
 
-StickyBun::StickyBun(UUID eventId, int size) : eventId(std::move(eventId)) {
+StickyBun::StickyBun(UUID eventId, const int size) : eventId(std::move(eventId)) {
   values.clear();
   for (int i = 1; i <= size; ++i) {
     values.push_back(distrib(gen));
@@ -51,8 +51,8 @@ std::vector<Note> StickyBun::replaceAtonal(std::vector<Note> source, const std::
 }
 
 
-Note StickyBun::compute(std::vector<Note> voicingNotes, int index) const {
-  float valueRatio =
+Note StickyBun::compute(std::vector<Note> voicingNotes, const int index) const {
+  const float valueRatio =
       static_cast<float>(values[std::min(index, static_cast<int>(values.size()) - 1)]) /
       static_cast<float>(MAX_VALUE);
   return voicingNotes[

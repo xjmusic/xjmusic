@@ -18,9 +18,9 @@ import io.xj.engine.SegmentFixtures;
 import io.xj.engine.FabricationTopology;
 import io.xj.engine.craft.CraftFactory;
 import io.xj.engine.craft.CraftFactoryImpl;
-import io.xj.engine.fabricator.Fabricator;
-import io.xj.engine.fabricator.FabricatorFactory;
-import io.xj.engine.fabricator.FabricatorFactoryImpl;
+import io.xj.engine.fabricator->Fabricator;
+import io.xj.engine.fabricator->FabricatorFactory;
+import io.xj.engine.fabricator->FabricatorFactoryImpl;
 import io.xj.model.pojos.Chain;
 import io.xj.model.enums.ChainState;
 import io.xj.model.enums.ChainType;
@@ -29,8 +29,8 @@ import io.xj.model.pojos.SegmentChoiceArrangementPick;
 import io.xj.model.pojos.SegmentChord;
 import io.xj.model.enums.SegmentState;
 import io.xj.model.enums.SegmentType;
-import io.xj.engine.fabricator.SegmentEntityStore;
-import io.xj.engine.fabricator.SegmentEntityStoreImpl;
+import io.xj.engine.fabricator->SegmentEntityStore;
+import io.xj.engine.fabricator->SegmentEntityStoreImpl;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -61,7 +61,7 @@ public class CraftDetailProgramVoiceInitialTest {
   void SetUp() override {
 
 
-    craftFactory = new CraftFactoryImpl();
+    craftFactory = new CraftFactory();
 
 
 
@@ -97,17 +97,17 @@ public class CraftDetailProgramVoiceInitialTest {
   }
 
   @Test
-  public void craftDetailVoiceInitial() throws Exception {
+  public void craftDetailVoiceInitial()  {
     insertSegments();
 
     auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment1->id, 48000.0f, 2, null);
 
     craftFactory->detail(fabricator).doWork();
 
-    assertFalse(fabricator.getChoices().empty());
+    assertFalse(fabricator->getChoices().empty());
     
     int pickedBloop = 0;
-    Collection<SegmentChoiceArrangementPick> picks = fabricator.getPicks();
+    Collection<SegmentChoiceArrangementPick> picks = fabricator->getPicks();
     for (SegmentChoiceArrangementPick pick : picks) {
       if (pick.getInstrumentAudioId().equals(fake->instrument9_audio8->id))
         pickedBloop++;
@@ -116,7 +116,7 @@ public class CraftDetailProgramVoiceInitialTest {
   }
 
   @Test
-  public void craftDetailVoiceInitial_okWhenNoDetailChoice() throws Exception {
+  public void craftDetailVoiceInitial_okWhenNoDetailChoice()  {
     insertSegments();
     auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment1->id, 48000.0f, 2, null);
 
@@ -139,40 +139,40 @@ public class CraftDetailProgramVoiceInitialTest {
       0.55f,
       130.0f,
       "chains-1-segments-0970305977172.wav", true));
-    store->put(buildSegmentChoice(
+    store->put(SegmentFixtures::buildSegmentChoice(
       segment0,
-      Segment.DELTA_UNLIMITED,
-      Segment.DELTA_UNLIMITED,
+      SegmentChoice::DELTA_UNLIMITED,
+      SegmentChoice::DELTA_UNLIMITED,
       fake->program4,
       fake->program4_sequence0_binding0));
-    store->put(buildSegmentChoice(
+    store->put(SegmentFixtures::buildSegmentChoice(
       segment0,
-      Segment.DELTA_UNLIMITED,
-      Segment.DELTA_UNLIMITED,
+      SegmentChoice::DELTA_UNLIMITED,
+      SegmentChoice::DELTA_UNLIMITED,
       fake->program5,
       fake->program5_sequence0_binding0));
 
     segment1 = store->put(SegmentFixtures::buildSegment(
       chain2,
-      SegmentType.CONTINUE,
+      Segment::Type::Continue,
       1,
       1,
-      SegmentState.CRAFTING,
+      Segment::State::Crafting,
       "D Major",
       32,
       0.55f,
       130.0f,
       "chains-1-segments-9f7s89d8a7892.wav", true));
-    store->put(buildSegmentChoice(
+    store->put(SegmentFixtures::buildSegmentChoice(
       segment1,
-      Segment.DELTA_UNLIMITED,
-      Segment.DELTA_UNLIMITED,
+      SegmentChoice::DELTA_UNLIMITED,
+      SegmentChoice::DELTA_UNLIMITED,
       fake->program4,
       fake->program4_sequence0_binding0));
-    store->put(buildSegmentChoice(
+    store->put(SegmentFixtures::buildSegmentChoice(
       segment1,
-      Segment.DELTA_UNLIMITED,
-      Segment.DELTA_UNLIMITED,
+      SegmentChoice::DELTA_UNLIMITED,
+      SegmentChoice::DELTA_UNLIMITED,
       fake->program5,
       fake->program5_sequence0_binding0));
     for (std::string memeName : List.of("Special", "Wild", "Pessimism", "Outlook"))

@@ -9,10 +9,10 @@ import io.xj.engine.SegmentFixtures;
 import io.xj.engine.FabricationTopology;
 import io.xj.engine.craft.CraftFactory;
 import io.xj.engine.craft.CraftFactoryImpl;
-import io.xj.engine.fabricator.SegmentEntityStoreImpl;
-import io.xj.engine.fabricator.Fabricator;
-import io.xj.engine.fabricator.FabricatorFactory;
-import io.xj.engine.fabricator.FabricatorFactoryImpl;
+import io.xj.engine.fabricator->SegmentEntityStoreImpl;
+import io.xj.engine.fabricator->Fabricator;
+import io.xj.engine.fabricator->FabricatorFactory;
+import io.xj.engine.fabricator->FabricatorFactoryImpl;
 import io.xj.model.pojos.Chain;
 import io.xj.model.enums.ChainState;
 import io.xj.model.enums.ChainType;
@@ -58,7 +58,7 @@ public class CraftTransition_LayeredVoicesTest {
   void SetUp() override {
 
 
-    craftFactory = new CraftFactoryImpl();
+    craftFactory = new CraftFactory();
 
 
 
@@ -76,7 +76,7 @@ public class CraftTransition_LayeredVoicesTest {
     ).collect(Collectors.toList()));
 
     // Chain "Test Print #1" has 5 total segments
-    Chain chain1 = store->put(SegmentFixtures::buildChain(fake->project1, "Test Print #1", Chain::Type::Production, Chain::State::Fabricate, fake->template1, null));
+    const auto chain1 = store->put(SegmentFixtures::buildChain(fake->project1, "Test Print #1", Chain::Type::Production, Chain::State::Fabricate, fake->template1, null));
     store->put(SegmentFixtures::buildSegment(
       chain1,
       Segment::Type::Initial,
@@ -91,10 +91,10 @@ public class CraftTransition_LayeredVoicesTest {
       true));
     store->put(SegmentFixtures::buildSegment(
       chain1,
-      SegmentType.CONTINUE,
+      Segment::Type::Continue,
       1,
       1,
-      SegmentState.CRAFTING,
+      Segment::State::Crafting,
       "Db minor",
       64,
       0.85f,
@@ -104,9 +104,9 @@ public class CraftTransition_LayeredVoicesTest {
 
     // segment just crafted
     // Testing entities for reference
-    Segment segment3 = store->put(SegmentFixtures::buildSegment(
+    const auto segment3 = store->put(SegmentFixtures::buildSegment(
       chain1,
-      SegmentType.CONTINUE,
+      Segment::Type::Continue,
       2,
       2,
       Segment::State::Crafted,
@@ -122,10 +122,10 @@ public class CraftTransition_LayeredVoicesTest {
     // segment crafting
     segment4 = store->put(SegmentFixtures::buildSegment(
       chain1,
-      SegmentType.CONTINUE,
+      Segment::Type::Continue,
       3,
       3,
-      SegmentState.CRAFTING,
+      Segment::State::Crafting,
       "D Major",
       16,
       0.45f,
@@ -170,18 +170,18 @@ public class CraftTransition_LayeredVoicesTest {
   }
 
   @Test
-  public void craftTransitionVoiceContinue() throws Exception {
+  public void craftTransitionVoiceContinue()  {
     auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, 48000.0f, 2, null);
 
     craftFactory->transition(fabricator).doWork();
 
-//    Segment result = store->getSegment(segment4->id).orElseThrow();
+//    auto result = store->getSegment(segment4->id).orElseThrow();
 //    assertFalse(store->getAll(result->id, SegmentChoice.class).empty());
 //    
 //    int pickedKick = 0;
 //    int pickedSnare = 0;
 //    int pickedHihat = 0;
-//    Collection<SegmentChoiceArrangementPick> picks = fabricator.getPicks();
+//    Collection<SegmentChoiceArrangementPick> picks = fabricator->getPicks();
 //    for (SegmentChoiceArrangementPick pick : picks) {
 //      if (pick.getInstrumentAudioId().equals(audioKick->id))
 //        pickedKick++;

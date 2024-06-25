@@ -10,34 +10,34 @@ TEST(ProgramConfigTest, SetFromProgram) {
   Program program;
   program.config = "doPatternRestartOnChord = true";
 
-  ProgramConfig subject(program);
+  const ProgramConfig subject(program);
 
   ASSERT_TRUE(subject.doPatternRestartOnChord);
 }
 
 TEST(ProgramConfigTest, SetFromDefaults) {
-  ProgramConfig subject;
+  const ProgramConfig subject;
 
   ASSERT_FALSE(subject.doPatternRestartOnChord);
 }
 
 TEST(ProgramConfigTest, GetCutoffMinimumBars) {
-  ProgramConfig subject;
+  const ProgramConfig subject;
 
   ASSERT_EQ(2, subject.cutoffMinimumBars);
 }
 
 TEST(ProgramConfigTest, GetBarBeats) {
-  ProgramConfig subject;
+  const ProgramConfig subject;
 
   ASSERT_EQ(4, subject.barBeats);
 }
 
 TEST(ProgramConfigTest, DefaultsToString) {
-  ProgramConfig subject;
+  const ProgramConfig subject;
 
-  std::vector<std::string> defaultLines = StringUtils::split(ProgramConfig::getDefaultString(), '\n');
-  std::vector<std::string> subjectLines = StringUtils::split(subject.toString(), '\n');
+  const std::vector<std::string> defaultLines = StringUtils::split(ProgramConfig::getDefaultString(), '\n');
+  const std::vector<std::string> subjectLines = StringUtils::split(subject.toString(), '\n');
 
   ASSERT_EQ(defaultLines, subjectLines);
 }

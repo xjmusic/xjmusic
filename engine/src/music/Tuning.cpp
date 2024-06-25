@@ -27,9 +27,9 @@ Tuning Tuning::at(Note note, float pitch) {
 }
 
 
-float Tuning::pitch(Note note) {
-  int octave = note.octave;
-  PitchClass pitchClass = note.pitchClass;
+float Tuning::pitch(const Note note) {
+  const int octave = note.octave;
+  const PitchClass pitchClass = note.pitchClass;
 
   if (_notePitches.find(octave) == _notePitches.end())
     _notePitches[octave] = std::map<PitchClass, float>();
@@ -58,7 +58,7 @@ int Tuning::deltaFromRootPitch(float pitch) {
 }
 
 
-float Tuning::pitchAtDelta(int delta) const {
+float Tuning::pitchAtDelta(const int delta) const {
   return static_cast<float>(rootPitch * std::pow(TWELFTH_ROOT_OF_TWO, delta));
 }
 

@@ -6,8 +6,8 @@ using namespace XJ;
 
 
 RankedNote::RankedNote(
-    Note note,
-    int delta
+    const Note note,
+    const int delta
 ) {
   this->note = note;
   this->delta = delta;

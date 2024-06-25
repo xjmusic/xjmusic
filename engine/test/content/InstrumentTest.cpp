@@ -71,19 +71,18 @@ TEST(InstrumentTest, ToStringInstrumentType) {
 }
 
 TEST(InstrumentTest, ToStringsInstrumentType) {
-  std::vector<Instrument::Type> types = {
-    Instrument::Type::Drum,
-    Instrument::Type::Bass,
-    Instrument::Type::Pad,
-    Instrument::Type::Sticky,
-    Instrument::Type::Stripe,
-    Instrument::Type::Stab,
-    Instrument::Type::Hook,
-    Instrument::Type::Percussion,
-    Instrument::Type::Transition,
-    Instrument::Type::Background
-  };
-  std::vector<std::string> typeStrings = Instrument::toStrings(types);
+  const std::vector<Instrument::Type> types = {
+      Instrument::Type::Drum,
+      Instrument::Type::Bass,
+      Instrument::Type::Pad,
+      Instrument::Type::Sticky,
+      Instrument::Type::Stripe,
+      Instrument::Type::Stab,
+      Instrument::Type::Hook,
+      Instrument::Type::Percussion,
+      Instrument::Type::Transition,
+      Instrument::Type::Background};
+  const std::vector<std::string> typeStrings = Instrument::toStrings(types);
   ASSERT_EQ("Drum", typeStrings[0]);
   ASSERT_EQ("Bass", typeStrings[1]);
   ASSERT_EQ("Pad", typeStrings[2]);

@@ -21,7 +21,7 @@ std::regex StringUtils::tailingScores("_+$");
 std::regex StringUtils::underscores("_+");
 
 
-std::vector<std::string> StringUtils::split(const std::string &input, char delimiter) {
+std::vector<std::string> StringUtils::split(const std::string &input, const char delimiter) {
   std::vector<std::string> tokens;
   std::string token;
   std::istringstream tokenStream(trim(input));
@@ -108,7 +108,7 @@ std::string StringUtils::toLowerCase(const std::string &input) {
 }
 
 
-std::string StringUtils::formatFloat(float value) {
+std::string StringUtils::formatFloat(const float value) {
   std::string str = std::to_string(value);
 
   // Remove trailing zeros
@@ -125,7 +125,7 @@ std::string StringUtils::formatFloat(float value) {
 
 std::string StringUtils::stripExtraSpaces(const std::string &value) {
   std::string result = value;
-  result.erase(std::unique(result.begin(), result.end(), [](char a, char b) { return a == ' ' && b == ' '; }),
+  result.erase(std::unique(result.begin(), result.end(), [](const char a, const char b) { return a == ' ' && b == ' '; }),
                result.end());
   return trim(result);
 }

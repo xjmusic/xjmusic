@@ -181,7 +181,7 @@ std::optional<Segment> SegmentEntityStore::readSegmentLast() {
 }
 
 
-std::optional<SegmentChoice *> SegmentEntityStore::readChoice(int segmentId, Program::Type programType) {
+std::optional<SegmentChoice *> SegmentEntityStore::readChoice(const int segmentId, const Program::Type programType) {
   if (segmentChoices.find(segmentId) == segmentChoices.end()) {
     return std::nullopt;
   }
@@ -253,7 +253,7 @@ void SegmentEntityStore::deleteChain() {
 }
 
 
-void SegmentEntityStore::deleteSegment(int id) {
+void SegmentEntityStore::deleteSegment(const int id) {
   segments.erase(id);
   segmentChoices.erase(id);
   segmentChoiceArrangements.erase(id);
@@ -301,7 +301,7 @@ void SegmentEntityStore::protectSegmentStateTransition(const Segment::State from
 
 
 void SegmentEntityStore::onlyAllowSegmentStateTransitions(
-    Segment::State toState,
+    const Segment::State toState,
     const std::set<Segment::State> &allowedStates) {
   std::vector<std::string> allowedStateNames;
   allowedStateNames.reserve(allowedStates.size());
