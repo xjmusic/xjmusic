@@ -226,6 +226,7 @@ int MacroMainCraft::computeMainProgramSequenceBindingOffset() const {
         throw FabricationException("Cannot get retrieve previous main choice");
       return fabricator->getNextSequenceBindingOffset(previousMainChoice.value());
     }
+
     default:
       throw FabricationException(
           "Cannot get Macro-type sequence for known fabricator type=" + Segment::toString(fabricator->getType()));

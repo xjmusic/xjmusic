@@ -73,9 +73,9 @@ void Craft::precomputeDeltas(
 
   // then we overwrite the wall-to-wall random values with more specific values depending on the situation
   switch (fabricator->getType()) {
-    case Segment::Type::Pending: {
+    case Segment::Type::Pending:
       // No Op
-    }
+      break;
 
     case Segment::Type::Initial:
     case Segment::Type::NextMain:
@@ -117,7 +117,7 @@ void Craft::precomputeDeltas(
         deltaOuts[orderedLayer] = SegmentChoice::DELTA_UNLIMITED;// all layers get delta out unlimited
         delta += ValueUtils::roundToNearest(deltaUnits, MarbleBag::quickPick(deltaUnits * 5));
       }
-    }
+    } break;
 
     case Segment::Type::Continue: {
       for (const std::string &index: layersInCraftOrder)
@@ -128,7 +128,7 @@ void Craft::precomputeDeltas(
               deltaOuts[index] = choice->deltaOut;
             }
           }
-    }
+    } break;
   }
 }
 

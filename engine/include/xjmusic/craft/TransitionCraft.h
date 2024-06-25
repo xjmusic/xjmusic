@@ -31,7 +31,7 @@ namespace XJ {
 
      @return true if it is a big transition segment
      */
-    bool isBigTransitionSegment();
+    bool isBigTransitionSegment() const;
 
     /**
      Is this a medium-transition segment? (not the same sequence as the previous segment)
@@ -40,7 +40,7 @@ namespace XJ {
 
      @return true if it is a medium transition segment
      */
-    bool isMediumTransitionSegment();
+    bool isMediumTransitionSegment() const;
 
     /**
      Craft percussion loop

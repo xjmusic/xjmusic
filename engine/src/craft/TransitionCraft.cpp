@@ -29,7 +29,7 @@ void TransitionCraft::doWork() {
   craftTransition(fabricator->getTempo(), instrument.value());
 }
 
-bool TransitionCraft::isBigTransitionSegment() {
+bool TransitionCraft::isBigTransitionSegment() const {
   switch (fabricator->getType()) {
     case Segment::Type::Initial:
     case Segment::Type::NextMain:
@@ -40,7 +40,7 @@ bool TransitionCraft::isBigTransitionSegment() {
   };
 }
 
-bool TransitionCraft::isMediumTransitionSegment() {
+bool TransitionCraft::isMediumTransitionSegment() const {
   if (fabricator->getType() != Segment::Type::Continue) return false;
   const auto mainSequence = fabricator->getCurrentMainSequence();
   if (!mainSequence.has_value())
