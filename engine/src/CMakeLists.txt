@@ -3,6 +3,9 @@ include(FetchContent)
 
 # show up in IDEs unless they are listed in add_library.
 add_library(xjmusic
+        audio/AudioFormat.cpp
+        audio/AudioInMemory.cpp
+        audio/AudioLoader.cpp
         content/ContentEntityStore.cpp
         content/EntityUtils.cpp
         content/Instrument.cpp
