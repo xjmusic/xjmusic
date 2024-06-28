@@ -37,6 +37,10 @@ The best way to get in touch with the core engine developers is to join the
 To get started contributing to the project, see the [contributing guide](CONTRIBUTING.md).
 This document also includes guidelines for reporting bugs.
 
+### Earning Equity in XJ music
+
+All contributors to XJ music, including founder and lead developer Charney Kaye, earn equity in the company based on the following formula: 1 hour of labor = 1 point of equity. Developers report all hours against specific Pull Requests. If you would like to contribute to the XJ music codebase and earn equity in the company, prepare your code in a Pull Request and [contact us](https://xjmusic.com/contact-us/) with a log of your hours corresponding to that work. If your pull request is accepted and merged into the main branch, we'll sign a contract guaranteeing your share of future revenue.
+
 
 ## Documentation
 
