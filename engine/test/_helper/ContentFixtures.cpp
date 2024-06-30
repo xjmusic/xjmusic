@@ -630,7 +630,7 @@ InstrumentMeme ContentFixtures::buildInstrumentMeme(
   return instrumentMeme;
 }
 
-void ContentFixtures::setupFixtureB1(ContentEntityStore *store, bool includeBeat) {
+void ContentFixtures::setupFixtureB1(ContentEntityStore *store, const bool includeBeat) {
 
   // Project "bananas"
   project1 = buildProject("bananas");

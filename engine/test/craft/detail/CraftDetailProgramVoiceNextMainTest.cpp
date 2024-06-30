@@ -92,7 +92,7 @@ protected:
 
    @param excludeDetailChoiceForSegment3 if desired for the purpose of this test
    */
-  void insertSegments3and4(bool excludeDetailChoiceForSegment3) {
+  void insertSegments3and4(const bool excludeDetailChoiceForSegment3) {
     // segment just crafted
     // Testing entities for reference
     const auto segment3 = store->put(SegmentFixtures::buildSegment(

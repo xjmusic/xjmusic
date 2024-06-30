@@ -92,7 +92,7 @@ protected:
 
    @param excludeHookChoiceForSegment3 if desired for the purpose of this test
    */
-  void insertSegments3and4(bool excludeHookChoiceForSegment3) {
+  void insertSegments3and4(const bool excludeHookChoiceForSegment3) {
     // segment just crafted
     const auto segment3 = store->put(SegmentFixtures::buildSegment(
         chain1,
