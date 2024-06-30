@@ -223,9 +223,9 @@ ConfigParser::ConfigParser(const std::string &input) {
 
 
 ConfigParser::ConfigParser(const std::string &input, const ConfigParser &defaults) : ConfigParser(input) {
-  for (const auto &pair: defaults.config) {
-    if (config.find(pair.first) == config.end()) {
-      config[pair.first] = pair.second;
+  for (const auto &[key, val]: defaults.config) {
+    if (config.find(key) == config.end()) {
+      config[key] = val;
     }
   }
 }
@@ -371,15 +371,15 @@ ConfigObjectValue::asMapOfSingleOrList() {
 std::map<std::string, std::variant<std::string, std::vector<std::string>>>
 ConfigObjectValue::asMapOfStringsOrListsOfStrings() const {
   std::map<std::string, std::variant<std::string, std::vector<std::string>>> map;
-  for (const auto &pair: data) {
-    if (std::holds_alternative<ConfigSingleValue>(pair.second)) {
-      map[pair.first] = std::get<ConfigSingleValue>(pair.second).getString();
-    } else if (std::holds_alternative<std::vector<ConfigSingleValue>>(pair.second)) {
+  for (const auto &[key, val]: data) {
+    if (std::holds_alternative<ConfigSingleValue>(val)) {
+      map[key] = std::get<ConfigSingleValue>(val).getString();
+    } else if (std::holds_alternative<std::vector<ConfigSingleValue>>(val)) {
       std::vector<std::string> values;
-      for (const auto &value: std::get<std::vector<ConfigSingleValue>>(pair.second)) {
+      for (const auto &value: std::get<std::vector<ConfigSingleValue>>(val)) {
         values.push_back(value.getString());
       }
-      map[pair.first] = values;
+      map[key] = values;
     }
   }
   return map;

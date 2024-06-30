@@ -1037,45 +1037,45 @@ ContentEntityStore ContentEntityStore::forTemplate(const Template *tmpl) {
   }
 
   // Add entities of Programs
-  for (const auto &program: content.programs) {
-    for (const auto meme: getMemesOfProgram(program.second.id)) {
+  for (const auto &[_, program]: content.programs) {
+    for (const auto meme: getMemesOfProgram(program.id)) {
       content.programMemes[meme->id] = *meme;
     }
-    for (const auto voice: getVoicesOfProgram(program.second.id)) {
+    for (const auto voice: getVoicesOfProgram(program.id)) {
       content.programVoices[voice->id] = *voice;
     }
-    for (const auto track: getTracksOfProgram(program.second.id)) {
+    for (const auto track: getTracksOfProgram(program.id)) {
       content.programVoiceTracks[track->id] = *track;
     }
-    for (const auto sequence: getSequencesOfProgram(program.second.id)) {
+    for (const auto sequence: getSequencesOfProgram(program.id)) {
       content.programSequences[sequence->id] = *sequence;
     }
-    for (const ProgramSequenceBinding *binding: getSequenceBindingsOfProgram(program.second.id)) {
+    for (const ProgramSequenceBinding *binding: getSequenceBindingsOfProgram(program.id)) {
       content.programSequenceBindings[binding->id] = *binding;
     }
-    for (const auto meme: getSequenceBindingMemesOfProgram(program.second.id)) {
+    for (const auto meme: getSequenceBindingMemesOfProgram(program.id)) {
       content.programSequenceBindingMemes[meme->id] = *meme;
     }
-    for (const ProgramSequenceChord *chord: getSequenceChordsOfProgram(program.second.id)) {
+    for (const ProgramSequenceChord *chord: getSequenceChordsOfProgram(program.id)) {
       content.programSequenceChords[chord->id] = *chord;
     }
-    for (const auto voicing: getSequenceChordVoicingsOfProgram(program.second.id)) {
+    for (const auto voicing: getSequenceChordVoicingsOfProgram(program.id)) {
       content.programSequenceChordVoicings[voicing->id] = *voicing;
     }
-    for (const auto pattern: getSequencePatternsOfProgram(program.second.id)) {
+    for (const auto pattern: getSequencePatternsOfProgram(program.id)) {
       content.programSequencePatterns[pattern->id] = *pattern;
     }
-    for (const ProgramSequencePatternEvent *event: getSequencePatternEventsOfProgram(program.second.id)) {
+    for (const ProgramSequencePatternEvent *event: getSequencePatternEventsOfProgram(program.id)) {
       content.programSequencePatternEvents[event->id] = *event;
     }
   }
 
   // Add entities of Instruments
-  for (const auto &instrument: content.instruments) {
-    for (const auto meme: getMemesOfInstrument(instrument.second.id)) {
+  for (const auto &[_, instrument]: content.instruments) {
+    for (const auto meme: getMemesOfInstrument(instrument.id)) {
       content.instrumentMemes[meme->id] = *meme;
     }
-    for (const auto audio: getAudiosOfInstrument(instrument.second.id)) {
+    for (const auto audio: getAudiosOfInstrument(instrument.id)) {
       content.instrumentAudios[audio->id] = *audio;
     }
   }

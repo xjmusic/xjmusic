@@ -104,10 +104,10 @@ TemplateConfig::TemplateConfig(const Template *input) : TemplateConfig(input->co
 
 std::map<Instrument::Type, int> parseInstrumentTypeIntMap(ConfigObjectValue objectValue) {
   std::map<Instrument::Type, int> resultMap;
-  for (const auto &entry: objectValue.asMapOfSingleOrList()) {
-    Instrument::Type instrumentTypeKey = Instrument::parseType(entry.first);
-    if (std::holds_alternative<ConfigSingleValue>(entry.second)) {
-      resultMap[instrumentTypeKey] = std::get<ConfigSingleValue>(entry.second).getInt();
+  for (const auto &[key, val]: objectValue.asMapOfSingleOrList()) {
+    Instrument::Type instrumentTypeKey = Instrument::parseType(key);
+    if (std::holds_alternative<ConfigSingleValue>(val)) {
+      resultMap[instrumentTypeKey] = std::get<ConfigSingleValue>(val).getInt();
     }
   }
   return resultMap;
@@ -116,10 +116,10 @@ std::map<Instrument::Type, int> parseInstrumentTypeIntMap(ConfigObjectValue obje
 
 std::map<Instrument::Type, float> parseInstrumentTypeFloatMap(ConfigObjectValue objectValue) {
   std::map<Instrument::Type, float> resultMap;
-  for (const auto &entry: objectValue.asMapOfSingleOrList()) {
-    Instrument::Type instrumentTypeKey = Instrument::parseType(entry.first);
-    if (std::holds_alternative<ConfigSingleValue>(entry.second)) {
-      resultMap[instrumentTypeKey] = std::get<ConfigSingleValue>(entry.second).getFloat();
+  for (const auto &[key, val]: objectValue.asMapOfSingleOrList()) {
+    Instrument::Type instrumentTypeKey = Instrument::parseType(key);
+    if (std::holds_alternative<ConfigSingleValue>(val)) {
+      resultMap[instrumentTypeKey] = std::get<ConfigSingleValue>(val).getFloat();
     }
   }
   return resultMap;
@@ -149,8 +149,8 @@ std::string formatInstrumentTypeIntMap(const std::map<Instrument::Type, int> &va
   // Convert the map to a vector of pairs for sorting
   std::vector<std::pair<std::string, int>> valuesVec;
   valuesVec.reserve(values.size());
-  for (const auto &entry: values) {
-    valuesVec.emplace_back(Instrument::toString(entry.first), entry.second);
+  for (const auto &[key, val]: values) {
+    valuesVec.emplace_back(Instrument::toString(key), val);
   }
 
   // Sort the vector by key
@@ -158,8 +158,8 @@ std::string formatInstrumentTypeIntMap(const std::map<Instrument::Type, int> &va
 
   std::ostringstream oss;
   oss << "{\n";
-  for (const auto &entry: valuesVec) {
-    oss << "    " << entry.first << " = " << std::to_string(entry.second) << "\n";
+  for (const auto &[key, val]: valuesVec) {
+    oss << "    " << key << " = " << std::to_string(val) << "\n";
   }
   oss << "  }";
   return oss.str();
@@ -170,8 +170,8 @@ std::string formatInstrumentTypeFloatMap(const std::map<Instrument::Type, float>
   // Convert the map to a vector of pairs for sorting
   std::vector<std::pair<std::string, float>> valuesVec;
   valuesVec.reserve(values.size());
-  for (const auto &entry: values) {
-    valuesVec.emplace_back(Instrument::toString(entry.first), entry.second);
+  for (const auto &[key, val]: values) {
+    valuesVec.emplace_back(Instrument::toString(key), val);
   }
 
   // Sort the vector by key
@@ -179,8 +179,8 @@ std::string formatInstrumentTypeFloatMap(const std::map<Instrument::Type, float>
 
   std::ostringstream oss;
   oss << "{\n";
-  for (const auto &entry: valuesVec) {
-    oss << "    " << entry.first << " = " << StringUtils::formatFloat(entry.second) << "\n";
+  for (const auto &[key, val]: valuesVec) {
+    oss << "    " << key << " = " << StringUtils::formatFloat(val) << "\n";
   }
   oss << "  }";
   return oss.str();
@@ -308,8 +308,8 @@ std::string TemplateConfig::toString() const {
   std::sort(configVec.begin(), configVec.end());
 
   std::ostringstream oss;
-  for (const auto &pair: configVec) {
-    oss << pair.first << " = " << pair.second << "\n";
+  for (const auto &[key, val]: configVec) {
+    oss << key << " = " << val << "\n";
   }
 
   return oss.str();

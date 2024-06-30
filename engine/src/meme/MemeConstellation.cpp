@@ -5,15 +5,11 @@
 using namespace XJ;
 
 std::string MemeConstellation::fromNames(const std::set<std::string> &names) {
-  std::unordered_map<std::string, bool> uniqueNames;
+  std::set<std::string> uniqueNames;
   for (const auto &meme: names) {
-    uniqueNames[meme] = true;
+    uniqueNames.emplace(meme);
   }
-  std::set<std::string> pieces;
-  for (const auto &pair: uniqueNames) {
-    pieces.insert(pair.first);
-  }
-  return join(CONSTELLATION_DELIMITER, pieces);
+  return join(CONSTELLATION_DELIMITER, uniqueNames);
 }
 
 std::set<std::string> MemeConstellation::toNames(const std::string &constellation)  {

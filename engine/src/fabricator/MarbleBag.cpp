@@ -15,8 +15,8 @@ using namespace XJ;
  */
 UUID MarbleBag::pick() {
   std::vector<int> phases;
-  for (const auto &entry: marbles) {
-    phases.push_back(entry.first);
+  for (const auto &[phase, marbles]: marbles) {
+    phases.push_back(phase);
   }
   std::sort(phases.begin(), phases.end());
 
@@ -36,8 +36,8 @@ UUID MarbleBag::pick() {
  * @param toAdd map of marble id to quantity
  */
 void MarbleBag::addAll(const int phase, const std::map<UUID, int> &toAdd) {
-  for (const auto &entry: toAdd)
-    add(phase, entry.first, entry.second);
+  for (const auto &[id, qty]: toAdd)
+    add(phase, id, qty);
 }
 
 /**
@@ -73,9 +73,9 @@ void MarbleBag::add(const int phase, const UUID &id, const int qty) {
  */
 int MarbleBag::size() const {
   int total = 0;
-  for (const auto &phase: marbles) {
-    for (const auto &marble: phase.second) {
-      total += marble.second;
+  for (const auto &[phase, marbles]: marbles) {
+    for (const auto &[id, qty]: marbles) {
+      total += qty;
     }
   }
   return total;
@@ -86,12 +86,12 @@ int MarbleBag::size() const {
  */
 std::string MarbleBag::toString() const {
   std::string result;
-  for (const auto &phase: marbles) {
-    std::string phaseStr = "Phase" + std::to_string(phase.first) + "[";
-    for (const auto &marble: phase.second) {
-      phaseStr += marble.first + ":" + std::to_string(marble.second) + ", ";
+  for (const auto &[phase, marbleMap]: marbles) {
+    std::string phaseStr = "Phase" + std::to_string(phase) + "[";
+    for (const auto &[id, qty]: marbleMap) {
+      phaseStr += id + ":" + std::to_string(qty) + ", ";
     }
-    if (!phase.second.empty()) {
+    if (!marbleMap.empty()) {
       phaseStr.pop_back(); // remove last comma
       phaseStr.pop_back(); // remove last space
     }
@@ -129,10 +129,10 @@ std::optional<UUID> MarbleBag::pickPhase(const int phase) {
   int total = 0;
   std::vector<Group> blocks;
 
-  for (const auto &entry: marbles[phase]) {
-    if (entry.second > 0) {
-      blocks.emplace_back(entry.first, total, total + entry.second);
-      total += entry.second;
+  for (const auto &[id, qty]: marbles[phase]) {
+    if (qty > 0) {
+      blocks.emplace_back(id, total, total + qty);
+      total += qty;
     }
   }
 

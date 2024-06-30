@@ -64,8 +64,8 @@ std::string InstrumentConfig::toString() const {
   std::sort(configVec.begin(), configVec.end());
 
   std::ostringstream oss;
-  for (const auto &pair: configVec) {
-    oss << pair.first << " = " << pair.second << "\n";
+  for (const auto &[key, val]: configVec) {
+    oss << key << " = " << val << "\n";
   }
 
   return oss.str();

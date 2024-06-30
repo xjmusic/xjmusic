@@ -156,9 +156,9 @@ std::set<SegmentEntity *> SegmentEntityStore::readAllSegmentEntities(const std::
 
 std::vector<Segment> SegmentEntityStore::readAllSegmentsSpanning(const long fromChainMicros, const long toChainMicros) {
   std::vector<Segment> result;
-  for (auto &segment: segments) {
-    if (SegmentUtils::isSpanning(&segment.second, fromChainMicros, toChainMicros)) {
-      result.emplace_back(segment.second);
+  for (auto &[id, segment]: segments) {
+    if (SegmentUtils::isSpanning(&segment, fromChainMicros, toChainMicros)) {
+      result.emplace_back(segment);
     }
   }
   return result;

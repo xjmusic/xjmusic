@@ -9,7 +9,7 @@ using namespace XJ;
 
 TEST(StringUtilsTest, Split) {
   const std::string s = "\n  one,     two,\nthree";
-  const char delimiter = ',';
+  constexpr char delimiter = ',';
   const std::vector<std::string> result = StringUtils::split(s, delimiter);
 
   ASSERT_EQ(3, result.size());
