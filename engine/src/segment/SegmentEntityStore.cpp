@@ -72,15 +72,15 @@ SEGMENT_STORE_CORE_METHODS(SegmentMessage, SegmentMessages, segmentMessages)
 SEGMENT_STORE_CORE_METHODS(SegmentMeta, SegmentMetas, segmentMetas)
 
 
-Chain *SegmentEntityStore::put(const Chain &c) {
-  const auto cc = new Chain(c);
+Chain *SegmentEntityStore::put(const Chain &chain) {
+  const auto cc = new Chain(chain);
   this->chain = *cc;
   return cc;
 }
 
-Segment *SegmentEntityStore::put(const Segment &s) {
-  const auto sc = new Segment(s);
-  this->segments[s.id] = *sc;
+Segment *SegmentEntityStore::put(const Segment &segment) {
+  const auto sc = new Segment(segment);
+  this->segments[segment.id] = *sc;
   return sc;
 }
 

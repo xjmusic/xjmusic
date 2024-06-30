@@ -1,6 +1,5 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-#include <set>
 #include "xjmusic/meme/ParseAnti.h"
 
 using namespace XJ;

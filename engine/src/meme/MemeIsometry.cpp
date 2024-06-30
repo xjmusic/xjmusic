@@ -1,7 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
 #include <sstream>
-#include <unordered_set>
 
 #include "xjmusic/meme/MemeIsometry.h"
 

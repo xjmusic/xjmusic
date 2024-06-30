@@ -100,10 +100,10 @@ namespace XJ {
 
     /**
      * Deserialize a ContentEntityStore object from a JSON file
-     * @param file  The JSON file to deserialize
+     * @param input  The JSON file to deserialize
      * @return      The deserialized ContentEntityStore object
      */
-    explicit ContentEntityStore(std::ifstream &file);
+    explicit ContentEntityStore(std::ifstream &input);
 
     /**
      * Deserialize a ContentEntityStore object from a JSON string

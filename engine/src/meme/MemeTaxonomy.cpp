@@ -2,7 +2,6 @@
 
 #include <sstream>
 #include <regex>
-#include <unordered_set>
 #include <set>
 
 #include <spdlog/spdlog.h>

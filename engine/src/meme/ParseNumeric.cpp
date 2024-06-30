@@ -1,6 +1,5 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-#include <set>
 #include "xjmusic/meme/ParseNumeric.h"
 
 using namespace XJ;
