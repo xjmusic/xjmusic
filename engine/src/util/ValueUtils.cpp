@@ -73,7 +73,7 @@ float ValueUtils::limitDecimalPrecision(const float value) {
 
 
 std::string ValueUtils::k(const int value) {
-  return std::to_string(static_cast<int>(std::floor((float) value / 1000))) + K;
+  return std::to_string(static_cast<int>(std::floor(static_cast<float>(value) / 1000))) + K;
 }
 
 

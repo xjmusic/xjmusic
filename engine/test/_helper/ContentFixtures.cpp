@@ -1171,7 +1171,7 @@ void ContentFixtures::generatedFixture(ContentEntityStore *store, int N) {
   std::vector<std::string>
       majorMemeNames = listOfUniqueRandom(N, LoremIpsum::COLORS);
   std::vector<std::string>
-      minorMemeNames = listOfUniqueRandom(static_cast<long>((double) (N >> 1)), LoremIpsum::VARIANTS);
+      minorMemeNames = listOfUniqueRandom(static_cast<long>(static_cast<double>(N >> 1)), LoremIpsum::VARIANTS);
   std::vector<std::string>
       percussiveNames = listOfUniqueRandom(N, LoremIpsum::PERCUSSIVE_NAMES);
 
