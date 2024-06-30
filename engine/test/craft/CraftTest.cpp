@@ -45,8 +45,8 @@ protected:
                                                                  "C", 120.0f));
     const Template *template1 = sourceMaterial->put(ContentFixtures::buildTemplate(project1, "Test Template 1", "test1"));
     // Chain "Test Print #1" is fabricating segments
-    const Chain *chain1 = segmentEntityStore->put(SegmentFixtures::buildChain(project1, "Test Print #1", Chain::Type::Production,
-                                                                        Chain::State::Fabricate, template1));
+    const Chain *chain1 = segmentEntityStore->put(SegmentFixtures::buildChain("Test Print #1", Chain::Type::Production, Chain::State::Fabricate,
+                                                                              template1));
 
     segment0 = segmentEntityStore->put(SegmentFixtures::buildSegment(chain1, Segment::Type::Initial, 2, 128, Segment::State::Crafted, "D major",
                                                                      64, 0.73f, 120.0f, "chains-1-segments-9f7s89d8a7892", true));

@@ -36,8 +36,7 @@ protected:
 
     // Chain "Test Print #1" has 5 total segments
     Chain *chain1 = store->put(
-        SegmentFixtures::buildChain(&fake.project1, "Test Print #1", Chain::Type::Production, Chain::State::Fabricate,
-                                    &fake.template1));
+        SegmentFixtures::buildChain("Test Print #1", Chain::Type::Production, Chain::State::Fabricate, &fake.template1));
     segment0 = constructSegmentAndChoices(chain1, Segment::Type::Continue, 10, 4, &fake.program4,
                                                      &fake.program4_sequence1_binding0, &fake.program15,
                                                      &fake.program15_sequence1_binding0);

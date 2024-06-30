@@ -65,7 +65,6 @@ NoteRange NotePicker::getTargetRange()  {
 Note NotePicker::removePicked(const Note picked)  {
   const auto it = voicingNotes.find(picked);
   if (it != voicingNotes.end()) {
-    Note pickedNote = *it;
     voicingNotes.erase(it);
   }
   return picked;

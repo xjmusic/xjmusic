@@ -13,6 +13,7 @@ using namespace XJ;
 /**
  Constructor from taxonomy and memes
 
+ @param taxonomy taxonomy
  @param from from which to create stack
  */
 MemeStack::MemeStack(MemeTaxonomy taxonomy, const std::set<std::string> &from) {

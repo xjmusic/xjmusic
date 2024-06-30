@@ -50,7 +50,6 @@ protected:
 
     // Chain "Test Print #1" is fabricating segments
     chain1 = store->put(SegmentFixtures::buildChain(
-        &fake->project1,
         &fake->template1,
         "Test Print #1",
         Chain::Type::Production,

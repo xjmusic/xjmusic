@@ -28,25 +28,22 @@ Chain SegmentFixtures::buildChain(
 }
 
 Chain SegmentFixtures::buildChain(
-    const Project *project,
     const std::string &name,
     const Chain::Type type,
     const Chain::State state,
     const Template *tmpl) {
-  return buildChain(project, name, type, state, tmpl, StringUtils::toShipKey(name));
+  return buildChain(name, type, state, tmpl, StringUtils::toShipKey(name));
 }
 
 Chain SegmentFixtures::buildChain(
-    const Project *project,
     const Template *tmpl,
     const std::string &name,
     const Chain::Type type,
     const Chain::State state) {
-  return buildChain(project, name, type, state, tmpl, StringUtils::toShipKey(name));
+  return buildChain(name, type, state, tmpl, StringUtils::toShipKey(name));
 }
 
 Chain SegmentFixtures::buildChain(
-    const Project *project,
     std::string name,
     const Chain::Type type,
     const Chain::State state,

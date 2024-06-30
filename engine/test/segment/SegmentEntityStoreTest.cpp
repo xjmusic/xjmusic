@@ -32,7 +32,6 @@ protected:
     const Project fakeProject = ContentFixtures::buildProject("fake");
     const auto tmpl = ContentFixtures::buildTemplate(&fakeProject, "Test");
     fakeChain = SegmentFixtures::buildChain(
-        &fakeProject,
         "Print #2",
         Chain::Type::Production,
         Chain::State::Fabricate,
@@ -42,7 +41,6 @@ protected:
     template1 = ContentFixtures::buildTemplate(&project1, "Test Template 1", "test1");
 
     chain3 = subject->put(SegmentFixtures::buildChain(
-        &project1,
         &template1,
         "Test Print #1",
         Chain::Type::Production,
@@ -209,7 +207,6 @@ TEST_F(SegmentEntityStoreTest, CreateAll_ReadAll) {
   auto project1 = ContentFixtures::buildProject("fish");
   auto tmpl = ContentFixtures::buildTemplate(&project1, "fishy");
   auto chain3 = subject->put(SegmentFixtures::buildChain(
-      &project1,
       "Test Print #3",
       Chain::Type::Production,
       Chain::State::Fabricate,
@@ -350,8 +347,8 @@ TEST_F(SegmentEntityStoreTest, ReadAllSegments) {
  */
 TEST_F(SegmentEntityStoreTest, ReadAll_hasNoLimit) {
   const Chain *chain5 = subject->put(
-      SegmentFixtures::buildChain(&project1, "Test Print #1", Chain::Type::Production, Chain::State::Fabricate,
-                                  &template1, "barnacles"));
+      SegmentFixtures::buildChain("Test Print #1", Chain::Type::Production, Chain::State::Fabricate, &template1,
+                                  "barnacles"));
   for (int i = 0; i < 20; i++)
     subject->put(SegmentFixtures::buildSegment(
         chain5,

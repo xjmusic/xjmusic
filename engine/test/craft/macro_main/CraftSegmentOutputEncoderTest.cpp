@@ -45,7 +45,6 @@ protected:
 
     // Chain "Print #2" has 1 initial planned segment
     const auto chain2 = store->put(SegmentFixtures::buildChain(
-        &fake->project1,
         "Print #2",
         Chain::Type::Production,
         Chain::State::Fabricate,

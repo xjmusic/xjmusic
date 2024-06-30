@@ -26,7 +26,7 @@ protected:
   void SetUp() override {
     project = ContentFixtures::buildProject("Test");
     tmpl = ContentFixtures::buildTemplate(&project, "Test");
-    chain = SegmentFixtures::buildChain(&project, "Test", Chain::Type::Production, Chain::State::Fabricate, &tmpl);
+    chain = SegmentFixtures::buildChain("Test", Chain::Type::Production, Chain::State::Fabricate, &tmpl);
     seg0 = SegmentFixtures::buildSegment(
         &chain,
         Segment::Type::Initial,

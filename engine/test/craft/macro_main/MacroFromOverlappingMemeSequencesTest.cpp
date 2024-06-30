@@ -105,7 +105,7 @@ protected:
     sourceMaterial->put(templateBinding1);
 
     // Chain "Test Print #1" has 5 total segments
-    const auto chain1 = store->put(SegmentFixtures::buildChain(&project1, "Test Print #1", Chain::Type::Production, Chain::State::Fabricate, &template1, ""));
+    const auto chain1 = store->put(SegmentFixtures::buildChain("Test Print #1", Chain::Type::Production, Chain::State::Fabricate, &template1, ""));
     auto segment1 = store->put(SegmentFixtures::buildSegment(
         chain1,
         0,
