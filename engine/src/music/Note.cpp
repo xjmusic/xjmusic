@@ -4,6 +4,7 @@
 
 #include "xjmusic/music/Note.h"
 #include "xjmusic/music/Octave.h"
+#include "xjmusic/music/Step.h"
 
 using namespace XJ;
 
@@ -54,8 +55,8 @@ Note::Note(const PitchClass pitchClass, const int octave) : pitchClass(pitchClas
 
 Note Note::of(const std::string &name) {
   return name.empty()
-         ? Note::atonal()
-         : Note(name);
+             ? Note::atonal()
+             : Note(name);
 }
 
 
@@ -71,8 +72,8 @@ Note Note::atonal() {
 
 std::optional<Note> Note::ifValid(const std::string &name) {
   return isValid(name)
-         ? std::optional<Note>(Note(name))
-         : std::nullopt;
+             ? std::optional<Note>(Note(name))
+             : std::nullopt;
 }
 
 
@@ -172,7 +173,7 @@ Note Note::nextDown(const PitchClass target) {
 }
 
 
-Note Note::next(const PitchClass target, const int delta) {
+Note Note::next(const PitchClass target, const int delta) const {
   if (isAtonal() || pitchClass == target)
     return *this;
   Note n = *this;

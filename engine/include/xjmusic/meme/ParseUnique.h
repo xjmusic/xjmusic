@@ -26,7 +26,7 @@ namespace XJ {
     explicit ParseUnique(const std::string &raw);
     static ParseUnique fromString(const std::string &raw);
     [[nodiscard]] bool isViolatedBy(const ParseUnique &target) const;
-    bool isAllowed(const std::vector<ParseUnique> &memes);
+    bool isAllowed(const std::vector<ParseUnique> &memes) const;
   };
 
 }//namespace XJ

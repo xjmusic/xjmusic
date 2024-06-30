@@ -8,7 +8,6 @@
 #include <string>
 
 #include "PitchClass.h"
-#include "Step.h"
 
 namespace XJ {
 
@@ -229,7 +228,7 @@ namespace XJ {
      * @param delta  direction (1 or -1) in which to seek
      * @return first note with given pitch class from this
      */
-    Note next(PitchClass target, int delta);
+    Note next(PitchClass target, int delta) const;
   };
 
 }// namespace XJ

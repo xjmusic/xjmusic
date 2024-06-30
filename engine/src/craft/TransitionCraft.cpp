@@ -94,7 +94,7 @@ void TransitionCraft::craftTransition(double tempo, const Instrument* instrument
   }
 }
 
-std::set<const InstrumentAudio *> TransitionCraft::selectAudiosForInstrument(const Instrument *instrument, std::set<std::string> names) {
+std::set<const InstrumentAudio *> TransitionCraft::selectAudiosForInstrument(const Instrument *instrument, std::set<std::string> names) const {
   std::set<const SegmentChoiceArrangementPick*> previous;
   for (auto candidate : fabricator->getRetrospective()->getPreviousPicksForInstrument(instrument->id)) {
     std::string seek = StringUtils::toMeme(candidate->event);

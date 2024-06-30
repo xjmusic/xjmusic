@@ -30,7 +30,7 @@ bool ParseAnti::isViolatedBy(const ParseAnti &target) const {
          (!valid && target.valid && body == target.body);
 }
 
-bool ParseAnti::isAllowed(const std::vector<ParseAnti> &memes) {
+bool ParseAnti::isAllowed(const std::vector<ParseAnti> &memes) const {
   return std::all_of(memes.begin(), memes.end(), [this](const ParseAnti &meme) {
     return !isViolatedBy(meme);
   });

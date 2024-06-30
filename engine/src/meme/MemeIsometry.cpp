@@ -60,7 +60,7 @@ void MemeIsometry::add(const SegmentMeme &meme) {
   add(meme.name);
 }
 
-bool MemeIsometry::isAllowed(const std::set<std::string> &memes) {
+bool MemeIsometry::isAllowed(const std::set<std::string> &memes) const {
   return stack.isAllowed(memes);
 }
 

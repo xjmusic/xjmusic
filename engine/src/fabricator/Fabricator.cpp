@@ -8,9 +8,9 @@
 #include "xjmusic/fabricator/Fabricator.h"
 #include "xjmusic/fabricator/MarbleBag.h"
 #include "xjmusic/fabricator/SegmentUtils.h"
+#include "xjmusic/music/Step.h"
 #include "xjmusic/util/CsvUtils.h"
-
-#include <xjmusic/util/ValueUtils.h>
+#include "xjmusic/util/ValueUtils.h"
 
 using namespace XJ;
 

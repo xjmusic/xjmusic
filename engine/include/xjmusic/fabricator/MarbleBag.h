@@ -91,7 +91,7 @@ namespace XJ {
      *
      * @return {number}
      */
-    int size();
+    int size() const;
 
     /**
      * Display as string

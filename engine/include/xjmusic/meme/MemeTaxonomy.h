@@ -161,7 +161,7 @@ namespace XJ {
      * Convert the taxonomy to a list of maps like [{name: "CATEGORY1", memes: ["MEME1", "MEME2"]}, {name: "CATEGORY2", memes: ["MEME3", "MEME4"]}]
      * @return  The list of maps
      */
-    std::set<MapStringToOneOrManyString> toList();
+    std::set<MapStringToOneOrManyString> toList() const;
 
     /**
      * Get the categories

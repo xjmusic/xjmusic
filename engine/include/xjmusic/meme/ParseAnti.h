@@ -24,7 +24,7 @@ namespace XJ {
     explicit ParseAnti(const std::string& raw);
     static ParseAnti fromString(const std::string& raw);
     [[nodiscard]] bool isViolatedBy(const ParseAnti &target) const;
-    bool isAllowed(const std::vector<ParseAnti> &memes);
+    bool isAllowed(const std::vector<ParseAnti> &memes) const;
   };
 }
 

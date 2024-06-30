@@ -25,7 +25,7 @@ namespace XJ {
     explicit ParseNumeric(const std::string &raw);
     static ParseNumeric fromString(const std::string &raw);
     [[nodiscard]] bool isViolatedBy(const ParseNumeric &target) const;
-    bool isAllowed(const std::vector<ParseNumeric> &memes);
+    bool isAllowed(const std::vector<ParseNumeric> &memes) const;
   };
 
 

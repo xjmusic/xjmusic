@@ -257,7 +257,7 @@ int ConfigSingleValue::getInt() const {
 }
 
 
-bool ConfigSingleValue::getBool() {
+bool ConfigSingleValue::getBool() const {
   if (std::holds_alternative<bool>(value)) {
     return std::get<bool>(value);
   }

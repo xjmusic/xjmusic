@@ -22,7 +22,7 @@ void BackgroundCraft::doWork() {
   craftBackground(instrument.value());
 }
 
-void BackgroundCraft::craftBackground(const Instrument *instrument) {
+void BackgroundCraft::craftBackground(const Instrument *instrument) const {
   auto choice = SegmentChoice();
   choice.id = EntityUtils::computeUniqueId();
   choice.segmentId = fabricator->getSegment()->id;

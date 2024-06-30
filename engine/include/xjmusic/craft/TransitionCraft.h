@@ -56,7 +56,7 @@ namespace XJ {
      @return instrument audios
      */
     std::set<const InstrumentAudio *>
-    selectAudiosForInstrument(const Instrument *instrument, std::set<std::string> names);
+    selectAudiosForInstrument(const Instrument *instrument, std::set<std::string> names) const;
 
   };
 

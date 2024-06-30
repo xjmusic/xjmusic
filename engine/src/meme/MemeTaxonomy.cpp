@@ -163,7 +163,7 @@ std::string MemeTaxonomy::toString() const {
 }
 
 
-std::set<MapStringToOneOrManyString> MemeTaxonomy::toList() {
+std::set<MapStringToOneOrManyString> MemeTaxonomy::toList() const {
   std::set<MapStringToOneOrManyString> data;
   for (const auto &category: categories) {
     auto map = category.toMap();

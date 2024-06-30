@@ -14,7 +14,7 @@ RankedNote::RankedNote(
 }
 
 
-Note RankedNote::getTones() {
+Note RankedNote::getTones() const {
   return note;
 }
 

@@ -72,7 +72,7 @@ Note NotePicker::removePicked(const Note picked)  {
 }
 
 
-Note NotePicker::seekInversion(const Note source, NoteRange range, std::set<Note> options) {
+Note NotePicker::seekInversion(const Note source, NoteRange range, std::set<Note> options) const {
   if (!seekInversions) return source;
 
   if (range.high.has_value() && range.high.value() < source) {

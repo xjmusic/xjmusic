@@ -59,7 +59,7 @@ namespace XJ {
      * Get a bool value from a ConfigSingleValue
      * @return           The bool value
      */
-    bool getBool();
+    bool getBool() const;
   };
 
   /**

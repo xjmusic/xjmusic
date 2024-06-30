@@ -72,7 +72,7 @@ void MarbleBag::add(const int phase, const UUID &id, const int qty) {
  *
  * @return {number}
  */
-int MarbleBag::size() {
+int MarbleBag::size() const {
   int total = 0;
   for (const auto &phase: marbles) {
     for (const auto &marble: phase.second) {

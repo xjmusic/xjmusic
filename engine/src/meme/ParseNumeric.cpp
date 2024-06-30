@@ -42,7 +42,7 @@ bool ParseNumeric::isViolatedBy(const ParseNumeric &target) const {
   return valid && target.valid && body == target.body && prefix != target.prefix;
 }
 
-bool ParseNumeric::isAllowed(const std::vector<ParseNumeric> &memes) {
+bool ParseNumeric::isAllowed(const std::vector<ParseNumeric> &memes) const {
   return std::all_of(memes.begin(), memes.end(), [this](const ParseNumeric &meme) {
     return !isViolatedBy(meme);
   });

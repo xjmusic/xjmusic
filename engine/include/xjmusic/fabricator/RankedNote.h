@@ -31,7 +31,7 @@ namespace XJ {
      * Get the tones of this note
      * @return  the tones
      */
-    Note getTones();
+    Note getTones() const;
 
     /**
      * Get the delta of this note

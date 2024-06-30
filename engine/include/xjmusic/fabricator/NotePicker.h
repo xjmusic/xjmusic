@@ -65,7 +65,7 @@ namespace XJ {
      @param range   towards which seeking will optimize
      @param options from which to select better notes
      */
-    Note seekInversion(Note source, NoteRange range, std::set<Note> options);
+    Note seekInversion(Note source, NoteRange range, std::set<Note> options) const;
 
     /**
      Pick a random instrument note from the available notes in the voicing
