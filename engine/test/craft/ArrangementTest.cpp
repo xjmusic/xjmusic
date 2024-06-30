@@ -237,7 +237,7 @@ protected:
             throw FabricationException("Failed to locate event type " + Instrument::toString(sbType) + " position " +
                                        std::to_string(sbPosition));
           }
-          StickyBun bun = StickyBun(eventIt->id, std::vector<int>{sbSeed});
+          auto bun = StickyBun(eventIt->id, std::vector{sbSeed});
           stickyBuns.emplace_back(bun);
         }
       }

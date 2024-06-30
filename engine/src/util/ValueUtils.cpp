@@ -79,7 +79,7 @@ std::string ValueUtils::k(const int value) {
 
 std::string ValueUtils::randomFrom(std::vector<std::string> from) {
   if (from.empty()) return "";
-  std::uniform_int_distribution<> distrib(0, static_cast<int>(from.size()) - 1);
+  std::uniform_int_distribution distrib(0, static_cast<int>(from.size()) - 1);
   const int randomIndex = distrib(gen);
   return from[randomIndex];
 }
@@ -160,7 +160,7 @@ std::vector<UUID> ValueUtils::withIdsRemoved(std::vector<UUID> fromIds, const in
   std::vector<UUID> ids = std::move(fromIds);
   for (int i = 0; i < count; i++) {
     if (!ids.empty()) {
-      std::uniform_int_distribution<> distrib(0, static_cast<int>(ids.size()) - 1);
+      std::uniform_int_distribution distrib(0, static_cast<int>(ids.size()) - 1);
       const int randomIndex = distrib(gen);
       ids.erase(ids.begin() + randomIndex);
     }
@@ -170,7 +170,7 @@ std::vector<UUID> ValueUtils::withIdsRemoved(std::vector<UUID> fromIds, const in
 
 
 std::string ValueUtils::emptyZero(const int value) {
-  return (0 != value) ? std::to_string(value) : "";
+  return 0 != value ? std::to_string(value) : "";
 }
 
 std::vector<std::string> ValueUtils::last(const int num, std::vector<std::string> list) {

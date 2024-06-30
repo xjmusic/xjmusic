@@ -7,14 +7,14 @@ using namespace XJ;
 
 NotePicker::NotePicker(const NoteRange& targetRange, const std::set<Note>& voicingNotes, const bool seekInversions)  {
   this->targetRange = NoteRange::copyOf(targetRange);
-  this->voicingNotes = std::set<Note>(voicingNotes);
+  this->voicingNotes = std::set(voicingNotes);
   this->voicingRange = NoteRange::ofNotes(voicingNotes);
   this->seekInversions = seekInversions;
 }
 
 NotePicker::NotePicker(const NoteRange& targetRange, const std::vector<Note>& voicingNotes, const bool seekInversions)  {
   this->targetRange = NoteRange::copyOf(targetRange);
-  this->voicingNotes = std::set<Note>(voicingNotes.begin(), voicingNotes.end());
+  this->voicingNotes = std::set(voicingNotes.begin(), voicingNotes.end());
   this->voicingRange = NoteRange::ofNotes(voicingNotes);
   this->seekInversions = seekInversions;
 }
@@ -106,7 +106,7 @@ Note NotePicker::seekInversion(const Note source, const NoteRange &range, const 
 
 std::optional<Note> NotePicker::pickRandom(std::set<Note> fromNotes) {
   if (fromNotes.empty()) return std::nullopt;
-  std::vector<Note> fromNotesVec(fromNotes.begin(), fromNotes.end());
+  std::vector fromNotesVec(fromNotes.begin(), fromNotes.end());
   return {fromNotesVec[MarbleBag::quickPick(fromNotes.size())]};
 }
 

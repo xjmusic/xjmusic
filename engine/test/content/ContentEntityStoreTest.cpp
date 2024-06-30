@@ -180,7 +180,7 @@ TEST_F(ContentStoreTest, FromJsonString) {
   // Load the JSON file
   std::ifstream file(CONTENT_STORE_TEST_JSON_PATH);
   ASSERT_TRUE(file.is_open());
-  std::string jsonString((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+  std::string jsonString((std::istreambuf_iterator(file)), std::istreambuf_iterator<char>());
 
   // Deserialize a content store from a JSON file stream
   auto *subject = new ContentEntityStore(jsonString);

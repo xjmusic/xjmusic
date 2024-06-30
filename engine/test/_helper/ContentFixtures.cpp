@@ -41,14 +41,14 @@ float ContentFixtures::random(const float A, const float B) {
 std::string ContentFixtures::random(std::vector<std::string> array) {
   std::random_device rd;
   std::mt19937 gen(rd());
-  std::uniform_int_distribution<> dis(0, static_cast<int>(array.size()) - 1);
+  std::uniform_int_distribution dis(0, static_cast<int>(array.size()) - 1);
   return array[dis(gen)];
 }
 
 int ContentFixtures::random(const std::vector<int> &array) {
   std::random_device rd;
   std::mt19937 gen(rd());
-  std::uniform_int_distribution<> dis(0, static_cast<int>(array.size()) - 1);
+  std::uniform_int_distribution dis(0, static_cast<int>(array.size()) - 1);
   return array[dis(gen)];
 }
 
@@ -1319,7 +1319,7 @@ void ContentFixtures::generatedFixture(ContentEntityStore *store, int N) {
   }
 
   // Generate N total Beat-type Sequences, each having N voices, and N*2 patterns comprised of N*8 events
-  std::vector<ProgramVoice> voices = std::vector<ProgramVoice>(N);
+  auto voices = std::vector<ProgramVoice>(N);
   std::unordered_map<std::string, ProgramVoiceTrack> trackMap;
   for (int i = 0; i < N; i++) {
     std::string majorMemeName = majorMemeNames[i];

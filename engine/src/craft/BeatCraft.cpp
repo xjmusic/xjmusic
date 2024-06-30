@@ -30,13 +30,13 @@ void BeatCraft::doWork() {
         return "unknown";
       });
 
-  std::function<bool(const SegmentChoice *)> choiceFilter = [](const SegmentChoice *choice) {
+  std::function choiceFilter = [](const SegmentChoice *choice) {
     return Program::Type::Beat == choice->programType;
   };
 
   auto programVoices = fabricator->getSourceMaterial()->getVoicesOfProgram(program.value());
   auto voiceNames = ProgramVoice::getNames(programVoices);
-  auto voiceNameVector = std::vector<std::string>(voiceNames.begin(), voiceNames.end());
+  auto voiceNameVector = std::vector(voiceNames.begin(), voiceNames.end());
 
   precomputeDeltas(
       choiceFilter,

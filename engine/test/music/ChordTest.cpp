@@ -163,7 +163,7 @@ TEST(Music_Chord, isAcceptable_eharmonicEquivalent) {
 
 
 TEST(Music_Chord, compareTo) {
-  auto source = std::vector<Chord>{
+  auto source = std::vector{
       Chord::of("Db minor"),
       Chord::of("C major"),
       Chord::of("C"),

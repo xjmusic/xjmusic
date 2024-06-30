@@ -55,7 +55,7 @@ std::size_t ChordForm::hashCode() {
   for (const auto &synonym: synonyms) {
     h2 ^= std::hash<std::string>{}(synonym.match) + 0x9e3779b9 + (h2 << 6) + (h2 >> 2);
   }
-  return h1 ^ (h2 << 1);
+  return h1 ^ h2 << 1;
 }
 
 

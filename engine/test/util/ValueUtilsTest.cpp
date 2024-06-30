@@ -112,9 +112,9 @@ TEST(ValueUtils, gcd) {
 }
 
 TEST(ValueUtils, factors) {
-  ASSERT_ARRAY_EQ(std::vector<int>{2, 3, 4}, ValueUtils::factors(12, std::vector<int>{2, 3, 4, 5, 7}));
-  ASSERT_ARRAY_EQ(std::vector<int>{2, 3, 4, 5}, ValueUtils::factors(60, std::vector<int>{2, 3, 4, 5, 7}));
-  ASSERT_ARRAY_EQ(std::vector<int>{2, 3, 5, 7}, ValueUtils::factors(210, std::vector<int>{2, 3, 4, 5, 7}));
+  ASSERT_ARRAY_EQ(std::vector{2, 3, 4}, ValueUtils::factors(12, std::vector{2, 3, 4, 5, 7}));
+  ASSERT_ARRAY_EQ(std::vector{2, 3, 4, 5}, ValueUtils::factors(60, std::vector{2, 3, 4, 5, 7}));
+  ASSERT_ARRAY_EQ(std::vector{2, 3, 5, 7}, ValueUtils::factors(210, std::vector{2, 3, 4, 5, 7}));
 }
 
 TEST(ValueUtils, div) {

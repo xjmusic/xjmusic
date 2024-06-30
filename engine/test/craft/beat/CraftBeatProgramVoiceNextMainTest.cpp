@@ -202,7 +202,7 @@ TEST_F(CraftBeatProgramVoiceNextMainTest, CraftBeatVoiceNextMain) {
 
   craftFactory->beat(fabricator).doWork();
 
-  std::set<const SegmentChoice*> choices = {fabricator->getCurrentBeatChoice().value()};
+  std::set choices = {fabricator->getCurrentBeatChoice().value()};
   ASSERT_FALSE(fabricator->getArrangements(choices).empty());
 
 

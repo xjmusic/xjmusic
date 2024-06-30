@@ -4,7 +4,7 @@
 
 using namespace XJ;
 
-static std::set<Instrument::Type> DETAIL_INSTRUMENT_TYPES = {
+static std::set DETAIL_INSTRUMENT_TYPES = {
     Instrument::Type::Bass,
     Instrument::Type::Pad,
     Instrument::Type::Sticky,

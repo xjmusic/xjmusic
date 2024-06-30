@@ -126,7 +126,7 @@ std::map<Instrument::Type, float> parseInstrumentTypeFloatMap(ConfigObjectValue 
 }
 
 
-std::vector<Instrument::Type> parseInstrumentTypeList(ConfigListValue listValue) {
+std::vector<Instrument::Type> parseInstrumentTypeList(const ConfigListValue &listValue) {
   std::vector<Instrument::Type> result;
   result.reserve(listValue.size());
   for (const auto &value: listValue.asListOfStrings()) {
@@ -224,7 +224,7 @@ std::string TemplateConfig::formatInstrumentTypeList(const std::vector<Instrumen
 
 
 std::string TemplateConfig::formatInstrumentTypeList(const std::set<Instrument::Type> &input) {
-  std::vector<Instrument::Type> sorted(input.begin(), input.end());
+  std::vector sorted(input.begin(), input.end());
   std::sort(sorted.begin(), sorted.end());
   return formatInstrumentTypeList(sorted);
 }

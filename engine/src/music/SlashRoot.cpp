@@ -81,5 +81,5 @@ std::string SlashRoot::display(const Accidental withOptional) const {
 
 
 bool SlashRoot::operator==(const SlashRoot &other) const {
-  return ((!post.empty() && !other.post.empty() && post == other.post) || pitchClass == other.pitchClass);
+  return (!post.empty() && !other.post.empty() && post == other.post) || pitchClass == other.pitchClass;
 }

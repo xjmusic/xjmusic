@@ -42,7 +42,7 @@ TEST_F(MarbleBagTest, add_pick) {
   bag.add(1, zebraId, 5);
   spdlog::info("will pick 100 marbles from {}", bag.toString());
   auto result = MarbleBag();
-  auto allowed = std::set<UUID>{frogId, bearId, zebraId};
+  auto allowed = std::set{frogId, bearId, zebraId};
   for (auto i = 0; i < 100; i++) {
     auto pick = bag.pick();
     ASSERT_FALSE(allowed.find(pick) == allowed.end());
@@ -67,7 +67,7 @@ TEST_F(MarbleBagTest, pick_phaseLowerPreferred) {
   bag.add(1, bearId, 30);
   bag.add(2, zebraId, 5);
   spdlog::info("will pick 100 marbles from {}", bag.toString());
-  auto allowed = std::set<UUID>{frogId, bearId};
+  auto allowed = std::set{frogId, bearId};
   for (auto i = 0; i < 100; i++) {
     auto pick = bag.pick();
     ASSERT_FALSE(allowed.find(pick) == allowed.end());
@@ -80,7 +80,7 @@ TEST_F(MarbleBagTest, pick_skipEmptyPhases) {
   bag.add(5, bearId, 30);
   bag.add(6, zebraId, 5);
   spdlog::info("will pick 100 marbles from {}", bag.toString());
-  auto allowed = std::set<UUID>{frogId, bearId};
+  auto allowed = std::set{frogId, bearId};
   for (auto i = 0; i < 100; i++) {
     auto pick = bag.pick();
     ASSERT_FALSE(allowed.find(pick) == allowed.end());

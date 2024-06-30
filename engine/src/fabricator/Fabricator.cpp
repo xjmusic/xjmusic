@@ -726,7 +726,7 @@ Segment *Fabricator::getSegment() {
 
 std::vector<SegmentChord *> Fabricator::getSegmentChords() {
   auto chords = store->readAllSegmentChords(segmentId);
-  std::vector<SegmentChord *> sortedChords = std::vector<SegmentChord *>(chords.begin(), chords.end());
+  auto sortedChords = std::vector(chords.begin(), chords.end());
   std::sort(sortedChords.begin(), sortedChords.end(), [](const SegmentChord *a, const SegmentChord *b) {
     return a->position < b->position;
   });
@@ -1149,7 +1149,7 @@ bool Fabricator::isValidChoiceAndMemesHaveBeenAdded(const SegmentChoice &choice,
   if (!force && !memeStack.isAllowed(names)) {
     addMessage(SegmentMessage::Type::Error,
                "Refused to add Choice[" + SegmentUtils::describe(choice) + "] because adding Memes[" +
-                   CsvUtils::join(std::vector<std::string>(names.begin(), names.end())) + "] to MemeStack[" +
+                   CsvUtils::join(std::vector(names.begin(), names.end())) + "] to MemeStack[" +
                    memeStack.getConstellation() + "] would result in an invalid meme stack theorem!");
     return false;
   }

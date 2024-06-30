@@ -89,7 +89,7 @@ TEST(Music_Note, OfPitchClassTest) {
 }
 
 TEST(Music_Note, compareTo) {
-  auto notes = std::vector<Note>{
+  auto notes = std::vector{
       Note::of("C1"),
       Note::of("F#1"),
       Note::of("E1"),

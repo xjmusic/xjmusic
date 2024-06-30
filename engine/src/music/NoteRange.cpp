@@ -38,7 +38,7 @@ NoteRange NoteRange::copyOf(const NoteRange &range) {
 
 
 NoteRange NoteRange::ofNotes(std::vector<Note> notes) {
-  const std::set<Note> properNotes(notes.begin(), notes.end());
+  const std::set properNotes(notes.begin(), notes.end());
   return ofNotes(properNotes);
 }
 

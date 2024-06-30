@@ -41,7 +41,7 @@ TEST(MemeIsometryTest, Of_List) {
   auto subject = MemeIsometry::of(MemeTaxonomy::empty(), {"Smooth", "Catlike"});
 
   std::set<std::string> sources = subject.getSources();
-  std::vector<std::string> sourcesVector(sources.begin(), sources.end());
+  std::vector sourcesVector(sources.begin(), sources.end());
   std::sort(sourcesVector.begin(), sourcesVector.end());
 
   const std::vector<std::string> expected = {"CATLIKE", "SMOOTH"};
@@ -58,7 +58,7 @@ TEST(MemeIsometryTest, AddMore) {
   subject.add(meme);
 
   std::set<std::string> sources = subject.getSources();
-  std::vector<std::string> sourcesVector(sources.begin(), sources.end());
+  std::vector sourcesVector(sources.begin(), sources.end());
   std::sort(sourcesVector.begin(), sourcesVector.end());
 
   const std::vector<std::string> expected = {"CATLIKE", "SMOOTH"};
@@ -69,7 +69,7 @@ TEST(MemeIsometryTest, DoNotMutate) {
   auto subject = MemeIsometry::of(MemeTaxonomy::empty(), {"Intensity", "Cool", "Dark"}).getSources();
 
   const std::vector<std::string> expected = {"COOL", "DARK", "INTENSITY"};
-  std::vector<std::string> sourcesVector(subject.begin(), subject.end());
+  std::vector sourcesVector(subject.begin(), subject.end());
   std::sort(sourcesVector.begin(), sourcesVector.end());
 
   ASSERT_EQ(expected, sourcesVector);

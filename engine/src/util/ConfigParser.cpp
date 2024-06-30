@@ -180,7 +180,7 @@ ConfigListValue parseListValue(const std::string &s) {
  * @return       The parsed member
  */
 std::variant<ConfigSingleValue, ConfigObjectValue, ConfigListValue>
-parseValue(const std::basic_string<char, std::char_traits<char>, std::allocator<char>> &value) {
+parseValue(const std::basic_string<char> &value) {
   if (value.front() == '[' && value.back() == ']')
     return parseListValue(value.substr(1, value.size() - 2));
 
@@ -333,7 +333,7 @@ std::string ConfigParser::format(const std::vector<std::string> &values) {
 
 
 std::string ConfigParser::format(const std::set<std::string> &values) {
-  std::vector<std::string> sortedValues(values.begin(), values.end());
+  std::vector sortedValues(values.begin(), values.end());
   std::sort(sortedValues.begin(), sortedValues.end());
   std::vector<std::string> quotedValues;
   quotedValues.reserve(sortedValues.size());
@@ -413,7 +413,7 @@ std::vector<std::string> ConfigListValue::asListOfStrings() const {
   std::vector<std::string> values;
   for (const auto &value: data) {
     if (std::holds_alternative<ConfigSingleValue>(value)) {
-      ConfigSingleValue single = std::get<ConfigSingleValue>(value);
+      auto single = std::get<ConfigSingleValue>(value);
       values.push_back(single.getString());
     }
   }
@@ -425,7 +425,7 @@ std::set<std::string> ConfigListValue::asSetOfStrings() const {
   std::set<std::string> values;
   for (const auto &value: data) {
     if (std::holds_alternative<ConfigSingleValue>(value)) {
-      ConfigSingleValue single = std::get<ConfigSingleValue>(value);
+      auto single = std::get<ConfigSingleValue>(value);
       values.emplace(single.getString());
     }
   }
@@ -438,7 +438,7 @@ ConfigListValue::asListOfMapsOfStrings() {
   std::vector<std::map<std::string, std::variant<std::string, std::vector<std::string>>>> maps;
   for (const auto &value: data) {
     if (std::holds_alternative<ConfigObjectValue>(value)) {
-      ConfigObjectValue object = std::get<ConfigObjectValue>(value);
+      auto object = std::get<ConfigObjectValue>(value);
       maps.emplace_back(object.asMapOfStringsOrListsOfStrings());
     }
   }

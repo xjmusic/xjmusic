@@ -133,7 +133,7 @@ TEST_F(FabricatorTest, GetDistinctChordVoicingTypes) {
   const std::set<Instrument::Type> result = subject->getDistinctChordVoicingTypes();
 
   // Check the result
-  const std::set<Instrument::Type> expected = {Instrument::Type::Bass, Instrument::Type::Sticky, Instrument::Type::Stripe};
+  const std::set expected = {Instrument::Type::Bass, Instrument::Type::Sticky, Instrument::Type::Stripe};
   ASSERT_EQ(expected, result);
 }
 

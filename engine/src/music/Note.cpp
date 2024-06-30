@@ -44,13 +44,13 @@ bool Note::operator>=(const Note &other) const {
 std::string Note::ATONAL = "X";
 
 
-Note::Note() : pitchClass(Atonal), octave(0) {}// Default constructor
+Note::Note() : octave(0), pitchClass(Atonal) {}// Default constructor
 
 
-Note::Note(const std::string &name) : pitchClass(pitchClassOf(name)), octave(octaveOf(name)) {}
+Note::Note(const std::string &name) : octave(octaveOf(name)), pitchClass(pitchClassOf(name)) {}
 
 
-Note::Note(const PitchClass pitchClass, const int octave) : pitchClass(pitchClass), octave(octave) {}
+Note::Note(const PitchClass pitchClass, const int octave) : octave(octave), pitchClass(pitchClass) {}
 
 
 Note Note::of(const std::string &name) {
@@ -72,7 +72,7 @@ Note Note::atonal() {
 
 std::optional<Note> Note::ifValid(const std::string &name) {
   return isValid(name)
-             ? std::optional<Note>(Note(name))
+             ? std::optional(Note(name))
              : std::nullopt;
 }
 

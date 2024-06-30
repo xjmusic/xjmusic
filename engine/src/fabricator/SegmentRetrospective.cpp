@@ -56,7 +56,7 @@ void SegmentRetrospective::load() {
 std::optional<SegmentChoice *>
 SegmentRetrospective::getPreviousChoiceOfType(const Segment *segment, const Program::Type programType) {
   const auto c = entityStore->readChoice(segment->id, programType);
-  return (c.has_value() && programType == c.value()->programType) ? c : std::nullopt;
+  return c.has_value() && programType == c.value()->programType ? c : std::nullopt;
 }
 
 std::set<SegmentChoiceArrangementPick *> SegmentRetrospective::getPicks() {

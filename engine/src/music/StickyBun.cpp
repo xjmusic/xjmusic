@@ -26,8 +26,8 @@ StickyBun::StickyBun(UUID eventId, const int size) : eventId(std::move(eventId))
 }
 
 
-StickyBun::StickyBun(UUID eventId, std::vector<int> values) : eventId(std::move(eventId)),
-                                                              values(std::move(values)) {}
+StickyBun::StickyBun(UUID eventId, std::vector<int> values) : values(std::move(values)),
+                                                              eventId(std::move(eventId)) {}
 
 
 std::string StickyBun::computeMetaKey(const UUID &id) {

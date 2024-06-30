@@ -22,7 +22,7 @@ Accidental XJ::accidentalOf(const std::string &name) {
   const int numFlattish = StringUtils::countMatches(accidentalFlattishIn, normalized);
 
   // sharp/flat has precedent over sharpish/flattish; overall default is sharp
-  return (numFlats > numSharps || numFlats == numSharps && numFlattish > numSharpish) ? Flat : Sharp;
+  return numFlats > numSharps || numFlats == numSharps && numFlattish > numSharpish ? Flat : Sharp;
 }
 
 

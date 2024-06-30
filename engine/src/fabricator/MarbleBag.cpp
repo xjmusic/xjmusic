@@ -142,7 +142,7 @@ std::optional<UUID> MarbleBag::pickPhase(const int phase) {
   if (total == 0)
     return blocks[0].id;
 
-  std::uniform_int_distribution<> distrib(0, total - 1);
+  std::uniform_int_distribution distrib(0, total - 1);
   const int pickIdx = distrib(gen);
 
   for (const Group &block: blocks) {
@@ -166,7 +166,7 @@ int MarbleBag::quickPick(const int total) {
     throw FabricationException("Cannot pick from empty set");
   std::random_device rd;
   std::mt19937 gen(rd());
-  std::uniform_int_distribution<> distrib(0, total - 1);
+  std::uniform_int_distribution distrib(0, total - 1);
   return distrib(gen);
 }
 

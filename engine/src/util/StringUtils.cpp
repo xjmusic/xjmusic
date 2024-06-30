@@ -47,7 +47,7 @@ std::string StringUtils::trim(const std::string &str) {
   if (first == std::string::npos)
     return "";
   const size_t last = str.find_last_not_of(" \n");
-  return str.substr(first, (last - first + 1));
+  return str.substr(first, last - first + 1);
 }
 
 

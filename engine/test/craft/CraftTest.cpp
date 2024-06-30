@@ -312,7 +312,7 @@ TEST_F(CraftTest, SelectGeneralAudioIntensityLayers_ThreeLayers) {
   auto result = subject->selectGeneralAudioIntensityLayers(instrument1);
 
   // Sort the result
-  std::vector<const InstrumentAudio *> resultVector(result.begin(), result.end());
+  std::vector resultVector(result.begin(), result.end());
   std::sort(resultVector.begin(), resultVector.end(), [](const InstrumentAudio *a, const InstrumentAudio *b) {
     return a->intensity < b->intensity;
   });
@@ -334,7 +334,7 @@ TEST_F(CraftTest, SelectGeneralAudioIntensityLayers_ContinueSegment) {
       ContentFixtures::buildInstrument(&library1, Instrument::Type::Percussion, Instrument::Mode::Loop,
                                        Instrument::State::Published, "Test loop audio"));
   instrument1->config = "isAudioSelectionPersistent=true";
-  InstrumentConfig instrumentConfig = InstrumentConfig(instrument1);
+  auto instrumentConfig = InstrumentConfig(instrument1);
   InstrumentAudio *instrument1audio1a = sourceMaterial->put(
       ContentFixtures::buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.2f, "PERC", "X",
                                             1.0f));
