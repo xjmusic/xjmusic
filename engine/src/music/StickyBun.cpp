@@ -51,7 +51,7 @@ std::vector<Note> StickyBun::replaceAtonal(std::vector<Note> source, const std::
 }
 
 
-Note StickyBun::compute(std::vector<Note> voicingNotes, const int index) const {
+Note StickyBun::compute(const std::vector<Note> &voicingNotes, const int index) const {
   const float valueRatio =
       static_cast<float>(values[std::min(index, static_cast<int>(values.size()) - 1)]) /
       static_cast<float>(MAX_VALUE);

@@ -7,14 +7,14 @@
 using namespace XJ;
 
 
-void ASSERT_ARRAY_EQ(std::vector<int> vector1, std::vector<int> vector2) {
+void ASSERT_ARRAY_EQ(const std::vector<int> &vector1, const std::vector<int> &vector2) {
   ASSERT_EQ(vector1.size(), vector2.size());
   for (int i = 0; i < vector1.size(); i++) {
     ASSERT_EQ(vector1[i], vector2[i]);
   }
 }
 
-void ASSERT_ARRAY_EQ(std::vector<std::string> vector1, std::vector<std::string> vector2) {
+void ASSERT_ARRAY_EQ(const std::vector<std::string> &vector1, const std::vector<std::string> &vector2) {
   ASSERT_EQ(vector1.size(), vector2.size());
   for (int i = 0; i < vector1.size(); i++) {
     ASSERT_EQ(vector1[i], vector2[i]);

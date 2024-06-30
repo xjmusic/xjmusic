@@ -127,7 +127,7 @@ namespace XJ {
      * Construct a taxonomy from a list of maps like [{name: "CATEGORY1", memes: ["MEME1", "MEME2"]}, {name: "CATEGORY2", memes: ["MEME3", "MEME4"]}]
      * @param data  The list of maps
      */
-    explicit MemeTaxonomy(std::set<MapStringToOneOrManyString> &data);
+    explicit MemeTaxonomy(const std::set<MapStringToOneOrManyString> &data);
 
     /**
      * Construct an empty taxonomy

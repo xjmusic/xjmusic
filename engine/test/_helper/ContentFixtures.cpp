@@ -45,7 +45,7 @@ std::string ContentFixtures::random(std::vector<std::string> array) {
   return array[dis(gen)];
 }
 
-int ContentFixtures::random(std::vector<int> array) {
+int ContentFixtures::random(const std::vector<int> &array) {
   std::random_device rd;
   std::mt19937 gen(rd());
   std::uniform_int_distribution<> dis(0, static_cast<int>(array.size()) - 1);

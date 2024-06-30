@@ -140,7 +140,7 @@ MemeTaxonomy::MemeTaxonomy(const std::string &raw) : MemeTaxonomy() {
 }
 
 
-MemeTaxonomy::MemeTaxonomy(std::set<MapStringToOneOrManyString> &data) {
+MemeTaxonomy::MemeTaxonomy(const std::set<MapStringToOneOrManyString> &data) {
   categories.clear();
   for (auto &d: data) {
     try {

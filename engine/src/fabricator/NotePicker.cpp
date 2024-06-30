@@ -35,7 +35,7 @@ Note NotePicker::pick(const Note eventNote) {
     }
 
     // Find the minimum delta
-    const auto minElementIter = std::min_element(rankedNotes.begin(), rankedNotes.end(), [](RankedNote &a, RankedNote &b) {
+    const auto minElementIter = std::min_element(rankedNotes.begin(), rankedNotes.end(), [](const RankedNote &a, const RankedNote &b) {
       return abs(a.getDelta()) < abs(b.getDelta());
     });
 
@@ -72,7 +72,7 @@ Note NotePicker::removePicked(const Note picked)  {
 }
 
 
-Note NotePicker::seekInversion(const Note source, NoteRange range, std::set<Note> options) const {
+Note NotePicker::seekInversion(const Note source, const NoteRange &range, const std::set<Note> &options) const {
   if (!seekInversions) return source;
 
   if (range.high.has_value() && range.high.value() < source) {
