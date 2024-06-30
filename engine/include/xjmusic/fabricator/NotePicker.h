@@ -75,7 +75,7 @@ namespace XJ {
      @param fromNotes to pick from
      @return a random note from the voicing
      */
-    std::optional<Note> pickRandom(std::set<Note> fromNotes);
+    static std::optional<Note> pickRandom(std::set<Note> fromNotes);
 
   };
 
