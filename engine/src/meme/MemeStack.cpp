@@ -62,10 +62,9 @@ bool MemeStack::isAllowed(const std::set<std::string> &sources, const std::set<s
 
 bool MemeStack::isValid() {
   const std::vector<std::string> targets(memes.begin(), memes.end());
-  std::vector<std::string> subTargets;
 
   for (int a = 0; a < targets.size(); a++) {
-    subTargets = targets;
+    std::vector<std::string> subTargets = targets;
     subTargets.erase(subTargets.begin() + a);
     for (int b = 0; b < memes.size(); b++) {
       std::set<std::string> m1(subTargets.begin(), subTargets.end());

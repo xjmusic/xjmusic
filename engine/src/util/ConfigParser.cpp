@@ -99,7 +99,6 @@ ConfigObjectValue parseObjectValue(const std::string &input) {
   std::istringstream iss(StringUtils::trim(input));
   std::vector<std::string> members;
   std::string piece;
-  std::string key;
   int inObject = 0;// depth inside an object
   int inList = 0;  // depth inside a list
   while (std::getline(iss, piece)) {
@@ -117,12 +116,11 @@ ConfigObjectValue parseObjectValue(const std::string &input) {
   }
 
   // Parse each piece of the members vector
-  std::string value;
   for (const auto &member: members) {
     const auto pos = member.find('=');
     if (pos != std::string::npos) {
-      key = StringUtils::trim(member.substr(0, pos));
-      value = StringUtils::trim(member.substr(pos + 1));
+      std::string key = StringUtils::trim(member.substr(0, pos));
+      std::string value = StringUtils::trim(member.substr(pos + 1));
       if (value.front() == '[' && value.back() == ']') {// Array
         obj.set(key, parseSimpleListValue(value.substr(1, value.size() - 2)));
       } else {

@@ -20,9 +20,8 @@ UUID MarbleBag::pick() {
   }
   std::sort(phases.begin(), phases.end());
 
-  std::optional<UUID> pick;
   for (const auto &phase: phases) {
-    pick = pickPhase(phase);
+    std::optional<UUID> pick = pickPhase(phase);
     if (pick.has_value())
       return pick.value();
   }
