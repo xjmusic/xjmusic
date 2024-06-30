@@ -12,7 +12,7 @@
 
 using namespace XJ;
 
-class SegmentUtilsTest : public ::testing::Test {
+class SegmentUtilsTest : public testing::Test {
 protected:
   std::vector<Segment *> segments;
   Project project;

@@ -17,15 +17,15 @@
 
 // NOLINTNEXTLINE
 using ::testing::_;
-using ::testing::Return;
-using ::testing::ReturnRef;
+using testing::Return;
+using testing::ReturnRef;
 
 using namespace XJ;
 
 /**
  Background fabrication composited of layered Patterns https://github.com/xjmusic/xjmusic/issues/267
  */
-class CraftBackground_LayeredVoicesTest : public ::testing::Test {
+class CraftBackground_LayeredVoicesTest : public testing::Test {
 protected:
   CraftFactory *craftFactory = nullptr;
   FabricatorFactory *fabricatorFactory = nullptr;

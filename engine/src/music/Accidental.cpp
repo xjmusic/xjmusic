@@ -28,12 +28,14 @@ Accidental XJ::accidentalOf(const std::string &name) {
 
 Accidental XJ::accidentalOfBeginning(const std::string &name) {
   const std::string normalized = accidentalNormalized(name);
+
   if (normalized[0] == '#')
-    return Accidental::Sharp;
-  else if (normalized[0] == 'b')
-    return Accidental::Flat;
-  else
-    return Accidental::Natural;
+    return Sharp;
+
+  if (normalized[0] == 'b')
+    return Flat;
+
+  return Natural;
 }
 
 

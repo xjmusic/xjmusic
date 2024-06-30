@@ -44,7 +44,7 @@ bool Note::operator>=(const Note &other) const {
 std::string Note::ATONAL = "X";
 
 
-Note::Note() : pitchClass(PitchClass::Atonal), octave(0) {}// Default constructor
+Note::Note() : pitchClass(Atonal), octave(0) {}// Default constructor
 
 
 Note::Note(const std::string &name) : pitchClass(pitchClassOf(name)), octave(octaveOf(name)) {}
@@ -55,7 +55,7 @@ Note::Note(const PitchClass pitchClass, const int octave) : pitchClass(pitchClas
 
 Note Note::of(const std::string &name) {
   return name.empty()
-             ? Note::atonal()
+             ? atonal()
              : Note(name);
 }
 
@@ -66,7 +66,7 @@ Note Note::of(PitchClass pitchClass, int octave) {
 
 
 Note Note::atonal() {
-  return {PitchClass::Atonal, 0};
+  return {Atonal, 0};
 }
 
 
@@ -79,7 +79,7 @@ std::optional<Note> Note::ifValid(const std::string &name) {
 
 std::optional<Note> Note::ifTonal(const std::string &name) {
   if (!isValid(name)) return std::nullopt;
-  auto note = Note::of(name);
+  auto note = of(name);
   if (note.isAtonal()) return std::nullopt;
   return note;
 }
@@ -183,5 +183,5 @@ Note Note::next(const PitchClass target, const int delta) const {
       return n;
   }
   throw std::runtime_error(
-      "Unable to determine first occurrence of " + stringOf(target, Accidental::Natural) + "from here!");
+      "Unable to determine first occurrence of " + stringOf(target, Natural) + "from here!");
 }

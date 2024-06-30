@@ -56,16 +56,19 @@ ConfigSingleValue parseSingleValue(const std::string &value) {
     // if the original string contains a "." then it's a float, otherwise it's an in
     if (value.find('.') != std::string::npos) {
       return ConfigSingleValue(floatValue);
-    } else {
-      return ConfigSingleValue(static_cast<int>(std::round(floatValue)));
     }
-  } else if (value == "true" || value == "True" || value == "TRUE") {
-    return ConfigSingleValue(true);
-  } else if (value == "false" || value == "False" || value == "FALSE") {
-    return ConfigSingleValue(false);
-  } else {
-    return ConfigSingleValue(parseString(value));
+    return ConfigSingleValue(static_cast<int>(std::round(floatValue)));
   }
+
+  if (value == "true" || value == "True" || value == "TRUE") {
+    return ConfigSingleValue(true);
+  }
+
+  if (value == "false" || value == "False" || value == "FALSE") {
+    return ConfigSingleValue(false);
+  }
+
+  return ConfigSingleValue(parseString(value));
 }
 
 

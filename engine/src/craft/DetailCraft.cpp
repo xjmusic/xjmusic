@@ -19,14 +19,14 @@ DetailCraft::DetailCraft(
 
 void DetailCraft::doWork() {
   // Segments have delta arcs; automate mixer layers in and out of each main program https://github.com/xjmusic/xjmusic/issues/233
-  Craft::ChoiceIndexProvider *choiceIndexProvider = new Craft::LambdaChoiceIndexProvider(
+  ChoiceIndexProvider *choiceIndexProvider = new LambdaChoiceIndexProvider(
       [](const SegmentChoice &choice) -> std::string {
         auto typeString = Instrument::toString(choice.instrumentType);
         if (typeString.empty()) {
           return choice.id;
-        } else {
-          return typeString;
         }
+
+        return typeString;
       });
   const std::function choiceFilter = [](const SegmentChoice *choice) {
     return Program::Type::Detail == choice->programType;
@@ -56,7 +56,7 @@ void DetailCraft::doWork() {
     }
 
     // Instruments have Instrument::Mode https://github.com/xjmusic/xjmusic/issues/260
-    std::optional<const XJ::Program*> program;
+    std::optional<const Program*> program;
     switch (instrument.value()->mode) {
 
       // Event instrument mode takes over legacy behavior https://github.com/xjmusic/xjmusic/issues/234

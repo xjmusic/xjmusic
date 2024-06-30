@@ -40,7 +40,7 @@ static const std::map<std::string, Instrument::State> stateNameValues = EntityUt
 
 Instrument::Type Instrument::parseType(const std::string &value) {
   if (typeNameValues.count(value) == 0) {
-    return Instrument::Type::Drum;
+    return Drum;
   }
   return typeNameValues.at(value);
 }
@@ -48,7 +48,7 @@ Instrument::Type Instrument::parseType(const std::string &value) {
 
 Instrument::Mode Instrument::parseMode(const std::string &value) {
   if (modeNameValues.count(value) == 0) {
-    return Instrument::Mode::Event;
+    return Event;
   }
   return modeNameValues.at(value);
 }
@@ -56,27 +56,27 @@ Instrument::Mode Instrument::parseMode(const std::string &value) {
 
 Instrument::State Instrument::parseState(const std::string &value) {
   if (stateNameValues.count(value) == 0) {
-    return Instrument::State::Draft;
+    return Draft;
   }
   return stateNameValues.at(value);
 }
 
 
-std::string Instrument::toString(const Instrument::Type &type) {
+std::string Instrument::toString(const Type &type) {
   return typeValueNames.at(type);
 }
 
 
-std::string Instrument::toString(const Instrument::Mode &mode) {
+std::string Instrument::toString(const Mode &mode) {
   return modeValueNames.at(mode);
 }
 
 
-std::string Instrument::toString(const Instrument::State &state) {
+std::string Instrument::toString(const State &state) {
   return stateValueNames.at(state);
 }
 
-const std::vector<std::string> &Instrument::toStrings(std::vector<Instrument::Type> types) {
+const std::vector<std::string> &Instrument::toStrings(std::vector<Type> types) {
   static std::vector<std::string> typeStrings;
   typeStrings.clear();
   for (const auto &type : types) {

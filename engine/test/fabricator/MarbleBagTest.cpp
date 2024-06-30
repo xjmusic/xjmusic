@@ -12,7 +12,7 @@ using namespace XJ;
  * The Marble Bag: a bag of marbles
  * Because choices should be random https://github.com/xjmusic/xjmusic/issues/291
  */
-class MarbleBagTest : public ::testing::Test {
+class MarbleBagTest : public testing::Test {
 protected:
   UUID frogId = EntityUtils::computeUniqueId();
   UUID bearId = EntityUtils::computeUniqueId();

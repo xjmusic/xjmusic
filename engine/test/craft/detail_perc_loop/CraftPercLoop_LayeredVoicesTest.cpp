@@ -17,15 +17,15 @@
 
 // NOLINTNEXTLINE
 using ::testing::_;
-using ::testing::Return;
-using ::testing::ReturnRef;
+using testing::Return;
+using testing::ReturnRef;
 
 using namespace XJ;
 
 /**
   Percussion-type Loop-mode fabrication composited of layered Patterns https://github.com/xjmusic/xjmusic/issues/267
   */
-class CraftPercLoop_LayeredVoicesTest : public ::testing::Test {
+class CraftPercLoop_LayeredVoicesTest : public testing::Test {
 protected:
   CraftFactory *craftFactory = nullptr;
   FabricatorFactory *fabricatorFactory = nullptr;

@@ -35,16 +35,16 @@ std::mt19937 ValueUtils::gen(rd());
 float ValueUtils::eitherOr(const float d1, const float d2) {
   if (!std::isnan(d1) && d1 != 0.0f)
     return d1;
-  else
-    return d2;
+
+  return d2;
 }
 
 
 std::string ValueUtils::eitherOr(std::string s1, std::string s2) {
   if (!s1.empty())
     return s1;
-  else
-    return s2;
+
+  return s2;
 }
 
 

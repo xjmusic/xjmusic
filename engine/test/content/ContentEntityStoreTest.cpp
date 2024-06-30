@@ -12,7 +12,7 @@ static std::string CONTENT_STORE_TEST_JSON_PATH = "_data/content_store_test.json
 
 using namespace XJ;
 
-class ContentStoreTest : public ::testing::Test {
+class ContentStoreTest : public testing::Test {
 
 protected:
   ContentEntityStore *subject{};
@@ -51,7 +51,6 @@ protected:
   ProgramSequencePatternEvent program2_sequence_pattern1_event1;
   ProgramSequencePatternEvent program2_sequence_pattern1_event2;
 
-protected:
   void SetUp() override {
     // project
     project1 = ContentFixtures::buildProject();

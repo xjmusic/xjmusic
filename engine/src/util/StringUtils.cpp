@@ -53,18 +53,18 @@ std::string StringUtils::trim(const std::string &str) {
 
 std::string StringUtils::toMeme(const std::string &raw) {
   std::string result = std::regex_replace(raw, nonMeme, "");
-  std::transform(result.begin(), result.end(), result.begin(), ::toupper);// to uppercase
+  std::transform(result.begin(), result.end(), result.begin(), toupper);// to uppercase
   return result;
 }
 
 
 std::string StringUtils::toMeme(const std::string *raw, const std::string &defaultValue) {
   if (isNullOrEmpty(raw))
-    return StringUtils::toMeme(defaultValue);
+    return toMeme(defaultValue);
 
-  std::string out = StringUtils::toMeme(*raw);
+  std::string out = toMeme(*raw);
   if (out.empty())
-    return StringUtils::toMeme(defaultValue);
+    return toMeme(defaultValue);
 
   return out;
 }
@@ -72,7 +72,7 @@ std::string StringUtils::toMeme(const std::string *raw, const std::string &defau
 
 std::string StringUtils::toEvent(const std::string &raw) {
   std::string result = std::regex_replace(raw, nonEvent, "");
-  std::transform(result.begin(), result.end(), result.begin(), ::toupper);// to uppercase
+  std::transform(result.begin(), result.end(), result.begin(), toupper);// to uppercase
   return result;
 }
 
@@ -96,14 +96,14 @@ std::string StringUtils::toAlphanumeric(const std::string &raw) {
 
 std::string StringUtils::toUpperCase(const std::string &input) {
   std::string result = input;
-  std::transform(result.begin(), result.end(), result.begin(), ::toupper); // to uppercase
+  std::transform(result.begin(), result.end(), result.begin(), toupper); // to uppercase
   return result;
 }
 
 
 std::string StringUtils::toLowerCase(const std::string &input) {
   std::string result = input;
-  std::transform(result.begin(), result.end(), result.begin(), ::tolower);// to uppercase
+  std::transform(result.begin(), result.end(), result.begin(), tolower);// to uppercase
   return result;
 }
 
@@ -165,14 +165,14 @@ std::string StringUtils::toShipKey(const std::string &name) {
 
 std::string StringUtils::toLowerScored(const std::string &raw) {
   std::string scored = toScored(raw);
-  std::transform(scored.begin(), scored.end(), scored.begin(), ::tolower);
+  std::transform(scored.begin(), scored.end(), scored.begin(), tolower);
   return scored;
 }
 
 
 std::string StringUtils::toUpperScored(const std::string &raw) {
   std::string scored = toScored(raw);
-  std::transform(scored.begin(), scored.end(), scored.begin(), ::toupper);
+  std::transform(scored.begin(), scored.end(), scored.begin(), toupper);
   return scored;
 }
 

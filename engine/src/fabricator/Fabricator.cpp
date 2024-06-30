@@ -245,11 +245,11 @@ std::optional<SegmentChoice *> Fabricator::getChoiceIfContinued(const Instrument
 
   if (it != choices.end()) {
     return *it;
-  } else {
-    spdlog::warn("[seg-{}] Could not get previous choice for instrumentType={}", segmentId,
-                 Instrument::toString(instrumentType));
-    return std::nullopt;
   }
+
+  spdlog::warn("[seg-{}] Could not get previous choice for instrumentType={}", segmentId,
+               Instrument::toString(instrumentType));
+  return std::nullopt;
 }
 
 
@@ -264,11 +264,11 @@ Fabricator::getChoiceIfContinued(const Instrument::Type instrumentType, const In
 
   if (it != choices.end()) {
     return *it;
-  } else {
-    spdlog::warn("[seg-{}] Could not get previous choice for instrumentType={}", segmentId,
-                 Instrument::toString(instrumentType));
-    return std::nullopt;
   }
+
+  spdlog::warn("[seg-{}] Could not get previous choice for instrumentType={}", segmentId,
+               Instrument::toString(instrumentType));
+  return std::nullopt;
 }
 
 
@@ -514,8 +514,8 @@ NoteRange Fabricator::getProgramRange(const UUID &programId, const Instrument::T
 
 int Fabricator::getProgramRangeShiftOctaves(const Instrument::Type instrumentType, NoteRange *sourceRange, NoteRange *targetRange) {
   const std::string cacheKey =
-      std::to_string(static_cast<int>(instrumentType)) + "__" + sourceRange->toString(Accidental::Natural) +
-      "__" + targetRange->toString(Accidental::Natural);
+      std::to_string(instrumentType) + "__" + sourceRange->toString(Natural) +
+      "__" + targetRange->toString(Natural);
 
   if (rangeShiftOctave.find(cacheKey) == rangeShiftOctave.end()) {
     switch (instrumentType) {
@@ -641,9 +641,9 @@ std::optional<Note> Fabricator::getRootNoteMidRange(const std::string &voicingNo
       return std::nullopt;
     rootNotesByVoicingAndChord[key] = note;
     return note;
-  } else {
-    return it->second;
   }
+
+  return it->second;
 }
 
 
@@ -1029,9 +1029,9 @@ std::optional<const SegmentChoice *> Fabricator::getChoiceOfType(Program::Type p
 
   if (it != allChoices.end()) {
     return *it;
-  } else {
-    return std::nullopt;
   }
+
+  return std::nullopt;
 }
 
 
@@ -1201,7 +1201,7 @@ NoteRange Fabricator::computeProgramRange(const UUID &programId, const Instrumen
   for (const auto &event: events) {
     auto voiceOpt = sourceMaterial->getVoiceOfEvent(event);
     if (voiceOpt.has_value() && voiceOpt.value()->type == instrumentType &&
-        Note::of(event->tones).pitchClass != PitchClass::Atonal) {
+        Note::of(event->tones).pitchClass != Atonal) {
       auto tones = CsvUtils::split(event->tones);
       notes.insert(notes.end(), tones.begin(), tones.end());
     }

@@ -25,7 +25,7 @@ static const std::map<std::string, Chain::State> stateNameValues = EntityUtils::
 
 Chain::Type Chain::parseType(const std::string &value) {
   if (typeNameValues.count(value) == 0) {
-    return Chain::Type::Preview;
+    return Preview;
   }
   return typeNameValues.at(value);
 }
@@ -33,18 +33,18 @@ Chain::Type Chain::parseType(const std::string &value) {
 
 Chain::State Chain::parseState(const std::string &value) {
   if (stateNameValues.count(value) == 0) {
-    return Chain::State::Draft;
+    return Draft;
   }
   return stateNameValues.at(value);
 }
 
 
-std::string Chain::toString(const Chain::Type &type) {
+std::string Chain::toString(const Type &type) {
   return typeValueNames.at(type);
 }
 
 
-std::string Chain::toString(const Chain::State &state) {
+std::string Chain::toString(const State &state) {
   return stateValueNames.at(state);
 }
 

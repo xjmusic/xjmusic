@@ -44,8 +44,8 @@ void YamlTest::assertSame(const std::string &description, const int expected, co
 
 void YamlTest::assertSameNote(const std::string &description, const Note &expected, const Note &actual) {
   if (!(expected == actual)) {
-    const std::string failure = description + " — Expected: " + expected.toString(Accidental::Sharp) + " — Actual: " +
-                          actual.toString(Accidental::Sharp);
+    const std::string failure = description + " — Expected: " + expected.toString(Sharp) + " — Actual: " +
+                          actual.toString(Sharp);
     failures.insert(failure);
   }
 }
@@ -69,8 +69,8 @@ void YamlTest::assertSameNotes(const std::string &description, const std::set<st
   for (size_t i = 0; i < expectedNotes.size(); i++) {
     if (!(expectedNotes[i] == actualNotes[i])) {
       const std::string failure =
-          description + " — Expected: " + expectedNotes[i].toString(Accidental::Sharp) + " — Actual: " +
-          actualNotes[i].toString(Accidental::Sharp);
+          description + " — Expected: " + expectedNotes[i].toString(Sharp) + " — Actual: " +
+          actualNotes[i].toString(Sharp);
       failures.insert(failure);
       return;
     }

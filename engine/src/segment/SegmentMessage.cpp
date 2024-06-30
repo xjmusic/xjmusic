@@ -17,13 +17,13 @@ static const std::map<std::string, SegmentMessage::Type> typeNameValues = Entity
 
 SegmentMessage::Type SegmentMessage::parseType(const std::string &value) {
   if (typeNameValues.count(value) == 0) {
-    return SegmentMessage::Type::Debug;
+    return Debug;
   }
   return typeNameValues.at(value);
 }
 
 
-std::string SegmentMessage::toString(const SegmentMessage::Type &type) {
+std::string SegmentMessage::toString(const Type &type) {
   return typeValueNames.at(type);
 }
 

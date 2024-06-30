@@ -18,12 +18,12 @@ namespace XJ {
 }
 // NOLINTNEXTLINE
 using ::testing::_;
-using ::testing::Return;
-using ::testing::ReturnRef;
+using testing::Return;
+using testing::ReturnRef;
 
 using namespace XJ;
 
-class FabricatorTest : public ::testing::Test { // NOLINT(*-pro-type-member-init)
+class FabricatorTest : public testing::Test { // NOLINT(*-pro-type-member-init)
 protected:
   int SEQUENCE_TOTAL_BEATS = 64;
   ContentEntityStore *sourceMaterial = nullptr;
@@ -32,9 +32,6 @@ protected:
   Fabricator *subject = nullptr;
   ContentFixtures *fake = nullptr;
   Segment *segment = nullptr;
-
-public:
-
 
 protected:
   void SetUp() override {

@@ -25,7 +25,7 @@ Note NotePicker::pick(const Note eventNote) {
 
   std::optional<Note> picked = std::nullopt;
 
-  if (PitchClass::Atonal == noteInAvailableOctave.pitchClass) {
+  if (Atonal == noteInAvailableOctave.pitchClass) {
     picked = pickRandom(voicingNotes);
   } else {
     std::vector<RankedNote> rankedNotes;

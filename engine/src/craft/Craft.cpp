@@ -41,7 +41,7 @@ void Craft::craftNoteEventArrangements(const float tempo, const SegmentChoice *c
   if (!fabricator->getProgram(choice).has_value())
     throw FabricationException("Can't get program config");
 
-  if (const auto programConfig = XJ::Fabricator::getProgramConfig(fabricator->getProgram(choice).value());
+  if (const auto programConfig = Fabricator::getProgramConfig(fabricator->getProgram(choice).value());
       fabricator->getSegmentChords().empty() || !programConfig.doPatternRestartOnChord) {
     craftNoteEventSection(tempo, choice, 0, static_cast<float>(fabricator->getSegment()->total), &range, defaultAtonal);
   } else {
@@ -922,10 +922,9 @@ Craft::selectMultiphonicInstrumentAudio(
       }
     }
     return fabricator->getPreferredAudio(event->programVoiceTrackId, note);
-
-  } else {
-    return selectNewMultiphonicInstrumentAudio(instrument, note);
   }
+
+  return selectNewMultiphonicInstrumentAudio(instrument, note);
 }
 
 std::optional<const InstrumentAudio *>
@@ -937,10 +936,9 @@ Craft::selectMonophonicInstrumentAudio(const Instrument *instrument, const Progr
       fabricator->putPreferredAudio(event->programVoiceTrackId, event->tones, selection.value());
     }
     return fabricator->getPreferredAudio(event->programVoiceTrackId, event->tones);
-
-  } else {
-    return selectNewNoteEventInstrumentAudio(instrument, event);
   }
+
+  return selectNewNoteEventInstrumentAudio(instrument, event);
 }
 
 std::optional<const InstrumentAudio *>
@@ -954,10 +952,9 @@ Craft::selectChordPartInstrumentAudio(const Instrument *instrument, const Chord 
       }
     }
     return fabricator->getPreferredAudio(instrument->id, chord.getName());
-
-  } else {
-    return selectNewChordPartInstrumentAudio(instrument, chord);
   }
+
+  return selectNewChordPartInstrumentAudio(instrument, chord);
 }
 
 std::optional<const InstrumentAudio *>
@@ -1003,7 +1000,7 @@ Craft::selectNewMultiphonicInstrumentAudio(const Instrument *instrument, std::st
     std::sort(availableNotes.begin(), availableNotes.end());
     std::vector<std::string> availableNoteNames;
     for (auto N: availableNotes) {
-      availableNoteNames.push_back(N.toString(Accidental::Sharp));
+      availableNoteNames.push_back(N.toString(Sharp));
     }
     const std::map<std::string, std::string> reportMissingData = {
         {"instrumentId", instrument->id},

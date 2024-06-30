@@ -176,9 +176,9 @@ Chord::Chord(const std::string &input) : slashRoot(SlashRoot::none()) {
   // Don't set values if there's nothing to set
   if (input.empty()) {
     description = "";
-    root = PitchClass::Atonal;
+    root = Atonal;
     slashRoot = SlashRoot::none();
-    accidental = Accidental::Natural;
+    accidental = Natural;
     return;
   }
 
@@ -240,9 +240,9 @@ std::string Chord::normalize(const std::string &input) {
 
   if (it != forms.end()) {
     return it->description;
-  } else {
-    return input;
   }
+
+  return input;
 }
 
 
@@ -252,7 +252,7 @@ Chord Chord::of(const std::string &name) {
 
 
 bool Chord::isNoChord() const {
-  return root == PitchClass::Atonal;
+  return root == Atonal;
 }
 
 
@@ -262,5 +262,5 @@ bool Chord::isAcceptable(const Chord &other) const {
 
 
 bool Chord::has_value() const {
-  return root != PitchClass::Atonal;
+  return root != Atonal;
 }

@@ -12,7 +12,7 @@
 
 using namespace XJ;
 
-class SegmentEntityStoreTest : public ::testing::Test {
+class SegmentEntityStoreTest : public testing::Test {
 protected:
   SegmentEntityStore *subject = nullptr;
   Chain fakeChain;
@@ -140,8 +140,8 @@ TEST_F(SegmentEntityStoreTest, Create) {
   EXPECT_EQ(chain3->id, result->chainId);
   EXPECT_EQ(5, result->id);
   EXPECT_EQ(Segment::State::Planned, result->state);
-  EXPECT_EQ(5 * 32 * ValueUtils::MICROS_PER_SECOND, static_cast<long>(result->beginAtChainMicros));
-  EXPECT_EQ(32 * ValueUtils::MICROS_PER_SECOND, static_cast<long>(result->durationMicros.value()));
+  EXPECT_EQ(5 * 32 * ValueUtils::MICROS_PER_SECOND, result->beginAtChainMicros);
+  EXPECT_EQ(32 * ValueUtils::MICROS_PER_SECOND, result->durationMicros.value());
   EXPECT_EQ(64, result->total);
   EXPECT_NEAR(0.74, result->intensity, 0.01);
   EXPECT_EQ("C# minor 7 b9", result->key);
@@ -174,8 +174,8 @@ TEST_F(SegmentEntityStoreTest, Create_Get_Segment) {
   ASSERT_EQ(0, result->id);
   ASSERT_EQ(Segment::Type::NextMacro, result->type);
   ASSERT_EQ(Segment::State::Crafted, result->state);
-  ASSERT_EQ(0, static_cast<long>(result->beginAtChainMicros));
-  ASSERT_EQ(32 * ValueUtils::MICROS_PER_SECOND, static_cast<long>(result->durationMicros.value()));
+  ASSERT_EQ(0, result->beginAtChainMicros);
+  ASSERT_EQ(32 * ValueUtils::MICROS_PER_SECOND, result->durationMicros.value());
   ASSERT_EQ("D Major", result->key);
   ASSERT_EQ(64, result->total);
   ASSERT_NEAR(0.73f, result->intensity, 0.01);
@@ -250,9 +250,9 @@ TEST_F(SegmentEntityStoreTest, ReadSegment) {
   ASSERT_EQ(chain3->id, result->chainId);
   ASSERT_EQ(1, result->id);
   ASSERT_EQ(Segment::State::Crafting, result->state);
-  ASSERT_EQ(32 * ValueUtils::MICROS_PER_SECOND, (long) result->beginAtChainMicros);
+  ASSERT_EQ(32 * ValueUtils::MICROS_PER_SECOND, result->beginAtChainMicros);
   ASSERT_TRUE(result->durationMicros.has_value());
-  ASSERT_EQ(32 * ValueUtils::MICROS_PER_SECOND, (long) result->durationMicros.value());
+  ASSERT_EQ(32 * ValueUtils::MICROS_PER_SECOND, result->durationMicros.value());
   ASSERT_EQ(64, result->total);
   ASSERT_NEAR(0.85f, result->intensity, 0.01);
   ASSERT_EQ("Db minor", result->key);
@@ -392,9 +392,9 @@ TEST_F(SegmentEntityStoreTest, UpdateSegment) {
   ASSERT_EQ(chain3->id, result->chainId);
   ASSERT_EQ(Segment::State::Crafted, result->state);
   ASSERT_NEAR(0.0123, result->waveformPreroll, 0.001);
-  ASSERT_EQ(4 * 32 * ValueUtils::MICROS_PER_SECOND, (long) result->beginAtChainMicros);
+  ASSERT_EQ(4 * 32 * ValueUtils::MICROS_PER_SECOND, result->beginAtChainMicros);
   ASSERT_TRUE(result->durationMicros.has_value());
-  ASSERT_EQ(32 * ValueUtils::MICROS_PER_SECOND, (long) result->durationMicros.value());
+  ASSERT_EQ(32 * ValueUtils::MICROS_PER_SECOND, result->durationMicros.value());
 }
 
 /**

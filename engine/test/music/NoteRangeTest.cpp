@@ -188,9 +188,9 @@ TEST(Music_NoteRange, DeltaSemitones) {
 
 
 TEST(Music_NoteRange, NoteNearestMedian) {
-  TestHelpers::assertNote("C5", NoteRange::from("C3", "G6").getNoteNearestMedian(PitchClass::C).value());
-  TestHelpers::assertNote("C5", NoteRange::from("C3", "G7").getNoteNearestMedian(PitchClass::C).value());
-  TestHelpers::assertNote("C4", NoteRange::from("C2", "G6").getNoteNearestMedian(PitchClass::C).value());
+  TestHelpers::assertNote("C5", NoteRange::from("C3", "G6").getNoteNearestMedian(C).value());
+  TestHelpers::assertNote("C5", NoteRange::from("C3", "G7").getNoteNearestMedian(C).value());
+  TestHelpers::assertNote("C4", NoteRange::from("C2", "G6").getNoteNearestMedian(C).value());
   ASSERT_FALSE(NoteRange::from("C3", "G6").getNoteNearestMedian(PitchClass::Atonal).has_value());
 }
 

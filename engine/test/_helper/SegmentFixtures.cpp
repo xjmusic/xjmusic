@@ -100,7 +100,7 @@ Segment SegmentFixtures::buildSegment(
   segment.delta = delta;
   segment.state = state;
   segment.beginAtChainMicros =
-      static_cast<long>(id * ValueUtils::MICROS_PER_SECOND * static_cast<float>(total * ValueUtils::SECONDS_PER_MINUTE / tempo));
+      static_cast<long>(id * ValueUtils::MICROS_PER_SECOND * (total * ValueUtils::SECONDS_PER_MINUTE / tempo));
   segment.key = std::move(key);
   segment.total = total;
   segment.intensity = intensity;
@@ -111,7 +111,7 @@ Segment SegmentFixtures::buildSegment(
 
   if (hasEndSet)
     segment.durationMicros =
-        static_cast<long>(ValueUtils::MICROS_PER_SECOND * static_cast<float>(total * ValueUtils::SECONDS_PER_MINUTE / tempo));
+        static_cast<long>(ValueUtils::MICROS_PER_SECOND * (total * ValueUtils::SECONDS_PER_MINUTE / tempo));
 
   return segment;
 }

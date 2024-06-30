@@ -231,10 +231,11 @@ int Step::delta(const PitchClass from, const PitchClass to) {
 Step Step::step(PitchClass from, const int inc) {
   if (0 < inc)
     return stepUp(from, inc);
-  else if (0 > inc)
+
+  if (0 > inc)
     return stepDown(from, -inc);
-  else
-    return {from, 0};
+
+  return {from, 0};
 }
 
 

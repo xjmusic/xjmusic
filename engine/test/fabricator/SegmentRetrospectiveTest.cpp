@@ -12,7 +12,7 @@
 
 using namespace XJ;
 
-class SegmentRetrospectiveTest : public ::testing::Test {
+class SegmentRetrospectiveTest : public testing::Test {
 protected:
   int SEQUENCE_TOTAL_BEATS = 64;
   UUID patternId = EntityUtils::computeUniqueId();

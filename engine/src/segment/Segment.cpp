@@ -28,7 +28,7 @@ static const std::map<std::string, Segment::State> stateNameValues = EntityUtils
 
 Segment::Type Segment::parseType(const std::string &value) {
   if (typeNameValues.count(value) == 0) {
-    return Segment::Type::Pending;
+    return Pending;
   }
   return typeNameValues.at(value);
 }
@@ -36,18 +36,18 @@ Segment::Type Segment::parseType(const std::string &value) {
 
 Segment::State Segment::parseState(const std::string &value) {
   if (stateNameValues.count(value) == 0) {
-    return Segment::State::Planned;
+    return Planned;
   }
   return stateNameValues.at(value);
 }
 
 
-std::string Segment::toString(const Segment::Type &type) {
+std::string Segment::toString(const Type &type) {
   return typeValueNames.at(type);
 }
 
 
-std::string Segment::toString(const Segment::State &state) {
+std::string Segment::toString(const State &state) {
   return stateValueNames.at(state);
 }
 

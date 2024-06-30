@@ -1372,7 +1372,7 @@ void ContentFixtures::generatedFixture(ContentEntityStore *store, int N) {
           store->put(buildEvent(
               &pattern,
               &trackMap[name],
-              static_cast<float>(std::floor(static_cast<float>(iPE) * static_cast<float>(total) * 4 / static_cast<float>(N))),
+              std::floor(static_cast<float>(iPE) * static_cast<float>(total) * 4 / static_cast<float>(N)),
               random(0.25f, 1.0f),
               "X",
               random(0.4f, 0.9f)));

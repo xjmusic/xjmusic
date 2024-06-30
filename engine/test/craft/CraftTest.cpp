@@ -18,8 +18,8 @@
 
 // NOLINTNEXTLINE
 using ::testing::_;
-using ::testing::Return;
-using ::testing::ReturnRef;
+using testing::Return;
+using testing::ReturnRef;
 
 using namespace XJ;
 
@@ -35,7 +35,6 @@ protected:
   Program *program1 = nullptr;
   TemplateConfig * templateConfig = nullptr;
 
-protected:
   void SetUp() override {
     sourceMaterial = new ContentEntityStore();
     segmentEntityStore = new SegmentEntityStore();

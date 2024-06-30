@@ -14,7 +14,7 @@ Root::Root(const std::string &name) {
     const std::string normalized = accidentalNormalized(name);
 
     // as a default, the whole thing is remaining text, and pitch class is None
-    pitchClass = PitchClass::Atonal;
+    pitchClass = Atonal;
     remainingText = normalized;
 
     evaluate(rgxNote, normalized);

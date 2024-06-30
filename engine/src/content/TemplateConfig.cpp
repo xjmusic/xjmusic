@@ -324,32 +324,32 @@ bool TemplateConfig::instrumentTypesForInversionSeekingContains(const Instrument
 float TemplateConfig::getChoiceMuteProbability(const Instrument::Type type) {
   if (choiceMuteProbability.find(type) != choiceMuteProbability.end()) {
     return choiceMuteProbability[type];
-  } else {
-    return 0.0f;
   }
+
+  return 0.0f;
 }
 
 float TemplateConfig::getDubMasterVolume(const Instrument::Type type) {
   if (dubMasterVolume.find(type) != dubMasterVolume.end()) {
     return dubMasterVolume[type];
-  } else {
-    return 0.0f;
   }
+
+  return 0.0f;
 }
 
 float TemplateConfig::getIntensityThreshold(const Instrument::Type type) {
   if (intensityThreshold.find(type) != intensityThreshold.end()) {
     return intensityThreshold[type];
-  } else {
-    return 0.0f;
   }
+
+  return 0.0f;
 }
 
 int TemplateConfig::getIntensityLayers(const Instrument::Type type) {
   if (intensityLayers.find(type) != intensityLayers.end()) {
     return intensityLayers[type];
-  } else {
-    return 0;
   }
+
+  return 0;
 }
 

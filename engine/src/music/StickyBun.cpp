@@ -14,7 +14,7 @@ using json = nlohmann::json;
 std::random_device StickyBun::rd;
 std::mt19937 StickyBun::gen(rd());
 int StickyBun::MAX_VALUE = 100;
-std::uniform_int_distribution<> StickyBun::distrib(0, static_cast<int>(MAX_VALUE) - 1);
+std::uniform_int_distribution<> StickyBun::distrib(0, MAX_VALUE - 1);
 std::string StickyBun::META_KEY_TEMPLATE = "StickyBun_";
 
 
@@ -32,7 +32,7 @@ StickyBun::StickyBun(UUID eventId, std::vector<int> values) : eventId(std::move(
 
 std::string StickyBun::computeMetaKey(const UUID &id) {
   std::ostringstream oss; 
-  oss << StickyBun::META_KEY_TEMPLATE << id;
+  oss << META_KEY_TEMPLATE << id;
   return oss.str();
 }
 
