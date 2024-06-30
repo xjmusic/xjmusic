@@ -219,7 +219,7 @@ namespace XJ {
      * @param target pitch class to seek
      * @return first note with given pitch class down from this
      */
-    Note nextDown(PitchClass target);
+    Note nextDown(PitchClass target) const;
 
     /**
      * Get the first occurrence of the given pitch class in the given direction from the current note

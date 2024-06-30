@@ -14,7 +14,7 @@ TransitionCraft::TransitionCraft(
 }
 
 
-void TransitionCraft::doWork() {
+void TransitionCraft::doWork() const {
   const auto previousChoice =
       fabricator->getRetrospective()->getPreviousChoiceOfType(Instrument::Type::Transition);
 

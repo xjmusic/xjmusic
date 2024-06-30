@@ -24,7 +24,7 @@ namespace XJ {
     /**
      perform craft for the current segment
      */
-    void doWork();
+    void doWork() const;
 
     /**
      Is this a big-transition segment? (next main or next macro)

@@ -107,7 +107,7 @@ namespace XJ {
    * Get the object as a map of strings to strings
    * @return  The object as a map of strings to strings
    */
-    std::map<std::string, std::variant<std::string, std::vector<std::string>>> asMapOfStringsOrListsOfStrings();
+    std::map<std::string, std::variant<std::string, std::vector<std::string>>> asMapOfStringsOrListsOfStrings() const;
   };
 
   /**
@@ -122,7 +122,7 @@ namespace XJ {
    * Get the size of the list
    * @return  The size of the list
    */
-    unsigned long size();
+    unsigned long size() const;
 
     /**
    * Get the list as a vector of strings

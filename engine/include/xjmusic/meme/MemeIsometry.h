@@ -107,7 +107,7 @@ namespace XJ {
 
      @return unique constellation for this set of strings.
      */
-    std::string getConstellation();
+    std::string getConstellation() const;
 
   private:
     static const std::string KEY_NAME;

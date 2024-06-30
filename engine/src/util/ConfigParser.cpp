@@ -369,7 +369,7 @@ ConfigObjectValue::asMapOfSingleOrList() {
 
 
 std::map<std::string, std::variant<std::string, std::vector<std::string>>>
-ConfigObjectValue::asMapOfStringsOrListsOfStrings() {
+ConfigObjectValue::asMapOfStringsOrListsOfStrings() const {
   std::map<std::string, std::variant<std::string, std::vector<std::string>>> map;
   for (const auto &pair: data) {
     if (std::holds_alternative<ConfigSingleValue>(pair.second)) {
@@ -386,7 +386,7 @@ ConfigObjectValue::asMapOfStringsOrListsOfStrings() {
 }
 
 
-unsigned long ConfigListValue::size() {
+unsigned long ConfigListValue::size() const {
   return data.size();
 }
 

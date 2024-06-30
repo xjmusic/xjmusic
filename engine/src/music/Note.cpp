@@ -168,7 +168,7 @@ Note Note::nextUp(const PitchClass target) const {
 }
 
 
-Note Note::nextDown(const PitchClass target) {
+Note Note::nextDown(const PitchClass target) const {
   return next(target, -1);
 }
 

@@ -101,12 +101,12 @@ namespace XJ {
     /**
      * @return true if the marble bag is completely empty
      */
-    bool empty();
+    bool empty() const;
 
     /**
      * @return true if there are any marbles in the bag
      */
-    bool isPresent();
+    bool isPresent() const;
 
     /**
      * Pick a marble from the specified phase

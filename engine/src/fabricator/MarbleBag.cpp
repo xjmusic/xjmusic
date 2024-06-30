@@ -108,14 +108,14 @@ std::string MarbleBag::toString() const {
 /**
  * @return true if the marble bag is completely empty
  */
-bool MarbleBag::empty() {
+bool MarbleBag::empty() const {
   return 0 == size();
 }
 
 /**
  * @return true if there are any marbles in the bag
  */
-bool MarbleBag::isPresent() {
+bool MarbleBag::isPresent() const {
   return 0 < size();
 }
 

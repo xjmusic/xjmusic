@@ -68,7 +68,7 @@ std::set<std::string> MemeIsometry::getSources() {
   return sources;
 }
 
-std::string MemeIsometry::getConstellation() {
+std::string MemeIsometry::getConstellation() const {
   return MemeConstellation::fromNames(sources);
 }
 
