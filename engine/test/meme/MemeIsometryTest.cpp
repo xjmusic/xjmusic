@@ -76,7 +76,7 @@ TEST(MemeIsometryTest, DoNotMutate) {
 }
 
 TEST(MemeIsometryTest, Score) {
-  auto subject = MemeIsometry::of(MemeTaxonomy::empty(), {"Smooth", "Catlike"});
+  const auto subject = MemeIsometry::of(MemeTaxonomy::empty(), {"Smooth", "Catlike"});
 
   ASSERT_NEAR(1.0, subject.score({"Smooth"}), 0.1);
   ASSERT_NEAR(1.0, subject.score({"Catlike"}), 0.1);
@@ -84,7 +84,7 @@ TEST(MemeIsometryTest, Score) {
 }
 
 TEST(MemeIsometryTest, ScoreEliminatesDuplicates) {
-  auto subject = MemeIsometry::of(MemeTaxonomy::empty(), {"Smooth", "Smooth", "Catlike"});
+  const auto subject = MemeIsometry::of(MemeTaxonomy::empty(), {"Smooth", "Smooth", "Catlike"});
 
   ASSERT_NEAR(1.0, subject.score({"Smooth"}), 0.1);
   ASSERT_NEAR(1.0, subject.score({"Catlike"}), 0.1);

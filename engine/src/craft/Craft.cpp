@@ -166,7 +166,7 @@ Craft::chooseFreshProgram(const Program::Type programType, const std::optional<I
   }
 
   // (3) score each source program based on meme isometry
-  MemeIsometry iso = fabricator->getMemeIsometryOfSegment();
+  const MemeIsometry iso = fabricator->getMemeIsometryOfSegment();
   std::set<std::string> memes;
 
   // Phase 1: Directly Bound Programs
@@ -206,7 +206,7 @@ Craft::chooseFreshInstrument(const Instrument::Type type, const std::set<std::st
   }
 
   // Retrieve meme isometry of segment
-  MemeIsometry iso = fabricator->getMemeIsometryOfSegment();
+  const MemeIsometry iso = fabricator->getMemeIsometryOfSegment();
   std::set<std::string> memes;
 
   // Phase 1: Directly Bound Instruments
@@ -246,7 +246,7 @@ Craft::chooseFreshInstrumentAudio(
   }
 
   // (3) score each source instrument based on meme isometry
-  MemeIsometry iso = fabricator->getMemeIsometryOfSegment();
+  const MemeIsometry iso = fabricator->getMemeIsometryOfSegment();
   std::set<std::string> memes;
 
   // Phase 1: Directly Bound Audios (Preferred)

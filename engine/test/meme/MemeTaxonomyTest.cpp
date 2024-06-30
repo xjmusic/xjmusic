@@ -52,10 +52,9 @@ TEST(MemeTaxonomyTest, FromStringToString) {
 TEST(MemeTaxonomyTest, FromSetToList) {
   std::set<MapStringToOneOrManyString> input = {
       {{"name", "CO111LOR"}, {"memes", std::set<std::string>{"RED ", "GR333EEN", "BLUE#@"}}},
-      {{"name", "SIZ$%@E"}, {"memes", std::set<std::string>{"L44A&*(RGE", "MED$IUM", "SMA)(&&LL"}}}
-  };
+      {{"name", "SIZ$%@E"}, {"memes", std::set<std::string>{"L44A&*(RGE", "MED$IUM", "SMA)(&&LL"}}}};
 
-  MemeTaxonomy subject(input);
+  const MemeTaxonomy subject(input);
 
   const std::set<MapStringToOneOrManyString> expected = {
       {{"name", "COLOR"}, {"memes", std::set<std::string>{"RED", "GREEN", "BLUE"}}},
