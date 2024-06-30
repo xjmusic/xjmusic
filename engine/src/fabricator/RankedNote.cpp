@@ -19,6 +19,6 @@ Note RankedNote::getTones() const {
 }
 
 
-int RankedNote::getDelta() {
+int RankedNote::getDelta() const {
   return delta;
 }

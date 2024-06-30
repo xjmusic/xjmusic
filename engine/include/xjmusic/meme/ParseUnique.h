@@ -4,9 +4,8 @@
 #define XJMUSIC_ENTITIES_MEME_PARSE_UNIQUE_H
 
 #include <regex>
-#include <vector>
 #include <string>
-#include <set>
+#include <vector>
 
 
 namespace XJ {

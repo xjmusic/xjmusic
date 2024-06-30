@@ -74,7 +74,7 @@ namespace XJ {
    * Get the size of the object
    * @return  The size of the object
    */
-    unsigned long size();
+    unsigned long size() const;
 
     /**
    * Get a single value from the object

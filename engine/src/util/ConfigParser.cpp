@@ -343,7 +343,7 @@ std::string ConfigParser::format(const std::set<std::string> &values) {
 }
 
 
-unsigned long ConfigObjectValue::size() {
+unsigned long ConfigObjectValue::size() const {
   return data.size();
 }
 

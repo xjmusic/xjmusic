@@ -8,7 +8,7 @@ BackgroundCraft::BackgroundCraft(
     Fabricator *fabricator
 ) : Craft(fabricator) {}
 
-void BackgroundCraft::doWork() {
+void BackgroundCraft::doWork() const {
   const auto previousChoice = fabricator->getRetrospective()->getPreviousChoiceOfType(Instrument::Type::Background);
 
   const auto instrument = previousChoice.has_value() ?

@@ -51,7 +51,7 @@ bool TransitionCraft::isMediumTransitionSegment() const {
   return mainSequence.value()->id != previousMainSequence.value()->id;
 }
 
-void TransitionCraft::craftTransition(double tempo, const Instrument* instrument) {
+void TransitionCraft::craftTransition(double tempo, const Instrument* instrument) const {
   auto choice = SegmentChoice();
   choice.id = EntityUtils::computeUniqueId();
   choice.segmentId = fabricator->getSegment()->id;

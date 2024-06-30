@@ -48,7 +48,7 @@ namespace XJ {
      @param tempo      of main program
      @param instrument of percussion loop instrument to craft
      */
-    void craftTransition(double tempo, const Instrument *instrument);
+    void craftTransition(double tempo, const Instrument *instrument) const;
 
     /**
      Select audios for instrument having the given event names

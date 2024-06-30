@@ -96,7 +96,7 @@ namespace XJ {
     /**
      * Display as string
      */
-    std::string toString();
+    std::string toString() const;
 
     /**
      * @return true if the marble bag is completely empty

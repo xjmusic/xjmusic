@@ -85,7 +85,7 @@ int MarbleBag::size() const {
 /**
  * Display as string
  */
-std::string MarbleBag::toString() {
+std::string MarbleBag::toString() const {
   std::string result;
   for (const auto &phase: marbles) {
     std::string phaseStr = "Phase" + std::to_string(phase.first) + "[";

@@ -163,7 +163,7 @@ bool Note::isAtonal() const {
 }
 
 
-Note Note::nextUp(const PitchClass target) {
+Note Note::nextUp(const PitchClass target) const {
   return next(target, 1);
 }
 

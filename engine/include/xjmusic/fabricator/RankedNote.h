@@ -37,7 +37,7 @@ namespace XJ {
      * Get the delta of this note
      * @return  the delta
      */
-    int getDelta();
+    int getDelta() const;
 
   };
 

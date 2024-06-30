@@ -26,7 +26,7 @@ namespace XJ {
     /**
      perform craft for the current segment
      */
-    void doWork();
+    void doWork() const;
   };
 
 }// namespace XJ

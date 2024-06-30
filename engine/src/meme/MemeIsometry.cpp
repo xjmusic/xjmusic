@@ -24,7 +24,7 @@ MemeIsometry MemeIsometry::none() {
   return MemeIsometry(MemeTaxonomy(), std::set<std::string>());
 }
 
-int MemeIsometry::score(const std::set<std::string> &targets) {
+int MemeIsometry::score(const std::set<std::string> &targets) const {
   if (!isAllowed(targets)) return 0;
 
   int sum = 0;
