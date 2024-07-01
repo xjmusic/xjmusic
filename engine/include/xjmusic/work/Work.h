@@ -6,17 +6,21 @@
 namespace XJ {
 
   class Work {
+  public:
+    virtual ~Work() = default;
+
+  private:
     /**
      Stop work
      */
-    virtual void finish() = 0;
+    virtual void finish();
 
     /**
      Check whether the craft work is finished
 
      @return true if finished (not running)
      */
-    virtual bool isFinished() = 0;
+    virtual bool isFinished();
   };
 
 }// namespace XJ

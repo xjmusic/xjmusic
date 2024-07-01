@@ -7,123 +7,67 @@
 using namespace XJ;
 
   FabricationManager::FabricationManager(
-    Telemetry telemetry,
-    BroadcastFactory broadcastFactory,
-    CraftFactory craftFactory,
-    AudioCache audioCache,
-    FabricatorFactory fabricatorFactory,
-    MixerFactory mixerFactory,
-    SegmentEntityStore store
+    CraftFactory *craftFactory,
+    FabricatorFactory* fabricatorFactory,
+    SegmentEntityStore* store
   ) {
-    this->broadcastFactory = broadcastFactory;
     this->craftFactory = craftFactory;
-    this->audioCache = audioCache;
     this->fabricatorFactory = fabricatorFactory;
-    this->mixerFactory = mixerFactory;
     this->entityStore = store;
-    this->telemetry = telemetry;
   }
 
-  @Override
-  public void start(
-    ContentEntityStore content,
-    FabricationSettings config
-  ) {
+void FabricationManager::start(
+      ContentEntityStore *content,
+      FabricationSettings config) {
     this->content = content;
     this->config = config;
     spdlog::debug("Did set work configuration: {}", config);
 
     spdlog::debug("Did set model content: {}", this->content);
 
-    audioCache.initialize(
-      config.getOutputFrameRate(),
-      FIXED_SAMPLE_BITS,
-      config.getOutputChannels()
-    );
-    spdlog::debug("Did initialize audio cache");
-
     try {
-      entityStore.clear();
-    } catch (Exception e) {
+      entityStore->clear();
+    } catch (std::exception e) {
       spdlog::error("Failed to clear entity store", e);
     }
     spdlog::debug("Did clear entity store");
 
-    startedAtMillis.set(System.currentTimeMillis());
-    isAudioLoaded.set(false);
-    updateState(FabricationState.Starting);
+    // get system milliseconds UTC now
+    startedAtMillis = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+    isAudioLoaded = false;
+    state = Starting;
     spdlog::debug("Did update work state to Starting");
 
-    running.set(true);
+    running = true;
     spdlog::debug("Did set running to true");
-
-    new Thread(() -> {
-      while (running.get()) {
-        this->runControlCycle();
-        this->runCraftCycle();
-        this->runDubCycle();
-      }
-    }).start();
-    spdlog::debug("Did start thread with control/craft/dub cycles");
-
-    new Thread(() -> {
-      while (running.get()) {
-        this->runShipCycle();
-      }
-    }).start();
-    spdlog::debug("Did start thread with ship cycle");
-
-    telemetry.startTimer();
   }
 
-  @Override
-  public void finish(boolean cancelled) {
-    running.set(false);
+  void FabricationManager::finish(const bool cancelled) {
+    running = false;
 
-    // Shutting down ship work will cascade-send the finish() instruction to dub and ship
-    if (Objects.nonNull(shipWork)) {
-      shipWork.finish();
-    }
-
-    updateState(cancelled ? FabricationState.Cancelled : FabricationState.Done);
-
-    audioCache.invalidateAll();
+    state = cancelled ? Cancelled : Done;
   }
 
-  @Override
-  public FabricationState getWorkState() {
-    return state.get();
+void FabricationManager::tick() {
+    this->runControlCycle();
+    this->runCraftCycle();
+    this->runDubCycle();
   }
 
-  @Override
-  public void setOnProgress(@Nullable Consumer<Float> onProgress) {
-    this->onProgress = onProgress;
+FabricationState FabricationManager::getWorkState() {
+    return state;
   }
 
-  @Override
-  public void setOnProgressLabel(@Nullable Consumer<String> onProgressLabel) {
-    this->onProgressLabel = onProgressLabel;
+ void FabricationManager::doOverrideMacro(Program macroProgram) {
+    craftWork->doOverrideMacro(&macroProgram);
   }
 
-  @Override
-  public void setOnStateChange(@Nullable Consumer<FabricationState> onStateChange) {
-    this->onStateChange = onStateChange;
-  }
-
-  @Override
-  public void doOverrideMacro(Program macroProgram) {
-    Objects.requireNonNull(craftWork);
-    Objects.requireNonNull(dubWork);
-    craftWork.doOverrideMacro(macroProgram);
-  }
-
-  @Override
-  public std::optional<MemeTaxonomy> getMemeTaxonomy() {
+std::optional<MemeTaxonomy*> getMemeTaxonomy() {
     try {
       auto templateConfig = new TemplateConfig(getSourceMaterial().getTemplates().stream().findFirst()
         .orElseThrow(() -> new ValueException("No template found in source material")));
-      return std::optional.of(templateConfig.getMemeTaxonomy());
-    } catch (ValueException e) {
+      return std::optional(templateConfig.getMemeTaxonomy());
+    } catch (std::exception e) {
       spdlog::error("Failed to get meme taxonomy from template config", e);
       return std::nullopt;
     }
@@ -192,7 +136,7 @@ using namespace XJ;
 
    @param fabricationState work state
    */
-  private void updateState(FabricationState fabricationState) {
+  void updateState(FabricationState fabricationState) {
     state.set(fabricationState);
     if (Objects.nonNull(onStateChange)) {
       onStateChange.accept(fabricationState);
@@ -205,40 +149,47 @@ using namespace XJ;
   /**
    Run the control cycle, which prepares fabrication and moves the machine into the active state
    */
-  private void runControlCycle() {
+  void FabricationManager::runControlCycle() {
     spdlog::debug("Will run control cycle");
     try {
-      switch (state.get()) {
+      switch (state) {
 
-        case Starting -> {
-          updateState(FabricationState.PreparingAudio);
-          startPreparingAudio();
+        case Starting: {
+          updateState(FabricationState::PreparingAudio);
         }
+        break;
 
-        case PreparingAudio -> {
+        case PreparingAudio: {
           if (isAudioLoaded()) {
-            updateState(FabricationState.PreparedAudio);
+            updateState(FabricationState::PreparedAudio);
           }
         }
+        break;
 
-        case PreparedAudio -> {
-          updateState(FabricationState.Initializing);
+        case PreparedAudio : {
+          updateState(FabricationState::Initializing);
           initialize();
         }
+        break;
 
-        case Initializing -> {
+        case Initializing :{
           if (isInitialized()) {
-            updateState(FabricationState.Active);
+            updateState(FabricationState::Active);
           }
         }
+        break;
 
-        case Active, Standby, Done, Failed -> {
+        case Active:
+          case Standby:
+        case Done:
+        case Failed: {
           // no op
         }
+        break;
       }
       spdlog::debug("Did run control cycle");
 
-    } catch (Exception e) {
+    } catch (std::exception e) {
       didFailWhile("running control cycle", e);
     }
   }
@@ -246,7 +197,7 @@ using namespace XJ;
   /**
    Run the craft cycle
    */
-  private void runCraftCycle() {
+  void runCraftCycle() {
     if (!Objects.equals(state.get(), FabricationState.Active)) {
       spdlog::debug("Will not run craft cycle because work state is {}", state.get());
       return;
@@ -264,7 +215,7 @@ using namespace XJ;
       );
       spdlog::debug("Did run craft cycle");
 
-    } catch (Exception e) {
+    } catch (std::exception e) {
       didFailWhile("running craft cycle", e);
     }
   }
@@ -272,7 +223,7 @@ using namespace XJ;
   /**
    Run the dub cycle
    */
-  private void runDubCycle() {
+  void runDubCycle() {
     if (!Objects.equals(state.get(), FabricationState.Active)) {
       spdlog::debug("Will not run dub cycle because work state is {}", state.get());
       return;
@@ -286,7 +237,7 @@ using namespace XJ;
       dubWork.runCycle(shipWork.getShippedToChainMicros().orElse(0L));
       spdlog::debug("Did run dub cycle");
 
-    } catch (Exception e) {
+    } catch (std::exception e) {
       didFailWhile("running dub cycle", e);
     }
   }
@@ -294,7 +245,7 @@ using namespace XJ;
   /**
    Run the ship cycle
    */
-  private void runShipCycle() {
+  void runShipCycle() {
     if (!Objects.equals(state.get(), FabricationState.Active)) {
       spdlog::debug("Will not run ship cycle because work state is {}", state.get());
       return;
@@ -307,7 +258,7 @@ using namespace XJ;
       shipWork.runCycle();
       spdlog::debug("Did run ship cycle");
 
-    } catch (Exception e) {
+    } catch (std::exception e) {
       didFailWhile("running ship cycle", e);
     }
 
@@ -317,78 +268,14 @@ using namespace XJ;
     }
   }
 
-  /**
-   Start loading audio
-   */
-  private void startPreparingAudio() {
-    Objects.requireNonNull(config);
-    Objects.requireNonNull(content);
-
-    int preparedAudios = 0;
-    int preparedInstruments = 0;
-
-    auto instruments = new ArrayList<>(content.getInstruments());
-    auto audios = new ArrayList<>(content.getInstrumentAudios());
-    spdlog::debug("Will start loading audio");
-    updateProgress(0.0f);
-    updateProgressLabel(String.format("Prepared 0/%d audios for 0/%d instruments", audios.size(), instruments.size()));
-    try {
-      for (Instrument instrument : instruments) {
-        for (InstrumentAudio audio : audios.stream()
-          .filter(a -> Objects.equals(a.getInstrumentId(), instrument.getId()))
-          .sorted(Comparator.comparing(InstrumentAudio::getName))
-          .toList()) {
-          if (!Objects.equals(state.get(), FabricationState.PreparingAudio)) {
-            // Workstation canceling preloading should cease resampling audio files https://github.com/xjmusic/xjmusic/issues/278
-            return;
-          }
-          if (!StringUtils.isNullOrEmpty(audio.getWaveformKey())) {
-            spdlog::debug("Will preload audio for instrument {} with waveform key {}", instrument.getName(), audio.getWaveformKey());
-            audioCache.prepare(audio);
-            spdlog::debug("Did preload audio OK");
-            updateProgress((float) preparedAudios / audios.size());
-            updateProgressLabel(String.format("Prepared %d/%d audios for %d/%d instruments", preparedAudios, audios.size(), preparedInstruments, instruments.size()));
-            preparedAudios++;
-          }
-        }
-        preparedInstruments++;
-      }
-      updateProgress(1.0f);
-      updateProgressLabel(String.format("Prepared %d audios for %d instruments", preparedAudios, preparedInstruments));
-      isAudioLoaded.set(true);
-      spdlog::info("Preloaded {} audios from {} instruments", preparedAudios, instruments.size());
-
-    } catch (Exception e) {
-      didFailWhile("preloading audio", e);
-    }
-  }
-
-  /**
-   @return true if audio is loaded
-   */
-  private boolean isAudioLoaded() {
-    return isAudioLoaded.get();
-  }
-
-  /**
-   Initialize the work
-   */
-  private void initialize() {
-    Objects.requireNonNull(config);
-    Objects.requireNonNull(content);
-
-    craftWork = new CraftWorkImpl(
-      telemetry,
+  void FabricationManager::initialize() {
+    craftWork =new CraftWork(
       craftFactory,
       fabricatorFactory,
       entityStore,
-      audioCache,
-      config.getPersistenceWindowSeconds(),
-      config.getCraftAheadSeconds(),
-      config.getMixerLengthSeconds(),
-      config.getOutputFrameRate(),
-      config.getOutputChannels(),
-      content
+      content,
+      config.persistenceWindowSeconds,
+      config.craftAheadSeconds
     );
     dubWork = new DubWorkImpl(
       telemetry,
@@ -416,7 +303,7 @@ using namespace XJ;
           .map(category -> category.getMemes().stream().findFirst().orElse(null))
           .filter(Objects::nonNull)
           .collect(Collectors.toCollection(LinkedHashSet::new));
-        if (!memes.isEmpty()) doOverrideMemes(memes);
+        if (!memes.empty()) doOverrideMemes(memes);
       });
     }
   }
@@ -424,7 +311,7 @@ using namespace XJ;
   /**
    @return true if initialized
    */
-  private boolean isInitialized() {
+  boolean isInitialized() {
     return Objects.nonNull(craftWork) && Objects.nonNull(dubWork) && Objects.nonNull(shipWork);
   }
 
@@ -434,7 +321,7 @@ using namespace XJ;
    @param msgWhile phrased like "Doing work"
    @param e        exception (optional)
    */
-  void didFailWhile(String msgWhile, Exception e) {
+  void didFailWhile(String msgWhile, std::exception e) {
     spdlog::error("Failed while {}: {}", msgWhile, formatStackTrace(e), e);
     // This will cascade-send the finish() instruction to dub and ship
     if (Objects.nonNull(shipWork)) {
@@ -448,7 +335,7 @@ using namespace XJ;
 
    @param progress progress
    */
-  private void updateProgress(float progress) {
+  void updateProgress(float progress) {
     if (Objects.nonNull(onProgress))
       onProgress.accept(progress);
   }
@@ -458,7 +345,7 @@ using namespace XJ;
 
    @param label progress label
    */
-  private void updateProgressLabel(String label) {
+  void updateProgressLabel(String label) {
     if (Objects.nonNull(onProgressLabel))
       onProgressLabel.accept(label);
   }

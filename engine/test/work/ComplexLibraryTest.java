@@ -58,19 +58,19 @@ public class ComplexLibraryTest {
     SegmentFixtures fake = new SegmentFixtures();
     fake.project1 = ContentFixtures.buildProject("fish");
     fake.library1 = ContentFixtures.buildLibrary(fake.project1, "test");
-    var generatedFixtures = fake.generatedFixture(GENERATED_FIXTURE_COMPLEXITY);
+    auto generatedFixtures = fake.generatedFixture(GENERATED_FIXTURE_COMPLEXITY);
     ContentEntityStore content = new ContentEntityStore(generatedFixtures.stream().filter(Objects::nonNull).toList());
 
-    var template = content.getTemplates().stream().findFirst().orElseThrow();
+    auto template = content.getTemplates().stream().findFirst().orElseThrow();
     template.setShipKey("complex_library_test");
     template.setConfig("outputEncoding=\"PCM_SIGNED\"\noutputContainer = \"WAV\"\ndeltaArcEnabled = false\n");
     content.put(template);
 
-    var jsonProvider = new JsonProviderImpl();
-    var entityFactory = new EntityFactoryImpl(jsonProvider);
+    auto jsonProvider = new JsonProviderImpl();
+    auto entityFactory = new EntityFactoryImpl(jsonProvider);
     entityStore = new SegmentEntityStoreImpl(entityFactory);
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
-    var fabricatorFactory = new FabricatorFactoryImpl(
+    auto fabricatorFactory = new FabricatorFactoryImpl(
       entityStore,
       jsonapiPayloadFactory,
       jsonProvider);
@@ -129,8 +129,8 @@ public class ComplexLibraryTest {
    @return true if it has at least N segments
    */
   boolean hasSegmentsDubbedPastMinimumOffset()  {
-    var chain = work.getChain();
-    if (chain.isEmpty())
+    auto chain = work.getChain();
+    if (chain.empty())
       return false;
     return SegmentUtils.getLastCrafted(entityStore.readAllSegments())
       .filter(value -> MARATHON_NUMBER_OF_SEGMENTS <= value.getId()).isPresent();

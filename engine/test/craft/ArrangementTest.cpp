@@ -207,10 +207,10 @@ protected:
 
     if (obj.containsKey("stickyBuns")) {
       for (Map<?, ?> sbObj : (List<Map<?, ?>>) obj.get("stickyBuns")) {
-        var sbType = InstrumentType.valueOf(getStr(sbObj, "type"));
-        var sbPosition = getFloat(sbObj, "position");
-        var sbSeed = getInt(sbObj, "seed");
-        var event = detailProgramSequencePatternEvents.get(sbType).stream()
+        auto sbType = InstrumentType.valueOf(getStr(sbObj, "type"));
+        auto sbPosition = getFloat(sbObj, "position");
+        auto sbSeed = getInt(sbObj, "seed");
+        auto event = detailProgramSequencePatternEvents.get(sbType).stream()
           .filter(e -> e.getPosition()== sbPosition)
           .findAny()
           .orElseThrow(() -> FabricationException(String.format("Failed to locate event type %s position %f", sbType, sbPosition)));

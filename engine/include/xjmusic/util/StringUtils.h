@@ -5,6 +5,7 @@
 
 #include <optional>
 #include <regex>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -210,6 +211,13 @@ namespace XJ {
      @return purified
      */
     static std::string toUpperSlug(const std::string &raw);
+
+    /**
+    * Sort a set of strings into an ordered vector
+    * @param items  set of strings
+    * @return     vector of strings
+    */
+   std::vector<std::string> sort(const std::set<std::string> &items);
   };
 
 

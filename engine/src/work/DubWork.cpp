@@ -20,7 +20,7 @@ using namespace XJ;
 
     templateConfig = craftWork.getTemplateConfig();
     auto chain = craftWork.getChain();
-    if (chain.isEmpty()) {
+    if (chain.empty()) {
       throw std::exception("Cannot initialize DubWork without TemplateConfig and Chain");
     }
 
@@ -31,15 +31,15 @@ using namespace XJ;
 
   @Override
   public void finish() {
-    if (!running.get()) return;
-    running.set(false);
+    if (!running) return;
+    running = false;
     craftWork.finish();
     spdlog::info("Finished");
   }
 
   @Override
   public void runCycle(long shippedToChainMicros) {
-    if (!running.get()) return;
+    if (!running) return;
 
     // Only ready to dub after at least one craft cycle is completed since the last time we weren't ready to dub
     // live performance modulation https://github.com/xjmusic/xjmusic/issues/197
@@ -66,14 +66,14 @@ using namespace XJ;
       telemetry.record(TIMER_SECTION_DUB, System.currentTimeMillis() - startedAtMillis);
 
     } catch (
-        Exception e) {
+        std::exception e) {
       didFailWhile("running dub work", e);
     }
   }
 
   @Override
   public boolean isFinished() {
-    return !running.get();
+    return !running;
   }
 
   @Override
@@ -151,7 +151,7 @@ using namespace XJ;
     auto toChainMicros = atChainMicros + mixerLengthMicros;
     List<Segment> segments = craftWork.getSegmentsIfReady(atChainMicros, toChainMicros);
     Map<Integer, Segment> segmentById = segments.stream().collect(Collectors.toMap(Segment::getId, segment -> segment));
-    if (segments.isEmpty()) {
+    if (segments.empty()) {
       spdlog::debug("Waiting for segments");
       return;
     }
@@ -218,14 +218,14 @@ using namespace XJ;
       try {
         mixer.mix(activeAudios, nextIntensity.get());
       } catch (IOException e) {
-        spdlog::warn("Cannot send to output because BytePipeline {}", e.getMessage());
+        spdlog::warn("Cannot send to output because BytePipeline {}", e.what());
         return;
       }
 
       atChainMicros = toChainMicros;
       spdlog::debug("Dubbed to {}", String.format("%.1f", toChainMicros / (double) MICROS_PER_SECOND));
 
-    } catch (Exception e) {
+    } catch (std::exception e) {
       didFailWhile("dubbing frame", e);
     }
   }
@@ -269,11 +269,11 @@ using namespace XJ;
    @param msgWhile phrased like "Doing work"
    @param e        exception (optional)
    */
-  void didFailWhile(String msgWhile, Exception e) {
-    auto msgCause = StringUtils.isNullOrEmpty(e.getMessage()) ? e.getClass().getSimpleName() : e.getMessage();
+  void didFailWhile(String msgWhile, std::exception e) {
+    auto msgCause = StringUtils.isNullOrEmpty(e.what()) ? e.getClass().getSimpleName() : e.what();
     spdlog::error("Failed while {} because {}", msgWhile, msgCause, e);
 
-    running.set(false);
+    running = false;
     finish();
   }
 

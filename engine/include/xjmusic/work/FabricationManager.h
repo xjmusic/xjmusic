@@ -1,32 +1,42 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-// TODO implement this
-
 #ifndef XJMUSIC_WORK_FABRICATION_MANAGER_H
 #define XJMUSIC_WORK_FABRICATION_MANAGER_H
 
+#include "CraftWork.h"
+#include "DubWork.h"
 #include "xjmusic/craft/CraftFactory.h"
 #include "xjmusic/fabricator/FabricatorFactory.h"
 #include "xjmusic/segment/SegmentEntityStore.h"
 
-#include "FabricationState.h"
 #include "FabricationSettings.h"
+#include "FabricationState.h"
 
 namespace XJ {
 
   class FabricationManager {
-    CraftFactory craftFactory;
-    FabricatorFactory fabricatorFactory;
-    SegmentEntityStore entityStore;
-    FabricationState state = FabricationState::Standby;
+    CraftFactory *craftFactory = nullptr;
+    FabricatorFactory *fabricatorFactory = nullptr;
+    SegmentEntityStore *entityStore = nullptr;
+    CraftWork *craftWork = nullptr;
+    DubWork *dubWork = nullptr;
+    ContentEntityStore *content = nullptr;
+    FabricationSettings config = FabricationSettings();
+    FabricationState state = Standby;
     bool isAudioLoaded = false;
     long long startedAtMillis = 0;
     bool running = false;
-    CraftWork craftWork;
-    DubWork dubWork;
-    FabricationSettings config;
-    ContentEntityStore content;
 
+    /**
+    * Construct a new FabricationManager
+    * @param craftFactory  for craft
+    * @param fabricatorFactory  for fabrication
+    * @param store  for segments
+    */
+    FabricationManager(
+        CraftFactory *craftFactory,
+        FabricatorFactory *fabricatorFactory,
+        SegmentEntityStore *store);
 
     /**
      Start work.
@@ -34,14 +44,20 @@ namespace XJ {
      * @param config for fabrication
      */
     void start(
-        ContentEntityStore content,
-        FabricationSettings config
-    );
+        ContentEntityStore *content,
+        FabricationSettings config);
 
     /**
      Stop work
      */
-    void finish(boolean cancelled);
+    void finish(bool cancelled);
+
+    /**
+    * Run the tick cycle
+    * (between 1 and 10 times per second)
+    * TODO implement this in the app-- maybe returns the list of audio that should be queued up for playback in a structured way
+    */
+    void tick();
 
     /**
      Get the entity store
@@ -65,55 +81,26 @@ namespace XJ {
 
      @return chain micros, else empty
      */
-    std::optional <Long> getShippedToChainMicros();
+    std::optional<unsigned long long> getShippedToChainMicros();
 
     /**
      Return the current dubbed-to sync chain micros
 
      @return chain micros, else empty
      */
-    std::optional <Long> getDubbedToChainMicros();
+    std::optional<unsigned long long> getDubbedToChainMicros();
 
     /**
      Return the current crafted-to chain micros
 
      @return chain micros, else empty
      */
-    std::optional <Long> getCraftedToChainMicros();
+    std::optional<unsigned long long> getCraftedToChainMicros();
 
     /**
      @return the current work state
      */
     FabricationState getWorkState();
-
-    /**
-     Set the on progress callback
-
-     @param onProgress callback
-     */
-    void setOnProgress(
-
-    @
-    Nullable Consumer<Float>
-    onProgress);
-
-    /**
-     Set the on progress label callback
-
-     @param onProgressLabel callback
-     */
-    void setOnProgressLabel(
-
-    @
-    Nullable Consumer<String>
-    onProgressLabel);
-
-    /**
-     Set the on status callback
-
-     @param onStateChange callback
-     */
-    void setOnStateChange(Consumer <FabricationState> onStateChange);
 
     /**
      Go to the given macro program right away
@@ -126,12 +113,12 @@ namespace XJ {
     /**
      @return the meme taxonomy from the current template configuration
      */
-    std::optional <MemeTaxonomy> getMemeTaxonomy();
+    std::optional<MemeTaxonomy> getMemeTaxonomy();
 
     /**
      * @return all macro programs in alphabetical order
      */
-    List <Program> getAllMacroPrograms();
+    std::vector<Program> getAllMacroPrograms();
 
     /**
      Manually go to a specific taxonomy category meme, and force until reset
@@ -139,25 +126,42 @@ namespace XJ {
 
      @param memes specific (assumed allowably) set of taxonomy category memes
      */
-    void doOverrideMemes(Collection <String> memes);
+    void doOverrideMemes(std::set<std::string> memes);
 
     /**
      Get whether an override happened, and reset its state after getting
 
      @return true if an override happened
      */
-    boolean getAndResetDidOverride();
+    bool getAndResetDidOverride();
 
     /**
      Set the intensity override to a value between 0 and 1, or null if no override
 
      @param intensity the intensity to set
      */
-    void setIntensityOverride(
+    void setIntensityOverride(std::optional<float> intensity);
 
-    @
-    Nullable Double
-    intensity);
+  private:
+    /**
+     * Run the control cycle
+     */
+    void runControlCycle();
+
+    /**
+     * Run the craft cycle
+     */
+    void runCraftCycle();
+
+    /**
+     * Run the dub cycle
+     */
+    void runDubCycle();
+
+    /**
+     Initialize the work
+     */
+    void initialize();
   };
 
 }// namespace XJ
