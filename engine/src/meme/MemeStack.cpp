@@ -13,6 +13,7 @@ using namespace XJ;
 /**
  Constructor from taxonomy and memes
 
+ @param taxonomy taxonomy
  @param from from which to create stack
  */
 MemeStack::MemeStack(MemeTaxonomy taxonomy, const std::set<std::string> &from) {
@@ -61,22 +62,21 @@ bool MemeStack::isAllowed(const std::set<std::string> &sources, const std::set<s
 }
 
 bool MemeStack::isValid() {
-  const std::vector<std::string> targets(memes.begin(), memes.end());
-  std::vector<std::string> subTargets;
+  const std::vector targets(memes.begin(), memes.end());
 
   for (int a = 0; a < targets.size(); a++) {
-    subTargets = targets;
+    std::vector<std::string> subTargets = targets;
     subTargets.erase(subTargets.begin() + a);
     for (int b = 0; b < memes.size(); b++) {
-      std::set<std::string> m1(subTargets.begin(), subTargets.end());
-      std::set<std::string> m2 = {targets[a]};
+      std::set m1(subTargets.begin(), subTargets.end());
+      std::set m2 = {targets[a]};
       if (!isAllowed(m1, m2))
         return false;
     }
   }
 
   // meme categories https://github.com/xjmusic/xjmusic/issues/209
-  const std::set<std::string> targetSet(memes.begin(), memes.end());
+  const std::set targetSet(memes.begin(), memes.end());
   return taxonomy.isAllowed(targetSet);
 }
 

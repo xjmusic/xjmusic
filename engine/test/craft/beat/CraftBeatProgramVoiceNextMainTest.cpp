@@ -18,12 +18,12 @@
 
 // NOLINTNEXTLINE
 using ::testing::_;
-using ::testing::Return;
-using ::testing::ReturnRef;
+using testing::Return;
+using testing::ReturnRef;
 
 using namespace XJ;
 
-class CraftBeatProgramVoiceNextMainTest : public ::testing::Test {
+class CraftBeatProgramVoiceNextMainTest : public testing::Test {
 protected:
   CraftFactory *craftFactory = nullptr;
   FabricatorFactory *fabricatorFactory = nullptr;
@@ -52,7 +52,6 @@ protected:
 
     // Chain "Test Print #1" has 5 total segments
     chain1 = store->put(SegmentFixtures::buildChain(
-        &fake->project1,
         &fake->template1,
         "Test Print #1",
         Chain::Type::Production,
@@ -131,7 +130,7 @@ protected:
 
    @param excludeBeatChoiceForSegment3 if desired for the purpose of this test
    */
-  void insertSegments3and4(bool excludeBeatChoiceForSegment3) {
+  void insertSegments3and4(const bool excludeBeatChoiceForSegment3) {
     // segment just crafted
     // Testing entities for reference
     const auto segment3 = store->put(SegmentFixtures::buildSegment(
@@ -203,7 +202,7 @@ TEST_F(CraftBeatProgramVoiceNextMainTest, CraftBeatVoiceNextMain) {
 
   craftFactory->beat(fabricator).doWork();
 
-  std::set<const SegmentChoice*> choices = {fabricator->getCurrentBeatChoice().value()};
+  std::set choices = {fabricator->getCurrentBeatChoice().value()};
   ASSERT_FALSE(fabricator->getArrangements(choices).empty());
 
 

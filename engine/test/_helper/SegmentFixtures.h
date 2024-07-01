@@ -10,7 +10,6 @@
 #include "xjmusic/content/ProgramSequenceBinding.h"
 #include "xjmusic/content/ProgramSequencePatternEvent.h"
 #include "xjmusic/content/ProgramVoice.h"
-#include "xjmusic/content/Project.h"
 #include "xjmusic/content/Template.h"
 #include "xjmusic/segment/Chain.h"
 #include "xjmusic/segment/Segment.h"
@@ -50,7 +49,6 @@ namespace XJ {
      * Build a chain from a template
      */
     static Chain buildChain(
-        const Project *project,
         const std::string &name,
         Chain::Type type,
         Chain::State state,
@@ -60,7 +58,6 @@ namespace XJ {
      * Build a chain from a template
      */
     static Chain buildChain(
-        const Project *project,
         const Template *tmpl,
         const std::string &name,
         Chain::Type type,
@@ -70,7 +67,6 @@ namespace XJ {
      * Build a chain from a template
      */
     static Chain buildChain(
-        const Project *project,
         std::string name,
         Chain::Type type,
         Chain::State state,

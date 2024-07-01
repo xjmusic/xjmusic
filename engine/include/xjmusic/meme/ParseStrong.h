@@ -6,7 +6,6 @@
 #include <regex>
 #include <vector>
 #include <string>
-#include <set>
 
 namespace XJ {
 
@@ -24,7 +23,7 @@ namespace XJ {
     bool valid;
     explicit ParseStrong(const std::string &raw);
     static ParseStrong fromString(const std::string &raw);
-    bool isAllowed(const std::vector<ParseStrong> &memes);
+    bool isAllowed(const std::vector<ParseStrong> &memes) const;
   };
 
 }

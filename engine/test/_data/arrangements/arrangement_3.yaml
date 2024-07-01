@@ -3,7 +3,7 @@
 #
 #  This test is similar to Tests #1 and #2 except the following:
 #   - The second chord occurs at 3.0
-#   - The starting chord is in first 4cersion
+#   - The starting chord is in first version
 #
 #  XJ has a serviceable voicing algorithm https://github.com/xjmusic/xjmusic/issues/221
 ---

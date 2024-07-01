@@ -14,7 +14,7 @@ TransitionCraft::TransitionCraft(
 }
 
 
-void TransitionCraft::doWork() {
+void TransitionCraft::doWork() const {
   const auto previousChoice =
       fabricator->getRetrospective()->getPreviousChoiceOfType(Instrument::Type::Transition);
 
@@ -51,7 +51,7 @@ bool TransitionCraft::isMediumTransitionSegment() const {
   return mainSequence.value()->id != previousMainSequence.value()->id;
 }
 
-void TransitionCraft::craftTransition(double tempo, const Instrument* instrument) {
+void TransitionCraft::craftTransition(double tempo, const Instrument* instrument) const {
   auto choice = SegmentChoice();
   choice.id = EntityUtils::computeUniqueId();
   choice.segmentId = fabricator->getSegment()->id;
@@ -94,7 +94,7 @@ void TransitionCraft::craftTransition(double tempo, const Instrument* instrument
   }
 }
 
-std::set<const InstrumentAudio *> TransitionCraft::selectAudiosForInstrument(const Instrument *instrument, std::set<std::string> names) {
+std::set<const InstrumentAudio *> TransitionCraft::selectAudiosForInstrument(const Instrument *instrument, std::set<std::string> names) const {
   std::set<const SegmentChoiceArrangementPick*> previous;
   for (auto candidate : fabricator->getRetrospective()->getPreviousPicksForInstrument(instrument->id)) {
     std::string seek = StringUtils::toMeme(candidate->event);

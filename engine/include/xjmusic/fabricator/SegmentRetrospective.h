@@ -122,18 +122,19 @@ namespace XJ {
     /**
      Get the choice of a given type
 
-     @param type of choice to get
+     @param segment for which to get choice
+     @param programType of choice to get
      @return choice of given type
      */
-    virtual std::optional<SegmentChoice *> getPreviousChoiceOfType(const Segment *segment, Program::Type type);
+    virtual std::optional<SegmentChoice *> getPreviousChoiceOfType(const Segment *segment, Program::Type programType);
 
     /**
      Get the previous-segment choice of a given type
 
-     @param type of choice to get
+     @param programType of choice to get
      @return choice of given type
      */
-    virtual std::optional<SegmentChoice *> getPreviousChoiceOfType(Program::Type type);
+    virtual std::optional<SegmentChoice *> getPreviousChoiceOfType(Program::Type programType);
 
     /**
      Get the previous-segment choices of a given instrument mode

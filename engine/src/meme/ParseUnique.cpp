@@ -31,7 +31,7 @@ bool ParseUnique::isViolatedBy(const ParseUnique &target) const {
   return valid && target.valid && body == target.body;
 }
 
-bool ParseUnique::isAllowed(const std::vector<ParseUnique> &memes) {
+bool ParseUnique::isAllowed(const std::vector<ParseUnique> &memes) const {
   return std::all_of(memes.begin(), memes.end(), [this](const ParseUnique &meme) {
     return !isViolatedBy(meme);
   });

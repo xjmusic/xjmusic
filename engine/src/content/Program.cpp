@@ -29,7 +29,7 @@ static const std::map<std::string, Program::State> stateNameValues = EntityUtils
 
 Program::Type Program::parseType(const std::string &value) {
   if (typeNameValues.count(value) == 0) {
-    return Program::Type::Main;
+    return Main;
   }
   return typeNameValues.at(value);
 }
@@ -37,17 +37,17 @@ Program::Type Program::parseType(const std::string &value) {
 
 Program::State Program::parseState(const std::string &value) {
   if (stateNameValues.count(value) == 0) {
-    return Program::State::Draft;
+    return Draft;
   }
   return stateNameValues.at(value);
 }
 
 
-std::string Program::toString(const Program::Type &type) {
+std::string Program::toString(const Type &type) {
   return typeValueNames.at(type);
 }
 
 
-std::string Program::toString(const Program::State &state) {
+std::string Program::toString(const State &state) {
   return stateValueNames.at(state);
 }

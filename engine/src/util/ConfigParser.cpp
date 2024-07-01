@@ -56,16 +56,19 @@ ConfigSingleValue parseSingleValue(const std::string &value) {
     // if the original string contains a "." then it's a float, otherwise it's an in
     if (value.find('.') != std::string::npos) {
       return ConfigSingleValue(floatValue);
-    } else {
-      return ConfigSingleValue(static_cast<int>(std::round(floatValue)));
     }
-  } else if (value == "true" || value == "True" || value == "TRUE") {
-    return ConfigSingleValue(true);
-  } else if (value == "false" || value == "False" || value == "FALSE") {
-    return ConfigSingleValue(false);
-  } else {
-    return ConfigSingleValue(parseString(value));
+    return ConfigSingleValue(static_cast<int>(std::round(floatValue)));
   }
+
+  if (value == "true" || value == "True" || value == "TRUE") {
+    return ConfigSingleValue(true);
+  }
+
+  if (value == "false" || value == "False" || value == "FALSE") {
+    return ConfigSingleValue(false);
+  }
+
+  return ConfigSingleValue(parseString(value));
 }
 
 
@@ -99,7 +102,6 @@ ConfigObjectValue parseObjectValue(const std::string &input) {
   std::istringstream iss(StringUtils::trim(input));
   std::vector<std::string> members;
   std::string piece;
-  std::string key;
   int inObject = 0;// depth inside an object
   int inList = 0;  // depth inside a list
   while (std::getline(iss, piece)) {
@@ -117,12 +119,11 @@ ConfigObjectValue parseObjectValue(const std::string &input) {
   }
 
   // Parse each piece of the members vector
-  std::string value;
   for (const auto &member: members) {
     const auto pos = member.find('=');
     if (pos != std::string::npos) {
-      key = StringUtils::trim(member.substr(0, pos));
-      value = StringUtils::trim(member.substr(pos + 1));
+      std::string key = StringUtils::trim(member.substr(0, pos));
+      std::string value = StringUtils::trim(member.substr(pos + 1));
       if (value.front() == '[' && value.back() == ']') {// Array
         obj.set(key, parseSimpleListValue(value.substr(1, value.size() - 2)));
       } else {
@@ -179,7 +180,7 @@ ConfigListValue parseListValue(const std::string &s) {
  * @return       The parsed member
  */
 std::variant<ConfigSingleValue, ConfigObjectValue, ConfigListValue>
-parseValue(const std::basic_string<char, std::char_traits<char>, std::allocator<char>> &value) {
+parseValue(const std::basic_string<char> &value) {
   if (value.front() == '[' && value.back() == ']')
     return parseListValue(value.substr(1, value.size() - 2));
 
@@ -225,9 +226,9 @@ ConfigParser::ConfigParser(const std::string &input) {
 
 
 ConfigParser::ConfigParser(const std::string &input, const ConfigParser &defaults) : ConfigParser(input) {
-  for (const auto &pair: defaults.config) {
-    if (config.find(pair.first) == config.end()) {
-      config[pair.first] = pair.second;
+  for (const auto &[key, val]: defaults.config) {
+    if (config.find(key) == config.end()) {
+      config[key] = val;
     }
   }
 }
@@ -257,7 +258,7 @@ int ConfigSingleValue::getInt() const {
 }
 
 
-bool ConfigSingleValue::getBool() {
+bool ConfigSingleValue::getBool() const {
   if (std::holds_alternative<bool>(value)) {
     return std::get<bool>(value);
   }
@@ -332,7 +333,7 @@ std::string ConfigParser::format(const std::vector<std::string> &values) {
 
 
 std::string ConfigParser::format(const std::set<std::string> &values) {
-  std::vector<std::string> sortedValues(values.begin(), values.end());
+  std::vector sortedValues(values.begin(), values.end());
   std::sort(sortedValues.begin(), sortedValues.end());
   std::vector<std::string> quotedValues;
   quotedValues.reserve(sortedValues.size());
@@ -343,7 +344,7 @@ std::string ConfigParser::format(const std::set<std::string> &values) {
 }
 
 
-unsigned long ConfigObjectValue::size() {
+unsigned long ConfigObjectValue::size() const {
   return data.size();
 }
 
@@ -371,24 +372,24 @@ ConfigObjectValue::asMapOfSingleOrList() {
 
 
 std::map<std::string, std::variant<std::string, std::vector<std::string>>>
-ConfigObjectValue::asMapOfStringsOrListsOfStrings() {
+ConfigObjectValue::asMapOfStringsOrListsOfStrings() const {
   std::map<std::string, std::variant<std::string, std::vector<std::string>>> map;
-  for (const auto &pair: data) {
-    if (std::holds_alternative<ConfigSingleValue>(pair.second)) {
-      map[pair.first] = std::get<ConfigSingleValue>(pair.second).getString();
-    } else if (std::holds_alternative<std::vector<ConfigSingleValue>>(pair.second)) {
+  for (const auto &[key, val]: data) {
+    if (std::holds_alternative<ConfigSingleValue>(val)) {
+      map[key] = std::get<ConfigSingleValue>(val).getString();
+    } else if (std::holds_alternative<std::vector<ConfigSingleValue>>(val)) {
       std::vector<std::string> values;
-      for (const auto &value: std::get<std::vector<ConfigSingleValue>>(pair.second)) {
+      for (const auto &value: std::get<std::vector<ConfigSingleValue>>(val)) {
         values.push_back(value.getString());
       }
-      map[pair.first] = values;
+      map[key] = values;
     }
   }
   return map;
 }
 
 
-unsigned long ConfigListValue::size() {
+unsigned long ConfigListValue::size() const {
   return data.size();
 }
 
@@ -412,7 +413,7 @@ std::vector<std::string> ConfigListValue::asListOfStrings() const {
   std::vector<std::string> values;
   for (const auto &value: data) {
     if (std::holds_alternative<ConfigSingleValue>(value)) {
-      ConfigSingleValue single = std::get<ConfigSingleValue>(value);
+      auto single = std::get<ConfigSingleValue>(value);
       values.push_back(single.getString());
     }
   }
@@ -424,7 +425,7 @@ std::set<std::string> ConfigListValue::asSetOfStrings() const {
   std::set<std::string> values;
   for (const auto &value: data) {
     if (std::holds_alternative<ConfigSingleValue>(value)) {
-      ConfigSingleValue single = std::get<ConfigSingleValue>(value);
+      auto single = std::get<ConfigSingleValue>(value);
       values.emplace(single.getString());
     }
   }
@@ -437,7 +438,7 @@ ConfigListValue::asListOfMapsOfStrings() {
   std::vector<std::map<std::string, std::variant<std::string, std::vector<std::string>>>> maps;
   for (const auto &value: data) {
     if (std::holds_alternative<ConfigObjectValue>(value)) {
-      ConfigObjectValue object = std::get<ConfigObjectValue>(value);
+      auto object = std::get<ConfigObjectValue>(value);
       maps.emplace_back(object.asMapOfStringsOrListsOfStrings());
     }
   }

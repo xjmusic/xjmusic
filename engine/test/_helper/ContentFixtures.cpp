@@ -41,14 +41,14 @@ float ContentFixtures::random(const float A, const float B) {
 std::string ContentFixtures::random(std::vector<std::string> array) {
   std::random_device rd;
   std::mt19937 gen(rd());
-  std::uniform_int_distribution<> dis(0, static_cast<int>(array.size()) - 1);
+  std::uniform_int_distribution dis(0, static_cast<int>(array.size()) - 1);
   return array[dis(gen)];
 }
 
-int ContentFixtures::random(std::vector<int> array) {
+int ContentFixtures::random(const std::vector<int> &array) {
   std::random_device rd;
   std::mt19937 gen(rd());
-  std::uniform_int_distribution<> dis(0, static_cast<int>(array.size()) - 1);
+  std::uniform_int_distribution dis(0, static_cast<int>(array.size()) - 1);
   return array[dis(gen)];
 }
 
@@ -630,7 +630,7 @@ InstrumentMeme ContentFixtures::buildInstrumentMeme(
   return instrumentMeme;
 }
 
-void ContentFixtures::setupFixtureB1(ContentEntityStore *store, bool includeBeat) {
+void ContentFixtures::setupFixtureB1(ContentEntityStore *store, const bool includeBeat) {
 
   // Project "bananas"
   project1 = buildProject("bananas");
@@ -1171,7 +1171,7 @@ void ContentFixtures::generatedFixture(ContentEntityStore *store, int N) {
   std::vector<std::string>
       majorMemeNames = listOfUniqueRandom(N, LoremIpsum::COLORS);
   std::vector<std::string>
-      minorMemeNames = listOfUniqueRandom(static_cast<long>((double) (N >> 1)), LoremIpsum::VARIANTS);
+      minorMemeNames = listOfUniqueRandom(static_cast<long>(static_cast<double>(N >> 1)), LoremIpsum::VARIANTS);
   std::vector<std::string>
       percussiveNames = listOfUniqueRandom(N, LoremIpsum::PERCUSSIVE_NAMES);
 
@@ -1319,7 +1319,7 @@ void ContentFixtures::generatedFixture(ContentEntityStore *store, int N) {
   }
 
   // Generate N total Beat-type Sequences, each having N voices, and N*2 patterns comprised of N*8 events
-  std::vector<ProgramVoice> voices = std::vector<ProgramVoice>(N);
+  auto voices = std::vector<ProgramVoice>(N);
   std::unordered_map<std::string, ProgramVoiceTrack> trackMap;
   for (int i = 0; i < N; i++) {
     std::string majorMemeName = majorMemeNames[i];
@@ -1372,7 +1372,7 @@ void ContentFixtures::generatedFixture(ContentEntityStore *store, int N) {
           store->put(buildEvent(
               &pattern,
               &trackMap[name],
-              static_cast<float>(std::floor(static_cast<float>(iPE) * static_cast<float>(total) * 4 / static_cast<float>(N))),
+              std::floor(static_cast<float>(iPE) * static_cast<float>(total) * 4 / static_cast<float>(N)),
               random(0.25f, 1.0f),
               "X",
               random(0.4f, 0.9f)));

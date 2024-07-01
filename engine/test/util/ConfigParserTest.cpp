@@ -37,7 +37,7 @@ TEST(HoconLiteTest, ParseConfig) {
             stringValue = Apples
     )";
 
-  ConfigParser subject = ConfigParser(input);
+  auto subject = ConfigParser(input);
 
   // single values
   ASSERT_EQ("Apples", subject.getSingleValue("stringValue").getString());
@@ -100,7 +100,7 @@ TEST(HoconLiteTest, ParseConfigWithDefaults) {
             intValue = 12
     )";
 
-  ConfigParser subject = ConfigParser(input, ConfigParser(defaults));
+  auto subject = ConfigParser(input, ConfigParser(defaults));
 
   // single values
   ASSERT_EQ("Apples", subject.getSingleValue("stringValue").getString());

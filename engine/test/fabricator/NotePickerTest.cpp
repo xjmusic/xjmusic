@@ -112,7 +112,7 @@ protected:
 
     std::set<std::string> picked;
     for (auto& note : pickedNotes) {
-      picked.insert(note.toString(Accidental::Sharp));
+      picked.insert(note.toString(Sharp));
     }
 
     if (obj["picks"]) {

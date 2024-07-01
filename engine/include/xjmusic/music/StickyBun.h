@@ -72,9 +72,10 @@ namespace XJ {
      * Replace atonal notes in the list with selections based on the sticky bun
      *
      * @param voicingNotes from which to select replacements
+     * @param index        of the note to replace
      * @return notes with atonal elements augmented by sticky bun
      */
-    [[nodiscard]] Note compute(std::vector<Note> voicingNotes, int index) const;
+    [[nodiscard]] Note compute(const std::vector<Note> &voicingNotes, int index) const;
 
     /**
      * Compute a meta key based on the event id

@@ -80,7 +80,7 @@ namespace XJ {
      @param array to get long of
      @return random long
      */
-    static int random(std::vector<int> array);
+    static int random(const std::vector<int> &array);
 
   public:
 

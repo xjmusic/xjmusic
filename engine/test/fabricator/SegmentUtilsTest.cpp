@@ -12,7 +12,7 @@
 
 using namespace XJ;
 
-class SegmentUtilsTest : public ::testing::Test {
+class SegmentUtilsTest : public testing::Test {
 protected:
   std::vector<Segment *> segments;
   Project project;
@@ -26,7 +26,7 @@ protected:
   void SetUp() override {
     project = ContentFixtures::buildProject("Test");
     tmpl = ContentFixtures::buildTemplate(&project, "Test");
-    chain = SegmentFixtures::buildChain(&project, "Test", Chain::Type::Production, Chain::State::Fabricate, &tmpl);
+    chain = SegmentFixtures::buildChain("Test", Chain::Type::Production, Chain::State::Fabricate, &tmpl);
     seg0 = SegmentFixtures::buildSegment(
         &chain,
         Segment::Type::Initial,
@@ -140,7 +140,7 @@ TEST_F(SegmentUtilsTest, GetLast) {
 
 // Test for getDubbed
 TEST_F(SegmentUtilsTest, GetDubbed) {
-  const std::vector<Segment *> expected = {&seg0, &seg1, &seg2};
+  const std::vector expected = {&seg0, &seg1, &seg2};
 
   const auto actual = SegmentUtils::getCrafted(segments);
 
@@ -195,6 +195,6 @@ TEST_F(SegmentUtilsTest, IsSameButUpdated) {
 
 // Test for getDurationMinMicros
 TEST_F(SegmentUtilsTest, GetDurationMinMicros) {
-  std::vector<Segment> segments = {seg0, seg1, seg2, seg3};
+  std::vector segments = {seg0, seg1, seg2, seg3};
   ASSERT_EQ(32000000L, SegmentUtils::getDurationMinMicros(segments));
 }

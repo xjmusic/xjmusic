@@ -23,20 +23,20 @@ void BeatCraft::doWork() {
   }
 
   // Segments have intensity arcs; automate mixer layers in and out of each main program https://github.com/xjmusic/xjmusic/issues/233
-  Craft::ChoiceIndexProvider *choiceIndexProvider = new Craft::LambdaChoiceIndexProvider(
+  ChoiceIndexProvider *choiceIndexProvider = new LambdaChoiceIndexProvider(
       [this](const SegmentChoice &choice) -> std::string {
         const auto voice = fabricator->getSourceMaterial()->getProgramVoice(choice.programVoiceId);
         if (voice.has_value()) return voice.value()->name;
         return "unknown";
       });
 
-  std::function<bool(const SegmentChoice *)> choiceFilter = [](const SegmentChoice *choice) {
+  std::function choiceFilter = [](const SegmentChoice *choice) {
     return Program::Type::Beat == choice->programType;
   };
 
   auto programVoices = fabricator->getSourceMaterial()->getVoicesOfProgram(program.value());
   auto voiceNames = ProgramVoice::getNames(programVoices);
-  auto voiceNameVector = std::vector<std::string>(voiceNames.begin(), voiceNames.end());
+  auto voiceNameVector = std::vector(voiceNames.begin(), voiceNames.end());
 
   precomputeDeltas(
       choiceFilter,

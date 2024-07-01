@@ -18,12 +18,12 @@
 
 // NOLINTNEXTLINE
 using ::testing::_;
-using ::testing::Return;
-using ::testing::ReturnRef;
+using testing::Return;
+using testing::ReturnRef;
 
 using namespace XJ;
 
-class CraftDetailContinueTest : public ::testing::Test {
+class CraftDetailContinueTest : public testing::Test {
 protected:
   CraftFactory *craftFactory = nullptr;
   FabricatorFactory *fabricatorFactory = nullptr;
@@ -50,7 +50,6 @@ protected:
 
     // Chain "Test Print #1" is fabricating segments
     chain1 = store->put(SegmentFixtures::buildChain(
-        &fake->project1,
         &fake->template1,
         "Test Print #1",
         Chain::Type::Production,
@@ -96,7 +95,7 @@ protected:
 
    @param excludeDetailChoiceForSegment3 if desired for the purpose of this test
    */
-  void insertSegments3and4(bool excludeDetailChoiceForSegment3) {
+  void insertSegments3and4(const bool excludeDetailChoiceForSegment3) {
     // segment just crafted
     const auto segment3 = store->put(SegmentFixtures::buildSegment(chain1,
                                                                    Segment::Type::Continue,

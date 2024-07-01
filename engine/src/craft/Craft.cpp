@@ -24,13 +24,13 @@ bool Craft::isOutroSegment(const SegmentChoice *choice) const {
 }
 
 bool Craft::isSilentEntireSegment(const SegmentChoice *choice) const {
-  return (choice->deltaOut < fabricator->getSegment()->delta) ||
-         (choice->deltaIn >= fabricator->getSegment()->delta + fabricator->getSegment()->total);
+  return choice->deltaOut < fabricator->getSegment()->delta ||
+         choice->deltaIn >= fabricator->getSegment()->delta + fabricator->getSegment()->total;
 }
 
 bool Craft::isActiveEntireSegment(const SegmentChoice *choice) const {
-  return (choice->deltaIn <= fabricator->getSegment()->delta) &&
-         (choice->deltaOut >= fabricator->getSegment()->delta + fabricator->getSegment()->total);
+  return choice->deltaIn <= fabricator->getSegment()->delta &&
+         choice->deltaOut >= fabricator->getSegment()->delta + fabricator->getSegment()->total;
 }
 
 void Craft::craftNoteEventArrangements(const float tempo, const SegmentChoice *choice, const bool defaultAtonal) {
@@ -41,7 +41,7 @@ void Craft::craftNoteEventArrangements(const float tempo, const SegmentChoice *c
   if (!fabricator->getProgram(choice).has_value())
     throw FabricationException("Can't get program config");
 
-  if (const auto programConfig = XJ::Fabricator::getProgramConfig(fabricator->getProgram(choice).value());
+  if (const auto programConfig = Fabricator::getProgramConfig(fabricator->getProgram(choice).value());
       fabricator->getSegmentChords().empty() || !programConfig.doPatternRestartOnChord) {
     craftNoteEventSection(tempo, choice, 0, static_cast<float>(fabricator->getSegment()->total), &range, defaultAtonal);
   } else {
@@ -113,7 +113,7 @@ void Craft::precomputeDeltas(
       auto delta = ValueUtils::roundToNearest(deltaUnits, MarbleBag::quickPick(deltaUnits * 4) -
                                                               deltaUnits * 2 * numLayersIncoming);
       for (const std::string &orderedLayer: orderedLayers) {
-        deltaIns[orderedLayer] = (delta > 0) ? delta : SegmentChoice::DELTA_UNLIMITED;
+        deltaIns[orderedLayer] = delta > 0 ? delta : SegmentChoice::DELTA_UNLIMITED;
         deltaOuts[orderedLayer] = SegmentChoice::DELTA_UNLIMITED;// all layers get delta out unlimited
         delta += ValueUtils::roundToNearest(deltaUnits, MarbleBag::quickPick(deltaUnits * 5));
       }
@@ -166,7 +166,7 @@ Craft::chooseFreshProgram(const Program::Type programType, const std::optional<I
   }
 
   // (3) score each source program based on meme isometry
-  MemeIsometry iso = fabricator->getMemeIsometryOfSegment();
+  const MemeIsometry iso = fabricator->getMemeIsometryOfSegment();
   std::set<std::string> memes;
 
   // Phase 1: Directly Bound Programs
@@ -206,7 +206,7 @@ Craft::chooseFreshInstrument(const Instrument::Type type, const std::set<std::st
   }
 
   // Retrieve meme isometry of segment
-  MemeIsometry iso = fabricator->getMemeIsometryOfSegment();
+  const MemeIsometry iso = fabricator->getMemeIsometryOfSegment();
   std::set<std::string> memes;
 
   // Phase 1: Directly Bound Instruments
@@ -246,7 +246,7 @@ Craft::chooseFreshInstrumentAudio(
   }
 
   // (3) score each source instrument based on meme isometry
-  MemeIsometry iso = fabricator->getMemeIsometryOfSegment();
+  const MemeIsometry iso = fabricator->getMemeIsometryOfSegment();
   std::set<std::string> memes;
 
   // Phase 1: Directly Bound Audios (Preferred)
@@ -594,12 +594,12 @@ void Craft::craftEventParts(const float tempo, const Instrument *instrument, con
 
 int Craft::computeDeltaIn(const SegmentChoice *choice) {
   const auto it = deltaIns.find(choiceIndexProvider->get(choice));
-  return (it != deltaIns.end()) ? it->second : SegmentChoice::DELTA_UNLIMITED;
+  return it != deltaIns.end() ? it->second : SegmentChoice::DELTA_UNLIMITED;
 }
 
 int Craft::computeDeltaOut(const SegmentChoice *choice) {
   const auto it = deltaOuts.find(choiceIndexProvider->get(choice));
-  return (it != deltaOuts.end()) ? it->second : SegmentChoice::DELTA_UNLIMITED;
+  return it != deltaOuts.end() ? it->second : SegmentChoice::DELTA_UNLIMITED;
 }
 
 void Craft::craftNoteEventSectionRestartingEachChord(
@@ -717,14 +717,14 @@ void Craft::pickNotesAndInstrumentAudioForEvent(
   const std::set<std::string> notes = chord.value() && voicing.has_value()
                                           ? pickNotesForEvent(instrument->type, choice, event, chord.value(),
                                                               voicing.value(), range)
-                                          : (defaultAtonal ? std::set<std::string>{"ATONAL"}
-                                                           : std::set<std::string>{});
+                                          : defaultAtonal ? std::set<std::string>{"ATONAL"}
+                                                      : std::set<std::string>{};
 
   // Pick attributes are expressed "rendered" as actual seconds
   const long startAtSegmentMicros = fabricator->getSegmentMicrosAtPosition(tempo, segmentPosition);
   const std::optional<long> lengthMicros = fabricator->isOneShot(instrument, fabricator->getTrackName(event))
                                                ? std::nullopt
-                                               : std::optional<long>(
+                                               : std::optional(
                                                      fabricator->getSegmentMicrosAtPosition(tempo, segmentPosition + duration) -
                                                      startAtSegmentMicros);
 
@@ -922,10 +922,9 @@ Craft::selectMultiphonicInstrumentAudio(
       }
     }
     return fabricator->getPreferredAudio(event->programVoiceTrackId, note);
-
-  } else {
-    return selectNewMultiphonicInstrumentAudio(instrument, note);
   }
+
+  return selectNewMultiphonicInstrumentAudio(instrument, note);
 }
 
 std::optional<const InstrumentAudio *>
@@ -937,10 +936,9 @@ Craft::selectMonophonicInstrumentAudio(const Instrument *instrument, const Progr
       fabricator->putPreferredAudio(event->programVoiceTrackId, event->tones, selection.value());
     }
     return fabricator->getPreferredAudio(event->programVoiceTrackId, event->tones);
-
-  } else {
-    return selectNewNoteEventInstrumentAudio(instrument, event);
   }
+
+  return selectNewNoteEventInstrumentAudio(instrument, event);
 }
 
 std::optional<const InstrumentAudio *>
@@ -954,10 +952,9 @@ Craft::selectChordPartInstrumentAudio(const Instrument *instrument, const Chord 
       }
     }
     return fabricator->getPreferredAudio(instrument->id, chord.getName());
-
-  } else {
-    return selectNewChordPartInstrumentAudio(instrument, chord);
   }
+
+  return selectNewChordPartInstrumentAudio(instrument, chord);
 }
 
 std::optional<const InstrumentAudio *>
@@ -1003,7 +1000,7 @@ Craft::selectNewMultiphonicInstrumentAudio(const Instrument *instrument, std::st
     std::sort(availableNotes.begin(), availableNotes.end());
     std::vector<std::string> availableNoteNames;
     for (auto N: availableNotes) {
-      availableNoteNames.push_back(N.toString(Accidental::Sharp));
+      availableNoteNames.push_back(N.toString(Sharp));
     }
     const std::map<std::string, std::string> reportMissingData = {
         {"instrumentId", instrument->id},

@@ -17,12 +17,12 @@
 
 // NOLINTNEXTLINE
 using ::testing::_;
-using ::testing::Return;
-using ::testing::ReturnRef;
+using testing::Return;
+using testing::ReturnRef;
 
 using namespace XJ;
 
-class CraftSegmentOutputEncoderTest : public ::testing::Test {
+class CraftSegmentOutputEncoderTest : public testing::Test {
 protected:
   CraftFactory *craftFactory = nullptr;
   FabricatorFactory *fabricatorFactory = nullptr;
@@ -45,7 +45,6 @@ protected:
 
     // Chain "Print #2" has 1 initial planned segment
     const auto chain2 = store->put(SegmentFixtures::buildChain(
-        &fake->project1,
         "Print #2",
         Chain::Type::Production,
         Chain::State::Fabricate,

@@ -41,7 +41,7 @@ SlashRoot SlashRoot::none() {
 
 
 PitchClass SlashRoot::orDefault(PitchClass dpc) const {
-  if (pitchClass == PitchClass::Atonal) return dpc;
+  if (pitchClass == Atonal) return dpc;
   return pitchClass.value_or(dpc);
 }
 
@@ -64,20 +64,22 @@ bool SlashRoot::has_value() const {
 
 
 std::string SlashRoot::display(const Accidental withOptional) const {
-  if (pitchClass.has_value() && PitchClass::Atonal != pitchClass) {
+  if (pitchClass.has_value() && Atonal != pitchClass) {
     std::ostringstream oss;
     oss << "/" << stringOf(pitchClass.value(), withOptional);
     return oss.str();
-  } else if (!post.empty()) {
+  }
+
+  if (!post.empty()) {
     std::ostringstream oss;
     oss << "/" << post;
     return oss.str();
-  } else {
-    return "";
   }
+
+  return "";
 }
 
 
 bool SlashRoot::operator==(const SlashRoot &other) const {
-  return ((!post.empty() && !other.post.empty() && post == other.post) || pitchClass == other.pitchClass);
+  return (!post.empty() && !other.post.empty() && post == other.post) || pitchClass == other.pitchClass;
 }

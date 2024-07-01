@@ -49,13 +49,13 @@ InstrumentConfig::InstrumentConfig(const std::string &input) : ConfigParser(inpu
 
 std::string InstrumentConfig::toString() const {
   std::map<std::string, std::string> config;
-  config["isAudioSelectionPersistent"] = ConfigParser::format(isAudioSelectionPersistent);
-  config["isMultiphonic"] = ConfigParser::format(isMultiphonic);
-  config["isOneShot"] = ConfigParser::format(isOneShot);
-  config["isOneShotCutoffEnabled"] = ConfigParser::format(isOneShotCutoffEnabled);
-  config["isTonal"] = ConfigParser::format(isTonal);
+  config["isAudioSelectionPersistent"] = format(isAudioSelectionPersistent);
+  config["isMultiphonic"] = format(isMultiphonic);
+  config["isOneShot"] = format(isOneShot);
+  config["isOneShotCutoffEnabled"] = format(isOneShotCutoffEnabled);
+  config["isTonal"] = format(isTonal);
   config["releaseMillis"] = std::to_string(releaseMillis);
-  config["oneShotObserveLengthOfEvents"] = ConfigParser::format(oneShotObserveLengthOfEvents);
+  config["oneShotObserveLengthOfEvents"] = format(oneShotObserveLengthOfEvents);
 
   // Convert the map to a vector of pairs for sorting
   std::vector<std::pair<std::string, std::string>> configVec(config.begin(), config.end());
@@ -64,8 +64,8 @@ std::string InstrumentConfig::toString() const {
   std::sort(configVec.begin(), configVec.end());
 
   std::ostringstream oss;
-  for (const auto &pair: configVec) {
-    oss << pair.first << " = " << pair.second << "\n";
+  for (const auto &[key, val]: configVec) {
+    oss << key << " = " << val << "\n";
   }
 
   return oss.str();

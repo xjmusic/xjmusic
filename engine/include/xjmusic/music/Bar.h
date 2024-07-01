@@ -28,10 +28,10 @@ namespace XJ {
 
     /**
      * Compute the number of beats in a subsection of this Bar
-     * @param beats  number of beats in the subsection
+     * @param subBeats  number of beats in the subsection
      * @return       number of beats in the subsection
      */
-    [[nodiscard]] int computeSubsectionBeats(int beats) const;
+    [[nodiscard]] int computeSubsectionBeats(int subBeats) const;
   };
 
 }// namespace XJ

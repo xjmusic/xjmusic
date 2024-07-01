@@ -7,7 +7,7 @@
 using namespace XJ;
 
 TEST(Music_Step, To) {
-  const Step step = Step::to(PitchClass::B, -1);
+  const Step step = Step::to(B, -1);
 
   ASSERT_EQ(-1, step.deltaOctave);
   ASSERT_EQ(PitchClass::B, step.pitchClass);

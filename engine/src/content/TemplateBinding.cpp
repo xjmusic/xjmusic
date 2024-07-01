@@ -26,13 +26,13 @@ std::string TemplateBinding::toString() const {
 
 TemplateBinding::Type TemplateBinding::parseType(const std::string &value) {
   if (typeNameValues.count(value) == 0) {
-    return TemplateBinding::Type::Library;
+    return Library;
   }
   return typeNameValues.at(value);
 }
 
 
-std::string TemplateBinding::toString(const TemplateBinding::Type &type) {
+std::string TemplateBinding::toString(const Type &type) {
   return typeValueNames.at(type);
 }
 

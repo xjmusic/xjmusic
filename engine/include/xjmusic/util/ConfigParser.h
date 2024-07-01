@@ -59,7 +59,7 @@ namespace XJ {
      * Get a bool value from a ConfigSingleValue
      * @return           The bool value
      */
-    bool getBool();
+    bool getBool() const;
   };
 
   /**
@@ -74,7 +74,7 @@ namespace XJ {
    * Get the size of the object
    * @return  The size of the object
    */
-    unsigned long size();
+    unsigned long size() const;
 
     /**
    * Get a single value from the object
@@ -107,7 +107,7 @@ namespace XJ {
    * Get the object as a map of strings to strings
    * @return  The object as a map of strings to strings
    */
-    std::map<std::string, std::variant<std::string, std::vector<std::string>>> asMapOfStringsOrListsOfStrings();
+    std::map<std::string, std::variant<std::string, std::vector<std::string>>> asMapOfStringsOrListsOfStrings() const;
   };
 
   /**
@@ -122,7 +122,7 @@ namespace XJ {
    * Get the size of the list
    * @return  The size of the list
    */
-    unsigned long size();
+    unsigned long size() const;
 
     /**
    * Get the list as a vector of strings

@@ -28,25 +28,22 @@ Chain SegmentFixtures::buildChain(
 }
 
 Chain SegmentFixtures::buildChain(
-    const Project *project,
     const std::string &name,
     const Chain::Type type,
     const Chain::State state,
     const Template *tmpl) {
-  return buildChain(project, name, type, state, tmpl, StringUtils::toShipKey(name));
+  return buildChain(name, type, state, tmpl, StringUtils::toShipKey(name));
 }
 
 Chain SegmentFixtures::buildChain(
-    const Project *project,
     const Template *tmpl,
     const std::string &name,
     const Chain::Type type,
     const Chain::State state) {
-  return buildChain(project, name, type, state, tmpl, StringUtils::toShipKey(name));
+  return buildChain(name, type, state, tmpl, StringUtils::toShipKey(name));
 }
 
 Chain SegmentFixtures::buildChain(
-    const Project *project,
     std::string name,
     const Chain::Type type,
     const Chain::State state,
@@ -103,7 +100,7 @@ Segment SegmentFixtures::buildSegment(
   segment.delta = delta;
   segment.state = state;
   segment.beginAtChainMicros =
-      static_cast<long>(id * ValueUtils::MICROS_PER_SECOND * static_cast<float>(total * ValueUtils::SECONDS_PER_MINUTE / tempo));
+      static_cast<long>(id * ValueUtils::MICROS_PER_SECOND * (total * ValueUtils::SECONDS_PER_MINUTE / tempo));
   segment.key = std::move(key);
   segment.total = total;
   segment.intensity = intensity;
@@ -114,7 +111,7 @@ Segment SegmentFixtures::buildSegment(
 
   if (hasEndSet)
     segment.durationMicros =
-        static_cast<long>(ValueUtils::MICROS_PER_SECOND * static_cast<float>(total * ValueUtils::SECONDS_PER_MINUTE / tempo));
+        static_cast<long>(ValueUtils::MICROS_PER_SECOND * (total * ValueUtils::SECONDS_PER_MINUTE / tempo));
 
   return segment;
 }

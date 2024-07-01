@@ -70,7 +70,7 @@ void Tuning::validate() const {
     throw std::runtime_error(ss.str());
   }
 
-  if (rootNote.pitchClass == PitchClass::Atonal)
+  if (rootNote.pitchClass == Atonal)
     throw std::runtime_error("Root note must have a pitch class (e.g. 'C')");
 
   if (!(ROOT_OCTAVE_MINIMUM <= rootNote.octave && ROOT_OCTAVE_MAXIMUM >= rootNote.octave)) {

@@ -7,14 +7,14 @@ using namespace XJ;
 
 NotePicker::NotePicker(const NoteRange& targetRange, const std::set<Note>& voicingNotes, const bool seekInversions)  {
   this->targetRange = NoteRange::copyOf(targetRange);
-  this->voicingNotes = std::set<Note>(voicingNotes);
+  this->voicingNotes = std::set(voicingNotes);
   this->voicingRange = NoteRange::ofNotes(voicingNotes);
   this->seekInversions = seekInversions;
 }
 
 NotePicker::NotePicker(const NoteRange& targetRange, const std::vector<Note>& voicingNotes, const bool seekInversions)  {
   this->targetRange = NoteRange::copyOf(targetRange);
-  this->voicingNotes = std::set<Note>(voicingNotes.begin(), voicingNotes.end());
+  this->voicingNotes = std::set(voicingNotes.begin(), voicingNotes.end());
   this->voicingRange = NoteRange::ofNotes(voicingNotes);
   this->seekInversions = seekInversions;
 }
@@ -25,7 +25,7 @@ Note NotePicker::pick(const Note eventNote) {
 
   std::optional<Note> picked = std::nullopt;
 
-  if (PitchClass::Atonal == noteInAvailableOctave.pitchClass) {
+  if (Atonal == noteInAvailableOctave.pitchClass) {
     picked = pickRandom(voicingNotes);
   } else {
     std::vector<RankedNote> rankedNotes;
@@ -35,7 +35,7 @@ Note NotePicker::pick(const Note eventNote) {
     }
 
     // Find the minimum delta
-    const auto minElementIter = std::min_element(rankedNotes.begin(), rankedNotes.end(), [](RankedNote &a, RankedNote &b) {
+    const auto minElementIter = std::min_element(rankedNotes.begin(), rankedNotes.end(), [](const RankedNote &a, const RankedNote &b) {
       return abs(a.getDelta()) < abs(b.getDelta());
     });
 
@@ -65,14 +65,13 @@ NoteRange NotePicker::getTargetRange()  {
 Note NotePicker::removePicked(const Note picked)  {
   const auto it = voicingNotes.find(picked);
   if (it != voicingNotes.end()) {
-    Note pickedNote = *it;
     voicingNotes.erase(it);
   }
   return picked;
 }
 
 
-Note NotePicker::seekInversion(const Note source, NoteRange range, std::set<Note> options) {
+Note NotePicker::seekInversion(const Note source, const NoteRange &range, const std::set<Note> &options) const {
   if (!seekInversions) return source;
 
   if (range.high.has_value() && range.high.value() < source) {
@@ -107,7 +106,7 @@ Note NotePicker::seekInversion(const Note source, NoteRange range, std::set<Note
 
 std::optional<Note> NotePicker::pickRandom(std::set<Note> fromNotes) {
   if (fromNotes.empty()) return std::nullopt;
-  std::vector<Note> fromNotesVec(fromNotes.begin(), fromNotes.end());
+  std::vector fromNotesVec(fromNotes.begin(), fromNotes.end());
   return {fromNotesVec[MarbleBag::quickPick(fromNotes.size())]};
 }
 

@@ -18,8 +18,8 @@
 
 // NOLINTNEXTLINE
 using ::testing::_;
-using ::testing::Return;
-using ::testing::ReturnRef;
+using testing::Return;
+using testing::ReturnRef;
 
 using namespace XJ;
 
@@ -35,7 +35,6 @@ protected:
   Program *program1 = nullptr;
   TemplateConfig * templateConfig = nullptr;
 
-protected:
   void SetUp() override {
     sourceMaterial = new ContentEntityStore();
     segmentEntityStore = new SegmentEntityStore();
@@ -45,8 +44,8 @@ protected:
                                                                  "C", 120.0f));
     const Template *template1 = sourceMaterial->put(ContentFixtures::buildTemplate(project1, "Test Template 1", "test1"));
     // Chain "Test Print #1" is fabricating segments
-    const Chain *chain1 = segmentEntityStore->put(SegmentFixtures::buildChain(project1, "Test Print #1", Chain::Type::Production,
-                                                                        Chain::State::Fabricate, template1));
+    const Chain *chain1 = segmentEntityStore->put(SegmentFixtures::buildChain("Test Print #1", Chain::Type::Production, Chain::State::Fabricate,
+                                                                              template1));
 
     segment0 = segmentEntityStore->put(SegmentFixtures::buildSegment(chain1, Segment::Type::Initial, 2, 128, Segment::State::Crafted, "D major",
                                                                      64, 0.73f, 120.0f, "chains-1-segments-9f7s89d8a7892", true));
@@ -313,7 +312,7 @@ TEST_F(CraftTest, SelectGeneralAudioIntensityLayers_ThreeLayers) {
   auto result = subject->selectGeneralAudioIntensityLayers(instrument1);
 
   // Sort the result
-  std::vector<const InstrumentAudio *> resultVector(result.begin(), result.end());
+  std::vector resultVector(result.begin(), result.end());
   std::sort(resultVector.begin(), resultVector.end(), [](const InstrumentAudio *a, const InstrumentAudio *b) {
     return a->intensity < b->intensity;
   });
@@ -335,7 +334,7 @@ TEST_F(CraftTest, SelectGeneralAudioIntensityLayers_ContinueSegment) {
       ContentFixtures::buildInstrument(&library1, Instrument::Type::Percussion, Instrument::Mode::Loop,
                                        Instrument::State::Published, "Test loop audio"));
   instrument1->config = "isAudioSelectionPersistent=true";
-  InstrumentConfig instrumentConfig = InstrumentConfig(instrument1);
+  auto instrumentConfig = InstrumentConfig(instrument1);
   InstrumentAudio *instrument1audio1a = sourceMaterial->put(
       ContentFixtures::buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.2f, "PERC", "X",
                                             1.0f));

@@ -72,15 +72,15 @@ SEGMENT_STORE_CORE_METHODS(SegmentMessage, SegmentMessages, segmentMessages)
 SEGMENT_STORE_CORE_METHODS(SegmentMeta, SegmentMetas, segmentMetas)
 
 
-Chain *SegmentEntityStore::put(const Chain &c) {
-  const auto cc = new Chain(c);
+Chain *SegmentEntityStore::put(const Chain &chain) {
+  const auto cc = new Chain(chain);
   this->chain = *cc;
   return cc;
 }
 
-Segment *SegmentEntityStore::put(const Segment &s) {
-  const auto sc = new Segment(s);
-  this->segments[s.id] = *sc;
+Segment *SegmentEntityStore::put(const Segment &segment) {
+  const auto sc = new Segment(segment);
+  this->segments[segment.id] = *sc;
   return sc;
 }
 
@@ -156,9 +156,9 @@ std::set<SegmentEntity *> SegmentEntityStore::readAllSegmentEntities(const std::
 
 std::vector<Segment> SegmentEntityStore::readAllSegmentsSpanning(const long fromChainMicros, const long toChainMicros) {
   std::vector<Segment> result;
-  for (auto &segment: segments) {
-    if (SegmentUtils::isSpanning(&segment.second, fromChainMicros, toChainMicros)) {
-      result.emplace_back(segment.second);
+  for (auto &[id, segment]: segments) {
+    if (SegmentUtils::isSpanning(&segment, fromChainMicros, toChainMicros)) {
+      result.emplace_back(segment);
     }
   }
   return result;

@@ -8,7 +8,7 @@ using namespace XJ;
 
 TEST(TemplateConfigTest, SetFromTemplate) {
   Template input;
-  input.config = ("mixerCompressToAmplitude = 0.95");
+  input.config = "mixerCompressToAmplitude = 0.95";
 
   const TemplateConfig subject(&input);
 

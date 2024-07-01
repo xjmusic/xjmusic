@@ -17,8 +17,8 @@
 
 // NOLINTNEXTLINE
 using ::testing::_;
-using ::testing::Return;
-using ::testing::ReturnRef;
+using testing::Return;
+using testing::ReturnRef;
 
 using namespace XJ;
 
@@ -49,7 +49,7 @@ TEST(CraftSegmentPatternMemeTest, CraftSegment) {
     fake->setupFixtureB2(sourceMaterial);
 
     // Chain "Test Print #1" has 5 total segments
-    const auto chain = store->put(SegmentFixtures::buildChain(&fake->project1, "Test Print #1", Chain::Type::Production, Chain::State::Fabricate, &fake->template1, ""));
+    const auto chain = store->put(SegmentFixtures::buildChain("Test Print #1", Chain::Type::Production, Chain::State::Fabricate, &fake->template1, ""));
 
     // Preceding Segment
     const auto previousSegment = store->put(SegmentFixtures::buildSegment(

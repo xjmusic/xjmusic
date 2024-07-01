@@ -1,6 +1,5 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-#include <set>
 #include "xjmusic/meme/ParseNumeric.h"
 
 using namespace XJ;
@@ -42,7 +41,7 @@ bool ParseNumeric::isViolatedBy(const ParseNumeric &target) const {
   return valid && target.valid && body == target.body && prefix != target.prefix;
 }
 
-bool ParseNumeric::isAllowed(const std::vector<ParseNumeric> &memes) {
+bool ParseNumeric::isAllowed(const std::vector<ParseNumeric> &memes) const {
   return std::all_of(memes.begin(), memes.end(), [this](const ParseNumeric &meme) {
     return !isViolatedBy(meme);
   });

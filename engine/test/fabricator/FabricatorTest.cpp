@@ -18,12 +18,12 @@ namespace XJ {
 }
 // NOLINTNEXTLINE
 using ::testing::_;
-using ::testing::Return;
-using ::testing::ReturnRef;
+using testing::Return;
+using testing::ReturnRef;
 
 using namespace XJ;
 
-class FabricatorTest : public ::testing::Test { // NOLINT(*-pro-type-member-init)
+class FabricatorTest : public testing::Test { // NOLINT(*-pro-type-member-init)
 protected:
   int SEQUENCE_TOTAL_BEATS = 64;
   ContentEntityStore *sourceMaterial = nullptr;
@@ -32,9 +32,6 @@ protected:
   Fabricator *subject = nullptr;
   ContentFixtures *fake = nullptr;
   Segment *segment = nullptr;
-
-public:
-
 
 protected:
   void SetUp() override {
@@ -49,7 +46,6 @@ protected:
 
     // Here's a basic setup that can be replaced for complex tests
     const auto chain = store->put(SegmentFixtures::buildChain(
-        &fake->project1,
         &fake->template1,
         "test",
         Chain::Type::Production,
@@ -80,8 +76,7 @@ protected:
 TEST_F(FabricatorTest, PickReturnedByPicks) {
   sourceMaterial->put(ContentFixtures::buildTemplateBinding(&fake->template1, &fake->library2));
   auto chain = store->put(
-      SegmentFixtures::buildChain(&fake->project1, &fake->template1, "test", Chain::Type::Production,
-                                  Chain::State::Fabricate));
+      SegmentFixtures::buildChain(&fake->template1, "test", Chain::Type::Production, Chain::State::Fabricate));
   store->put(SegmentFixtures::buildSegment(chain, 1, Segment::State::Crafted, "F major", 8, 0.6f, 120.0f, "seg123"));
   segment = store->put(
       SegmentFixtures::buildSegment(chain, 2, Segment::State::Crafting, "G major", 8, 0.6f, 240.0f, "seg123"));
@@ -128,7 +123,7 @@ TEST_F(FabricatorTest, GetDistinctChordVoicingTypes) {
 
   // Create a chain
   store->put(SegmentFixtures::buildChain(
-      &fake->project1, &fake->template1, "test", Chain::Type::Production, Chain::State::Fabricate));
+      &fake->template1, "test", Chain::Type::Production, Chain::State::Fabricate));
 
   // Create a segment choice
   store->put(SegmentFixtures::buildSegmentChoice(
@@ -138,7 +133,7 @@ TEST_F(FabricatorTest, GetDistinctChordVoicingTypes) {
   const std::set<Instrument::Type> result = subject->getDistinctChordVoicingTypes();
 
   // Check the result
-  const std::set<Instrument::Type> expected = {Instrument::Type::Bass, Instrument::Type::Sticky, Instrument::Type::Stripe};
+  const std::set expected = {Instrument::Type::Bass, Instrument::Type::Sticky, Instrument::Type::Stripe};
   ASSERT_EQ(expected, result);
 }
 
@@ -148,8 +143,7 @@ TEST_F(FabricatorTest, GetDistinctChordVoicingTypes) {
 TEST_F(FabricatorTest, GetType) {
   // Create a chain
   const auto chain = store->put(
-      SegmentFixtures::buildChain(&fake->project1, &fake->template1, "test", Chain::Type::Production,
-                                  Chain::State::Fabricate));
+      SegmentFixtures::buildChain(&fake->template1, "test", Chain::Type::Production, Chain::State::Fabricate));
 
   // Create previous segments with different choices
   const Segment *previousSegment = store->put(
@@ -183,8 +177,7 @@ TEST_F(FabricatorTest, GetType) {
 TEST_F(FabricatorTest, GetMemeIsometryOfNextSequenceInPreviousMacro) {
   // Create a chain
   const auto chain = store->put(
-      SegmentFixtures::buildChain(&fake->project1, &fake->template1, "test", Chain::Type::Production,
-                                  Chain::State::Fabricate));
+      SegmentFixtures::buildChain(&fake->template1, "test", Chain::Type::Production, Chain::State::Fabricate));
 
   // Create previous segments with different choices
   const Segment *previousSegment = store->put(
@@ -216,8 +209,7 @@ TEST_F(FabricatorTest, GetMemeIsometryOfNextSequenceInPreviousMacro) {
 TEST_F(FabricatorTest, GetChordAt) {
   // Create a chain
   const auto chain = store->put(
-      SegmentFixtures::buildChain(&fake->project1, &fake->template1, "test", Chain::Type::Production,
-                                  Chain::State::Fabricate));
+      SegmentFixtures::buildChain(&fake->template1, "test", Chain::Type::Production, Chain::State::Fabricate));
 
   // Create a segment
   segment = store->put(
@@ -243,8 +235,7 @@ TEST_F(FabricatorTest, GetChordAt) {
 TEST_F(FabricatorTest, ComputeProgramRange) {
   // Create a chain
   auto chain = store->put(
-      SegmentFixtures::buildChain(&fake->project1, &fake->template1, "test", Chain::Type::Production,
-                                  Chain::State::Fabricate));
+      SegmentFixtures::buildChain(&fake->template1, "test", Chain::Type::Production, Chain::State::Fabricate));
 
   // Create a segment
   segment = store->put(
@@ -288,8 +279,7 @@ TEST_F(FabricatorTest, ComputeProgramRange) {
 TEST_F(FabricatorTest, ComputeProgramRange_IgnoresAtonalNotes) {
   // Create a chain
   auto chain = store->put(
-      SegmentFixtures::buildChain(&fake->project1, &fake->template1, "test", Chain::Type::Production,
-                                  Chain::State::Fabricate));
+      SegmentFixtures::buildChain(&fake->template1, "test", Chain::Type::Production, Chain::State::Fabricate));
 
   // Create a segment
   segment = store->put(

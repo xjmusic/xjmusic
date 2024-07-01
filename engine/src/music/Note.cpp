@@ -4,6 +4,7 @@
 
 #include "xjmusic/music/Note.h"
 #include "xjmusic/music/Octave.h"
+#include "xjmusic/music/Step.h"
 
 using namespace XJ;
 
@@ -43,19 +44,19 @@ bool Note::operator>=(const Note &other) const {
 std::string Note::ATONAL = "X";
 
 
-Note::Note() : pitchClass(PitchClass::Atonal), octave(0) {}// Default constructor
+Note::Note() : octave(0), pitchClass(Atonal) {}// Default constructor
 
 
-Note::Note(const std::string &name) : pitchClass(pitchClassOf(name)), octave(octaveOf(name)) {}
+Note::Note(const std::string &name) : octave(octaveOf(name)), pitchClass(pitchClassOf(name)) {}
 
 
-Note::Note(const PitchClass pitchClass, const int octave) : pitchClass(pitchClass), octave(octave) {}
+Note::Note(const PitchClass pitchClass, const int octave) : octave(octave), pitchClass(pitchClass) {}
 
 
 Note Note::of(const std::string &name) {
   return name.empty()
-         ? Note::atonal()
-         : Note(name);
+             ? atonal()
+             : Note(name);
 }
 
 
@@ -65,20 +66,20 @@ Note Note::of(PitchClass pitchClass, int octave) {
 
 
 Note Note::atonal() {
-  return {PitchClass::Atonal, 0};
+  return {Atonal, 0};
 }
 
 
 std::optional<Note> Note::ifValid(const std::string &name) {
   return isValid(name)
-         ? std::optional<Note>(Note(name))
-         : std::nullopt;
+             ? std::optional(Note(name))
+             : std::nullopt;
 }
 
 
 std::optional<Note> Note::ifTonal(const std::string &name) {
   if (!isValid(name)) return std::nullopt;
-  auto note = Note::of(name);
+  auto note = of(name);
   if (note.isAtonal()) return std::nullopt;
   return note;
 }
@@ -162,17 +163,17 @@ bool Note::isAtonal() const {
 }
 
 
-Note Note::nextUp(const PitchClass target) {
+Note Note::nextUp(const PitchClass target) const {
   return next(target, 1);
 }
 
 
-Note Note::nextDown(const PitchClass target) {
+Note Note::nextDown(const PitchClass target) const {
   return next(target, -1);
 }
 
 
-Note Note::next(const PitchClass target, const int delta) {
+Note Note::next(const PitchClass target, const int delta) const {
   if (isAtonal() || pitchClass == target)
     return *this;
   Note n = *this;
@@ -182,5 +183,5 @@ Note Note::next(const PitchClass target, const int delta) {
       return n;
   }
   throw std::runtime_error(
-      "Unable to determine first occurrence of " + stringOf(target, Accidental::Natural) + "from here!");
+      "Unable to determine first occurrence of " + stringOf(target, Natural) + "from here!");
 }

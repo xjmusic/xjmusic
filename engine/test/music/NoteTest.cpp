@@ -83,13 +83,13 @@ TEST(Music_Note, NamedTest) {
 }
 
 TEST(Music_Note, OfPitchClassTest) {
-  const Note note = Note::of(PitchClass::C, 5);
+  const Note note = Note::of(C, 5);
   ASSERT_EQ(5, note.octave);
   ASSERT_EQ(PitchClass::C, note.pitchClass);
 }
 
 TEST(Music_Note, compareTo) {
-  auto notes = std::vector<Note>{
+  auto notes = std::vector{
       Note::of("C1"),
       Note::of("F#1"),
       Note::of("E1"),
@@ -107,7 +107,7 @@ TEST(Music_Note, compareTo) {
   std::sort(notes.begin(), notes.end());
   std::vector<std::string> noteStrings;
   std::transform(notes.begin(), notes.end(), std::back_inserter(noteStrings), [](const Note note) {
-    return note.toString(Accidental::Sharp);
+    return note.toString(Sharp);
   });
 
   ASSERT_EQ( "C1,D1,D#1,E1,F#1,C2,D2,D#2,E2,F#2,C3,D3,D#3,E3", StringUtils::join(noteStrings, ","));
@@ -185,10 +185,10 @@ TEST(Music_Note, median) {
 
 TEST(Music_Note, nextUp) {
   ASSERT_EQ(PitchClass::Atonal, Note::of("X").nextUp(PitchClass::C).pitchClass);
-  TestHelpers::assertNote("C4", Note::of("B3").nextUp(PitchClass::C));
+  TestHelpers::assertNote("C4", Note::of("B3").nextUp(C));
 }
 
 TEST(Music_Note, nextDown) {
   ASSERT_EQ(PitchClass::Atonal, Note::of("X").nextDown(PitchClass::C).pitchClass);
-  TestHelpers::assertNote("C4", Note::of("D4").nextDown(PitchClass::C));
+  TestHelpers::assertNote("C4", Note::of("D4").nextDown(C));
 }

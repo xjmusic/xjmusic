@@ -2,7 +2,6 @@
 
 #include <sstream>
 #include <regex>
-#include <unordered_set>
 #include <set>
 
 #include <spdlog/spdlog.h>
@@ -78,7 +77,7 @@ MemeCategory::MemeCategory(const std::string *raw) {
 
 MemeCategory::MemeCategory(const MapStringToOneOrManyString &data) {
   const auto it = data.find(KEY_NAME);
-  name = (it != data.end() && std::holds_alternative<std::string>(it->second))
+  name = it != data.end() && std::holds_alternative<std::string>(it->second)
          ? sanitize(std::get<std::string>(it->second))
          : DEFAULT_CATEGORY_NAME;
 
@@ -113,7 +112,7 @@ bool MemeCategory::hasMemes() const {
 
 
 std::string MemeCategory::toString() const {
-  std::vector<std::string> sortedMemes(memes.begin(), memes.end());
+  std::vector sortedMemes(memes.begin(), memes.end());
   std::sort(sortedMemes.begin(), sortedMemes.end());
   return name + "[" + StringUtils::join(sortedMemes, MEME_SEPARATOR) + "]";
 }
@@ -140,7 +139,7 @@ MemeTaxonomy::MemeTaxonomy(const std::string &raw) : MemeTaxonomy() {
 }
 
 
-MemeTaxonomy::MemeTaxonomy(std::set<MapStringToOneOrManyString> &data) {
+MemeTaxonomy::MemeTaxonomy(const std::set<MapStringToOneOrManyString> &data) {
   categories.clear();
   for (auto &d: data) {
     try {
@@ -163,7 +162,7 @@ std::string MemeTaxonomy::toString() const {
 }
 
 
-std::set<MapStringToOneOrManyString> MemeTaxonomy::toList() {
+std::set<MapStringToOneOrManyString> MemeTaxonomy::toList() const {
   std::set<MapStringToOneOrManyString> data;
   for (const auto &category: categories) {
     auto map = category.toMap();
@@ -211,7 +210,7 @@ MemeTaxonomy MemeTaxonomy::fromList(
     for (const auto &[key, value]: map) {
       if (std::holds_alternative<std::vector<std::string>>(value)) {
         auto v = std::get<std::vector<std::string>>(value);
-        m[key] = std::set<std::string>(v.begin(), v.end());
+        m[key] = std::set(v.begin(), v.end());
       } else {
         m[key] = std::get<std::string>(value);
       }

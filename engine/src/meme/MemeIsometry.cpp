@@ -1,7 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
 #include <sstream>
-#include <unordered_set>
 
 #include "xjmusic/meme/MemeIsometry.h"
 
@@ -24,7 +23,7 @@ MemeIsometry MemeIsometry::none() {
   return MemeIsometry(MemeTaxonomy(), std::set<std::string>());
 }
 
-int MemeIsometry::score(const std::set<std::string> &targets) {
+int MemeIsometry::score(const std::set<std::string> &targets) const {
   if (!isAllowed(targets)) return 0;
 
   int sum = 0;
@@ -60,7 +59,7 @@ void MemeIsometry::add(const SegmentMeme &meme) {
   add(meme.name);
 }
 
-bool MemeIsometry::isAllowed(const std::set<std::string> &memes) {
+bool MemeIsometry::isAllowed(const std::set<std::string> &memes) const {
   return stack.isAllowed(memes);
 }
 
@@ -68,7 +67,7 @@ std::set<std::string> MemeIsometry::getSources() {
   return sources;
 }
 
-std::string MemeIsometry::getConstellation() {
+std::string MemeIsometry::getConstellation() const {
   return MemeConstellation::fromNames(sources);
 }
 

@@ -18,7 +18,7 @@ namespace XJ {
 
      @param instrument for which to craft
      */
-    void craftBackground(const Instrument *instrument);
+    void craftBackground(const Instrument *instrument) const;
 
   public:
     explicit BackgroundCraft(Fabricator *fabricator);
@@ -26,7 +26,7 @@ namespace XJ {
     /**
      perform craft for the current segment
      */
-    void doWork();
+    void doWork() const;
   };
 
 }// namespace XJ

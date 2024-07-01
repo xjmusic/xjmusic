@@ -8,7 +8,6 @@
 #include <string>
 
 #include "PitchClass.h"
-#include "Step.h"
 
 namespace XJ {
 
@@ -212,7 +211,7 @@ namespace XJ {
      * @param target pitch class to seek
      * @return first note with given pitch class up from this
      */
-    Note nextUp(PitchClass target);
+    Note nextUp(PitchClass target) const;
 
     /**
      * Get the first occurrence of the given pitch class down from the current note
@@ -220,7 +219,7 @@ namespace XJ {
      * @param target pitch class to seek
      * @return first note with given pitch class down from this
      */
-    Note nextDown(PitchClass target);
+    Note nextDown(PitchClass target) const;
 
     /**
      * Get the first occurrence of the given pitch class in the given direction from the current note
@@ -229,7 +228,7 @@ namespace XJ {
      * @param delta  direction (1 or -1) in which to seek
      * @return first note with given pitch class from this
      */
-    Note next(PitchClass target, int delta);
+    Note next(PitchClass target, int delta) const;
   };
 
 }// namespace XJ

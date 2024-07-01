@@ -8,7 +8,7 @@ BackgroundCraft::BackgroundCraft(
     Fabricator *fabricator
 ) : Craft(fabricator) {}
 
-void BackgroundCraft::doWork() {
+void BackgroundCraft::doWork() const {
   const auto previousChoice = fabricator->getRetrospective()->getPreviousChoiceOfType(Instrument::Type::Background);
 
   const auto instrument = previousChoice.has_value() ?
@@ -22,7 +22,7 @@ void BackgroundCraft::doWork() {
   craftBackground(instrument.value());
 }
 
-void BackgroundCraft::craftBackground(const Instrument *instrument) {
+void BackgroundCraft::craftBackground(const Instrument *instrument) const {
   auto choice = SegmentChoice();
   choice.id = EntityUtils::computeUniqueId();
   choice.segmentId = fabricator->getSegment()->id;

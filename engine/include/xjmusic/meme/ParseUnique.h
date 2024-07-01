@@ -4,9 +4,8 @@
 #define XJMUSIC_ENTITIES_MEME_PARSE_UNIQUE_H
 
 #include <regex>
-#include <vector>
 #include <string>
-#include <set>
+#include <vector>
 
 
 namespace XJ {
@@ -26,7 +25,7 @@ namespace XJ {
     explicit ParseUnique(const std::string &raw);
     static ParseUnique fromString(const std::string &raw);
     [[nodiscard]] bool isViolatedBy(const ParseUnique &target) const;
-    bool isAllowed(const std::vector<ParseUnique> &memes);
+    bool isAllowed(const std::vector<ParseUnique> &memes) const;
   };
 
 }//namespace XJ

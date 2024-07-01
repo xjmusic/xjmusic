@@ -18,12 +18,12 @@
 
 // NOLINTNEXTLINE
 using ::testing::_;
-using ::testing::Return;
-using ::testing::ReturnRef;
+using testing::Return;
+using testing::ReturnRef;
 
 using namespace XJ;
 
-class CraftDetailProgramVoiceInitialTest : public ::testing::Test {
+class CraftDetailProgramVoiceInitialTest : public testing::Test {
 protected:
   CraftFactory *craftFactory = nullptr;
   FabricatorFactory *fabricatorFactory = nullptr;
@@ -51,7 +51,6 @@ protected:
 
     // Chain "Print #2" has 1 initial segment in crafting state - Foundation is complete
     chain2 = store->put(SegmentFixtures::buildChain(
-        &fake->project1,
         &fake->template1,
         "Print #2",
         Chain::Type::Production,

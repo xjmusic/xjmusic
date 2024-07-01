@@ -18,12 +18,12 @@
 
 // NOLINTNEXTLINE
 using ::testing::_;
-using ::testing::Return;
-using ::testing::ReturnRef;
+using testing::Return;
+using testing::ReturnRef;
 
 using namespace XJ;
 
-class CraftDetailProgramVoiceContinueTest : public ::testing::Test {
+class CraftDetailProgramVoiceContinueTest : public testing::Test {
 protected:
   CraftFactory *craftFactory = nullptr;
   FabricatorFactory *fabricatorFactory = nullptr;
@@ -49,7 +49,7 @@ protected:
     fake->setupFixtureB4_DetailBass(sourceMaterial);
 
     // Chain "Test Print #1" has 5 total segments
-    chain1 = store->put(SegmentFixtures::buildChain(&fake->project1, "Test Print #1", Chain::Type::Production, Chain::State::Fabricate, &fake->template1, ""));
+    chain1 = store->put(SegmentFixtures::buildChain("Test Print #1", Chain::Type::Production, Chain::State::Fabricate, &fake->template1, ""));
     store->put(SegmentFixtures::buildSegment(
         chain1,
         Segment::Type::Initial,
@@ -91,7 +91,7 @@ protected:
 
    @param excludeDetailChoiceForSegment3 if desired for the purpose of this test
    */
-  void insertSegments3and4(bool excludeDetailChoiceForSegment3) {
+  void insertSegments3and4(const bool excludeDetailChoiceForSegment3) {
     // segment just crafted
     // Testing entities for reference
     const auto segment3 = store->put(SegmentFixtures::buildSegment(

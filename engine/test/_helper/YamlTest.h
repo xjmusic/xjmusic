@@ -33,7 +33,7 @@ protected:
    * @param filename  The name of the file to load
    * @return  The YAML node
    */
-  YAML::Node loadYaml(const std::string& prefix, const std::string& filename);
+  static YAML::Node loadYaml(const std::string& prefix, const std::string& filename);
 
 
   /**

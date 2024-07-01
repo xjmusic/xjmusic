@@ -18,12 +18,12 @@
 
 // NOLINTNEXTLINE
 using ::testing::_;
-using ::testing::Return;
-using ::testing::ReturnRef;
+using testing::Return;
+using testing::ReturnRef;
 
 using namespace XJ;
 
-class CraftHookProgramVoiceNextMainTest : public ::testing::Test {
+class CraftHookProgramVoiceNextMainTest : public testing::Test {
 protected:
   CraftFactory *craftFactory = nullptr;
   FabricatorFactory *fabricatorFactory = nullptr;
@@ -52,7 +52,6 @@ protected:
 
     // Chain "Test Print #1" has 5 total segments
     chain1 = store->put(SegmentFixtures::buildChain(
-        &fake->project1,
         &fake->template1,
         "Test Print #1",
         Chain::Type::Production,

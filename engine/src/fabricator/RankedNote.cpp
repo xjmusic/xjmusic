@@ -14,11 +14,11 @@ RankedNote::RankedNote(
 }
 
 
-Note RankedNote::getTones() {
+Note RankedNote::getTones() const {
   return note;
 }
 
 
-int RankedNote::getDelta() {
+int RankedNote::getDelta() const {
   return delta;
 }

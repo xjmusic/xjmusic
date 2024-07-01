@@ -13,34 +13,34 @@ using namespace XJ;
 TEST(Music_NoteRange, Low) {
   const auto subject = NoteRange::ofStrings(std::vector<std::string>{"C3", "E3", "D4", "E5", "F6"});
 
-  ASSERT_TRUE(Note::of("C3") == (subject.low.value()));
+  ASSERT_TRUE(Note::of("C3") == subject.low.value());
 }
 
 
 TEST(Music_NoteRange, High) {
   const auto subject = NoteRange::ofStrings(std::vector<std::string>{"C3", "E3", "D4", "E5", "F6"});
 
-  ASSERT_TRUE(Note::of("F6") == (subject.high.value()));
+  ASSERT_TRUE(Note::of("F6") == subject.high.value());
 }
 
 
 TEST(Music_NoteRange, RangeFromNotes) {
   const auto subject = NoteRange::from(Note::of("C3"), Note::of("C4"));
 
-  ASSERT_TRUE(Note::of("C3") == (subject.low.value()));
-  ASSERT_TRUE(Note::of("C4") == (subject.high.value()));
+  ASSERT_TRUE(Note::of("C3") == subject.low.value());
+  ASSERT_TRUE(Note::of("C4") == subject.high.value());
 }
 
 
 TEST(Music_NoteRange, RangeOfNotes_isEmpty) {
-  const auto subject = NoteRange::ofNotes(std::set<Note>{Note::of("X")});
+  const auto subject = NoteRange::ofNotes(std::set{Note::of("X")});
 
   ASSERT_TRUE(subject.empty());
 }
 
 
 TEST(Music_NoteRange, RangeOfNotes_FromSet) {
-  const auto subject = NoteRange::ofNotes(std::set<Note>{
+  const auto subject = NoteRange::ofNotes(std::set{
       Note::of("C3"),
       Note::of("E3"),
       Note::of("D4"),
@@ -48,13 +48,13 @@ TEST(Music_NoteRange, RangeOfNotes_FromSet) {
       Note::of("F6")
   });
 
-  ASSERT_TRUE(Note::of("C3") == (subject.low.value()));
-  ASSERT_TRUE(Note::of("F6") == (subject.high.value()));
+  ASSERT_TRUE(Note::of("C3") == subject.low.value());
+  ASSERT_TRUE(Note::of("F6") == subject.high.value());
 }
 
 
 TEST(Music_NoteRange, RangeOfNotes_FromVector) {
-  const auto subject = NoteRange::ofNotes(std::vector<Note>{
+  const auto subject = NoteRange::ofNotes(std::vector{
       Note::of("C3"),
       Note::of("E3"),
       Note::of("D4"),
@@ -62,8 +62,8 @@ TEST(Music_NoteRange, RangeOfNotes_FromVector) {
       Note::of("F6")
   });
 
-  ASSERT_TRUE(Note::of("C3") == (subject.low.value()));
-  ASSERT_TRUE(Note::of("F6") == (subject.high.value()));
+  ASSERT_TRUE(Note::of("C3") == subject.low.value());
+  ASSERT_TRUE(Note::of("F6") == subject.high.value());
 }
 
 
@@ -71,14 +71,14 @@ TEST(Music_NoteRange, RangeFromNotes_LowOptional) {
   const auto subject = NoteRange::from(Note::atonal(), Note::of("C4"));
 
   ASSERT_FALSE(subject.low.has_value());
-  ASSERT_TRUE(Note::of("C4") == (subject.high.value()));
+  ASSERT_TRUE(Note::of("C4") == subject.high.value());
 }
 
 
 TEST(Music_NoteRange, RangeFromNotes_HighOptional) {
   const auto subject = NoteRange::from(Note::of("C4"), Note::atonal());
 
-  ASSERT_TRUE(Note::of("C4") == (subject.low.value()));
+  ASSERT_TRUE(Note::of("C4") == subject.low.value());
   ASSERT_FALSE(subject.high.has_value());
 }
 
@@ -86,8 +86,8 @@ TEST(Music_NoteRange, RangeFromNotes_HighOptional) {
 TEST(Music_NoteRange, RangeFromStrings) {
   const auto subject = NoteRange::from("C3", "C4");
 
-  ASSERT_TRUE(Note::of("C3") == (subject.low.value()));
-  ASSERT_TRUE(Note::of("C4") == (subject.high.value()));
+  ASSERT_TRUE(Note::of("C3") == subject.low.value());
+  ASSERT_TRUE(Note::of("C4") == subject.high.value());
 }
 
 
@@ -95,14 +95,14 @@ TEST(Music_NoteRange, RangeFromStrings_LowOptional) {
   const auto subject = NoteRange::from("X", "C4");
 
   ASSERT_FALSE(subject.low.has_value());
-  ASSERT_TRUE(Note::of("C4") == (subject.high.value()));
+  ASSERT_TRUE(Note::of("C4") == subject.high.value());
 }
 
 
 TEST(Music_NoteRange, RangeFromStrings_HighOptional) {
   const auto subject = NoteRange::from("C4", "X");
 
-  ASSERT_TRUE(Note::of("C4") == (subject.low.value()));
+  ASSERT_TRUE(Note::of("C4") == subject.low.value());
   ASSERT_FALSE(subject.high.has_value());
 }
 
@@ -111,8 +111,8 @@ TEST(Music_NoteRange, CopyOf) {
   const auto subject = NoteRange::ofStrings(std::vector<std::string>{"C3", "E3", "D4", "E5", "F6"});
   const auto cp = NoteRange::copyOf(subject);
 
-  ASSERT_TRUE(Note::of("C3") == (cp.low.value()));
-  ASSERT_TRUE(Note::of("F6") == (cp.high.value()));
+  ASSERT_TRUE(Note::of("C3") == cp.low.value());
+  ASSERT_TRUE(Note::of("F6") == cp.high.value());
 }
 
 
@@ -128,21 +128,21 @@ TEST(Music_NoteRange, Expand) {
 
   subject.expand(Note::of("G2"));
 
-  ASSERT_TRUE(Note::of("G2") == (subject.low.value()));
-  ASSERT_TRUE(Note::of("F6") == (subject.high.value()));
+  ASSERT_TRUE(Note::of("G2") == subject.low.value());
+  ASSERT_TRUE(Note::of("F6") == subject.high.value());
 }
 
 
 TEST(Music_NoteRange, Expand_ByNotes) {
   auto subject = NoteRange::ofStrings(std::vector<std::string>{"C3", "E3", "D4", "E5", "F6"});
 
-  subject.expand(std::vector<Note>{
+  subject.expand(std::vector{
       Note::of("G2"),
       Note::of("G6")
   });
 
-  ASSERT_TRUE(Note::of("G2") == (subject.low.value()));
-  ASSERT_TRUE(Note::of("G6") == (subject.high.value()));
+  ASSERT_TRUE(Note::of("G2") == subject.low.value());
+  ASSERT_TRUE(Note::of("G6") == subject.high.value());
 }
 
 
@@ -152,8 +152,8 @@ TEST(Music_NoteRange, Expand_ByRange) {
 
   subject.expand(&expansion);
 
-  ASSERT_TRUE(Note::of("G2") == (subject.low.value()));
-  ASSERT_TRUE(Note::of("G6") == (subject.high.value()));
+  ASSERT_TRUE(Note::of("G2") == subject.low.value());
+  ASSERT_TRUE(Note::of("G6") == subject.high.value());
 }
 
 
@@ -188,9 +188,9 @@ TEST(Music_NoteRange, DeltaSemitones) {
 
 
 TEST(Music_NoteRange, NoteNearestMedian) {
-  TestHelpers::assertNote("C5", NoteRange::from("C3", "G6").getNoteNearestMedian(PitchClass::C).value());
-  TestHelpers::assertNote("C5", NoteRange::from("C3", "G7").getNoteNearestMedian(PitchClass::C).value());
-  TestHelpers::assertNote("C4", NoteRange::from("C2", "G6").getNoteNearestMedian(PitchClass::C).value());
+  TestHelpers::assertNote("C5", NoteRange::from("C3", "G6").getNoteNearestMedian(C).value());
+  TestHelpers::assertNote("C5", NoteRange::from("C3", "G7").getNoteNearestMedian(C).value());
+  TestHelpers::assertNote("C4", NoteRange::from("C2", "G6").getNoteNearestMedian(C).value());
   ASSERT_FALSE(NoteRange::from("C3", "G6").getNoteNearestMedian(PitchClass::Atonal).has_value());
 }
 

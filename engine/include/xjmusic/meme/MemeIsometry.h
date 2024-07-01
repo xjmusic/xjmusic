@@ -4,16 +4,14 @@
 #define XJMUSIC_ENTITIES_MEME_ISOMETRY_H
 
 #include <string>
-#include <utility>
 
+#include "xjmusic/content/InstrumentMeme.h"
 #include "xjmusic/content/ProgramMeme.h"
 #include "xjmusic/content/ProgramSequenceBindingMeme.h"
-#include "xjmusic/content/InstrumentMeme.h"
 #include "xjmusic/segment/SegmentMeme.h"
 
-#include "MemeTaxonomy.h"
 #include "MemeStack.h"
-#include "MemeConstellation.h"
+#include "MemeTaxonomy.h"
 
 namespace XJ {
 
@@ -22,13 +20,13 @@ namespace XJ {
    */
   class MemeIsometry {
   public:
-
     /**
      Construct a meme isometry from source memes
 
+     @param taxonomy    context within which to measure isometry
      @param sourceMemes from which to construct isometry
      */
-    explicit MemeIsometry(MemeTaxonomy taxonomy, const std::set<std::string>& sourceMemes);
+    explicit MemeIsometry(MemeTaxonomy taxonomy, const std::set<std::string> &sourceMemes);
 
     /**
      Instantiate a new MemeIsometry of a Taxonomy and group of source Memes
@@ -37,7 +35,7 @@ namespace XJ {
      @param sourceMemes to compare of
      @return MemeIsometry ready for comparison to target Memes
      */
-    static MemeIsometry of(MemeTaxonomy taxonomy, const std::set<std::string>& sourceMemes);
+    static MemeIsometry of(MemeTaxonomy taxonomy, const std::set<std::string> &sourceMemes);
 
     /**
      Instantiate a new MemeIsometry of a group of source Memes
@@ -60,39 +58,39 @@ namespace XJ {
      @param targets comma-separated values to score against source meme names
      @return score is between 0 (no matches) and the number of matching memes
      */
-    int score(const std::set<std::string>& targets);
+    int score(const std::set<std::string> &targets) const;
 
     /**
      Add a meme for isometry comparison
      */
-    void add(const std::string& meme);
+    void add(const std::string &meme);
 
     /**
      Add a program meme for isometry comparison
      */
-    void add(const ProgramMeme& meme);
+    void add(const ProgramMeme &meme);
 
     /**
      Add a program sequence binding meme for isometry comparison
      */
-    void add(const ProgramSequenceBindingMeme& meme);
+    void add(const ProgramSequenceBindingMeme &meme);
 
     /**
      Add a instrument meme for isometry comparison
      */
-    void add(const InstrumentMeme& meme);
+    void add(const InstrumentMeme &meme);
 
     /**
      Add a segment meme for isometry comparison
      */
-    void add(const SegmentMeme& meme);
+    void add(const SegmentMeme &meme);
 
     /**
      * Whether a list of memes is allowed because no more than one matches the category's memes
      * @param memes  The list of memes to check
      * @return       True if the list is allowed
      */
-    bool isAllowed(const std::set<std::string>& memes);
+    bool isAllowed(const std::set<std::string> &memes) const;
 
     /**
      Get the source Memes
@@ -109,7 +107,7 @@ namespace XJ {
 
      @return unique constellation for this set of strings.
      */
-    std::string getConstellation();
+    std::string getConstellation() const;
 
   private:
     static const std::string KEY_NAME;
@@ -117,6 +115,6 @@ namespace XJ {
     std::set<std::string> sources;
   };
 
-} // namespace XJ
+}// namespace XJ
 
 #endif//XJMUSIC_ENTITIES_MEME_ISOMETRY_H

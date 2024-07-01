@@ -178,10 +178,10 @@ double MacroMainCraft::computeSegmentIntensity(
 float MacroMainCraft::computeIntensity(
     const std::optional<const ProgramSequence *> macroSequence,
     const std::optional<const ProgramSequence *> mainSequence) {
-  const std::optional<float> macroIntensity = macroSequence.has_value() ? std::optional<float>(
+  const std::optional<float> macroIntensity = macroSequence.has_value() ? std::optional(
                                                                               macroSequence.value()->intensity)
                                                                         : std::nullopt;
-  const std::optional<float> mainIntensity = mainSequence.has_value() ? std::optional<float>(mainSequence.value()->intensity)
+  const std::optional<float> mainIntensity = mainSequence.has_value() ? std::optional(mainSequence.value()->intensity)
                                                                 : std::nullopt;
   if (macroIntensity.has_value() && mainIntensity.has_value())
     return (macroIntensity.value() + mainIntensity.value()) / 2;
@@ -303,7 +303,7 @@ const Program *MacroMainCraft::chooseMacroProgram() const {
 
   // Compute any program id to avoid
   auto avoidOpt = fabricator->getMacroChoiceOfPreviousSegment();
-  auto avoidProgramId = avoidOpt.has_value() ? std::optional<std::string>(avoidOpt.value()->programId) : std::nullopt;
+  auto avoidProgramId = avoidOpt.has_value() ? std::optional(avoidOpt.value()->programId) : std::nullopt;
 
   // Add candidates to the bag
   // Phase 1: Directly Bound Programs besides any that should be avoided, with a meme match
@@ -374,7 +374,7 @@ const Program *MacroMainCraft::chooseMainProgram() const {
 
   // Compute any program id to avoid
   auto avoidChoice = fabricator->getPreviousMainChoice();
-  auto avoidProgramId = avoidChoice.has_value() ? std::optional<std::string>(avoidChoice.value()->programId)
+  auto avoidProgramId = avoidChoice.has_value() ? std::optional(avoidChoice.value()->programId)
                                                 : std::nullopt;
 
   // Add candidates to the bag

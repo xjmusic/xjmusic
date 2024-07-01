@@ -17,15 +17,15 @@
 
 // NOLINTNEXTLINE
 using ::testing::_;
-using ::testing::Return;
-using ::testing::ReturnRef;
+using testing::Return;
+using testing::ReturnRef;
 
 using namespace XJ;
 
 /**
  Choose next Macro program based on the memes of the last sequence from the previous Macro program https://github.com/xjmusic/xjmusic/issues/299
  */
-class MacroFromOverlappingMemeSequencesTest : public ::testing::Test {
+class MacroFromOverlappingMemeSequencesTest : public testing::Test {
 protected:
   int REPEAT_TIMES = 100;
   MacroMainCraft *subject = nullptr;
@@ -105,7 +105,7 @@ protected:
     sourceMaterial->put(templateBinding1);
 
     // Chain "Test Print #1" has 5 total segments
-    const auto chain1 = store->put(SegmentFixtures::buildChain(&project1, "Test Print #1", Chain::Type::Production, Chain::State::Fabricate, &template1, ""));
+    const auto chain1 = store->put(SegmentFixtures::buildChain("Test Print #1", Chain::Type::Production, Chain::State::Fabricate, &template1, ""));
     auto segment1 = store->put(SegmentFixtures::buildSegment(
         chain1,
         0,

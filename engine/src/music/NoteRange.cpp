@@ -38,7 +38,7 @@ NoteRange NoteRange::copyOf(const NoteRange &range) {
 
 
 NoteRange NoteRange::ofNotes(std::vector<Note> notes) {
-  const std::set<Note> properNotes(notes.begin(), notes.end());
+  const std::set properNotes(notes.begin(), notes.end());
   return ofNotes(properNotes);
 }
 
@@ -157,13 +157,13 @@ NoteRange NoteRange::shifted(const int inc) const {
 
 
 bool NoteRange::empty() const {
-  return !low.has_value() || !high.has_value() || PitchClass::Atonal == low->pitchClass ||
-         PitchClass::Atonal == high->pitchClass;
+  return !low.has_value() || !high.has_value() || Atonal == low->pitchClass ||
+         Atonal == high->pitchClass;
 }
 
 
 std::optional<Note> NoteRange::getNoteNearestMedian(const PitchClass root) {
-  if (PitchClass::Atonal == root) return std::nullopt;
+  if (Atonal == root) return std::nullopt;
   auto median = getMedianNote();
   if (!median.has_value()) return std::nullopt;
   if (root == median->pitchClass) return median;

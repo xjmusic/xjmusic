@@ -71,7 +71,7 @@ TEST(InstrumentTest, ToStringInstrumentType) {
 }
 
 TEST(InstrumentTest, ToStringsInstrumentType) {
-  const std::vector<Instrument::Type> types = {
+  const std::vector types = {
       Instrument::Type::Drum,
       Instrument::Type::Bass,
       Instrument::Type::Pad,

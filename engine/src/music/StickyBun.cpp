@@ -14,7 +14,7 @@ using json = nlohmann::json;
 std::random_device StickyBun::rd;
 std::mt19937 StickyBun::gen(rd());
 int StickyBun::MAX_VALUE = 100;
-std::uniform_int_distribution<> StickyBun::distrib(0, static_cast<int>(MAX_VALUE) - 1);
+std::uniform_int_distribution<> StickyBun::distrib(0, MAX_VALUE - 1);
 std::string StickyBun::META_KEY_TEMPLATE = "StickyBun_";
 
 
@@ -26,13 +26,13 @@ StickyBun::StickyBun(UUID eventId, const int size) : eventId(std::move(eventId))
 }
 
 
-StickyBun::StickyBun(UUID eventId, std::vector<int> values) : eventId(std::move(eventId)),
-                                                              values(std::move(values)) {}
+StickyBun::StickyBun(UUID eventId, std::vector<int> values) : values(std::move(values)),
+                                                              eventId(std::move(eventId)) {}
 
 
 std::string StickyBun::computeMetaKey(const UUID &id) {
   std::ostringstream oss; 
-  oss << StickyBun::META_KEY_TEMPLATE << id;
+  oss << META_KEY_TEMPLATE << id;
   return oss.str();
 }
 
@@ -51,7 +51,7 @@ std::vector<Note> StickyBun::replaceAtonal(std::vector<Note> source, const std::
 }
 
 
-Note StickyBun::compute(std::vector<Note> voicingNotes, const int index) const {
+Note StickyBun::compute(const std::vector<Note> &voicingNotes, const int index) const {
   const float valueRatio =
       static_cast<float>(values[std::min(index, static_cast<int>(values.size()) - 1)]) /
       static_cast<float>(MAX_VALUE);

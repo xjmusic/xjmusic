@@ -17,15 +17,15 @@
 
 // NOLINTNEXTLINE
 using ::testing::_;
-using ::testing::Return;
-using ::testing::ReturnRef;
+using testing::Return;
+using testing::ReturnRef;
 
 using namespace XJ;
 
 /**
  Background fabrication composited of layered Patterns https://github.com/xjmusic/xjmusic/issues/267
  */
-class CraftBackground_LayeredVoicesTest : public ::testing::Test {
+class CraftBackground_LayeredVoicesTest : public testing::Test {
 protected:
   CraftFactory *craftFactory = nullptr;
   FabricatorFactory *fabricatorFactory = nullptr;
@@ -49,7 +49,7 @@ protected:
 
 
     // Chain "Test Print #1" has 5 total segments
-    const auto chain1 = store->put(SegmentFixtures::buildChain(&fake->project1, "Test Print #1", Chain::Type::Production, Chain::State::Fabricate, &fake->template1, ""));
+    const auto chain1 = store->put(SegmentFixtures::buildChain("Test Print #1", Chain::Type::Production, Chain::State::Fabricate, &fake->template1, ""));
     store->put(SegmentFixtures::buildSegment(
         chain1,
         Segment::Type::Initial,
