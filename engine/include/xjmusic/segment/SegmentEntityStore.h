@@ -187,7 +187,7 @@ namespace XJ {
     * @param segments    of segments
     * @return        list of choices
     */
-    std::set<SegmentChoiceArrangementPick *> readAllSegmentChoiceArrangementPicks(const std::vector<Segment *> &segments);
+    std::set<const SegmentChoiceArrangementPick *> readAllSegmentChoiceArrangementPicks(const std::vector<Segment *> &segments);
 
     /**
      Get the total number of segments in the store

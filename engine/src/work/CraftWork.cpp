@@ -1,7 +1,5 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-// TODO implement this
-
 #include <algorithm>
 
 #include "xjmusic/fabricator/ChainUtils.h"
@@ -96,7 +94,7 @@ std::optional<Segment *> CraftWork::getSegmentAtOffset(const int offset) const {
   return currentSegment;
 }
 
-std::set<SegmentChoiceArrangementPick *> CraftWork::getPicks(const std::vector<Segment *> &segments) const {
+std::set<const SegmentChoiceArrangementPick *> CraftWork::getPicks(const std::vector<Segment *> &segments) const {
   return store->readAllSegmentChoiceArrangementPicks(segments);
 }
 
@@ -140,7 +138,6 @@ bool CraftWork::isFinished() {
 }
 
 std::optional<const Program *> CraftWork::getMainProgram(const Segment *segment) const {
-  const auto chain = getChain();
   if (chain == nullptr) {
     return std::nullopt;
   }
@@ -155,7 +152,6 @@ std::optional<const Program *> CraftWork::getMainProgram(const Segment *segment)
 }
 
 std::optional<const Program *> CraftWork::getMacroProgram(const Segment &segment) const {
-  const auto chain = getChain();
   if (chain == nullptr) {
     return std::nullopt;
   }
@@ -193,12 +189,12 @@ std::optional<unsigned long long> CraftWork::getCraftedToChainMicros() const {
   return std::nullopt;
 }
 
-void CraftWork::runCycle(long shippedToChainMicros, long dubbedToChainMicros) {
+void CraftWork::runCycle(const long dubbedToChainMicros) {
   if (!running) return;
 
   try {
-    doFabrication(dubbedToChainMicros, shippedToChainMicros + craftAheadMicros);
-    doSegmentCleanup(shippedToChainMicros);
+    doFabrication(dubbedToChainMicros, dubbedToChainMicros + craftAheadMicros);
+    doSegmentCleanup(dubbedToChainMicros);
 
   } catch (std::exception e) {
     didFailWhile("running craft work", e);
@@ -209,7 +205,7 @@ bool CraftWork::isReady() const {
   return !nextCycleRewrite;
 }
 
-void CraftWork::doOverrideMacro(Program *macroProgram) {
+void CraftWork::doOverrideMacro(const Program *macroProgram) {
   spdlog::info("Next craft cycle, will override macro with {}", macroProgram->name);
   nextCycleOverrideMacroProgram = {macroProgram};
   doNextCycleRewriteUnlessInitialSegment();
@@ -244,7 +240,7 @@ void CraftWork::doFabrication(long dubbedToChainMicros, long craftToChainMicros)
 
 void CraftWork::doFabricationDefault(
     const unsigned long long toChainMicros,
-    const std::optional<Program *> overrideMacroProgram,
+    const std::optional<const Program *> overrideMacroProgram,
     const std::set<std::string> &overrideMemes) {
   try {
     // currently fabricated AT (vs target fabricated TO)
@@ -275,8 +271,8 @@ void CraftWork::doFabricationDefault(
 }
 
 void CraftWork::doFabricationRewrite(
-    unsigned long long dubbedToChainMicros,
-    std::optional<Program *> overrideMacroProgram,
+    const unsigned long long dubbedToChainMicros,
+    std::optional<const Program *> overrideMacroProgram,
     std::set<std::string> overrideMemes) {
   try {
     // Determine the segment we are currently in the middle of dubbing
@@ -358,7 +354,7 @@ void CraftWork::doCutoffLastSegment(Segment *segment, double cutoffAfterBeats) {
 void CraftWork::doFabricationWork(
     Segment *segment,
     const std::optional<Segment::Type> overrideSegmentType,
-    const std::optional<Program *> overrideMacroProgram,
+    const std::optional<const Program *> overrideMacroProgram,
     const std::set<std::string> &overrideMemes) const {
   spdlog::debug("[segId={}] will prepare fabricator", segment->id);
   Fabricator *fabricator = fabricatorFactory->fabricate(content, segment->id, outputFrameRate, outputChannels,

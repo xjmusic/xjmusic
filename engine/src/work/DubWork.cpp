@@ -1,7 +1,5 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-// TODO implement this
-
 #include "xjmusic/work/DubWork.h"
 #include "xjmusic/audio/ActiveAudio.h"
 #include "xjmusic/util/ValueUtils.h"

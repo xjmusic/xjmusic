@@ -6,7 +6,7 @@ using namespace XJ;
 
 MacroMainCraft CraftFactory::macroMain(
     Fabricator *fabricator,
-    const std::optional<Program *> &overrideMacroProgram,
+    const std::optional<const Program *> &overrideMacroProgram,
     const std::set<std::string> &overrideMemes) {
   return MacroMainCraft(fabricator, overrideMacroProgram, overrideMemes);
 }

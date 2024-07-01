@@ -1,7 +1,5 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-// TODO implement this
-
 #ifndef XJMUSIC_WORK_CRAFT_WORK_H
 #define XJMUSIC_WORK_CRAFT_WORK_H
 
@@ -40,7 +38,7 @@ namespace XJ {
     const Chain *chain = nullptr;
     long persistenceWindowMicros = 0;
     bool nextCycleRewrite = false;
-    std::optional<Program*> nextCycleOverrideMacroProgram = std::nullopt;
+    std::optional<const Program*> nextCycleOverrideMacroProgram = std::nullopt;
     std::set<std::string> nextCycleOverrideMemes = {};
     bool didOverride = new bool(false);
 
@@ -60,7 +58,7 @@ namespace XJ {
    /**
     This is the internal cycle that's run indefinitely
     */
-   void runCycle(long shippedToChainMicros, long dubbedToChainMicros);
+   void runCycle(long dubbedToChainMicros);
 
     /**
      Get the current chain, if loaded
@@ -108,7 +106,7 @@ namespace XJ {
      @param segments the segments for which to get picks
      @return the picks for the given segments
      */
-    std::set<SegmentChoiceArrangementPick *> getPicks(const std::vector<const Segment *> & segments);
+   std::set<const SegmentChoiceArrangementPick *> getPicks(const std::vector<Segment *> &segments) const;
 
     /**
      Get the instrument for the given pick
@@ -175,7 +173,7 @@ namespace XJ {
 
      @param macroProgram the macro program to go to
      */
-    void doOverrideMacro(Program *macroProgram);
+    void doOverrideMacro(const Program *macroProgram);
 
     /**
      Manually go to a specific taxonomy category meme, and force until reset
@@ -216,7 +214,7 @@ namespace XJ {
     @param overrideMemes to override fabrication
     @throws FabricationFatalException if the chain cannot be fabricated
     */
-   void doFabricationDefault(unsigned long long toChainMicros, std::optional<Program *> overrideMacroProgram, const std::set<std::string> &overrideMemes);
+   void doFabricationDefault(unsigned long long toChainMicros, const std::optional<const Program *> overrideMacroProgram, const std::set<std::string> &overrideMemes);
 
     /**
     Override behavior deletes all future segments and re-fabricates starting with the given parameters
@@ -232,7 +230,7 @@ namespace XJ {
     @param overrideMemes        to override fabrication
     @throws FabricationFatalException if the chain cannot be fabricated
     */
-   void doFabricationRewrite(unsigned long long dubbedToChainMicros, std::optional<Program *> overrideMacroProgram, std::set<std::string> overrideMemes);
+   void doFabricationRewrite(unsigned long long dubbedToChainMicros, std::optional<const Program *> overrideMacroProgram, std::set<std::string> overrideMemes);
 
    /**
     Cut the current segment short after the given number of beats
@@ -252,7 +250,7 @@ namespace XJ {
     @ on configuration failure
     @ on craft failure
     */
-   void doFabricationWork(Segment *segment, std::optional<Segment::Type> overrideSegmentType, std::optional<Program *> overrideMacroProgram, const std::set<std::string> &overrideMemes) const;
+   void doFabricationWork(Segment *segment, std::optional<Segment::Type> overrideSegmentType, const std::optional<const Program *> overrideMacroProgram, const std::set<std::string> &overrideMemes) const;
    void doSegmentCleanup(long shippedToChainMicros) const;
    Segment *buildSegmentInitial() const;
    Segment *buildSegmentFollowing(const Segment *last) const;

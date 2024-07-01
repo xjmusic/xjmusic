@@ -1,352 +1,270 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-// TODO implement this
-
 #include "xjmusic/work/FabricationManager.h"
+
+#include <xjmusic/util/ValueUtils.h>
 
 using namespace XJ;
 
-  FabricationManager::FabricationManager(
+FabricationManager::FabricationManager(
     CraftFactory *craftFactory,
-    FabricatorFactory* fabricatorFactory,
-    SegmentEntityStore* store
-  ) {
-    this->craftFactory = craftFactory;
-    this->fabricatorFactory = fabricatorFactory;
-    this->entityStore = store;
-  }
+    FabricatorFactory *fabricatorFactory,
+    SegmentEntityStore *store) {
+  this->craftFactory = craftFactory;
+  this->fabricatorFactory = fabricatorFactory;
+  this->entityStore = store;
+}
 
 void FabricationManager::start(
-      ContentEntityStore *content,
-      FabricationSettings config) {
-    this->content = content;
-    this->config = config;
-    spdlog::debug("Did set work configuration: {}", config);
+    ContentEntityStore *content,
+    FabricationSettings config) {
+  this->content = content;
+  this->config = config;
+  spdlog::debug("Did set work configuration: {}", config);
 
-    spdlog::debug("Did set model content: {}", this->content);
+  spdlog::debug("Did set model content: {}", this->content);
 
-    try {
-      entityStore->clear();
-    } catch (std::exception e) {
-      spdlog::error("Failed to clear entity store", e);
-    }
-    spdlog::debug("Did clear entity store");
-
-    // get system milliseconds UTC now
-    startedAtMillis = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-    isAudioLoaded = false;
-    state = Starting;
-    spdlog::debug("Did update work state to Starting");
-
-    running = true;
-    spdlog::debug("Did set running to true");
+  try {
+    entityStore->clear();
+  } catch (std::exception e) {
+    spdlog::error("Failed to clear entity store", e);
   }
+  spdlog::debug("Did clear entity store");
 
-  void FabricationManager::finish(const bool cancelled) {
-    running = false;
+  // get system milliseconds UTC now
+  startedAtMillis = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+  isAudioLoaded = false;
+  state = Starting;
+  spdlog::debug("Did update work state to Starting");
 
-    state = cancelled ? Cancelled : Done;
-  }
+  running = true;
+  spdlog::debug("Did set running to true");
+}
+
+void FabricationManager::finish(const bool cancelled) {
+  running = false;
+
+  state = cancelled ? Cancelled : Done;
+}
 
 void FabricationManager::tick() {
-    this->runControlCycle();
-    this->runCraftCycle();
-    this->runDubCycle();
+  this->runControlCycle();
+  this->runCraftCycle();
+  this->runDubCycle();
+}
+
+FabricationState FabricationManager::getWorkState() const {
+  return state;
+}
+
+void FabricationManager::doOverrideMacro(const Program *macroProgram) const {
+  if (craftWork == nullptr)
+    return;
+  craftWork->doOverrideMacro(macroProgram);
+}
+
+std::optional<MemeTaxonomy> FabricationManager::getMemeTaxonomy() const {
+  try {
+    auto tmpls = getSourceMaterial()->getTemplates();
+    if (tmpls.empty())
+      throw std::runtime_error("No template found in source material");
+    auto templateConfig = TemplateConfig(*getSourceMaterial()->getTemplates().begin());
+    return {MemeTaxonomy(templateConfig.memeTaxonomy)};
+  } catch (std::exception e) {
+    spdlog::error("Failed to get meme taxonomy from template config", e);
+    return std::nullopt;
   }
+}
 
-FabricationState FabricationManager::getWorkState() {
-    return state;
-  }
+std::vector<const Program *> FabricationManager::getAllMacroPrograms() const {
+  auto programs = getSourceMaterial()->getProgramsOfType(Program::Type::Macro);
+  auto sortedPrograms = std::vector(programs.begin(), programs.end());
+  std::sort(sortedPrograms.begin(), sortedPrograms.end(), [](const Program *a, const Program *b) {
+    return a->name.compare(b->name);
+  });
+  return sortedPrograms;
+}
 
- void FabricationManager::doOverrideMacro(Program macroProgram) {
-    craftWork->doOverrideMacro(&macroProgram);
-  }
+void FabricationManager::doOverrideMemes(const std::set<std::string> &memes) const {
+  if (craftWork == nullptr)
+    throw std::runtime_error("Craft work is not initialized");
+  if (dubWork == nullptr)
+    throw std::runtime_error("Dub work is not initialized");
+  craftWork->doOverrideMemes(memes);
+}
 
-std::optional<MemeTaxonomy*> getMemeTaxonomy() {
-    try {
-      auto templateConfig = new TemplateConfig(getSourceMaterial().getTemplates().stream().findFirst()
-        .orElseThrow(() -> new ValueException("No template found in source material")));
-      return std::optional(templateConfig.getMemeTaxonomy());
-    } catch (std::exception e) {
-      spdlog::error("Failed to get meme taxonomy from template config", e);
-      return std::nullopt;
-    }
-  }
+bool FabricationManager::getAndResetDidOverride() const {
+  if (craftWork == nullptr) return false;
+  return craftWork->getAndResetDidOverride();
+}
 
-  @Override
-  public List<Program> getAllMacroPrograms() {
-    return getSourceMaterial().getProgramsOfType(ProgramType.Macro).stream()
-      .sorted(Comparator.comparing(Program::getName))
-      .toList();
-  }
+void FabricationManager::setIntensityOverride(std::optional<float> intensity) const {
+  if (dubWork == nullptr) return;
+  dubWork->setIntensityOverride(intensity);
+}
 
-  @Override
-  public void doOverrideMemes(Collection<String> memes) {
-    Objects.requireNonNull(craftWork);
-    Objects.requireNonNull(dubWork);
-    craftWork.doOverrideMemes(memes);
-  }
+SegmentEntityStore *FabricationManager::getEntityStore() const {
+  return entityStore;
+}
 
-  @Override
-  public boolean getAndResetDidOverride() {
-    if (Objects.isNull(craftWork)) return false;
-    return craftWork.getAndResetDidOverride();
-  }
+void FabricationManager::reset() {
+  craftWork = nullptr;
+  dubWork = nullptr;
+}
 
-  @Override
-  public void setIntensityOverride(@Nullable Double intensity) {
-    if (Objects.isNull(dubWork)) return;
-    dubWork.setIntensityOverride(intensity);
-  }
+ContentEntityStore *FabricationManager::getSourceMaterial() const {
+  if (craftWork == nullptr)
+    throw std::runtime_error("Craft work is not initialized");
+  return craftWork->getSourceMaterial();
+}
 
-  @Override
-  public SegmentEntityStore getEntityStore() {
-    return entityStore;
-  }
+std::optional<unsigned long long> FabricationManager::getDubbedToChainMicros() const {
+  return dubWork != nullptr ? dubWork->getDubbedToChainMicros() : std::nullopt;
+}
 
-  @Override
-  public void reset() {
-    craftWork = null;
-    dubWork = null;
-    shipWork = null;
-  }
+std::optional<unsigned long long> FabricationManager::getCraftedToChainMicros() const {
+  return craftWork != nullptr ? craftWork->getCraftedToChainMicros() : std::nullopt;
+}
 
-  @Override
-  public ContentEntityStore getSourceMaterial() {
-    return Objects.requireNonNull(craftWork).getSourceMaterial();
-  }
+void FabricationManager::updateState(FabricationState fabricationState) {
+  state = fabricationState;
+  spdlog::debug("Did update work state to {} but there is no listener to notify", fabricationState);
+}
 
-  @Override
-  public std::optional<Long> getShippedToChainMicros() {
-    return Objects.nonNull(shipWork) ? shipWork.getShippedToChainMicros() : std::nullopt;
-  }
-
-  @Override
-  public std::optional<Long> getDubbedToChainMicros() {
-    return Objects.nonNull(dubWork) ? dubWork.getDubbedToChainMicros() : std::nullopt;
-  }
-
-  @Override
-  public std::optional<Long> getCraftedToChainMicros() {
-    return Objects.nonNull(craftWork) ? craftWork.getCraftedToChainMicros() : std::nullopt;
-  }
-
-  /**
-   Update the current work state
-
-   @param fabricationState work state
-   */
-  void updateState(FabricationState fabricationState) {
-    state.set(fabricationState);
-    if (Objects.nonNull(onStateChange)) {
-      onStateChange.accept(fabricationState);
-      spdlog::debug("Did update work state to {} and notify listener", fabricationState);
-    } else {
-      spdlog::debug("Did update work state to {} but there is no listener to notify", fabricationState);
-    }
-  }
-
-  /**
+/**
    Run the control cycle, which prepares fabrication and moves the machine into the active state
    */
-  void FabricationManager::runControlCycle() {
-    spdlog::debug("Will run control cycle");
-    try {
-      switch (state) {
+void FabricationManager::runControlCycle() {
+  spdlog::debug("Will run control cycle");
+  try {
+    switch (state) {
 
-        case Starting: {
-          updateState(FabricationState::PreparingAudio);
+      case Starting: {
+        updateState(PreparingAudio);
+      } break;
+
+      case PreparingAudio: {
+        if (isAudioLoaded()) {
+          updateState(PreparedAudio);
         }
-        break;
+      } break;
 
-        case PreparingAudio: {
-          if (isAudioLoaded()) {
-            updateState(FabricationState::PreparedAudio);
-          }
+      case PreparedAudio: {
+        updateState(Initializing);
+        initialize();
+      } break;
+
+      case Initializing: {
+        if (isInitialized()) {
+          updateState(Active);
         }
-        break;
+      } break;
 
-        case PreparedAudio : {
-          updateState(FabricationState::Initializing);
-          initialize();
-        }
-        break;
-
-        case Initializing :{
-          if (isInitialized()) {
-            updateState(FabricationState::Active);
-          }
-        }
-        break;
-
-        case Active:
-          case Standby:
-        case Done:
-        case Failed: {
-          // no op
-        }
-        break;
-      }
-      spdlog::debug("Did run control cycle");
-
-    } catch (std::exception e) {
-      didFailWhile("running control cycle", e);
+      case Active:
+      case Standby:
+      case Done:
+      case Failed:
+      default: {
+        // no op
+      } break;
     }
-  }
+    spdlog::debug("Did run control cycle");
 
-  /**
+  } catch (std::exception e) {
+    didFailWhile("running control cycle", e);
+  }
+}
+
+/**
    Run the craft cycle
    */
-  void runCraftCycle() {
-    if (!Objects.equals(state.get(), FabricationState.Active)) {
-      spdlog::debug("Will not run craft cycle because work state is {}", state.get());
-      return;
-    }
-    Objects.requireNonNull(config);
-    Objects.requireNonNull(craftWork);
-    Objects.requireNonNull(shipWork);
-    Objects.requireNonNull(dubWork);
-
-    try {
-      spdlog::debug("Will run craft cycle");
-      craftWork.runCycle(
-        shipWork.getShippedToChainMicros().map(m -> m + config.getMixerLengthSeconds() * MICROS_PER_SECOND).orElse(0L),
-        dubWork.getDubbedToChainMicros().orElse(0L)
-      );
-      spdlog::debug("Did run craft cycle");
-
-    } catch (std::exception e) {
-      didFailWhile("running craft cycle", e);
-    }
+void FabricationManager::runCraftCycle() {
+  if (state != Active) {
+    spdlog::debug("Will not run craft cycle because work state is {}", state);
+    return;
   }
+  if (craftWork == nullptr)
+    throw std::runtime_error("Craft work is not initialized");
+  if (dubWork == nullptr)
+    throw std::runtime_error("Dub work is not initialized");
+  if (craftWork == nullptr)
+    throw std::runtime_error("Craft work is not initialized");
 
-  /**
+  try {
+    spdlog::debug("Will run craft cycle");
+    craftWork->runCycle(dubWork->getDubbedToChainMicros().value_or(0L));
+    spdlog::debug("Did run craft cycle");
+
+  } catch (std::exception e) {
+    didFailWhile("running craft cycle", e);
+  }
+}
+
+/**
    Run the dub cycle
    */
-  void runDubCycle() {
-    if (!Objects.equals(state.get(), FabricationState.Active)) {
-      spdlog::debug("Will not run dub cycle because work state is {}", state.get());
-      return;
-    }
-    Objects.requireNonNull(config);
-    Objects.requireNonNull(dubWork);
-    Objects.requireNonNull(shipWork);
-
-    try {
-      spdlog::debug("Will run dub cycle");
-      dubWork.runCycle(shipWork.getShippedToChainMicros().orElse(0L));
-      spdlog::debug("Did run dub cycle");
-
-    } catch (std::exception e) {
-      didFailWhile("running dub cycle", e);
-    }
+void FabricationManager::runDubCycle() {
+  if (state != Active) {
+    spdlog::debug("Will not run dub cycle because work state is {}", state);
+    return;
   }
+  if (dubWork == nullptr)
+    throw std::runtime_error("Dub work is not initialized");
 
-  /**
-   Run the ship cycle
-   */
-  void runShipCycle() {
-    if (!Objects.equals(state.get(), FabricationState.Active)) {
-      spdlog::debug("Will not run ship cycle because work state is {}", state.get());
-      return;
-    }
-    Objects.requireNonNull(config);
-    Objects.requireNonNull(shipWork);
+  try {
+    spdlog::debug("Will run dub cycle");
+    dubWork->runCycle(dubWork->getDubbedToChainMicros().value_or(0L));
+    spdlog::debug("Did run dub cycle");
 
-    try {
-      spdlog::debug("Will run ship cycle");
-      shipWork.runCycle();
-      spdlog::debug("Did run ship cycle");
-
-    } catch (std::exception e) {
-      didFailWhile("running ship cycle", e);
-    }
-
-    if (shipWork.isFinished()) {
-      updateState(FabricationState.Done);
-      spdlog::info("Fabrication work done");
-    }
+  } catch (std::exception e) {
+    didFailWhile("running dub cycle", e);
   }
+}
 
-  void FabricationManager::initialize() {
-    craftWork =new CraftWork(
+void FabricationManager::initialize() {
+  craftWork = new CraftWork(
       craftFactory,
       fabricatorFactory,
       entityStore,
       content,
       config.persistenceWindowSeconds,
-      config.craftAheadSeconds
-    );
-    dubWork = new DubWorkImpl(
-      telemetry,
+      config.craftAheadSeconds);
+  dubWork = new DubWork(
       craftWork,
-      mixerFactory,
-      config.getMixerLengthSeconds(),
-      config.getDubAheadSeconds(),
-      config.getOutputFrameRate(),
-      config.getOutputChannels()
-    );
-    shipWork = new ShipWorkImpl(
-      telemetry,
-      dubWork,
-      broadcastFactory
-    );
+      config.dubAheadSeconds);
 
-    // If memes/macro already engaged at fabrication start (which is always true in a manual control mode),
-    // the first segment should be governed by that selection https://github.com/xjmusic/xjmusic/issues/201
-    switch (config.getMacroMode()) {
-      case MACRO -> getAllMacroPrograms().stream()
-        .min(Comparator.comparing(Program::getName))
-        .ifPresent(this::doOverrideMacro);
-      case TAXONOMY -> getMemeTaxonomy().ifPresent(memeTaxonomy -> {
-        auto memes = memeTaxonomy.getCategories().stream()
-          .map(category -> category.getMemes().stream().findFirst().orElse(null))
-          .filter(Objects::nonNull)
-          .collect(Collectors.toCollection(LinkedHashSet::new));
+  // If memes/macro already engaged at fabrication start (which is always true in a manual control mode),
+  // the first segment should be governed by that selection https://github.com/xjmusic/xjmusic/issues/201
+  switch (config.controlMode()) {
+    case Fabricator::ControlMode::MACRO:
+      auto programs = getAllMacroPrograms();
+      if (!programs.empty())
+        doOverrideMacro(*programs.begin());
+      break;
+    case Fabricator::ControlMode::TAXONOMY:
+      auto taxonomy = getMemeTaxonomy();
+      if (taxonomy.has_value()) {
+        std::set<std::string> memes;
+        for (auto category : taxonomy.value().getCategories()) {
+          if (category.getMemes().size() > 0)
+            memes.insert(*category.getMemes().begin());
+        }
         if (!memes.empty()) doOverrideMemes(memes);
-      });
-    }
+      }
+      break;
+    default:
+      break;
   }
+}
 
-  /**
-   @return true if initialized
-   */
-  boolean isInitialized() {
-    return Objects.nonNull(craftWork) && Objects.nonNull(dubWork) && Objects.nonNull(shipWork);
-  }
+bool FabricationManager::isInitialized() const {
+  return craftWork != nullptr && dubWork != nullptr;
+}
 
-  /**
-   Log and of segment message of error that job failed while (message)
-
-   @param msgWhile phrased like "Doing work"
-   @param e        exception (optional)
-   */
-  void didFailWhile(String msgWhile, std::exception e) {
-    spdlog::error("Failed while {}: {}", msgWhile, formatStackTrace(e), e);
-    // This will cascade-send the finish() instruction to dub and ship
-    if (Objects.nonNull(shipWork)) {
-      shipWork.finish();
-    }
-    updateState(FabricationState.Failed);
-  }
-
-  /**
-   Update the progress
-
-   @param progress progress
-   */
-  void updateProgress(float progress) {
-    if (Objects.nonNull(onProgress))
-      onProgress.accept(progress);
-  }
-
-  /**
-   Update the progress label
-
-   @param label progress label
-   */
-  void updateProgressLabel(String label) {
-    if (Objects.nonNull(onProgressLabel))
-      onProgressLabel.accept(label);
-  }
-
+void FabricationManager::didFailWhile(std::string msgWhile, std::exception e) {
+  spdlog::error("Failed while {}: {}", msgWhile, e.what());
+  // This will cascade-send the finish() instruction to dub and ship
+  if (craftWork != nullptr)
+    craftWork->finish();
+  updateState(Failed);
+}

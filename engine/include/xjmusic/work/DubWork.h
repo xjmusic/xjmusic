@@ -1,7 +1,5 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-// TODO implement this
-
 #ifndef XJMUSIC_WORK_DUB_WORK_H
 #define XJMUSIC_WORK_DUB_WORK_H
 

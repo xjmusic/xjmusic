@@ -43,9 +43,8 @@ public:
    */
   static MacroMainCraft macroMain(
       Fabricator *fabricator,
-      const std::optional<Program *>& overrideMacroProgram,
-      const std::set<std::string> &overrideMemes
-  );
+      const std::optional<const Program *> &overrideMacroProgram,
+      const std::set<std::string> &overrideMemes);
 
   /**
    Create Beat Craft instance for a particular segment

@@ -62,7 +62,7 @@ namespace XJ {
     /**
      Get the entity store
      */
-    SegmentEntityStore getEntityStore();
+    SegmentEntityStore *getEntityStore() const;
 
     /**
      Reset the factory including the segment manager and its store
@@ -74,33 +74,26 @@ namespace XJ {
 
      @return source material
      */
-    ContentEntityStore getSourceMaterial();
-
-    /**
-     Return the current shipped-to chain micros
-
-     @return chain micros, else empty
-     */
-    std::optional<unsigned long long> getShippedToChainMicros();
+    ContentEntityStore *getSourceMaterial() const;
 
     /**
      Return the current dubbed-to sync chain micros
 
      @return chain micros, else empty
      */
-    std::optional<unsigned long long> getDubbedToChainMicros();
+    std::optional<unsigned long long> getDubbedToChainMicros() const;
 
     /**
      Return the current crafted-to chain micros
 
      @return chain micros, else empty
      */
-    std::optional<unsigned long long> getCraftedToChainMicros();
+    std::optional<unsigned long long> getCraftedToChainMicros() const;
 
     /**
      @return the current work state
      */
-    FabricationState getWorkState();
+    FabricationState getWorkState() const;
 
     /**
      Go to the given macro program right away
@@ -108,17 +101,17 @@ namespace XJ {
 
      @param macroProgram to go to
      */
-    void doOverrideMacro(Program macroProgram);
+    void doOverrideMacro(const Program *macroProgram) const;
 
     /**
      @return the meme taxonomy from the current template configuration
      */
-    std::optional<MemeTaxonomy> getMemeTaxonomy();
+    std::optional<MemeTaxonomy> getMemeTaxonomy() const;
 
     /**
      * @return all macro programs in alphabetical order
      */
-    std::vector<Program> getAllMacroPrograms();
+    std::vector<const Program *> getAllMacroPrograms() const;
 
     /**
      Manually go to a specific taxonomy category meme, and force until reset
@@ -126,21 +119,21 @@ namespace XJ {
 
      @param memes specific (assumed allowably) set of taxonomy category memes
      */
-    void doOverrideMemes(std::set<std::string> memes);
+    void doOverrideMemes(const std::set<std::string> &memes) const;
 
     /**
      Get whether an override happened, and reset its state after getting
 
      @return true if an override happened
      */
-    bool getAndResetDidOverride();
+    bool getAndResetDidOverride() const;
 
     /**
      Set the intensity override to a value between 0 and 1, or null if no override
 
      @param intensity the intensity to set
      */
-    void setIntensityOverride(std::optional<float> intensity);
+    void setIntensityOverride(std::optional<float> intensity) const;
 
   private:
     /**
@@ -162,6 +155,26 @@ namespace XJ {
      Initialize the work
      */
     void initialize();
+
+   /**
+    @return true if initialized
+    */
+   bool isInitialized() const;
+
+   /**
+    Log and of segment message of error that job failed while (message)
+
+    @param msgWhile phrased like "Doing work"
+    @param e        exception (optional)
+    */
+   void didFailWhile(std::string msgWhile, std::exception e);
+
+    /**
+     Update the current work state
+
+     @param fabricationState work state
+     */
+    void updateState(FabricationState fabricationState);
   };
 
 }// namespace XJ

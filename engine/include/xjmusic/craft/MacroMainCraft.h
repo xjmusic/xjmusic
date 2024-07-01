@@ -13,13 +13,13 @@ namespace XJ {
    [#214] If a Chain has Sequences associated with it directly, prefer those choices to any in the Library
    */
   class MacroMainCraft : protected Craft {
-    std::optional<Program *> overrideMacroProgram;
+    std::optional<const Program *> overrideMacroProgram;
     std::set<std::string> overrideMemes;
 
   public:
     MacroMainCraft(
         Fabricator *fabricator,
-        const std::optional<Program *> &overrideMacroProgram,
+        const std::optional<const Program *> &overrideMacroProgram,
         const std::set<std::string> &overrideMemes);
 
     /**
