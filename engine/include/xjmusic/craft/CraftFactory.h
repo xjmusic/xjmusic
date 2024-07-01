@@ -39,7 +39,7 @@ public:
    @param overrideMacroProgram already selected to use for craft
    @param overrideMemes        already selected to use for craft
    @return MacroMainCraft
-   @throws FabricationException on failure
+   @ on failure
    */
   static MacroMainCraft macroMain(
       Fabricator *fabricator,
@@ -52,7 +52,7 @@ public:
 
    @param fabricator of craft
    @return BeatCraft
-   @throws FabricationException on failure
+   @ on failure
    */
   static BeatCraft beat(
       Fabricator *fabricator
@@ -63,7 +63,7 @@ public:
 
    @param fabricator of craft
    @return DetailCraft
-   @throws FabricationException on failure
+   @ on failure
    */
   static DetailCraft detail(
       Fabricator *fabricator
@@ -74,7 +74,7 @@ public:
 
    @param fabricator of craft
    @return BackgroundCraft
-   @throws FabricationException on failure
+   @ on failure
    */
   static BackgroundCraft background(
     Fabricator *fabricator
@@ -85,7 +85,7 @@ public:
 
    @param fabricator of craft
    @return TransitionCraft
-   @throws FabricationException on failure
+   @ on failure
    */
   static TransitionCraft transition(
       Fabricator *fabricator

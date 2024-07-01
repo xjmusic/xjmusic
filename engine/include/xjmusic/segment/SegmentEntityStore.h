@@ -112,7 +112,7 @@ namespace XJ {
      Get all segments for a chain id
 
      @return collection of segments
-     @throws FabricationException on failure to retrieve the requested key
+     @ on failure to retrieve the requested key
      */
     std::vector<Segment *> readAllSegments();
 
@@ -191,7 +191,7 @@ namespace XJ {
      Update a specified EntityUtils
 
      @param segment for the updated EntityUtils.
-     @throws FabricationException on failure
+     @ on failure
      */
     void updateSegment(Segment &segment);
 
@@ -223,7 +223,7 @@ namespace XJ {
 
     /**
      Delete all records in the store (e.g. during integration testing)
-     @throws FabricationException on failure
+     @ on failure
      */
     void clear();
 
@@ -232,7 +232,7 @@ namespace XJ {
 
      @param fromState to protect transition of
      @param toState   to test transition to
-     @throws FabricationException on prohibited transition
+     @ on prohibited transition
      */
     static void protectSegmentStateTransition(Segment::State fromState, Segment::State toState);
 
@@ -241,7 +241,7 @@ namespace XJ {
 
      @param toState       to check
      @param allowedStates required to be in
-     @throws FabricationException if not in required states
+     @ if not in required states
      */
     static void onlyAllowSegmentStateTransitions(Segment::State toState, const std::set<Segment::State> &allowedStates);
   };

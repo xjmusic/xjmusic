@@ -4,7 +4,6 @@
 
 using namespace XJ;
 
-std::string TemplateUtils::getIdentifier(const std::optional<Template> &templateObj) {
-  if (!templateObj.has_value()) return "N/A";
-  return templateObj->shipKey.empty() ? templateObj->id : templateObj->shipKey;
+std::string TemplateUtils::getIdentifier(const Template *tmpl) {
+  return tmpl->shipKey.empty() ? tmpl->id : tmpl->shipKey;
 }
