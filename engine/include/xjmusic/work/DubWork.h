@@ -22,7 +22,7 @@ namespace XJ {
  duration of the segment. E.g., during gapless album output, the chunk will cut short if necessary to begin the next
  chunk at exactly the top of the following segment.
  */
-  class DubWork : Work {
+  class DubWork final : Work {
     int BITS_PER_BYTE = 8;
     bool running = new bool(true);
     CraftWork *craftWork;
@@ -38,17 +38,31 @@ namespace XJ {
     std::optional<float> prevIntensity = std::nullopt;
 
   public:
+    DubWork(CraftWork *craftWork, int dubAheadSeconds);
+    void finish() override;
+    bool isFinished() override;
+
     /**
      Run the work cycle
      */
     void runCycle(long shippedToChainMicros);
+
+   /**
+    Do dub frame
+    <p>
+    instead of mixing to file, mix to memory (produce to a BytePipeline) and let ship work consume the buffer
+    use the same mixer from chunk to chunk, only changing the active audios
+    <p>
+    Ensure mixer has continuity of its processes/effects, e.g. the compressor levels at the last frame of the last chunk are carried over to the first frame of the next chunk
+    */
+    void doDubFrame();
 
     /**
      Get the chain from craft work
 
      @return chain or empty if not yet available
      */
-    std::optional<Chain> getChain();
+    const Chain *getChain() const;
 
     /**
      Get the segment at the given chain micros
@@ -56,7 +70,7 @@ namespace XJ {
      @param atChainMicros the chain micros
      @return the segment, or empty if not yet available
      */
-    std::optional<Segment> getSegmentAtChainMicros(long atChainMicros);
+    std::optional<Segment *> getSegmentAtChainMicros(long atChainMicros) const;
 
     /**
      Get the segment at the given offset
@@ -64,7 +78,7 @@ namespace XJ {
      @param offset the offset
      @return the segment, or empty if not yet available
      */
-    std::optional<Segment> getSegmentAtOffset(int offset);
+    std::optional<Segment *> getSegmentAtOffset(int offset) const;
 
     /**
      Get the main program for the given segment
@@ -72,7 +86,7 @@ namespace XJ {
      @param segment for which to get program
      @return main program or empty if not yet available
      */
-    std::optional<Program> getMainProgram(Segment segment);
+    std::optional<const Program *> getMainProgram(const Segment *segment) const;
 
     /**
      Get the macro program for the given segment
@@ -80,8 +94,7 @@ namespace XJ {
      @param segment for which to get program
      @return macro program or empty if not yet available
      */
-    std::optional<Program> getMacroProgram(Segment segment);
-
+    std::optional<const Program *> getMacroProgram(const Segment &segment) const;
 
     /**
      Get the dubbed-to chain micros
@@ -96,6 +109,16 @@ namespace XJ {
      @param intensity the intensity override value, or null
      */
     void setIntensityOverride(std::optional<float> intensity);
+
+  private:
+   /**
+    Log and of segment message of error that job failed while (message)@param shipKey  (optional) ship key
+
+    @param msgWhile phrased like "Doing work"
+    @param e        exception (optional)
+    */
+   void didFailWhile(std::string msgWhile, const std::exception &e);
+
   };
 
 }// namespace XJ

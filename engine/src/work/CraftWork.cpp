@@ -50,6 +50,9 @@ void CraftWork::finish() {
 }
 
 const Chain *CraftWork::getChain() const {
+  if (chain == nullptr) {
+    throw std::runtime_error("Cannot get null pointer to Chain");
+  }
   return chain;
 }
 

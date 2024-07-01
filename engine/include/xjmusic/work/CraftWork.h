@@ -108,7 +108,7 @@ namespace XJ {
      @param segments the segments for which to get picks
      @return the picks for the given segments
      */
-    std::set<SegmentChoiceArrangementPick *> getPicks(const std::vector<Segment *> &segments) const;
+    std::set<SegmentChoiceArrangementPick *> getPicks(const std::vector<const Segment *> & segments);
 
     /**
      Get the instrument for the given pick
