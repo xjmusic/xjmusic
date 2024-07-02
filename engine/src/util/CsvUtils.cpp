@@ -88,5 +88,5 @@ std::string CsvUtils::toProperCsv(std::vector<std::string> items, const std::str
   if (items.size() == 2)
     return StringUtils::toProper(items.at(0)) + " " + finalSeparator + " " + StringUtils::toProper(items.at(1));
   auto allButLast = std::vector(items.begin(), items.end() - 1);
-  return join(allButLast) + ", " + finalSeparator + " " + StringUtils::toProper(*items.end());
+  return join(allButLast) + ", " + finalSeparator + " " + StringUtils::toProper(items.at(items.size()-1));
 }
