@@ -54,8 +54,6 @@ namespace XJ {
      * @param segmentRetrospective          to look back on previous segmefnt entities
      * @param contentEntityStore  contentEntityStore from which to fabricate
      * @param segmentId  current segment to fabricate
-     * @param outputFrameRate  output frame rate
-     * @param outputChannels  output channels
      * @param overrideSegmentType  override segment type
      */
     explicit Fabricator(
@@ -63,17 +61,15 @@ namespace XJ {
         SegmentEntityStore *segmentEntityStore,
         SegmentRetrospective *segmentRetrospective,
         int segmentId,
-        float outputFrameRate,
-        int outputChannels,
         std::optional<Segment::Type> overrideSegmentType);
 
     /**
      * Fabrication control mode
      */
     enum class ControlMode {
-      AUTO,
-      MACRO,
-      TAXONOMY
+      Auto,
+      Macro,
+      Taxonomy
     };
 
     /**
@@ -248,7 +244,7 @@ namespace XJ {
 
      @param choice to get key for
      @return key of specified sequence/program via choice
-     @throws FabricationException if unable to determine key of choice
+     @ if unable to determine key of choice
      */
     virtual Chord getKeyForChoice(const SegmentChoice *choice);
 
@@ -270,7 +266,7 @@ namespace XJ {
      Get the configuration of the current main program
 
      @return main-program configuration
-     @throws FabricationException on failure
+     @ on failure
      */
     virtual ProgramConfig getCurrentMainProgramConfig();
 
@@ -310,7 +306,7 @@ namespace XJ {
 
      @param voicing to get notes of
      @return notes from voicing
-     @throws FabricationException on failure
+     @ on failure
      */
     static std::vector<std::string> getNotes(const SegmentChordVoicing *voicing);
 
@@ -349,7 +345,7 @@ namespace XJ {
 
      @param program to get config of
      @return ProgramConfig from a given program, with fallback values
-     @throws FabricationException on failure
+     @ on failure
      */
     static ProgramConfig getProgramConfig(const Program *program);
 
@@ -369,7 +365,7 @@ namespace XJ {
      @param programId      to get range of
      @param instrumentType to get range of
      @return Note range of arrangement
-     @throws FabricationException on failure
+     @ on failure
      */
     virtual NoteRange getProgramRange(const UUID &programId, Instrument::Type instrumentType);
 
@@ -382,7 +378,7 @@ namespace XJ {
      @param sourceRange to compute from
      @param targetRange to compute required # of octaves to shift into
      @return +/- octaves required to shift from source to target range
-     @throws FabricationException on failure
+     @ on failure
      */
     virtual int
     getProgramRangeShiftOctaves(Instrument::Type instrumentType, NoteRange *sourceRange, NoteRange *targetRange);
@@ -410,7 +406,7 @@ namespace XJ {
 
      @param voice for which to get program type
      @return program type
-     @throws FabricationException on failure
+     @ on failure
      */
     virtual Program::Type getProgramType(const ProgramVoice *voice);
 
@@ -423,7 +419,7 @@ namespace XJ {
 
      @param voicing for which to get voice type
      @return type of voice for voicing
-     @throws FabricationException on failure
+     @ on failure
      */
     virtual Instrument::Type getProgramVoiceType(const ProgramSequenceChordVoicing *voicing);
 
@@ -432,7 +428,7 @@ namespace XJ {
 
      @param instrumentType to get voicing threshold low of
      @return low voicing threshold
-     @throws FabricationException on failure
+     @ on failure
      */
     virtual NoteRange getProgramVoicingNoteRange(Instrument::Type instrumentType);
 
@@ -451,7 +447,7 @@ namespace XJ {
      Beat fabrication composited of layered Patterns https://github.com/xjmusic/xjmusic/issues/267
 
      @return Pattern model, or null if no pattern of this type is found
-     @throws FabricationException on failure
+     @ on failure
      */
     virtual std::optional<const ProgramSequencePattern *>
     getRandomlySelectedPatternOfSequenceByVoiceAndType(const SegmentChoice *choice);
@@ -529,7 +525,7 @@ namespace XJ {
 
      @param choice to get sequence for
      @return Sequence for choice
-     @throws FabricationException on failure
+     @ on failure
      */
     virtual std::optional<const ProgramSequence *> getSequence(const SegmentChoice *choice);
 
@@ -546,7 +542,7 @@ namespace XJ {
 
      @param bun to store
      @throws JsonProcessingException on failure
-     @throws FabricationException          on failure
+     @          on failure
      */
     virtual void putStickyBun(StickyBun bun);
 
@@ -577,7 +573,7 @@ namespace XJ {
 
      @param event for which to get track name
      @return Track name
-     @throws FabricationException on failure
+     @ on failure
      */
     virtual std::string getTrackName(const ProgramSequencePatternEvent *event);
 
@@ -585,7 +581,7 @@ namespace XJ {
      Determine type of content, e.g. initial segment in chain, or next macro-sequence
 
      @return macro-craft type
-     @throws FabricationException on failure
+     @ on failure
      */
     virtual Segment::Type getType();
 
@@ -630,7 +626,7 @@ namespace XJ {
      Whether this type of segment continues the same macro-program from the previous segment
 
      @return true if this segment continues the same macro-program
-     @throws FabricationException on failure
+     @ on failure
      */
     virtual bool isContinuationOfMacroProgram();
 
@@ -667,7 +663,7 @@ namespace XJ {
      @param instrument to test
      @param trackName  to test
      @return true if this is a one-shot instrument and track name
-     @throws FabricationException on failure
+     @ on failure
      */
     virtual bool isOneShot(const Instrument *instrument, const std::string &trackName);
 
@@ -676,7 +672,7 @@ namespace XJ {
 
      @param instrument to test
      @return true if this is a one-shot instrument
-     @throws FabricationException on failure
+     @ on failure
      */
     virtual bool isOneShot(const Instrument *instrument);
 
@@ -685,7 +681,7 @@ namespace XJ {
 
      @param instrument to test
      @return true if a given one-shot instrument has its cutoffs enable
-     @throws FabricationException on failure
+     @ on failure
      */
     virtual bool isOneShotCutoffEnabled(const Instrument *instrument);
 
@@ -708,7 +704,7 @@ namespace XJ {
 
      @param entity Choice to put
      @return choice if successfully put
-     @throws FabricationException on failure
+     @ on failure
      */
     virtual std::optional<SegmentChoice *> put(SegmentChoice entity, bool force);
 
@@ -717,7 +713,7 @@ namespace XJ {
 
      @param entity Arrangement to put
      @return Arrangement successfully put
-     @throws FabricationException on failure
+     @ on failure
      */
     virtual SegmentChoiceArrangement *put(SegmentChoiceArrangement entity);
 
@@ -726,7 +722,7 @@ namespace XJ {
 
      @param entity ChoiceArrangementPick to put
      @return ChoiceArrangementPick successfully put
-     @throws FabricationException on failure
+     @ on failure
      */
     virtual SegmentChoiceArrangementPick *put(SegmentChoiceArrangementPick entity);
 
@@ -735,7 +731,7 @@ namespace XJ {
 
      @param entity Chord to put
      @return Chord successfully put
-     @throws FabricationException on failure
+     @ on failure
      */
     virtual SegmentChord* put(SegmentChord entity);
 
@@ -744,7 +740,7 @@ namespace XJ {
 
      @param entity ChordVoicing to put
      @return ChordVoicing successfully put
-     @throws FabricationException on failure
+     @ on failure
      */
     virtual SegmentChordVoicing* put(SegmentChordVoicing entity);
 
@@ -754,7 +750,7 @@ namespace XJ {
      @param entity Meme to put
      @param force whether to force meme addition without valid theorem checks
      @return Meme successfully put
-     @throws FabricationException on failure
+     @ on failure
      */
     virtual std::optional<SegmentMeme *> put(SegmentMeme entity, bool force);
 
@@ -763,7 +759,7 @@ namespace XJ {
 
      @param entity Message to put
      @return Message successfully put
-     @throws FabricationException on failure
+     @ on failure
      */
     virtual SegmentMessage *put(SegmentMessage entity);
 
@@ -772,7 +768,7 @@ namespace XJ {
 
      @param entity Meta to put
      @return Meta successfully put
-     @throws FabricationException on failure
+     @ on failure
      */
     virtual SegmentMeta* put(SegmentMeta entity);
 
@@ -810,9 +806,9 @@ namespace XJ {
      because protobuf instances are immutable
 
      @param segment to set
-     @throws FabricationException on failure
+     @ on failure
      */
-    virtual void updateSegment(Segment segment);
+    virtual Segment *updateSegment(Segment segment);
 
     /**
      Get the Segment Retrospective
@@ -832,7 +828,7 @@ namespace XJ {
      Get the number of micros per beat for the current segment
 
      @return micros per beat
-     @throws FabricationException on failure
+     @ on failure
      */
     virtual double getMicrosPerBeat(float tempo);
 
@@ -846,7 +842,7 @@ namespace XJ {
 
     /**
      @return the tempo of the current main program
-     @throws FabricationException on failure
+     @ on failure
      */
     virtual double getTempo();
 
@@ -897,6 +893,12 @@ namespace XJ {
      */
     static int getSegmentId(const SegmentMeta *segmentMeta);
 
+    /**
+    * Get the string representation of the control mode
+    * @param controlMode
+    */
+    static std::string toString(ControlMode controlMode);
+
   private:
     static const std::string KEY_VOICE_TRACK_TEMPLATE;
     static const std::string NAME_SEPARATOR;
@@ -905,8 +907,6 @@ namespace XJ {
     TemplateConfig templateConfig;
     std::set<const TemplateBinding *> templateBindings;
     ContentEntityStore *sourceMaterial;
-    double outputFrameRate;
-    int outputChannels;
     std::map<double, std::optional<SegmentChord *>> chordAtPosition;
     std::map<Instrument::Type, NoteRange> voicingNoteRange;
     std::map<const SegmentChoice *, const ProgramSequence *> sequenceForChoice;

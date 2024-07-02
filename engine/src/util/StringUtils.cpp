@@ -6,6 +6,8 @@
 
 #include "xjmusic/util/StringUtils.h"
 
+#include <set>
+
 using namespace XJ;
 
 
@@ -219,4 +221,13 @@ std::string StringUtils::toLowerSlug(const std::string &raw) {
 
 std::string StringUtils::toUpperSlug(const std::string &raw) {
   return toUpperCase(toSlug(raw));
+}
+
+std::vector<std::string> StringUtils::sort(const std::set<std::string> &items) {
+  std::vector<std::string> sorted;
+  for (const auto &item : items) {
+    sorted.push_back(item);
+  }
+  std::sort(sorted.begin(), sorted.end());
+  return sorted;
 }

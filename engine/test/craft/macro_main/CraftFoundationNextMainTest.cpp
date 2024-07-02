@@ -93,12 +93,11 @@ protected:
     delete fabricatorFactory;
     delete craftFactory;
     delete chain1;
-    delete segment4;
-  }
+      }
 };
 
 TEST_F(CraftFoundationNextMainTest, CraftFoundationNextMain) {
-  auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, 48000.0f, 2, std::nullopt);
+  auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, std::nullopt);
 
   craftFactory->macroMain(fabricator, std::nullopt, {}).doWork();
 
@@ -143,5 +142,5 @@ TEST_F(CraftFoundationNextMainTest, CraftFoundationNextMain_revertsAndRequeueOnF
       120.0f,
       "chain-1-waveform-12345.wav"));
 
-  ASSERT_THROW(fabricatorFactory->fabricate(sourceMaterial, segment5->id, 48000.0f, 2, std::nullopt), FabricationFatalException);
+  ASSERT_THROW(fabricatorFactory->fabricate(sourceMaterial, segment5->id, std::nullopt), FabricationFatalException);
 }

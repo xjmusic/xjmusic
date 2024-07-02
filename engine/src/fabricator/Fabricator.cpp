@@ -26,16 +26,10 @@ Fabricator::Fabricator(
     SegmentEntityStore *segmentEntityStore,
     SegmentRetrospective *segmentRetrospective,
     int segmentId,
-    const float outputFrameRate,
-    const int outputChannels,
     std::optional<Segment::Type> overrideSegmentType) : sourceMaterial(contentEntityStore),
-                                                        outputFrameRate(outputFrameRate),
-                                                        outputChannels(outputChannels),
                                                         store(segmentEntityStore),
                                                         retrospective(segmentRetrospective),
                                                         segmentId(segmentId) {
-  this->outputFrameRate = outputFrameRate;
-  this->outputChannels = outputChannels;
 
   // keep elapsed time based on system nano time
   startAtSystemNanoTime = std::chrono::high_resolution_clock::now();
@@ -247,7 +241,7 @@ std::optional<SegmentChoice *> Fabricator::getChoiceIfContinued(const Instrument
     return *it;
   }
 
-  spdlog::warn("[seg-{}] Could not get previous choice for instrumentType={}", segmentId,
+  spdlog::debug("[seg-{}] Could not get previous choice for instrumentType={}", segmentId,
                Instrument::toString(instrumentType));
   return std::nullopt;
 }
@@ -266,7 +260,7 @@ Fabricator::getChoiceIfContinued(const Instrument::Type instrumentType, const In
     return *it;
   }
 
-  spdlog::warn("[seg-{}] Could not get previous choice for instrumentType={}", segmentId,
+  spdlog::debug("[seg-{}] Could not get previous choice for instrumentType={}", segmentId,
                Instrument::toString(instrumentType));
   return std::nullopt;
 }
@@ -282,7 +276,7 @@ std::set<SegmentChoice *> Fabricator::getChoicesIfContinued(const Program::Type 
       filteredChoices.emplace(choice);
 
   if (filteredChoices.empty()) {
-    spdlog::warn("[seg-{}] Could not get previous choice for programType={}", segmentId,
+    spdlog::debug("[seg-{}] Could not get previous choice for programType={}", segmentId,
                  Program::toString(programType));
   }
 
@@ -959,12 +953,13 @@ void Fabricator::putReport(const std::string &key, const std::string &value) {
 }
 
 
-void Fabricator::updateSegment(Segment segment) {
+Segment *Fabricator::updateSegment(Segment segment) {
   try {
-    store->updateSegment(segment);
+    return store->updateSegment(segment);
 
   } catch (const FabricationException &e) {
     spdlog::error("Failed to update Segment", e.what());
+    return nullptr;
   }
 }
 
@@ -1239,4 +1234,16 @@ int Fabricator::getSegmentId(const SegmentMessage *segmentMessage) {
 
 int Fabricator::getSegmentId(const SegmentMeta *segmentMeta) {
   return segmentMeta->segmentId;
+}
+
+std::string Fabricator::toString(const ControlMode controlMode) {
+  switch (controlMode) {
+    default:
+    case ControlMode::Auto:
+      return "Auto";
+    case ControlMode::Macro:
+      return "Macro";
+    case ControlMode::Taxonomy:
+      return "Taxonomy";
+  }
 }

@@ -82,7 +82,7 @@ TEST(CraftFoundationNextMacroTest, CraftFoundationNextMacro) {
     // Chain "Test Print #1" has a planned segment
     auto segment4 = store->put(SegmentFixtures::buildSegment(chain1, 3, Segment::State::Planned, "C", 8, 0.8f, 120, "chain-1-waveform-12345"));
 
-    auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, 48000.0f, 2, std::nullopt);
+    auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, std::nullopt);
 
     craftFactory->macroMain(fabricator, std::nullopt, {}).doWork();
 

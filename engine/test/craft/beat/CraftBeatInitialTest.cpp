@@ -13,7 +13,6 @@
 #include "xjmusic/fabricator/ChainUtils.h"
 #include "xjmusic/fabricator/FabricatorFactory.h"
 #include "xjmusic/fabricator/SegmentUtils.h"
-#include "xjmusic/util/CsvUtils.h"
 #include "xjmusic/util/ValueUtils.h"
 
 // NOLINTNEXTLINE
@@ -91,12 +90,11 @@ protected:
     delete fabricatorFactory;
     delete sourceMaterial;
     delete store;
-    delete segment6;
-  }
+      }
 };
 
 TEST_F(CraftBeatInitialTest, CraftBeatInitial) {
-  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment6->id, 48000.0f, 2, std::nullopt);
+  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment6->id, std::nullopt);
 
   craftFactory->beat(fabricator).doWork();
 

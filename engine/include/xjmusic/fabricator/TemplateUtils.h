@@ -9,7 +9,7 @@ namespace XJ {
 
   class TemplateUtils {
   public:
-    static std::string getIdentifier(const std::optional<Template> &templateObj);
+    static std::string getIdentifier(const Template *tmpl);
   };
 
 }

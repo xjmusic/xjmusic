@@ -1,8 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
-#include <algorithm>
 #include <map>
-#include <sstream>
 #include <string>
 #include <vector>
 
@@ -12,7 +10,6 @@ namespace XJ {
 
   class CsvUtils {
   public:
-
     /**
      * Split a CSV string into a vector of strings
      * @param csv  CSV string
@@ -51,6 +48,30 @@ namespace XJ {
      */
     static std::string from(const std::map<std::string, std::string> &properties);
 
+    /**
+    Format a list of items as a proper CSV list, with the given final separator word "and"
+
+    @param items list of items
+    @return formatted list like "One, Two, and Three"
+    */
+    static std::string toProperCsvAnd(const std::vector<std::string> &items);
+
+    /**
+    Format a list of items as a proper CSV list, with the given final separator word "or"
+
+    @param items list of items
+    @return formatted list like "One, Two, or Three"
+    */
+    static std::string toProperCsvOr(const std::vector<std::string> &items);
+
+    /**
+    Format a list of items as a proper CSV list, with the given final separator word
+
+    @param items          list of items
+    @param finalSeparator final separator word
+    @return formatted list like "One, Two, ___ Three"
+    */
+    static std::string toProperCsv(std::vector<std::string> items, const std::string &finalSeparator);
   };
 
-} // namespace XJ
+}// namespace XJ

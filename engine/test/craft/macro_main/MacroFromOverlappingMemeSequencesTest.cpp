@@ -128,7 +128,7 @@ protected:
         120.0f,
         "chains-1-segments-9f7s89d8a7892.wav"));
 
-    subject = new MacroMainCraft(fabricatorFactory->fabricate(sourceMaterial, segment2->id, 48000.0f, 2, std::nullopt), std::nullopt, {});
+    subject = new MacroMainCraft(fabricatorFactory->fabricate(sourceMaterial, segment2->id, std::nullopt), std::nullopt, {});
   }
 };
 

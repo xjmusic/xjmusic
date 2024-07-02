@@ -22,12 +22,12 @@
 
 using namespace XJ;
 
-#define SEGMENT_STORE_CORE_HEADERS(ENTITY, ENTITIES)                      \
-  ENTITY* put(const ENTITY& choice);                                      \
-  std::optional<ENTITY *> read##ENTITY(int segmentId, const UUID& id);    \
-  std::set<ENTITY *> readAll##ENTITIES(int segmentId);                    \
-  std::set<ENTITY *> readAll##ENTITIES(const std::set<int>& segmentIds);  \
-  void delete##ENTITY(int segmentId, const UUID& id);
+#define SEGMENT_STORE_CORE_HEADERS(ENTITY, ENTITIES)                     \
+  ENTITY *put(const ENTITY &choice);                                     \
+  std::optional<ENTITY *> read##ENTITY(int segmentId, const UUID &id);   \
+  std::set<ENTITY *> readAll##ENTITIES(int segmentId);                   \
+  std::set<ENTITY *> readAll##ENTITIES(const std::set<int> &segmentIds); \
+  void delete##ENTITY(int segmentId, const UUID &id);
 
 
 namespace XJ {
@@ -41,18 +41,18 @@ namespace XJ {
    Chains, ChainBindings, TemplateConfigs, Segments and all Segment content sub-entities persisted in JSON:API record stored keyed by chain or segment id in memory
    */
   class SegmentEntityStore {
-   std::optional<Chain> chain;
-   std::map<int, Segment> segments;
-   std::map<int, std::map<UUID, SegmentChoice>> segmentChoices;
-   std::map<int, std::map<UUID, SegmentChoiceArrangement>> segmentChoiceArrangements;
-   std::map<int, std::map<UUID, SegmentChoiceArrangementPick>> segmentChoiceArrangementPicks;
-   std::map<int, std::map<UUID, SegmentChord>> segmentChords;
-   std::map<int, std::map<UUID, SegmentChordVoicing>> segmentChordVoicings;
-   std::map<int, std::map<UUID, SegmentMeme>> segmentMemes;
-   std::map<int, std::map<UUID, SegmentMessage>> segmentMessages;
-   std::map<int, std::map<UUID, SegmentMeta>> segmentMetas;
-   static void validate(SegmentMeme entity);
-   static void validate(Segment entity);
+    std::optional<Chain> chain;
+    std::map<int, Segment> segments;
+    std::map<int, std::map<UUID, SegmentChoice>> segmentChoices;
+    std::map<int, std::map<UUID, SegmentChoiceArrangement>> segmentChoiceArrangements;
+    std::map<int, std::map<UUID, SegmentChoiceArrangementPick>> segmentChoiceArrangementPicks;
+    std::map<int, std::map<UUID, SegmentChord>> segmentChords;
+    std::map<int, std::map<UUID, SegmentChordVoicing>> segmentChordVoicings;
+    std::map<int, std::map<UUID, SegmentMeme>> segmentMemes;
+    std::map<int, std::map<UUID, SegmentMessage>> segmentMessages;
+    std::map<int, std::map<UUID, SegmentMeta>> segmentMetas;
+    static void validate(SegmentMeme entity);
+    static void validate(Segment entity);
 
   public:
     SEGMENT_STORE_CORE_HEADERS(SegmentChoice, SegmentChoices)
@@ -69,7 +69,7 @@ namespace XJ {
 
     SEGMENT_STORE_CORE_HEADERS(SegmentMessage, SegmentMessages)
 
-    SEGMENT_STORE_CORE_HEADERS(SegmentMeta, SegmentMetas)
+    SEGMENT_STORE_CORE_HEADERS(SegmentMeta, SegmentMetas);
 
     SegmentEntityStore() = default;
 
@@ -77,13 +77,13 @@ namespace XJ {
      * Put the Chain in the entity store
      * @returns stored Chain
      */
-    Chain * put(const Chain &chain);
+    Chain *put(const Chain &chain);
 
     /**
      * Put a Segment in the entity store
      * @returns stored Segment
      */
-    Segment * put(const Segment &segment);
+    Segment *put(const Segment &segment);
 
     /**
      * Read a Chain by #
@@ -109,12 +109,21 @@ namespace XJ {
     std::optional<Segment *> readSegmentAtChainMicros(long chainMicros);
 
     /**
-     Get all segments for a chain id
+    Get all segments for a chain id
 
-     @return collection of segments
-     @throws FabricationException on failure to retrieve the requested key
-     */
+    @return collection of segments
+    @ on failure to retrieve the requested key
+    */
     std::vector<Segment *> readAllSegments();
+
+    /**
+     Get all segments for a chain id in a given state
+
+      @param segmentState to filter by
+     @return collection of segments
+     @throws exception on failure to retrieve the requested key
+     */
+    std::vector<Segment *> readAllSegmentsInState(Segment::State segmentState);
 
     /**
      Read all Segments that are accessible, by Chain ID, starting and ending at particular offsets
@@ -171,7 +180,14 @@ namespace XJ {
      @param segment for which to get the choice hash
      @return hash of all the ids of the choices for the given segment
      */
-    std::string readChoiceHash(const Segment& segment);
+    std::string readChoiceHash(const Segment &segment);
+
+    /**
+    * Read all choices for the set of segments
+    * @param segments    of segments
+    * @return        list of choices
+    */
+    std::set<const SegmentChoiceArrangementPick *> readAllSegmentChoiceArrangementPicks(const std::vector<const Segment *> &segments);
 
     /**
      Get the total number of segments in the store
@@ -185,15 +201,15 @@ namespace XJ {
 
      @return true if there are zero segments
      */
-    bool isEmpty() const;
+    bool empty() const;
 
     /**
      Update a specified EntityUtils
 
      @param segment for the updated EntityUtils.
-     @throws FabricationException on failure
+     @ on failure
      */
-    void updateSegment(Segment &segment);
+    Segment *updateSegment(Segment &segment);
 
     /**
      * Read a Chain by #
@@ -223,7 +239,7 @@ namespace XJ {
 
     /**
      Delete all records in the store (e.g. during integration testing)
-     @throws FabricationException on failure
+     @ on failure
      */
     void clear();
 
@@ -232,7 +248,7 @@ namespace XJ {
 
      @param fromState to protect transition of
      @param toState   to test transition to
-     @throws FabricationException on prohibited transition
+     @ on prohibited transition
      */
     static void protectSegmentStateTransition(Segment::State fromState, Segment::State toState);
 
@@ -241,11 +257,11 @@ namespace XJ {
 
      @param toState       to check
      @param allowedStates required to be in
-     @throws FabricationException if not in required states
+     @ if not in required states
      */
     static void onlyAllowSegmentStateTransitions(Segment::State toState, const std::set<Segment::State> &allowedStates);
   };
 
-}
+}// namespace XJ
 
-#endif //XJMUSIC_SEGMENT_ENTITY_STORE_H
+#endif//XJMUSIC_SEGMENT_ENTITY_STORE_H

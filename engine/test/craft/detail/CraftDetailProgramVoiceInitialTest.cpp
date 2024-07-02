@@ -64,8 +64,7 @@ protected:
     delete store;
     delete fake;
     delete chain2;
-    delete segment1;
-  }
+      }
 
   /**
    Insert fixture segment 6, including the detail choice only if specified
@@ -131,7 +130,7 @@ protected:
 TEST_F(CraftDetailProgramVoiceInitialTest, CraftDetailVoiceInitial) {
   insertSegments();
 
-  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment1->id, 48000.0f, 2, std::nullopt);
+  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment1->id, std::nullopt);
 
   craftFactory->detail(fabricator).doWork();
 
@@ -148,7 +147,7 @@ TEST_F(CraftDetailProgramVoiceInitialTest, CraftDetailVoiceInitial) {
 
 TEST_F(CraftDetailProgramVoiceInitialTest, CraftDetailVoiceInitial_okWhenNoDetailChoice) {
   insertSegments();
-  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment1->id, 48000.0f, 2, std::nullopt);
+  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment1->id, std::nullopt);
 
   craftFactory->detail(fabricator).doWork();
 }

@@ -64,8 +64,7 @@ protected:
     delete store;
     delete fake;
     delete chain2;
-    delete segment0;
-  }
+      }
 
   /**
    Insert fixture segment 6, including the beat choice only if specified
@@ -105,7 +104,7 @@ protected:
 TEST_F(CraftBeatProgramVoiceInitialTest, CraftBeatVoiceInitial) {
   insertSegment();
 
-  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment0->id, 48000.0f, 2, std::nullopt);
+  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment0->id, std::nullopt);
 
   craftFactory->beat(fabricator).doWork();
 
@@ -115,7 +114,7 @@ TEST_F(CraftBeatProgramVoiceInitialTest, CraftBeatVoiceInitial) {
 
 TEST_F(CraftBeatProgramVoiceInitialTest, CraftBeatVoiceInitial_okWhenNoBeatChoice) {
   insertSegment();
-  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment0->id, 48000.0f, 2, std::nullopt);
+  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment0->id, std::nullopt);
 
   craftFactory->beat(fabricator).doWork();
 }

@@ -4,14 +4,13 @@
 #include <gmock/gmock.h>
 #include <vector>
 
-#include "../_helper/SegmentFixtures.h"
-#include "../_helper/ContentFixtures.h"
-#include "../_mock/MockSegmentRetrospective.h"
-
 #include "xjmusic/fabricator/ChainUtils.h"
 #include "xjmusic/fabricator/FabricatorFactory.h"
+#include "xjmusic/util/ValueUtils.h"
 
-#include <xjmusic/util/ValueUtils.h>
+#include "../_helper/ContentFixtures.h"
+#include "../_helper/SegmentFixtures.h"
+#include "../_mock/MockSegmentRetrospective.h"
 
 namespace XJ {
   class ContentFixtures;
@@ -60,7 +59,7 @@ protected:
         240.0f,
         "seg123"));
     mockRetrospective = new MockSegmentRetrospective(store, 2);
-    subject = new Fabricator(sourceMaterial, store, mockRetrospective, 2, 48000.0f, 2, std::nullopt);
+    subject = new Fabricator(sourceMaterial, store, mockRetrospective, 2, std::nullopt);
   }
 
   void TearDown() override {

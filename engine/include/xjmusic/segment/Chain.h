@@ -32,8 +32,8 @@ namespace XJ {
 
     UUID id;
     UUID templateId{};
-    Chain::Type type{};
-    Chain::State state{};
+    Type type{};
+    State state{};
     std::string shipKey{};
     std::string templateConfig{};
     std::string name{};

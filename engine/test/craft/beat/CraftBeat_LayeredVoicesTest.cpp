@@ -121,8 +121,7 @@ protected:
     delete store;
     delete fake;
     delete program42;
-    delete segment4;
-    delete audioHihat;
+        delete audioHihat;
     delete audioKick;
     delete audioSnare;
   }
@@ -165,7 +164,7 @@ protected:
 };
 
 TEST_F(CraftBeat_LayeredVoicesTest, CraftBeatVoiceContinue) {
-  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, 48000.0f, 2, std::nullopt);
+  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, std::nullopt);
 
   craftFactory->beat(fabricator).doWork();
 

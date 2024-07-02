@@ -119,8 +119,7 @@ protected:
     delete fabricatorFactory;
     delete sourceMaterial;
     delete fake;
-    delete segment4;
-  }
+      }
 
   /**
    Some custom fixtures for testing
@@ -138,7 +137,7 @@ protected:
 };
 
 TEST_F(CraftPercLoop_LayeredVoicesTest, craftPercLoopVoiceContinue) {
-  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, 48000.0f, 2, std::nullopt);
+  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, std::nullopt);
 
   craftFactory->detail(fabricator).doWork();
 }

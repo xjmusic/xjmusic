@@ -3,6 +3,8 @@ include(FetchContent)
 
 # show up in IDEs unless they are listed in add_library.
 add_library(xjmusic
+        audio/ActiveAudio.cpp
+        audio/AudioMathUtils.cpp
         content/ContentEntityStore.cpp
         content/EntityUtils.cpp
         content/Instrument.cpp
@@ -81,6 +83,10 @@ add_library(xjmusic
         util/CsvUtils.cpp
         util/StringUtils.cpp
         util/ValueUtils.cpp
+        work/CraftWork.cpp
+        work/DubWork.cpp
+        work/WorkManager.cpp
+        work/WorkSettings.cpp
         xjmusic.cpp
 )
 

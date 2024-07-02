@@ -4,17 +4,15 @@
 #include <gtest/gtest.h>
 #include <vector>
 
-
-#include "../_helper/ContentFixtures.h"
-#include "../_helper/SegmentFixtures.h"
-#include "../_helper/YamlTest.h"
-
 #include "xjmusic/craft/Craft.h"
 #include "xjmusic/fabricator/ChainUtils.h"
 #include "xjmusic/fabricator/FabricatorFactory.h"
 #include "xjmusic/util/CsvUtils.h"
+#include "xjmusic/util/ValueUtils.h"
 
-#include <xjmusic/util/ValueUtils.h>
+#include "../_helper/ContentFixtures.h"
+#include "../_helper/SegmentFixtures.h"
+#include "../_helper/YamlTest.h"
 
 // NOLINTNEXTLINE
 using ::testing::_;
@@ -70,7 +68,8 @@ protected:
     const auto project1 = ContentFixtures::buildProject("fish");
     const Template template1 = ContentFixtures::buildTemplate(&project1, "Test Template 1", "test1");
     const auto library1 = ContentFixtures::buildLibrary(&project1, "palm tree");
-    mainProgram1 = ContentFixtures::buildProgram(&library1, Program::Type::Main, Program::State::Published, "ANTS", "C#",
+    mainProgram1 = ContentFixtures::buildProgram(&library1, Program::Type::Main, Program::State::Published, "ANTS",
+                                                 "C#",
                                                  60.0f);// 60 BPM such that 1 beat = 1 second
     chain = store->put(SegmentFixtures::buildChain(&template1));
 
@@ -118,8 +117,8 @@ protected:
       if (!notesObj.IsScalar()) return;
       const auto notesString = notesObj.as<std::string>();
       for (const auto &item: ContentFixtures::buildInstrumentWithAudios(
-               &instrument,
-               notesString)) {
+          &instrument,
+          notesString)) {
         // check if item is Instrument or InstrumentAudio
         if (std::holds_alternative<Instrument>(item)) {
           content->put(std::get<Instrument>(item));
@@ -207,10 +206,10 @@ protected:
 
     if (obj.containsKey("stickyBuns")) {
       for (Map<?, ?> sbObj : (List<Map<?, ?>>) obj.get("stickyBuns")) {
-        var sbType = InstrumentType.valueOf(getStr(sbObj, "type"));
-        var sbPosition = getFloat(sbObj, "position");
-        var sbSeed = getInt(sbObj, "seed");
-        var event = detailProgramSequencePatternEvents.get(sbType).stream()
+        auto sbType = InstrumentType.valueOf(getStr(sbObj, "type"));
+        auto sbPosition = getFloat(sbObj, "position");
+        auto sbSeed = getInt(sbObj, "seed");
+        auto event = detailProgramSequencePatternEvents.get(sbType).stream()
           .filter(e -> e.getPosition()== sbPosition)
           .findAny()
           .orElseThrow(() -> FabricationException(String.format("Failed to locate event type %s position %f", sbType, sbPosition)));
@@ -248,7 +247,8 @@ protected:
                                                                    getStr(cObj, "name").value()));
         YAML::Node vObj = cObj["voicings"];
         for (const auto &[instrumentType, instrument]: instruments) {
-          if (auto notes = getStr(vObj, StringUtils::toLowerCase(Instrument::toString(instrument.type))); notes.has_value())
+          if (auto notes = getStr(vObj,
+                                  StringUtils::toLowerCase(Instrument::toString(instrument.type))); notes.has_value())
             store->put(SegmentFixtures::buildSegmentChordVoicing(chord, instrument.type, notes.value()));
         }
       }
@@ -322,7 +322,8 @@ protected:
       }
 
       if (count.has_value())
-        ASSERT_EQ(count.value(), actualNoteStrings.size()) << "Count " + std::to_string(count.value()) + " " + assertionName;
+        ASSERT_EQ(count.value(), actualNoteStrings.size())
+                      << "Count " + std::to_string(count.value()) + " " + assertionName;
 
       if (notes.has_value()) {
         std::vector<std::string> expectedNoteStrings = CsvUtils::split(notes.value());
@@ -362,7 +363,7 @@ protected:
         loadSegment(data);
 
         // Fabricate: Craft Arrangements for Choices
-        fabricator = fabrication->fabricate(content, segment->id, 48000.0f, 2, std::nullopt);
+        fabricator = fabrication->fabricate(content, segment->id, std::nullopt);
         for (const StickyBun &bun: stickyBuns) {
           fabricator->putStickyBun(bun);
         }

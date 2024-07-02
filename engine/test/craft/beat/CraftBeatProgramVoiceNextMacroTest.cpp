@@ -86,8 +86,7 @@ protected:
     delete store;
     delete fake;
     delete chain1;
-    delete segment4;
-    delete audioKick;
+        delete audioKick;
     delete audioSnare;
   }
 
@@ -174,7 +173,7 @@ protected:
 
 TEST_F(CraftBeatProgramVoiceNextMacroTest, CraftBeatVoiceNextMacro) {
   insertSegments3and4(true);
-  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, 48000.0f, 2, std::nullopt);
+  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, std::nullopt);
 
   craftFactory->beat(fabricator).doWork();
 
@@ -208,7 +207,7 @@ TEST_F(CraftBeatProgramVoiceNextMacroTest, CraftBeatVoiceNextMacro) {
 
 TEST_F(CraftBeatProgramVoiceNextMacroTest, CraftBeatVoiceNextMacro_okIfNoBeatChoice) {
   insertSegments3and4(false);
-  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, 48000.0f, 2, std::nullopt);
+  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, std::nullopt);
 
   craftFactory->beat(fabricator).doWork();
 }

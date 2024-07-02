@@ -48,7 +48,7 @@ namespace XJ {
      * Only can build retrospective if there is at least one previous segment
      * The previous segment is the first one cached here. We may cache even further back segments below if found
      * @throws FabricationFatalException on failure to retrieve
-     * @throws FabricationException on failure to compute
+     * @ on failure to compute
      */
     void load();
 
@@ -57,7 +57,7 @@ namespace XJ {
 
      @param pick for which to get arrangement
      @return arrangement
-     @throws FabricationException on failure to retrieve
+     @ on failure to retrieve
      */
     virtual SegmentChoiceArrangement *getArrangement(const SegmentChoiceArrangementPick *pick);
 
@@ -71,7 +71,7 @@ namespace XJ {
 
      @param arrangement for which to get choice
      @return choice
-     @throws FabricationException on failure to retrieve
+     @ on failure to retrieve
      */
     virtual SegmentChoice *getChoice(const SegmentChoiceArrangement *arrangement);
 

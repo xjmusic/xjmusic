@@ -674,7 +674,7 @@ namespace XJ {
      @param N magnitude of library to generate
      @return entities
      */
-    void generatedFixture(ContentEntityStore *store, int N);
+    void generateFixtures(ContentEntityStore *store, int N);
 
   };
 

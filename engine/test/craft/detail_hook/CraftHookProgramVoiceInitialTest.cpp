@@ -65,8 +65,7 @@ protected:
     delete store;
     delete fake;
     delete chain2;
-    delete segment0;
-  }
+      }
 
   /**
  Insert fixture segment 6, including the hook choice only if specified
@@ -94,14 +93,14 @@ protected:
 TEST_F(CraftHookProgramVoiceInitialTest, CraftHookVoiceInitial) {
   insertSegment();
 
-  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment0->id, 48000.0f, 2, std::nullopt);
+  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment0->id, std::nullopt);
 
   craftFactory->detail(fabricator).doWork();
 }
 
 TEST_F(CraftHookProgramVoiceInitialTest, CraftHookVoiceInitial_okWhenNoHookChoice) {
   insertSegment();
-  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment0->id, 48000.0f, 2, std::nullopt);
+  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment0->id, std::nullopt);
 
   craftFactory->detail(fabricator).doWork();
 }

@@ -4,11 +4,11 @@
 #include <gtest/gtest.h>
 #include <string>
 
+#include "xjmusic/fabricator/SegmentUtils.h"
+#include "xjmusic/util/ValueUtils.h"
+
 #include "../_helper/ContentFixtures.h"
 #include "../_helper/SegmentFixtures.h"
-#include "xjmusic/fabricator/SegmentUtils.h"
-
-#include <xjmusic/util/ValueUtils.h>
 
 using namespace XJ;
 

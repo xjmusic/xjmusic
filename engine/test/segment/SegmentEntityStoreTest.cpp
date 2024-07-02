@@ -1,30 +1,37 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-#include <gtest/gtest.h>
 #include <string>
+#include <vector>
+
+#include <gtest/gtest.h>
+#include <spdlog/spdlog.h>
+
+#include "xjmusic/fabricator/FabricationException.h"
+#include "xjmusic/segment/SegmentEntityStore.h"
+#include "xjmusic/util/ValueUtils.h"
 
 #include "../_helper/ContentFixtures.h"
 #include "../_helper/SegmentFixtures.h"
-#include "xjmusic/fabricator/FabricationException.h"
-#include "xjmusic/segment/SegmentEntityStore.h"
 
-#include <xjmusic/util/ValueUtils.h>
 
 using namespace XJ;
 
 class SegmentEntityStoreTest : public testing::Test {
 protected:
+  ContentFixtures *fake = nullptr;
   SegmentEntityStore *subject = nullptr;
   Chain fakeChain;
-  Chain* chain3 = nullptr;
+  Chain *chain3 = nullptr;
   Project project1;
-  Segment *segment1 = nullptr;
-  Segment *segment2 = nullptr;
-  Segment *segment4 = nullptr;
-  Segment *segment5 = nullptr;
+  const Segment *segment1 = nullptr;
+  const Segment *segment2 = nullptr;
+  const Segment *segment3 = nullptr;
+  const Segment *segment4 = nullptr;
+  const Segment *segment5 = nullptr;
   Template template1;
 
   void SetUp() override {
+    fake = new ContentFixtures();
     // Instantiate the test subject and put the payload
     subject = new SegmentEntityStore();
 
@@ -59,7 +66,7 @@ protected:
         120.0,
         "chains-1-segments-9f7s89d8a7892.wav",
         true));
-    segment2 = subject->put(SegmentFixtures::buildSegment(
+    const auto segment2mutable = subject->put(SegmentFixtures::buildSegment(
         chain3,
         Segment::Type::Continue,
         1,
@@ -71,9 +78,9 @@ protected:
         120.0,
         "chains-1-segments-9f7s89d8a7892.wav",
         true));
-    segment2->waveformPreroll = 1.523;
-    subject->put(*segment2);
-    subject->put(SegmentFixtures::buildSegment(
+    segment2mutable->waveformPreroll = 1.523;
+    segment2 = subject->put(*segment2mutable);
+    segment3 = subject->put(SegmentFixtures::buildSegment(
         chain3,
         Segment::Type::Continue,
         2,
@@ -216,13 +223,13 @@ TEST_F(SegmentEntityStoreTest, CreateAll_ReadAll) {
   auto programSequence = ContentFixtures::buildProgramSequence(&program, 8, "Hay", 0.6f, "G");
   auto programSequenceBinding = ContentFixtures::buildProgramSequenceBinding(&programSequence, 0);
   Segment *chain3_segment0 = subject->put(SegmentFixtures::buildSegment(chain3,
-                                                                       0,
-                                                                       Segment::State::Crafted,
-                                                                       "D Major",
-                                                                       64,
-                                                                       0.73f,
-                                                                       120.0f,
-                                                                       "chains-3-segments-9f7s89d8a7892.wav"));
+                                                                        0,
+                                                                        Segment::State::Crafted,
+                                                                        "D Major",
+                                                                        64,
+                                                                        0.73f,
+                                                                        120.0f,
+                                                                        "chains-3-segments-9f7s89d8a7892.wav"));
   subject->put(
       SegmentFixtures::buildSegmentChoice(chain3_segment0, SegmentChoice::DELTA_UNLIMITED,
                                           SegmentChoice::DELTA_UNLIMITED, &program,
@@ -340,6 +347,25 @@ TEST_F(SegmentEntityStoreTest, ReadAllSegments) {
   ++it;
   const Segment *result4 = *it;
   ASSERT_EQ(Segment::State::Planned, result4->state);
+}
+
+TEST_F(SegmentEntityStoreTest, ReadAllSegmentChoiceArrangementPicks) {
+  std::vector input = {segment1, segment2, segment3, segment4, segment5};
+  const Program program = ContentFixtures::buildProgram(Program::Type::Macro, "C", 120.0f);
+  const ProgramSequence programSequence = ContentFixtures::buildProgramSequence(&program, 8, "Hay", 0.6f, "G");
+  const ProgramVoice voice = ContentFixtures::buildProgramVoice(&program, Instrument::Type::Bass, "Bassline");
+  const Instrument instrument = ContentFixtures::buildInstrument(Instrument::Type::Bass, Instrument::Mode::Chord, true, false);
+  const InstrumentAudio audio = ContentFixtures::buildInstrumentAudio(&instrument, "slow loop", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.62f,
+                                                                      "PRIMARY", "X", 1.0f);
+  for (const auto segment: input) {
+    auto choice = subject->put(SegmentFixtures::buildSegmentChoice(segment, &program, &programSequence, &voice, &instrument));
+    auto arrangement = subject->put(SegmentFixtures::buildSegmentChoiceArrangement(choice));
+    subject->put(SegmentFixtures::buildSegmentChoiceArrangementPick(segment, arrangement, &audio, "G"));
+  }
+
+  const auto result = subject->readAllSegmentChoiceArrangementPicks(input);
+
+  ASSERT_EQ(5, result.size());
 }
 
 /**
@@ -481,7 +507,7 @@ TEST_F(SegmentEntityStoreTest, GetSegmentCount) {
 
 TEST_F(SegmentEntityStoreTest, IsSegmentsEmpty) {
   subject->clear();
-  ASSERT_TRUE(subject->isEmpty());
+  ASSERT_TRUE(subject->empty());
 
   subject->put(SegmentFixtures::buildSegment(&fakeChain,
                                              0,
@@ -492,7 +518,7 @@ TEST_F(SegmentEntityStoreTest, IsSegmentsEmpty) {
                                              120.0f,
                                              "chains-3-segments-9f7s89d8a7892.wav"));
 
-  ASSERT_FALSE(subject->isEmpty());
+  ASSERT_FALSE(subject->empty());
 }
 
 

@@ -38,6 +38,9 @@ std::string SegmentUtils::getIdentifier(Segment *segment) {
 
 
 std::optional<Segment *> SegmentUtils::getLastCrafted(const std::vector<Segment *> &segments) {
+  if (segments.empty()) {
+    return std::nullopt;
+  }
   const auto craftedSegments = getCrafted(segments);
   return getLast(craftedSegments);
 }

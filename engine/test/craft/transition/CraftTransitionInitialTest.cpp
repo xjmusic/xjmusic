@@ -91,12 +91,11 @@ protected:
     delete fabricatorFactory;
     delete sourceMaterial;
     delete store;
-    delete segment6;
-  }
+      }
 };
 
 TEST_F(CraftTransitionInitialTest, CraftTransitionInitial) {
-  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment6->id, 48000.0f, 2, std::nullopt);
+  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment6->id, std::nullopt);
 
   craftFactory->transition(fabricator).doWork();
 }

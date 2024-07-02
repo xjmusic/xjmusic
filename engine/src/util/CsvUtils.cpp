@@ -1,5 +1,9 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
+#include <sstream>
+#include <ostream>
+#include <iosfwd>
+
 #include "xjmusic/util/CsvUtils.h"
 
 using namespace XJ;
@@ -12,11 +16,12 @@ std::vector<std::string> CsvUtils::split(const std::string &csv) {
   std::string item;
   while (std::getline(ss, item, ',')) {
     item.erase(item.begin(), std::find_if(item.begin(), item.end(), [](const unsigned char ch) {
-      return !std::isspace(ch);
-    }));
+                 return !std::isspace(ch);
+               }));
     item.erase(std::find_if(item.rbegin(), item.rend(), [](const unsigned char ch) {
-      return !std::isspace(ch);
-    }).base(), item.end());
+                 return !std::isspace(ch);
+               }).base(),
+               item.end());
     result.push_back(item);
   }
   return result;
@@ -71,4 +76,21 @@ std::string CsvUtils::from(const std::map<std::string, std::string> &properties)
     i++;
   }
   return result;
+}
+
+std::string CsvUtils::toProperCsvAnd(const std::vector<std::string> &items) {
+  return toProperCsv(items, "and");
+}
+
+std::string CsvUtils::toProperCsvOr(const std::vector<std::string> &items) {
+  return toProperCsv(items, "or");
+}
+
+std::string CsvUtils::toProperCsv(std::vector<std::string> items, const std::string &finalSeparator) {
+  if (items.empty()) return "";
+  if (items.size() == 1) return StringUtils::toProper(items.at(0));
+  if (items.size() == 2)
+    return StringUtils::toProper(items.at(0)) + " " + finalSeparator + " " + StringUtils::toProper(items.at(1));
+  auto allButLast = std::vector(items.begin(), items.end() - 1);
+  return join(allButLast) + ", " + finalSeparator + " " + StringUtils::toProper(items.at(items.size()-1));
 }

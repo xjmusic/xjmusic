@@ -1,10 +1,9 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
 #include "xjmusic/craft/Craft.h"
+#include "xjmusic/music/Bar.h"
 #include "xjmusic/util/CsvUtils.h"
-
-#include <xjmusic/music/Bar.h>
-#include <xjmusic/util/ValueUtils.h>
+#include "xjmusic/util/ValueUtils.h"
 
 using namespace XJ;
 

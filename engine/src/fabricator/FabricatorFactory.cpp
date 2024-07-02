@@ -1,8 +1,8 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
 #include "xjmusic/fabricator/FabricatorFactory.h"
-#include "xjmusic/fabricator/Fabricator.h"
 #include "xjmusic/content/ContentEntityStore.h"
+#include "xjmusic/fabricator/Fabricator.h"
 
 using namespace XJ;
 
@@ -11,19 +11,13 @@ FabricatorFactory::FabricatorFactory(SegmentEntityStore *segmentEntityStore) : s
 Fabricator *FabricatorFactory::fabricate(
     ContentEntityStore *contentEntityStore,
     const int segmentId,
-    const float outputFrameRate,
-    const int outputChannels,
-    const std::optional<Segment::Type> overrideSegmentType
-) {
+    const std::optional<Segment::Type> overrideSegmentType) {
   return new Fabricator(
       contentEntityStore,
       segmentEntityStore,
       loadRetrospective(segmentId),
       segmentId,
-      outputFrameRate,
-      outputChannels,
-      overrideSegmentType
-  );
+      overrideSegmentType);
 }
 
 SegmentRetrospective *FabricatorFactory::loadRetrospective(const int segmentId) {
@@ -31,4 +25,3 @@ SegmentRetrospective *FabricatorFactory::loadRetrospective(const int segmentId) 
   retro->load();
   return retro;
 }
-

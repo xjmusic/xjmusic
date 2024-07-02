@@ -10,7 +10,7 @@ using namespace XJ;
 
 
 #define SEGMENT_STORE_CORE_METHODS(ENTITY, ENTITIES, STORE)                                   \
-  ENTITY* SegmentEntityStore::put(const ENTITY &entity) {                                     \
+  ENTITY *SegmentEntityStore::put(const ENTITY &entity) {                                     \
     if (STORE.find(entity.segmentId) == STORE.end()) {                                        \
       STORE[entity.segmentId] = std::map<UUID, ENTITY>();                                     \
     }                                                                                         \
@@ -79,9 +79,8 @@ Chain *SegmentEntityStore::put(const Chain &chain) {
 }
 
 Segment *SegmentEntityStore::put(const Segment &segment) {
-  const auto sc = new Segment(segment);
-  this->segments[segment.id] = *sc;
-  return sc;
+  this->segments[segment.id] = segment;
+  return &this->segments[segment.id];
 }
 
 std::optional<Segment *> SegmentEntityStore::readSegmentAtChainMicros(const long chainMicros) {
@@ -107,9 +106,25 @@ std::vector<Segment *> SegmentEntityStore::readAllSegments() {
   for (auto &[_, segment]: segments) {
     result.emplace_back(&segment);
   }
+  std::sort(result.begin(), result.end(), [](const Segment *a, const Segment *b) {
+    return a->id < b->id;
+  });
   return result;
 }
 
+
+std::vector<Segment *> SegmentEntityStore::readAllSegmentsInState(const Segment::State segmentState) {
+  std::vector<Segment *> result;
+  for (auto &[_, segment]: segments) {
+    if (segment.state == segmentState) {
+      result.emplace_back(&segment);
+    }
+    std::sort(result.begin(), result.end(), [](const Segment *a, const Segment *b) {
+      return a->id < b->id;
+    });
+  }
+  return result;
+}
 
 std::vector<Segment> SegmentEntityStore::readSegmentsFromToOffset(const int fromOffset, const int toOffset) {
   std::vector<Segment> result;
@@ -206,18 +221,28 @@ std::string SegmentEntityStore::readChoiceHash(const Segment &segment) {
   return StringUtils::join(ids, "_");
 }
 
+std::set<const SegmentChoiceArrangementPick *> SegmentEntityStore::readAllSegmentChoiceArrangementPicks(const std::vector<const Segment *> &segments) {
+  std::set<const SegmentChoiceArrangementPick *> picks;
+  for (auto &segment: segments) {
+    for (auto &pick: readAllSegmentChoiceArrangementPicks(segment->id)) {
+      picks.emplace(pick);
+    }
+  }
+  return picks;
+}
+
 
 int SegmentEntityStore::getSegmentCount() const {
   return static_cast<int>(segments.size());
 }
 
 
-bool SegmentEntityStore::isEmpty() const {
+bool SegmentEntityStore::empty() const {
   return segments.empty();
 }
 
 
-void SegmentEntityStore::updateSegment(Segment &segment) {
+Segment *SegmentEntityStore::updateSegment(Segment &segment) {
   // validate and cache to-state
   validate(segment);
   const Segment::State toState = segment.state;
@@ -244,7 +269,7 @@ void SegmentEntityStore::updateSegment(Segment &segment) {
   segment.updatedAt = EntityUtils::currentTimeMillis();
 
   // save segment
-  put(segment);
+  return put(segment);
 }
 
 
