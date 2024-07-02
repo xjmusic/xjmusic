@@ -959,13 +959,13 @@ void Fabricator::putReport(const std::string &key, const std::string &value) {
 }
 
 
-Segment *Fabricator::updateSegment(Segment segment) {
+Segment *Fabricator::updateSegment(Segment seg) {
   try {
-    return store->updateSegment(segment);
+    return store->updateSegment(seg);
 
   } catch (const FabricationException &e) {
     spdlog::error("Failed to update Segment", e.what());
-    return &segment;
+    return &seg;
   }
 }
 
