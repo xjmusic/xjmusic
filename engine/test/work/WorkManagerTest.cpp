@@ -2,7 +2,6 @@
 
 
 #include <set>
-#include <vector>
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
@@ -19,7 +18,7 @@
 #include "xjmusic/segment/SegmentEntityStore.h"
 #include "xjmusic/util/ValueUtils.h"
 
-#include <xjmusic/work/CraftWork.h>
+#include <xjmusic/work/WorkManager.h>
 
 // NOLINTNEXTLINE
 using ::testing::_;
@@ -28,7 +27,7 @@ using testing::ReturnRef;
 
 using namespace XJ;
 
-class ComplexLibraryTest : public testing::Test {
+class WorkManagerTest : public testing::Test {
 protected:
   int MARATHON_NUMBER_OF_SEGMENTS = 50;
   long MICROS_PER_CYCLE = 1000000;
@@ -39,7 +38,7 @@ protected:
   long long startTime = EntityUtils::currentTimeMillis();
   SegmentEntityStore *store = nullptr;
   ContentEntityStore *content = nullptr;
-  CraftWork *work = nullptr;
+  WorkManager *work = nullptr;
   ContentFixtures *fake = nullptr;
 
   void SetUp() override {
@@ -62,7 +61,10 @@ protected:
     const auto craftFactory = new CraftFactory();
 
     // work
-    work = new CraftWork(craftFactory, fabricatorFactory, store, content, 100, 100);
+    work = new WorkManager(craftFactory, fabricatorFactory, store);
+    auto settings = WorkSettings();
+    settings.inputTemplate = tmpl;
+    work->start(content, settings);
   }
 
   void TearDown() override {
@@ -90,16 +92,12 @@ protected:
    @return true if it has at least N segments
    */
   bool hasSegmentsDubbedPastMinimumOffset() const {
-    const auto chain = work->getChain();
-    if (chain == nullptr)
-      return false;
-
     const auto segment = SegmentUtils::getLastCrafted(store->readAllSegments());
     return segment.has_value() && segment.value()->id >= MARATHON_NUMBER_OF_SEGMENTS;
   }
 };
 
-TEST_F(ComplexLibraryTest, HasSegmentsDubbedPastMinimumOffset) {
+TEST_F(WorkManagerTest, HasSegmentsDubbedPastMinimumOffset) {
   unsigned long long atChainMicros = 0;
   while (!hasSegmentsDubbedPastMinimumOffset() && isWithinTimeLimit()) {
     work->runCycle(atChainMicros);

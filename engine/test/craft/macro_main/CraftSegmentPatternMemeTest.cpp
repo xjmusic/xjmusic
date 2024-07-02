@@ -67,7 +67,7 @@ TEST(CraftSegmentPatternMemeTest, CraftSegment) {
     // Following Segment
     const auto segment = store->put(SegmentFixtures::buildSegment(chain, 2, Segment::State::Planned, "C", 8, 0.8f, 120, "chain-1-waveform-12345"));
 
-    craftFactory->macroMain(fabricatorFactory->fabricate(sourceMaterial, segment->id, 48000.0f, 2, std::nullopt), std::nullopt, {}).doWork();
+    craftFactory->macroMain(fabricatorFactory->fabricate(sourceMaterial, segment->id, std::nullopt), std::nullopt, {}).doWork();
 
     const auto result = store->readSegment(segment->id).value();
     ASSERT_EQ(Segment::Type::NextMacro, result->type);

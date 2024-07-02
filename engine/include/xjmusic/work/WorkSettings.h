@@ -8,17 +8,12 @@
 
 namespace XJ {
 
-  class FabricationSettings {
+  class WorkSettings {
   public:
-    Fabricator::ControlMode controlMode;
+    Fabricator::ControlMode controlMode = Fabricator::ControlMode::Auto;
     Template inputTemplate;
-    int craftAheadSeconds;
-    int dubAheadSeconds;
-    int outputFrameRate;
-    int outputChannels;
-    int mixerLengthSeconds = 2;
-    int shipOutputFileNumberDigits = 7;
-    int shipOutputPcmChunkSizeBytes = 1024;
+    int craftAheadSeconds = 300;
+    int dubAheadSeconds = 150;
     long persistenceWindowSeconds = 3600;
     std::string toString() const;
   };

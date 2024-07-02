@@ -119,7 +119,7 @@ add_executable(xjmusic_test
         util/CsvUtilsTest.cpp
         util/StringUtilsTest.cpp
         util/ValueUtilsTest.cpp
-        work/ComplexLibraryTest.cpp
+        work/WorkManagerTest.cpp
 )
 
 # I'm using C++17 in the test

@@ -363,7 +363,7 @@ protected:
         loadSegment(data);
 
         // Fabricate: Craft Arrangements for Choices
-        fabricator = fabrication->fabricate(content, segment->id, 48000.0f, 2, std::nullopt);
+        fabricator = fabrication->fabricate(content, segment->id, std::nullopt);
         for (const StickyBun &bun: stickyBuns) {
           fabricator->putStickyBun(bun);
         }

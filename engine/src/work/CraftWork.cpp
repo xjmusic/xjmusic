@@ -21,8 +21,6 @@ CraftWork::CraftWork(
     const long craftAheadSeconds) {
   this->craftFactory = craftFactory;
   this->fabricatorFactory = fabricatorFactory;
-  this->outputChannels = outputChannels;
-  this->outputFrameRate = outputFrameRate;
   this->store = store;
 
   craftAheadMicros = craftAheadSeconds * ValueUtils::MICROS_PER_SECOND;
@@ -341,8 +339,7 @@ void CraftWork::doFabricationWork(
     const std::optional<const Program *> overrideMacroProgram,
     const std::set<std::string> &overrideMemes) const {
   spdlog::debug("[segId={}] will prepare fabricator", segment->id);
-  Fabricator *fabricator = fabricatorFactory->fabricate(content, segment->id, outputFrameRate, outputChannels,
-                                                        overrideSegmentType);
+  Fabricator *fabricator = fabricatorFactory->fabricate(content, segment->id, overrideSegmentType);
 
   spdlog::debug("[segId={}] will do craft work", segment->id);
   updateSegmentState(fabricator, segment, Segment::State::Planned, Segment::State::Crafting);

@@ -113,7 +113,7 @@ protected:
 };
 
 TEST_F(CraftFoundationContinueTest, CraftFoundationContinue) {
-  auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, 48000.0f, 2, std::nullopt);
+  auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, std::nullopt);
 
   craftFactory->macroMain(fabricator, std::nullopt, {}).doWork();
 

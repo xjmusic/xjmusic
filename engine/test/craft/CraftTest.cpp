@@ -14,7 +14,6 @@
 
 #include "xjmusic/craft/Craft.h"
 #include "xjmusic/fabricator/ChainUtils.h"
-#include "xjmusic/util/CsvUtils.h"
 
 // NOLINTNEXTLINE
 using ::testing::_;
@@ -56,8 +55,6 @@ protected:
         sourceMaterial,
         segmentEntityStore,
         mockSegmentRetrospective,
-        2,
-        48000,
         2,
         std::nullopt);
     subject = new Craft(mockFabricator);

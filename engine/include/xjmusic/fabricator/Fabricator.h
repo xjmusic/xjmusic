@@ -54,8 +54,6 @@ namespace XJ {
      * @param segmentRetrospective          to look back on previous segmefnt entities
      * @param contentEntityStore  contentEntityStore from which to fabricate
      * @param segmentId  current segment to fabricate
-     * @param outputFrameRate  output frame rate
-     * @param outputChannels  output channels
      * @param overrideSegmentType  override segment type
      */
     explicit Fabricator(
@@ -63,8 +61,6 @@ namespace XJ {
         SegmentEntityStore *segmentEntityStore,
         SegmentRetrospective *segmentRetrospective,
         int segmentId,
-        float outputFrameRate,
-        int outputChannels,
         std::optional<Segment::Type> overrideSegmentType);
 
     /**
@@ -812,7 +808,7 @@ namespace XJ {
      @param segment to set
      @ on failure
      */
-    virtual Segment *updateSegment(Segment seg);
+    virtual Segment *updateSegment(Segment segment);
 
     /**
      Get the Segment Retrospective
@@ -911,8 +907,6 @@ namespace XJ {
     TemplateConfig templateConfig;
     std::set<const TemplateBinding *> templateBindings;
     ContentEntityStore *sourceMaterial;
-    double outputFrameRate;
-    int outputChannels;
     std::map<double, std::optional<SegmentChord *>> chordAtPosition;
     std::map<Instrument::Type, NoteRange> voicingNoteRange;
     std::map<const SegmentChoice *, const ProgramSequence *> sequenceForChoice;

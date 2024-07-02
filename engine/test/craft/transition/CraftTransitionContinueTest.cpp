@@ -158,7 +158,7 @@ protected:
 
 TEST_F(CraftTransitionContinueTest, CraftTransitionContinue) {
   insertSegments3and4(false);
-  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, 48000.0f, 2, std::nullopt);
+  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, std::nullopt);
 
   craftFactory->transition(fabricator).doWork();
 }
@@ -166,7 +166,7 @@ TEST_F(CraftTransitionContinueTest, CraftTransitionContinue) {
 
 TEST_F(CraftTransitionContinueTest, CraftTransitionContinue_okEvenWithoutPreviousSegmentTransitionChoice) {
   insertSegments3and4(true);
-  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, 48000.0f, 2, std::nullopt);
+  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, std::nullopt);
 
   craftFactory->transition(fabricator).doWork();
 }

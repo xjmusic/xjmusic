@@ -26,16 +26,10 @@ Fabricator::Fabricator(
     SegmentEntityStore *segmentEntityStore,
     SegmentRetrospective *segmentRetrospective,
     int segmentId,
-    const float outputFrameRate,
-    const int outputChannels,
     std::optional<Segment::Type> overrideSegmentType) : sourceMaterial(contentEntityStore),
-                                                        outputFrameRate(outputFrameRate),
-                                                        outputChannels(outputChannels),
                                                         store(segmentEntityStore),
                                                         retrospective(segmentRetrospective),
                                                         segmentId(segmentId) {
-  this->outputFrameRate = outputFrameRate;
-  this->outputChannels = outputChannels;
 
   // keep elapsed time based on system nano time
   startAtSystemNanoTime = std::chrono::high_resolution_clock::now();
@@ -959,13 +953,13 @@ void Fabricator::putReport(const std::string &key, const std::string &value) {
 }
 
 
-Segment *Fabricator::updateSegment(Segment seg) {
+Segment *Fabricator::updateSegment(Segment segment) {
   try {
-    return store->updateSegment(seg);
+    return store->updateSegment(segment);
 
   } catch (const FabricationException &e) {
     spdlog::error("Failed to update Segment", e.what());
-    return &seg;
+    return nullptr;
   }
 }
 

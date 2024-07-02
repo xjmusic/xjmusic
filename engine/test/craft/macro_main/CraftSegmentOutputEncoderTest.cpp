@@ -69,7 +69,7 @@ protected:
 };
 
 TEST_F(CraftSegmentOutputEncoderTest, CraftFoundationInitial) {
-  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment6->id, 48000.0f, 2, std::nullopt);
+  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment6->id, std::nullopt);
 
   craftFactory->macroMain(fabricator, std::nullopt, {}).doWork();
 

@@ -2,11 +2,11 @@
 
 #include <spdlog/spdlog.h>
 
-#include "xjmusic/work/FabricationManager.h"
+#include "xjmusic/work/WorkManager.h"
 
 using namespace XJ;
 
-FabricationManager::FabricationManager(
+WorkManager::WorkManager(
     CraftFactory *craftFactory,
     FabricatorFactory *fabricatorFactory,
     SegmentEntityStore *store) {
@@ -15,9 +15,9 @@ FabricationManager::FabricationManager(
   this->entityStore = store;
 }
 
-void FabricationManager::start(
+void WorkManager::start(
     ContentEntityStore *content,
-    const FabricationSettings &config) {
+    const WorkSettings &config) {
   this->content = content;
   this->config = config;
   spdlog::debug("Did set work configuration: {}", config.toString());
@@ -41,29 +41,29 @@ void FabricationManager::start(
   spdlog::debug("Did set running to true");
 }
 
-void FabricationManager::finish(const bool cancelled) {
+void WorkManager::finish(const bool cancelled) {
   running = false;
 
   state = cancelled ? Cancelled : Done;
 }
 
-std::set<ActiveAudio> FabricationManager::runCycle(unsigned long long atChainMicros) {
+std::set<ActiveAudio> WorkManager::runCycle(unsigned long long atChainMicros) {
   this->runControlCycle();
   this->runCraftCycle(atChainMicros);
   return this->runDubCycle(atChainMicros);
 }
 
-FabricationState FabricationManager::getWorkState() const {
+WorkState WorkManager::getWorkState() const {
   return state;
 }
 
-void FabricationManager::doOverrideMacro(const Program *macroProgram) const {
+void WorkManager::doOverrideMacro(const Program *macroProgram) const {
   if (craftWork == nullptr)
     return;
   craftWork->doOverrideMacro(macroProgram);
 }
 
-std::optional<MemeTaxonomy> FabricationManager::getMemeTaxonomy() const {
+std::optional<MemeTaxonomy> WorkManager::getMemeTaxonomy() const {
   try {
     const auto tmpls = getSourceMaterial()->getTemplates();
     if (tmpls.empty())
@@ -76,7 +76,7 @@ std::optional<MemeTaxonomy> FabricationManager::getMemeTaxonomy() const {
   }
 }
 
-std::vector<const Program *> FabricationManager::getAllMacroPrograms() const {
+std::vector<const Program *> WorkManager::getAllMacroPrograms() const {
   auto programs = getSourceMaterial()->getProgramsOfType(Program::Type::Macro);
   auto sortedPrograms = std::vector(programs.begin(), programs.end());
   std::sort(sortedPrograms.begin(), sortedPrograms.end(), [](const Program *a, const Program *b) {
@@ -85,7 +85,7 @@ std::vector<const Program *> FabricationManager::getAllMacroPrograms() const {
   return sortedPrograms;
 }
 
-void FabricationManager::doOverrideMemes(const std::set<std::string> &memes) const {
+void WorkManager::doOverrideMemes(const std::set<std::string> &memes) const {
   if (craftWork == nullptr)
     throw std::runtime_error("Craft work is not initialized");
   if (dubWork == nullptr)
@@ -93,32 +93,32 @@ void FabricationManager::doOverrideMemes(const std::set<std::string> &memes) con
   craftWork->doOverrideMemes(memes);
 }
 
-bool FabricationManager::getAndResetDidOverride() const {
+bool WorkManager::getAndResetDidOverride() const {
   if (craftWork == nullptr) return false;
   return craftWork->getAndResetDidOverride();
 }
 
-void FabricationManager::setIntensityOverride(std::optional<float> intensity) const {
+void WorkManager::setIntensityOverride(std::optional<float> intensity) const {
   if (dubWork == nullptr) return;
   dubWork->setIntensityOverride(intensity);
 }
 
-SegmentEntityStore *FabricationManager::getEntityStore() const {
+SegmentEntityStore *WorkManager::getEntityStore() const {
   return entityStore;
 }
 
-void FabricationManager::reset() {
+void WorkManager::reset() {
   craftWork = nullptr;
   dubWork = nullptr;
 }
 
-ContentEntityStore *FabricationManager::getSourceMaterial() const {
+ContentEntityStore *WorkManager::getSourceMaterial() const {
   if (craftWork == nullptr)
     throw std::runtime_error("Craft work is not initialized");
   return craftWork->getSourceMaterial();
 }
 
-void FabricationManager::updateState(const FabricationState fabricationState) {
+void WorkManager::updateState(const WorkState fabricationState) {
   state = fabricationState;
   spdlog::debug("Did update work state to {} but there is no listener to notify", toString(fabricationState));
 }
@@ -126,7 +126,7 @@ void FabricationManager::updateState(const FabricationState fabricationState) {
 /**
    Run the control cycle, which prepares fabrication and moves the machine into the active state
    */
-void FabricationManager::runControlCycle() {
+void WorkManager::runControlCycle() {
   spdlog::debug("Will run control cycle");
   try {
     switch (state) {
@@ -157,7 +157,7 @@ void FabricationManager::runControlCycle() {
   }
 }
 
-void FabricationManager::runCraftCycle(const unsigned long long atChainMicros) {
+void WorkManager::runCraftCycle(const unsigned long long atChainMicros) {
   if (state != Active) {
     spdlog::debug("Will not run craft cycle because work state is {}", toString(state));
     return;
@@ -179,7 +179,7 @@ void FabricationManager::runCraftCycle(const unsigned long long atChainMicros) {
   }
 }
 
-std::set<ActiveAudio> FabricationManager::runDubCycle(const unsigned long long atChainMicros) {
+std::set<ActiveAudio> WorkManager::runDubCycle(const unsigned long long atChainMicros) {
   if (state != Active) {
     spdlog::debug("Will not run dub cycle because work state is {}", toString(state));
     return {};
@@ -197,7 +197,7 @@ std::set<ActiveAudio> FabricationManager::runDubCycle(const unsigned long long a
   }
 }
 
-void FabricationManager::initialize() {
+void WorkManager::initialize() {
   craftWork = new CraftWork(
       craftFactory,
       fabricatorFactory,
@@ -233,11 +233,11 @@ void FabricationManager::initialize() {
   }
 }
 
-bool FabricationManager::isInitialized() const {
+bool WorkManager::isInitialized() const {
   return craftWork != nullptr && dubWork != nullptr;
 }
 
-void FabricationManager::didFailWhile(std::string msgWhile, std::exception e) {
+void WorkManager::didFailWhile(std::string msgWhile, std::exception e) {
   spdlog::error("Failed while {}: {}", msgWhile, e.what());
   // This will cascade-send the finish() instruction to dub and ship
   if (craftWork != nullptr)
@@ -245,7 +245,7 @@ void FabricationManager::didFailWhile(std::string msgWhile, std::exception e) {
   updateState(Failed);
 }
 
-std::string FabricationManager::toString(const FabricationState state) {
+std::string WorkManager::toString(const WorkState state) {
   switch (state) {
     default:
     case Standby:

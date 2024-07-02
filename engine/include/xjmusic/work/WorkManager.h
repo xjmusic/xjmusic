@@ -10,31 +10,32 @@
 
 #include "CraftWork.h"
 #include "DubWork.h"
-#include "FabricationSettings.h"
-#include "FabricationState.h"
+#include "WorkSettings.h"
+#include "WorkState.h"
 
 namespace XJ {
 
-  class FabricationManager {
+  class WorkManager {
     CraftFactory *craftFactory = nullptr;
     FabricatorFactory *fabricatorFactory = nullptr;
     SegmentEntityStore *entityStore = nullptr;
     CraftWork *craftWork = nullptr;
     DubWork *dubWork = nullptr;
     ContentEntityStore *content = nullptr;
-    FabricationSettings config = FabricationSettings();
-    FabricationState state = Standby;
+    WorkSettings config = WorkSettings();
+    WorkState state = Standby;
     bool isAudioLoaded = false;
     long long startedAtMillis = 0;
     bool running = false;
+  public:
 
     /**
-    * Construct a new FabricationManager
+    * Construct a new WorkManager
     * @param craftFactory  for craft
     * @param fabricatorFactory  for fabrication
     * @param store  for segments
     */
-    FabricationManager(
+    WorkManager(
         CraftFactory *craftFactory,
         FabricatorFactory *fabricatorFactory,
         SegmentEntityStore *store);
@@ -46,7 +47,7 @@ namespace XJ {
      */
     void start(
         ContentEntityStore *content,
-        const FabricationSettings &config);
+        const WorkSettings &config);
 
     /**
      Stop work
@@ -80,7 +81,7 @@ namespace XJ {
     /**
      @return the current work state
      */
-    FabricationState getWorkState() const;
+    WorkState getWorkState() const;
 
     /**
      Go to the given macro program right away
@@ -161,14 +162,14 @@ namespace XJ {
     * @param state  work state
     * @return  string representation
     */
-   static std::string toString(FabricationState state);
+   static std::string toString(WorkState state);
 
    /**
      Update the current work state
 
      @param fabricationState work state
      */
-    void updateState(FabricationState fabricationState);
+    void updateState(WorkState fabricationState);
   };
 
 }// namespace XJ

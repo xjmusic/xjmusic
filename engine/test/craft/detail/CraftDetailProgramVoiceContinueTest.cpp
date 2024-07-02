@@ -158,7 +158,7 @@ protected:
 
 TEST_F(CraftDetailProgramVoiceContinueTest, CraftDetailVoiceContinue) {
   insertSegments3and4(false);
-  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, 48000.0f, 2, std::nullopt);
+  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, std::nullopt);
 
   craftFactory->detail(fabricator).doWork();
 
@@ -177,7 +177,7 @@ TEST_F(CraftDetailProgramVoiceContinueTest, CraftDetailVoiceContinue) {
 
 TEST_F(CraftDetailProgramVoiceContinueTest, CraftDetailVoiceContinue_okIfNoDetailChoice) {
   insertSegments3and4(true);
-  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, 48000.0f, 2, std::nullopt);
+  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, std::nullopt);
 
   craftFactory->detail(fabricator).doWork();
 }

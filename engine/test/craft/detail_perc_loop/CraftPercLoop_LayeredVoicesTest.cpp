@@ -137,7 +137,7 @@ protected:
 };
 
 TEST_F(CraftPercLoop_LayeredVoicesTest, craftPercLoopVoiceContinue) {
-  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, 48000.0f, 2, std::nullopt);
+  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, std::nullopt);
 
   craftFactory->detail(fabricator).doWork();
 }

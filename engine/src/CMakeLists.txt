@@ -85,8 +85,8 @@ add_library(xjmusic
         util/ValueUtils.cpp
         work/CraftWork.cpp
         work/DubWork.cpp
-        work/FabricationManager.cpp
-        work/FabricationSettings.cpp
+        work/WorkManager.cpp
+        work/WorkSettings.cpp
         xjmusic.cpp
 )
 

@@ -59,7 +59,7 @@ protected:
         240.0f,
         "seg123"));
     mockRetrospective = new MockSegmentRetrospective(store, 2);
-    subject = new Fabricator(sourceMaterial, store, mockRetrospective, 2, 48000.0f, 2, std::nullopt);
+    subject = new Fabricator(sourceMaterial, store, mockRetrospective, 2, std::nullopt);
   }
 
   void TearDown() override {

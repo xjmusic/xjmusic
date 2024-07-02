@@ -92,14 +92,14 @@ protected:
 
 TEST_F(CraftBackgroundProgramVoiceInitialTest, CraftBackgroundVoiceInitial) {
   insertSegment();
-  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment0->id, 48000.0f, 2, std::nullopt);
+  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment0->id, std::nullopt);
 
   craftFactory->background(fabricator).doWork();
 }
 
 TEST_F(CraftBackgroundProgramVoiceInitialTest, CraftBackgroundVoiceInitial_okWhenNoBackgroundChoice) {
   insertSegment();
-  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment0->id, 48000.0f, 2, std::nullopt);
+  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment0->id, std::nullopt);
 
   craftFactory->background(fabricator).doWork();
 }

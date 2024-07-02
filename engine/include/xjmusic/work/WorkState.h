@@ -7,7 +7,7 @@
 
 namespace XJ {
 
-  enum FabricationState {
+  enum WorkState {
     Standby,
     Starting,
     Initializing,

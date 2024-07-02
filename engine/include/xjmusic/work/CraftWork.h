@@ -30,8 +30,6 @@ namespace XJ {
     SegmentEntityStore *store = nullptr;
     ContentEntityStore *content = nullptr;
     bool running = new bool(true);
-    double outputFrameRate = 0;
-    int outputChannels = 0;
     long craftAheadMicros = 0;
     TemplateConfig templateConfig;
     const Chain *chain = nullptr;
@@ -200,7 +198,6 @@ namespace XJ {
     <p>
     Only ready to dub after at least one craft cycle is completed since the last time we weren't ready to dub live performance modulation https://github.com/xjmusic/xjmusic/issues/197
 
-    @param atChainMicros already dubbed to here
     @param craftToChainMicros  target to craft until
     @throws FabricationFatalException if the chain cannot be fabricated
     */
