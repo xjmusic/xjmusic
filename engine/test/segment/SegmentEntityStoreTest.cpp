@@ -346,10 +346,12 @@ TEST_F(SegmentEntityStoreTest, ReadAllSegments) {
 }
 
 TEST_F(SegmentEntityStoreTest, ReadAllSegmentChoiceArrangementPicks) {
-  const std::vector<Segment *> input;
+  std::vector<const Segment *> input;
+  input.emplace_back(segment2);
 
   subject->readAllSegmentChoiceArrangementPicks(input);
 
+  // TODO: assert something
   spdlog::info("SegmentEntityStoreTest::ReadAllSegmentChoiceArrangementPicks");
 }
 

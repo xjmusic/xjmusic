@@ -87,6 +87,7 @@ add_library(xjmusic
         work/DubWork.cpp
         audio/ActiveAudio.cpp
         audio/AudioMathUtils.cpp
+        work/FabricationSettings.cpp
 )
 
 # We need this directory, and users of our library will need it too

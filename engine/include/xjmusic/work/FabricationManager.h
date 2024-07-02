@@ -3,15 +3,15 @@
 #ifndef XJMUSIC_WORK_FABRICATION_MANAGER_H
 #define XJMUSIC_WORK_FABRICATION_MANAGER_H
 
-#include "CraftWork.h"
-#include "DubWork.h"
+#include "xjmusic/audio/ActiveAudio.h"
 #include "xjmusic/craft/CraftFactory.h"
 #include "xjmusic/fabricator/FabricatorFactory.h"
 #include "xjmusic/segment/SegmentEntityStore.h"
 
+#include "CraftWork.h"
+#include "DubWork.h"
 #include "FabricationSettings.h"
 #include "FabricationState.h"
-#include "xjmusic/audio/ActiveAudio.h"
 
 namespace XJ {
 
@@ -46,7 +46,7 @@ namespace XJ {
      */
     void start(
         ContentEntityStore *content,
-        FabricationSettings config);
+        const FabricationSettings &config);
 
     /**
      Stop work
@@ -76,20 +76,6 @@ namespace XJ {
      @return source material
      */
     ContentEntityStore *getSourceMaterial() const;
-
-    /**
-     Return the current dubbed-to sync chain micros
-
-     @return chain micros, else empty
-     */
-    std::optional<unsigned long long> getDubbedToChainMicros() const;
-
-    /**
-     Return the current crafted-to chain micros
-
-     @return chain micros, else empty
-     */
-    std::optional<unsigned long long> getCraftedToChainMicros() const;
 
     /**
      @return the current work state
@@ -145,12 +131,12 @@ namespace XJ {
     /**
      * Run the craft cycle
      */
-    void runCraftCycle();
+    void runCraftCycle(unsigned long long atChainMicros);
 
     /**
      * Run the dub cycle
      */
-    void runDubCycle();
+    std::set<ActiveAudio> runDubCycle(unsigned long long atChainMicros);
 
     /**
      Initialize the work
@@ -170,7 +156,14 @@ namespace XJ {
     */
    void didFailWhile(std::string msgWhile, std::exception e);
 
-    /**
+   /**
+    * Get string representation of the work state
+    * @param state  work state
+    * @return  string representation
+    */
+   static std::string toString(FabricationState state);
+
+   /**
      Update the current work state
 
      @param fabricationState work state

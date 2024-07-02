@@ -5,6 +5,8 @@
 
 #include <optional>
 
+#include "xjmusic/audio/ActiveAudio.h"
+
 #include "CraftWork.h"
 
 namespace XJ {
@@ -26,7 +28,6 @@ namespace XJ {
     CraftWork *craftWork;
     TemplateConfig templateConfig;
     unsigned long dubAheadMicros = 0;
-    unsigned long long atChainMicros = 0; // dubbing is done up to this point
 
     // Intensity override is null if no override, or a value between 0 and 1
     std::optional<float> intensityOverride = std::nullopt;
@@ -43,7 +44,7 @@ namespace XJ {
     /**
      Run the work cycle
      */
-    std::set<ActiveAudio> runCycle(long shippedToChainMicros);
+    std::set<ActiveAudio> runCycle(unsigned long long atChainMicros);
 
    /**
     Do dub frame
@@ -53,7 +54,7 @@ namespace XJ {
     <p>
     Ensure mixer has continuity of its processes/effects, e.g. the compressor levels at the last frame of the last chunk are carried over to the first frame of the next chunk
     */
-   std::set<ActiveAudio> doDubFrame();
+   std::set<ActiveAudio> computeActiveAudios(unsigned long long atChainMicros);
 
     /**
      Get the chain from craft work
@@ -95,13 +96,6 @@ namespace XJ {
     std::optional<const Program *> getMacroProgram(const Segment &segment) const;
 
     /**
-     Get the dubbed-to chain micros
-
-     @return chain micros if present, else empty
-     */
-    std::optional<unsigned long long> getDubbedToChainMicros();
-
-    /**
      Set the intensity override to a value between 0 and 1, or null if no override
 
      @param intensity the intensity override value, or null
@@ -110,7 +104,7 @@ namespace XJ {
 
   private:
    /**
-    Log and of segment message of error that job failed while (message)@param shipKey  (optional) ship key
+    Log and of segment message of error that job failed while (message)
 
     @param msgWhile phrased like "Doing work"
     @param e        exception (optional)

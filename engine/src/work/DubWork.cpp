@@ -14,7 +14,6 @@ DubWork::DubWork(
   this->craftWork = craftWork;
   dubAheadMicros = dubAheadSeconds * ValueUtils::MICROS_PER_SECOND;
   templateConfig = craftWork->getTemplateConfig();
-  atChainMicros = 0;
   running = true;
 }
 
@@ -25,7 +24,7 @@ void DubWork::finish() {
   spdlog::info("Finished");
 }
 
-std::set<ActiveAudio> DubWork::runCycle(long shippedToChainMicros) {
+std::set<ActiveAudio> DubWork::runCycle(unsigned long long atChainMicros) {
   if (!running) return {};
 
   // Only ready to dub after at least one craft cycle is completed since the last time we weren't ready to dub
@@ -43,10 +42,11 @@ std::set<ActiveAudio> DubWork::runCycle(long shippedToChainMicros) {
 
   // Action based on state and mode
   try {
-    return doDubFrame();
+    return computeActiveAudios(atChainMicros);
 
   } catch (std::exception e) {
     didFailWhile("running dub work", e);
+    return {};
   }
 }
 
@@ -74,16 +74,13 @@ std::optional<const Program *> DubWork::getMacroProgram(const Segment &segment) 
   return craftWork->getMacroProgram(segment);
 }
 
-std::optional<unsigned long long> DubWork::getDubbedToChainMicros() {
-  return {atChainMicros};
-}
-
-void DubWork::setIntensityOverride(std::optional<float> intensity) {
+void DubWork::setIntensityOverride(const std::optional<float> intensity) {
   intensityOverride = intensity;
 }
 
-std::set<ActiveAudio> DubWork::doDubFrame() {
-  auto toChainMicros = atChainMicros + dubAheadMicros;
+// FUTURE don't recalculate all the active audios every time, cache and recompute only the ones that changed
+std::set<ActiveAudio> DubWork::computeActiveAudios(const unsigned long long atChainMicros) {
+  const auto toChainMicros = atChainMicros + dubAheadMicros;
   auto segments = craftWork->getSegmentsIfReady(atChainMicros, toChainMicros);
   std::map<int, const Segment *> segmentById;
   //= segments.stream().collect(Collectors.toMap(Segment::getId, segment -> segment));
@@ -133,7 +130,6 @@ std::set<ActiveAudio> DubWork::doDubFrame() {
                                                                                      : std::nullopt; // add length of pick in microseconds
       if (startAtMixerMicros <= dubAheadMicros && (!stopAtMixerMicros.has_value() || stopAtMixerMicros >= 0)) {
         const auto instrument = craftWork->getInstrument(audio);
-        // FUTURE don't recalculate all the active audios every time-- make this a part of a unified tick + get active audios function which is as efficient as possible at everything short of audio mixing
         activeAudios.emplace(
             pick,
             instrument,
@@ -156,12 +152,12 @@ std::set<ActiveAudio> DubWork::doDubFrame() {
       }
     }
     prevIntensity = {nextIntensity.value()};
-    atChainMicros = toChainMicros;
     spdlog::debug("Dubbed to {}", toChainMicros / static_cast<float>(ValueUtils::MICROS_PER_SECOND));
     return activeAudios;
 
   } catch (std::exception e) {
     didFailWhile("dubbing frame", e);
+    return {};
   }
 }
 

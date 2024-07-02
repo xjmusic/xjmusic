@@ -69,7 +69,7 @@ namespace XJ {
 
     SEGMENT_STORE_CORE_HEADERS(SegmentMessage, SegmentMessages)
 
-    SEGMENT_STORE_CORE_HEADERS(SegmentMeta, SegmentMetas)
+    SEGMENT_STORE_CORE_HEADERS(SegmentMeta, SegmentMetas);
 
     SegmentEntityStore() = default;
 
@@ -187,7 +187,7 @@ namespace XJ {
     * @param segments    of segments
     * @return        list of choices
     */
-    std::set<const SegmentChoiceArrangementPick *> readAllSegmentChoiceArrangementPicks(const std::vector<Segment *> &segments);
+    std::set<const SegmentChoiceArrangementPick *> readAllSegmentChoiceArrangementPicks(const std::vector<const Segment *> &segments);
 
     /**
      Get the total number of segments in the store

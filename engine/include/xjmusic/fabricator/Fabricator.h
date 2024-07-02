@@ -71,9 +71,9 @@ namespace XJ {
      * Fabrication control mode
      */
     enum class ControlMode {
-      AUTO,
-      MACRO,
-      TAXONOMY
+      Auto,
+      Macro,
+      Taxonomy
     };
 
     /**
@@ -896,6 +896,12 @@ namespace XJ {
      * Get Segment ID of Segment Meta
      */
     static int getSegmentId(const SegmentMeta *segmentMeta);
+
+    /**
+    * Get the string representation of the control mode
+    * @param controlMode
+    */
+    static std::string toString(ControlMode controlMode);
 
   private:
     static const std::string KEY_VOICE_TRACK_TEMPLATE;

@@ -1240,3 +1240,15 @@ int Fabricator::getSegmentId(const SegmentMessage *segmentMessage) {
 int Fabricator::getSegmentId(const SegmentMeta *segmentMeta) {
   return segmentMeta->segmentId;
 }
+
+std::string Fabricator::toString(const ControlMode controlMode) {
+  switch (controlMode) {
+    default:
+    case ControlMode::Auto:
+      return "Auto";
+    case ControlMode::Macro:
+      return "Macro";
+    case ControlMode::Taxonomy:
+      return "Taxonomy";
+  }
+}

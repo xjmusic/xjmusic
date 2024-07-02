@@ -20,6 +20,7 @@ namespace XJ {
     int shipOutputFileNumberDigits = 7;
     int shipOutputPcmChunkSizeBytes = 1024;
     long persistenceWindowSeconds = 3600;
+    std::string toString() const;
   };
 
 }// namespace XJ

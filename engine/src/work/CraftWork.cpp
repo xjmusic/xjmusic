@@ -94,7 +94,7 @@ std::optional<Segment *> CraftWork::getSegmentAtOffset(const int offset) const {
   return currentSegment;
 }
 
-std::set<const SegmentChoiceArrangementPick *> CraftWork::getPicks(std::vector<const Segment *> segments) const {
+std::set<const SegmentChoiceArrangementPick *> CraftWork::getPicks(const std::vector<const Segment *> &segments) const {
   return store->readAllSegmentChoiceArrangementPicks(segments);
 }
 
@@ -169,32 +169,12 @@ ContentEntityStore *CraftWork::getSourceMaterial() const {
   return content;
 }
 
-std::optional<unsigned long long> CraftWork::getCraftedToChainMicros() const {
-  try {
-    auto segments = store->readAllSegmentsInState(Segment::Crafted);
-
-    // Assuming segments is a std::vector<Segment>
-    const auto it = std::max_element(segments.begin(), segments.end(), [](const Segment *a, const Segment *b) {
-      // return the max element with the highest id
-      return a->id < b->id;
-    });
-
-    if (it != segments.end()) {
-      return {SegmentUtils::getEndAtChainMicros(*it)};
-    }
-
-  } catch (std::exception e) {
-    spdlog::warn("Unable to get crafted-to chain micros because {}", e.what());
-  }
-  return std::nullopt;
-}
-
-void CraftWork::runCycle(const long dubbedToChainMicros) {
+void CraftWork::runCycle(const long atChainMicros) {
   if (!running) return;
 
   try {
-    doFabrication(dubbedToChainMicros, dubbedToChainMicros + craftAheadMicros);
-    doSegmentCleanup(dubbedToChainMicros);
+    doFabrication(atChainMicros, atChainMicros + craftAheadMicros);
+    doSegmentCleanup(atChainMicros);
 
   } catch (std::exception e) {
     didFailWhile("running craft work", e);
@@ -325,7 +305,7 @@ void CraftWork::doFabricationRewrite(
   }
 }
 
-void CraftWork::doCutoffLastSegment(Segment *segment, double cutoffAfterBeats) {
+void CraftWork::doCutoffLastSegment(Segment *segment, double cutoffAfterBeats) const {
   try {
     const auto durationMicros = cutoffAfterBeats * ValueUtils::MICROS_PER_MINUTE / segment->tempo;
     spdlog::info("Will cut current segment short after {} beats.", cutoffAfterBeats);
@@ -337,8 +317,10 @@ void CraftWork::doCutoffLastSegment(Segment *segment, double cutoffAfterBeats) {
         if (pick->startAtSegmentMicros >= durationMicros)
           store->deleteSegmentChoiceArrangementPick(segment->id, pick->id);
         else if (0 < pick->lengthMicros &&
-                 pick->startAtSegmentMicros + pick->lengthMicros > durationMicros)
-          store->put(pick->lengthMicros(static_cast<long>(durationMicros - pick->startAtSegmentMicros)));
+                 pick->startAtSegmentMicros + pick->lengthMicros > durationMicros) {
+          pick->lengthMicros = static_cast<long>(durationMicros - pick->startAtSegmentMicros);
+          store->put(*pick);
+        }
       } catch (std::exception e) {
         spdlog::error("Failed to cut SegmentChoiceArrangementPick[{}] short to {} beats because {}", pick->id,
                       cutoffAfterBeats, e.what());
@@ -442,13 +424,13 @@ void CraftWork::didFailWhile(std::string msgWhile, const std::exception &e) {
  @param toState    of new segment
  @ if record is invalid
  */
-void CraftWork::updateSegmentState(Fabricator *fabricator, Segment *segment, Segment::State fromState, Segment::State toState) {
+void CraftWork::updateSegmentState(Fabricator *fabricator, Segment *segment, const Segment::State fromState, const Segment::State toState) {
   if (fromState != segment->state)
     throw new std::runtime_error("Segment[" + std::to_string(segment->id) + "] " + Segment::toString(toState) + " requires Segment must be in " + Segment::toString(fromState) + " state.");
   const auto seg = fabricator->getSegment();
   seg->state = toState;
   fabricator->updateSegment(*seg);
-  spdlog::debug("[segId={}] Segment transitioned to state {} OK", segment->id, toState);
+  spdlog::debug("[segId={}] Segment transitioned to state {} OK", segment->id, Segment::toString(toState));
 }
 
 

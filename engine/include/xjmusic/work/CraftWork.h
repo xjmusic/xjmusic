@@ -7,10 +7,11 @@
 #include <set>
 #include <string>
 
-#include "Work.h"
 #include "xjmusic/craft/CraftFactory.h"
 #include "xjmusic/fabricator/FabricatorFactory.h"
 #include "xjmusic/segment/SegmentEntityStore.h"
+
+#include "Work.h"
 
 namespace XJ {
 
@@ -58,7 +59,7 @@ namespace XJ {
    /**
     This is the internal cycle that's run indefinitely
     */
-   void runCycle(long dubbedToChainMicros);
+   void runCycle(long atChainMicros);
 
     /**
      Get the current chain, if loaded
@@ -106,7 +107,7 @@ namespace XJ {
      @param segments the segments for which to get picks
      @return the picks for the given segments
      */
-   std::set<const SegmentChoiceArrangementPick *> getPicks(std::vector<const Segment *> segments) const;
+   std::set<const SegmentChoiceArrangementPick *> getPicks(const std::vector<const Segment *> &segments) const;
 
     /**
      Get the instrument for the given pick
@@ -152,13 +153,6 @@ namespace XJ {
      Get the source material
      */
     ContentEntityStore *getSourceMaterial() const;
-
-    /**
-     Get the crafted-to chain micros
-
-     @return the crafted-to chain micros
-     */
-    std::optional<unsigned long long> getCraftedToChainMicros() const;
 
     /**
      Whether the current craft state is ready
@@ -238,7 +232,7 @@ namespace XJ {
     @param segment          to cut short
     @param cutoffAfterBeats number of beats to cut short after
     */
-   void doCutoffLastSegment(Segment *segment, double cutoffAfterBeats);
+   void doCutoffLastSegment(Segment *segment, double cutoffAfterBeats) const;
 
    /**
     Craft a Segment, or fail

@@ -3,13 +3,13 @@
 #ifndef XJMUSIC_WORK_FABRICATION_STATE_H
 #define XJMUSIC_WORK_FABRICATION_STATE_H
 
+#include <string>
+
 namespace XJ {
 
   enum FabricationState {
     Standby,
     Starting,
-    PreparingAudio,
-    PreparedAudio,
     Initializing,
     Active,
     Done,

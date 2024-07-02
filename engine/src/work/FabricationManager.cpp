@@ -3,7 +3,6 @@
 #include <spdlog/spdlog.h>
 
 #include "xjmusic/work/FabricationManager.h"
-#include "xjmusic/util/ValueUtils.h"
 
 using namespace XJ;
 
@@ -18,23 +17,22 @@ FabricationManager::FabricationManager(
 
 void FabricationManager::start(
     ContentEntityStore *content,
-    FabricationSettings config) {
+    const FabricationSettings &config) {
   this->content = content;
   this->config = config;
-  spdlog::debug("Did set work configuration: {}", config);
-
-  spdlog::debug("Did set model content: {}", this->content);
+  spdlog::debug("Did set work configuration: {}", config.toString());
 
   try {
     entityStore->clear();
   } catch (std::exception e) {
-    spdlog::error("Failed to clear entity store", e);
+    spdlog::warn("Failed to clear entity store", e.what());
   }
   spdlog::debug("Did clear entity store");
 
   // get system milliseconds UTC now
   startedAtMillis = std::chrono::duration_cast<std::chrono::milliseconds>(
-      std::chrono::system_clock::now().time_since_epoch()).count();
+                        std::chrono::system_clock::now().time_since_epoch())
+                        .count();
   isAudioLoaded = false;
   state = Starting;
   spdlog::debug("Did update work state to Starting");
@@ -49,10 +47,10 @@ void FabricationManager::finish(const bool cancelled) {
   state = cancelled ? Cancelled : Done;
 }
 
-std::set<ActiveAudio> FabricationManager::runCycle() {
+std::set<ActiveAudio> FabricationManager::runCycle(unsigned long long atChainMicros) {
   this->runControlCycle();
-  this->runCraftCycle();
-  this->runDubCycle();
+  this->runCraftCycle(atChainMicros);
+  return this->runDubCycle(atChainMicros);
 }
 
 FabricationState FabricationManager::getWorkState() const {
@@ -67,13 +65,13 @@ void FabricationManager::doOverrideMacro(const Program *macroProgram) const {
 
 std::optional<MemeTaxonomy> FabricationManager::getMemeTaxonomy() const {
   try {
-    auto tmpls = getSourceMaterial()->getTemplates();
+    const auto tmpls = getSourceMaterial()->getTemplates();
     if (tmpls.empty())
       throw std::runtime_error("No template found in source material");
     auto templateConfig = TemplateConfig(*getSourceMaterial()->getTemplates().begin());
     return {MemeTaxonomy(templateConfig.memeTaxonomy)};
   } catch (std::exception e) {
-    spdlog::error("Failed to get meme taxonomy from template config", e);
+    spdlog::error("Failed to get meme taxonomy from template config: {}", e.what());
     return std::nullopt;
   }
 }
@@ -120,17 +118,9 @@ ContentEntityStore *FabricationManager::getSourceMaterial() const {
   return craftWork->getSourceMaterial();
 }
 
-std::optional<unsigned long long> FabricationManager::getDubbedToChainMicros() const {
-  return dubWork != nullptr ? dubWork->getDubbedToChainMicros() : std::nullopt;
-}
-
-std::optional<unsigned long long> FabricationManager::getCraftedToChainMicros() const {
-  return craftWork != nullptr ? craftWork->getCraftedToChainMicros() : std::nullopt;
-}
-
-void FabricationManager::updateState(FabricationState fabricationState) {
+void FabricationManager::updateState(const FabricationState fabricationState) {
   state = fabricationState;
-  spdlog::debug("Did update work state to {} but there is no listener to notify", fabricationState);
+  spdlog::debug("Did update work state to {} but there is no listener to notify", toString(fabricationState));
 }
 
 /**
@@ -142,29 +132,15 @@ void FabricationManager::runControlCycle() {
     switch (state) {
 
       case Starting: {
-        updateState(PreparingAudio);
-      }
-        break;
-
-      case PreparingAudio: {
-        if (isAudioLoaded) {
-          updateState(PreparedAudio);
-        }
-      }
-        break;
-
-      case PreparedAudio: {
         updateState(Initializing);
         initialize();
-      }
-        break;
+      } break;
 
       case Initializing: {
         if (isInitialized()) {
           updateState(Active);
         }
-      }
-        break;
+      } break;
 
       case Active:
       case Standby:
@@ -172,8 +148,7 @@ void FabricationManager::runControlCycle() {
       case Failed:
       default: {
         // no op
-      }
-        break;
+      } break;
     }
     spdlog::debug("Did run control cycle");
 
@@ -182,12 +157,9 @@ void FabricationManager::runControlCycle() {
   }
 }
 
-/**
-   Run the craft cycle
-   */
-void FabricationManager::runCraftCycle() {
+void FabricationManager::runCraftCycle(const unsigned long long atChainMicros) {
   if (state != Active) {
-    spdlog::debug("Will not run craft cycle because work state is {}", state);
+    spdlog::debug("Will not run craft cycle because work state is {}", toString(state));
     return;
   }
   if (craftWork == nullptr)
@@ -199,7 +171,7 @@ void FabricationManager::runCraftCycle() {
 
   try {
     spdlog::debug("Will run craft cycle");
-    craftWork->runCycle(dubWork->getDubbedToChainMicros().value_or(0L));
+    craftWork->runCycle(atChainMicros);
     spdlog::debug("Did run craft cycle");
 
   } catch (std::exception e) {
@@ -207,26 +179,21 @@ void FabricationManager::runCraftCycle() {
   }
 }
 
-/**
-   Run the dub cycle
-   */
-void FabricationManager::runDubCycle() {
-  // TODO inject the current micros position all the way in from the top of the runCycle call to fabrication manager determine the logic of how the request for the cycle knows the current micros position
-
+std::set<ActiveAudio> FabricationManager::runDubCycle(const unsigned long long atChainMicros) {
   if (state != Active) {
-    spdlog::debug("Will not run dub cycle because work state is {}", state);
-    return;
+    spdlog::debug("Will not run dub cycle because work state is {}", toString(state));
+    return {};
   }
   if (dubWork == nullptr)
     throw std::runtime_error("Dub work is not initialized");
 
   try {
     spdlog::debug("Will run dub cycle");
-    return dubWork->runCycle(dubWork->getDubbedToChainMicros().value_or(0L));
-    spdlog::debug("Did run dub cycle");
+    return dubWork->runCycle(atChainMicros);
 
   } catch (std::exception e) {
     didFailWhile("running dub cycle", e);
+    return {};
   }
 }
 
@@ -245,13 +212,12 @@ void FabricationManager::initialize() {
   // If memes/macro already engaged at fabrication start (which is always true in a manual control mode),
   // the first segment should be governed by that selection https://github.com/xjmusic/xjmusic/issues/201
   switch (config.controlMode) {
-    case Fabricator::ControlMode::MACRO: {
+    case Fabricator::ControlMode::Macro: {
       auto programs = getAllMacroPrograms();
       if (!programs.empty())
         doOverrideMacro(*programs.begin());
-    }
-      break;
-    case Fabricator::ControlMode::TAXONOMY: {
+    } break;
+    case Fabricator::ControlMode::Taxonomy: {
       auto taxonomy = getMemeTaxonomy();
       if (taxonomy.has_value()) {
         std::set<std::string> memes;
@@ -261,8 +227,7 @@ void FabricationManager::initialize() {
         }
         if (!memes.empty()) doOverrideMemes(memes);
       }
-    }
-      break;
+    } break;
     default:
       break;
   }
@@ -278,4 +243,24 @@ void FabricationManager::didFailWhile(std::string msgWhile, std::exception e) {
   if (craftWork != nullptr)
     craftWork->finish();
   updateState(Failed);
+}
+
+std::string FabricationManager::toString(const FabricationState state) {
+  switch (state) {
+    default:
+    case Standby:
+      return "Standby";
+    case Starting:
+      return "Starting";
+    case Initializing:
+      return "Initializing";
+    case Active:
+      return "Active";
+    case Done:
+      return "Done";
+    case Cancelled:
+      return "Cancelled";
+    case Failed:
+      return "Failed";
+  }
 }

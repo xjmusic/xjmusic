@@ -222,7 +222,7 @@ std::string SegmentEntityStore::readChoiceHash(const Segment &segment) {
   return StringUtils::join(ids, "_");
 }
 
-std::set<const SegmentChoiceArrangementPick *> SegmentEntityStore::readAllSegmentChoiceArrangementPicks(const std::vector<Segment *> &segments) {
+std::set<const SegmentChoiceArrangementPick *> SegmentEntityStore::readAllSegmentChoiceArrangementPicks(const std::vector<const Segment *> &segments) {
   std::set<const SegmentChoiceArrangementPick *> picks;
   for (auto &segment: segments) {
     for (auto &pick: readAllSegmentChoiceArrangementPicks(segment->id)) {
