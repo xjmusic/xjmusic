@@ -44,7 +44,7 @@ std::set<ActiveAudio> DubWork::runCycle(unsigned long long atChainMicros) {
   try {
     return computeActiveAudios(atChainMicros);
 
-  } catch (std::exception e) {
+  } catch (std::exception &e) {
     didFailWhile("running dub work", e);
     return {};
   }
@@ -58,11 +58,11 @@ const Chain *DubWork::getChain() const {
   return craftWork->getChain();
 }
 
-std::optional<Segment *> DubWork::getSegmentAtChainMicros(long atChainMicros) const {
+std::optional<const Segment *> DubWork::getSegmentAtChainMicros(long atChainMicros) const {
   return craftWork->getSegmentAtChainMicros(atChainMicros);
 }
 
-std::optional<Segment *> DubWork::getSegmentAtOffset(int offset) const {
+std::optional<const Segment *> DubWork::getSegmentAtOffset(int offset) const {
   return craftWork->getSegmentAtOffset(offset);
 }
 
@@ -82,11 +82,6 @@ void DubWork::setIntensityOverride(const std::optional<float> intensity) {
 std::set<ActiveAudio> DubWork::computeActiveAudios(const unsigned long long atChainMicros) {
   const auto toChainMicros = atChainMicros + dubAheadMicros;
   auto segments = craftWork->getSegmentsIfReady(atChainMicros, toChainMicros);
-  std::map<int, const Segment *> segmentById;
-  //= segments.stream().collect(Collectors.toMap(Segment::getId, segment -> segment));
-  for (const Segment *segment: segments) {
-    segmentById.emplace(segment->id, segment);
-  }
   if (segments.empty()) {
     spdlog::debug("Waiting for segments");
     return {};
@@ -99,66 +94,70 @@ std::set<ActiveAudio> DubWork::computeActiveAudios(const unsigned long long atCh
   }
 
   try {
-    std::set<const SegmentChoiceArrangementPick *> picks;
-    for (auto pick: craftWork->getPicks(segments))
-      if (!craftWork->isMuted(pick))
-        picks.emplace(pick);
-
     std::set<ActiveAudio> activeAudios;
-    for (const auto pick: picks) {
-      const InstrumentAudio *audio = craftWork->getInstrumentAudio(pick);
-      if (audio->waveformKey.empty()) {
-        continue;
-      }
-      const long transientMicros =
-          0 < audio->transientSeconds ? static_cast<long>(audio->transientSeconds * ValueUtils::MICROS_PER_SECOND)
-                                      : 0; // audio transient microseconds (to start audio before picked time)
-      std::optional<unsigned long long> lengthMicros = 0 < pick->lengthMicros ? std::optional(pick->lengthMicros)
-                                                                              : std::nullopt; // pick length microseconds, or empty if infinite
-      const unsigned long long startAtMixerMicros =
-          segmentById.at(pick->segmentId)->beginAtChainMicros               // segment begin at chain microseconds
-          + pick->startAtSegmentMicros                                         // plus pick start microseconds
-          - transientMicros                                                    // minus transient microseconds
-          - atChainMicros; // relative to beginning of this chunk
-      std::optional<unsigned long long> stopAtMixerMicros = lengthMicros.has_value() ?
-                                                            std::optional(
-                                                                startAtMixerMicros   // from start of this active audio
-                                                                +
-                                                                transientMicros// revert transient microseconds from previous computation
-                                                                + lengthMicros.value()
-                                                            )
-                                                                                     : std::nullopt; // add length of pick in microseconds
-      if (startAtMixerMicros <= dubAheadMicros && (!stopAtMixerMicros.has_value() || stopAtMixerMicros >= 0)) {
-        const auto instrument = craftWork->getInstrument(audio);
-        activeAudios.emplace(
-            pick,
-            instrument,
-            audio,
-            startAtMixerMicros,
-            stopAtMixerMicros.has_value() ? stopAtMixerMicros : std::nullopt,
-            AudioMathUtils::computeIntensityAmplitude(
-                audio,
-                templateConfig.getIntensityLayers(instrument->type),
-                templateConfig.getIntensityThreshold(instrument->type),
-                false, prevIntensity.value()
-            ),
-            AudioMathUtils::computeIntensityAmplitude(
-                audio,
-                templateConfig.getIntensityLayers(instrument->type),
-                templateConfig.getIntensityThreshold(instrument->type),
-                false, nextIntensity.value()
-            )
-        );
-      }
-    }
+    for (auto segment: segments)
+      for (auto choice: craftWork->getChoices(segment))
+        if (!choice->mute)
+          for (auto arrangement: craftWork->getArrangements(choice))
+            for (auto pick: craftWork->getPicks(arrangement)) {
+
+              const InstrumentAudio *audio = craftWork->getInstrumentAudio(pick);
+              if (audio->waveformKey.empty()) {
+                continue;
+              }
+              const long transientMicros =
+                  0 < audio->transientSeconds ? static_cast<long>(audio->transientSeconds *
+                                                                  ValueUtils::MICROS_PER_SECOND_FLOAT)
+                                              : 0; // audio transient microseconds (to start audio before picked time)
+              std::optional<unsigned long long> lengthMicros =
+                  0 < pick->lengthMicros ? std::optional(pick->lengthMicros)
+                                         : std::nullopt; // pick length microseconds, or empty if infinite
+              const unsigned long long startAtChainMicros =
+                  segment->beginAtChainMicros               // segment begin at chain microseconds
+                  + pick->startAtSegmentMicros                                         // plus pick start microseconds
+                  -
+                  transientMicros;                                                    // minus transient microseconds
+              std::optional<unsigned long long> stopAtChainMicros = lengthMicros.has_value() ?
+                                                                    std::optional(
+                                                                        startAtChainMicros   // from start of this active audio
+                                                                        +
+                                                                        transientMicros// revert transient microseconds from previous computation
+                                                                        + lengthMicros.value()
+                                                                    )
+                                                                                             : std::nullopt; // add length of pick in microseconds
+              if (startAtChainMicros <= atChainMicros + dubAheadMicros &&
+                  (!stopAtChainMicros.has_value() || stopAtChainMicros >= atChainMicros)) {
+                const auto instrument = craftWork->getInstrument(audio);
+                activeAudios.emplace(
+                    pick,
+                    instrument,
+                    audio,
+                    startAtChainMicros,
+                    stopAtChainMicros,
+                    AudioMathUtils::computeIntensityAmplitude(
+                        audio,
+                        templateConfig.getIntensityLayers(instrument->type),
+                        templateConfig.getIntensityThreshold(instrument->type),
+                        false, prevIntensity.value()
+                    ),
+                    AudioMathUtils::computeIntensityAmplitude(
+                        audio,
+                        templateConfig.getIntensityLayers(instrument->type),
+                        templateConfig.getIntensityThreshold(instrument->type),
+                        false, nextIntensity.value()
+                    )
+                );
+              }
+            }
     prevIntensity = {nextIntensity.value()};
-    spdlog::debug("Dubbed to {}", toChainMicros / static_cast<float>(ValueUtils::MICROS_PER_SECOND));
+    spdlog::debug("Dubbed to {}", toChainMicros / ValueUtils::MICROS_PER_SECOND_FLOAT);
     return activeAudios;
 
   } catch (std::exception e) {
     didFailWhile("dubbing frame", e);
     return {};
   }
+
 }
 
 

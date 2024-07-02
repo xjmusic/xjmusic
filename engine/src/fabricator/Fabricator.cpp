@@ -98,19 +98,19 @@ void Fabricator::deletePick(const UUID &id) {
 }
 
 
-std::set<SegmentChoiceArrangement *> Fabricator::getArrangements() {
+std::set<const SegmentChoiceArrangement *> Fabricator::getArrangements() {
   return store->readAllSegmentChoiceArrangements(segmentId);
 }
 
 
-std::set<SegmentChoiceArrangement *> Fabricator::getArrangements(std::set<const SegmentChoice *> &choices) {
+std::set<const SegmentChoiceArrangement *> Fabricator::getArrangements(std::set<const SegmentChoice *> &choices) {
   std::vector<UUID> choiceIds;
   for (const auto &choice: choices) {
     choiceIds.push_back(choice->id);
   }
 
-  const std::set<SegmentChoiceArrangement *> allArrangements = getArrangements();
-  std::set<SegmentChoiceArrangement *> filteredArrangements;
+  const std::set<const SegmentChoiceArrangement *> allArrangements = getArrangements();
+  std::set<const SegmentChoiceArrangement *> filteredArrangements;
 
   for (const auto &arrangement: allArrangements) {
     if (std::find(choiceIds.begin(), choiceIds.end(), arrangement->segmentChoiceId) != choiceIds.end()) {
@@ -132,17 +132,17 @@ TemplateConfig Fabricator::getTemplateConfig() {
 }
 
 
-std::set<SegmentChoice *> Fabricator::getChoices() const {
+std::set<const SegmentChoice *> Fabricator::getChoices() const {
   return store->readAllSegmentChoices(segmentId);
 }
 
 
-std::optional<SegmentChord *> Fabricator::getChordAt(const float position) {
-  std::optional<SegmentChord *> foundChord;
+std::optional<const SegmentChord *> Fabricator::getChordAt(const float position) {
+  std::optional<const SegmentChord *> foundChord;
   float foundPosition = -1.0f;// Initialize with a negative value
 
   // We assume that these entities are in order of position ascending
-  std::vector<SegmentChord *> segmentChords = getSegmentChords();
+  std::vector<const SegmentChord *> segmentChords = getSegmentChords();
   for (const auto &segmentChord: segmentChords) {
     // If it's a better match (or no match has yet been found) then use it
     if (foundPosition < 0 || (segmentChord->position > foundPosition && segmentChord->position <= position)) {
@@ -160,7 +160,7 @@ std::optional<const SegmentChoice *> Fabricator::getCurrentMainChoice() {
 
 
 std::set<const SegmentChoice *> Fabricator::getCurrentDetailChoices() {
-  const std::set<SegmentChoice *> allChoices = getChoices();
+  std::set<const SegmentChoice *> allChoices = getChoices();
   std::set<const SegmentChoice *> detailChoices;
 
   for (const auto &choice: allChoices) {
@@ -229,7 +229,7 @@ std::optional<const SegmentChoice *> Fabricator::getChoiceIfContinued(const Prog
 }
 
 
-std::optional<SegmentChoice *> Fabricator::getChoiceIfContinued(const Instrument::Type instrumentType) {
+std::optional<const SegmentChoice *> Fabricator::getChoiceIfContinued(const Instrument::Type instrumentType) {
   if (getSegment()->type != Segment::Type::Continue) return std::nullopt;
 
   auto choices = retrospective->getChoices();
@@ -247,7 +247,7 @@ std::optional<SegmentChoice *> Fabricator::getChoiceIfContinued(const Instrument
 }
 
 
-std::optional<SegmentChoice *>
+std::optional<const SegmentChoice *>
 Fabricator::getChoiceIfContinued(const Instrument::Type instrumentType, const Instrument::Mode instrumentMode) {
   if (getSegment()->type != Segment::Type::Continue) return std::nullopt;
 
@@ -266,10 +266,10 @@ Fabricator::getChoiceIfContinued(const Instrument::Type instrumentType, const In
 }
 
 
-std::set<SegmentChoice *> Fabricator::getChoicesIfContinued(const Program::Type programType) {
+std::set<const SegmentChoice *> Fabricator::getChoicesIfContinued(const Program::Type programType) {
   if (getSegment()->type != Segment::Type::Continue) return {};
 
-  std::set<SegmentChoice *> filteredChoices;
+  std::set<const SegmentChoice *> filteredChoices;
 
   for (auto choice : retrospective->getChoices())
     if (choice->programType == programType)
@@ -309,13 +309,13 @@ std::optional<const ProgramSequence *> Fabricator::getProgramSequence(const Segm
 }
 
 
-std::optional<SegmentChoice *> Fabricator::getMacroChoiceOfPreviousSegment() {
+std::optional<const SegmentChoice *> Fabricator::getMacroChoiceOfPreviousSegment() {
   if (!macroChoiceOfPreviousSegment.has_value())
     macroChoiceOfPreviousSegment = retrospective->getPreviousChoiceOfType(Program::Type::Macro);
   return macroChoiceOfPreviousSegment;
 }
 
-std::optional<SegmentChoice *> Fabricator::getPreviousMainChoice() {
+std::optional<const SegmentChoice *> Fabricator::getPreviousMainChoice() {
   if (!mainChoiceOfPreviousSegment.has_value())
     mainChoiceOfPreviousSegment = retrospective->getPreviousChoiceOfType(Program::Type::Main);
   return mainChoiceOfPreviousSegment;
@@ -409,12 +409,12 @@ std::vector<std::string> Fabricator::getNotes(const SegmentChordVoicing *voicing
 }
 
 
-std::set<SegmentChoiceArrangementPick *> Fabricator::getPicks() {
+std::set<const SegmentChoiceArrangementPick *> Fabricator::getPicks() {
   return store->readAllSegmentChoiceArrangementPicks(segmentId);
 }
 
 
-std::vector<SegmentChoiceArrangementPick *> Fabricator::getPicks(const SegmentChoice *choice) {
+std::vector<const SegmentChoiceArrangementPick *> Fabricator::getPicks(const SegmentChoice *choice) {
   if (picksForChoice.find(choice->id) == picksForChoice.end()) {
     std::vector<UUID> arrangementIds;
     const auto arrangements = getArrangements();
@@ -423,7 +423,7 @@ std::vector<SegmentChoiceArrangementPick *> Fabricator::getPicks(const SegmentCh
         arrangementIds.push_back(arrangement->id);
       }
     }
-    std::vector<SegmentChoiceArrangementPick *> picks;
+    std::vector<const SegmentChoiceArrangementPick *> picks;
     const auto allPicks = getPicks();
     for (const auto &pick: allPicks) {
       if (std::find(arrangementIds.begin(), arrangementIds.end(), pick->segmentChoiceArrangementId) !=
@@ -436,7 +436,7 @@ std::vector<SegmentChoiceArrangementPick *> Fabricator::getPicks(const SegmentCh
               [](const SegmentChoiceArrangementPick *a, const SegmentChoiceArrangementPick *b) {
                 return a->startAtSegmentMicros < b->startAtSegmentMicros;
               });
-    picksForChoice[choice->id] = picks;
+    picksForChoice.emplace(choice->id, picks);
   }
   return picksForChoice[choice->id];
 }
@@ -710,7 +710,7 @@ long Fabricator::getTotalSegmentMicros() {
 }
 
 
-Segment *Fabricator::getSegment() {
+const Segment *Fabricator::getSegment() {
   const auto seg = store->readSegment(segmentId);
   if (!seg.has_value())
     throw FabricationFatalException("No segment found");
@@ -718,7 +718,7 @@ Segment *Fabricator::getSegment() {
 }
 
 
-std::vector<SegmentChord *> Fabricator::getSegmentChords() {
+std::vector<const SegmentChord *> Fabricator::getSegmentChords() {
   auto chords = store->readAllSegmentChords(segmentId);
   auto sortedChords = std::vector(chords.begin(), chords.end());
   std::sort(sortedChords.begin(), sortedChords.end(), [](const SegmentChord *a, const SegmentChord *b) {
@@ -728,12 +728,12 @@ std::vector<SegmentChord *> Fabricator::getSegmentChords() {
 }
 
 
-std::set<SegmentChordVoicing *> Fabricator::getChordVoicings() {
+std::set<const SegmentChordVoicing *> Fabricator::getChordVoicings() {
   return store->readAllSegmentChordVoicings(segmentId);
 }
 
 
-std::set<SegmentMeme *> Fabricator::getSegmentMemes() {
+std::set<const SegmentMeme *> Fabricator::getSegmentMemes() {
   return store->readAllSegmentMemes(segmentId);
 }
 
@@ -788,11 +788,11 @@ Segment::Type Fabricator::getType() {
 }
 
 
-std::optional<SegmentChordVoicing *>
+std::optional<const SegmentChordVoicing *>
 Fabricator::chooseVoicing(const SegmentChord *chord, const Instrument::Type instrumentType) {
-  const std::set<SegmentChordVoicing *> voicings = store->readAllSegmentChordVoicings(segmentId);
+  const std::set<const SegmentChordVoicing *> voicings = store->readAllSegmentChordVoicings(segmentId);
 
-  std::vector<SegmentChordVoicing *> validVoicings;
+  std::vector<const SegmentChordVoicing *> validVoicings;
   for (auto voicing: voicings) {
     if (SegmentUtils::containsAnyValidNotes(voicing) && voicing->type == instrumentType &&
         voicing->segmentChordId == chord->id) {
@@ -882,38 +882,38 @@ bool Fabricator::isInitialSegment() {
 }
 
 
-std::optional<SegmentChoice *> Fabricator::put(const SegmentChoice entity, const bool force) {
+std::optional<const SegmentChoice *> Fabricator::put(const SegmentChoice entity, const bool force) {
   const auto memeStack = MemeStack::from(templateConfig.memeTaxonomy, SegmentMeme::getNames(getSegmentMemes()));
 
   // For a SegmentChoice, add memes from program, program sequence binding, and instrument if present
   if (!isValidChoiceAndMemesHaveBeenAdded(entity, memeStack, force))
     return std::nullopt;
 
-   return store->put(entity);
+   return {store->put(entity)};
 }
 
 
-SegmentChoiceArrangement* Fabricator::put(const SegmentChoiceArrangement entity) {
+const SegmentChoiceArrangement* Fabricator::put(const SegmentChoiceArrangement entity) {
   return store->put(entity);
 }
 
 
-SegmentChoiceArrangementPick* Fabricator::put(const SegmentChoiceArrangementPick entity) {
+const SegmentChoiceArrangementPick* Fabricator::put(const SegmentChoiceArrangementPick entity) {
   return store->put(entity);
 }
 
 
-SegmentChord* Fabricator::put(const SegmentChord entity) {
+const SegmentChord* Fabricator::put(const SegmentChord entity) {
   return store->put(entity);
 }
 
 
-SegmentChordVoicing* Fabricator::put(const SegmentChordVoicing entity) {
+const SegmentChordVoicing* Fabricator::put(const SegmentChordVoicing entity) {
   return store->put(entity);
 }
 
 
-std::optional<SegmentMeme  *> Fabricator::put(const SegmentMeme entity, const bool force) {
+std::optional<const SegmentMeme  *> Fabricator::put(const SegmentMeme entity, const bool force) {
   const auto memeStack = MemeStack::from(templateConfig.memeTaxonomy, SegmentMeme::getNames(getSegmentMemes()));
 
   // Unless forced, don't put a duplicate of an existing meme
@@ -924,12 +924,12 @@ std::optional<SegmentMeme  *> Fabricator::put(const SegmentMeme entity, const bo
 }
 
 
-SegmentMessage * Fabricator::put(const SegmentMessage entity) {
+const SegmentMessage * Fabricator::put(const SegmentMessage entity) {
   return store->put(entity);
 }
 
 
-SegmentMeta * Fabricator::put(const SegmentMeta entity) {
+const SegmentMeta * Fabricator::put(const SegmentMeta entity) {
   return store->put(entity);
 }
 
@@ -953,7 +953,7 @@ void Fabricator::putReport(const std::string &key, const std::string &value) {
 }
 
 
-Segment *Fabricator::updateSegment(Segment segment) {
+const Segment *Fabricator::updateSegment(Segment segment) {
   try {
     return store->updateSegment(segment);
 
@@ -1006,7 +1006,7 @@ double Fabricator::getTempo() {
 
 
 std::optional<const SegmentMeta *> Fabricator::getSegmentMeta(const std::string &key) const {
-  const std::set<SegmentMeta *> allMetas = store->readAllSegmentMetas(segmentId);
+  const std::set<const SegmentMeta *> allMetas = store->readAllSegmentMetas(segmentId);
   for (const auto &meta: allMetas) {
     if (meta->key == key) {
       return meta;
@@ -1031,7 +1031,7 @@ std::optional<const SegmentChoice *> Fabricator::getChoiceOfType(Program::Type p
 
 
 std::set<const SegmentChoice *> Fabricator::getBeatChoices() const {
-  const std::set<SegmentChoice *> allChoices = getChoices();
+  const std::set<const SegmentChoice *> allChoices = getChoices();
   std::set<const SegmentChoice *> beatChoices;
 
   for (const auto &choice: allChoices) {
@@ -1072,13 +1072,14 @@ std::string Fabricator::computeShipKey(const Chain *chain, const Segment *segmen
 
 void Fabricator::ensureShipKey() {
   if (getSegment()->storageKey.empty()) {
-    const auto seg = getSegment();
+    const auto originalSegment = getSegment();
     const auto chainOpt = store->readChain();
     if (!chainOpt.has_value()) {
       throw FabricationException("No chain");
     }
-    seg->storageKey = computeShipKey(chainOpt.value(), getSegment());
-    updateSegment(*seg);
+    Segment updatedSegment = *originalSegment;
+    updatedSegment.storageKey = computeShipKey(chainOpt.value(), getSegment());
+    updateSegment(updatedSegment);
 
     spdlog::debug("[seg-{}] Generated ship key {}", segmentId, getSegment()->storageKey);
   }
@@ -1090,13 +1091,13 @@ Segment::Type Fabricator::computeType() {
     return Segment::Type::Initial;
 
   // previous main choice having at least one more pattern?
-  const std::optional<SegmentChoice *> previousMainChoice = getPreviousMainChoice();
+  const std::optional<const SegmentChoice *> previousMainChoice = getPreviousMainChoice();
 
   if (previousMainChoice.has_value() && hasOneMoreSequenceBindingOffset(previousMainChoice.value()) && getTemplateConfig().mainProgramLengthMaxDelta > getPreviousSegmentDelta())
     return Segment::Type::Continue;
 
   // previous macro choice having at least two more patterns?
-  const std::optional<SegmentChoice *> previousMacroChoice = getMacroChoiceOfPreviousSegment();
+  const std::optional<const SegmentChoice *> previousMacroChoice = getMacroChoiceOfPreviousSegment();
 
   if (previousMacroChoice.has_value() && hasTwoMoreSequenceBindingOffsets(previousMacroChoice.value()))
     return Segment::Type::NextMain;

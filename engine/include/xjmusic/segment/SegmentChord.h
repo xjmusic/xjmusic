@@ -35,7 +35,7 @@ namespace XJ {
      * @param segmentChords  The set of Segment Chords
      * @return       The names
      */
-    static std::set<std::string> getNames(const std::set<SegmentChord *> &segmentChords);
+    static std::set<std::string> getNames(const std::set<const SegmentChord *> &segmentChords);
   };
 
 }// namespace XJ

@@ -31,7 +31,7 @@ namespace XJ {
      @return segment choice of given type
      */
     static std::optional<const SegmentChoice *>
-    findFirstOfType(const std::set<SegmentChoice *> &segmentChoices, Program::Type type);
+    findFirstOfType(const std::set<const SegmentChoice *> &segmentChoices, Program::Type type);
 
     /**
      Find first segment choice of a given type in a collection of segment choices
@@ -41,7 +41,7 @@ namespace XJ {
      @return segment choice of given type
      */
     static std::optional<const SegmentChoice *>
-    findFirstOfType(const std::set<SegmentChoice *> &segmentChoices, Instrument::Type type);
+    findFirstOfType(const std::set<const SegmentChoice *> &segmentChoices, Instrument::Type type);
 
     /**
      Get the identifier or a Segment: ship key if available, else ID
@@ -49,7 +49,7 @@ namespace XJ {
      @param segment to get identifier of
      @return ship key if available, else ID
      */
-    static std::string getIdentifier(Segment *segment);
+    static std::string getIdentifier(const Segment *segment);
 
     /**
      Get the last dubbed from any collection of Segments
@@ -57,7 +57,7 @@ namespace XJ {
      @param segments to get last dubbed from
      @return last dubbed segment from collection
      */
-    static std::optional<Segment *> getLastCrafted(const std::vector<Segment *> &segments);
+    static std::optional<const Segment *> getLastCrafted(const std::vector<const Segment *> &segments);
 
     /**
      Get the last from any collection of Segments
@@ -65,7 +65,7 @@ namespace XJ {
      @param segments to get last from
      @return last segment from collection
      */
-    static std::optional<Segment *> getLast(const std::vector<Segment *> &segments);
+    static std::optional<const Segment *> getLast(const std::vector<const Segment *> &segments);
 
     /**
      Get only the dubbed from any collection of Segments
@@ -73,7 +73,7 @@ namespace XJ {
      @param segments to get dubbed from
      @return dubbed segments from collection
      */
-    static std::vector<Segment *> getCrafted(const std::vector<Segment *> &segments);
+    static std::vector<const Segment *> getCrafted(const std::vector<const Segment *> &segments);
 
     /**
      Whether a segment chord voicing contains any valid notes

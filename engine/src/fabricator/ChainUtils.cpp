@@ -34,7 +34,7 @@ std::string ChainUtils::getShipKey(const std::string &chainKey, const std::strin
 }
 
 
-long ChainUtils::computeFabricatedToChainMicros(const std::vector<Segment *> &segments) {
+long ChainUtils::computeFabricatedToChainMicros(const std::vector<const Segment *> &segments) {
   const auto lastDubbedSegment = SegmentUtils::getLastCrafted(segments);
   if (lastDubbedSegment.has_value()) {
     return lastDubbedSegment.value()->durationMicros.has_value() ? lastDubbedSegment.value()->beginAtChainMicros +

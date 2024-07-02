@@ -32,7 +32,7 @@ protected:
   SegmentEntityStore *store = nullptr;
   ContentEntityStore *sourceMaterial = nullptr;
   Chain *chain1 = nullptr;
-  Segment *segment4 = nullptr;
+  const Segment *segment4 = nullptr;
 
   void SetUp() override {
     store = new SegmentEntityStore();

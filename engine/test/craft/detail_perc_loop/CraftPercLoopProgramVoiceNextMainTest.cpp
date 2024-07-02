@@ -31,7 +31,7 @@ protected:
   SegmentEntityStore *store = nullptr;
   ContentEntityStore *sourceMaterial = nullptr;
   Chain *chain1 = nullptr;
-  Segment *segment4 = nullptr;
+  const Segment *segment4 = nullptr;
   InstrumentAudio *audioKick = nullptr;
   InstrumentAudio *audioSnare = nullptr;
 

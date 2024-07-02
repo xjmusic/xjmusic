@@ -6,7 +6,7 @@ using namespace XJ;
 
 
 std::optional<const SegmentChoice *>
-SegmentUtils::findFirstOfType(const std::set<SegmentChoice *> &segmentChoices, Program::Type type) {
+SegmentUtils::findFirstOfType(const std::set<const SegmentChoice *> &segmentChoices, Program::Type type) {
   const auto it = std::find_if(segmentChoices.begin(), segmentChoices.end(), [type](const SegmentChoice *choice) {
     return choice->programType == type;
   });
@@ -18,7 +18,7 @@ SegmentUtils::findFirstOfType(const std::set<SegmentChoice *> &segmentChoices, P
 
 
 std::optional<const SegmentChoice *>
-SegmentUtils::findFirstOfType(const std::set<SegmentChoice *> &segmentChoices, Instrument::Type type) {
+SegmentUtils::findFirstOfType(const std::set<const SegmentChoice *> &segmentChoices, Instrument::Type type) {
   const auto it = std::find_if(segmentChoices.begin(), segmentChoices.end(), [type](const SegmentChoice *choice) {
     return choice->instrumentType == type;
   });
@@ -29,7 +29,7 @@ SegmentUtils::findFirstOfType(const std::set<SegmentChoice *> &segmentChoices, I
 }
 
 
-std::string SegmentUtils::getIdentifier(Segment *segment) {
+std::string SegmentUtils::getIdentifier(const Segment *segment) {
   if (segment == nullptr) {
     return "N/A";
   }
@@ -37,7 +37,7 @@ std::string SegmentUtils::getIdentifier(Segment *segment) {
 }
 
 
-std::optional<Segment *> SegmentUtils::getLastCrafted(const std::vector<Segment *> &segments) {
+std::optional<const Segment *> SegmentUtils::getLastCrafted(const std::vector<const Segment *> &segments) {
   if (segments.empty()) {
     return std::nullopt;
   }
@@ -46,7 +46,7 @@ std::optional<Segment *> SegmentUtils::getLastCrafted(const std::vector<Segment 
 }
 
 
-std::optional<Segment *> SegmentUtils::getLast(const std::vector<Segment *> &segments) {
+std::optional<const Segment *> SegmentUtils::getLast(const std::vector<const Segment *> &segments) {
   if (segments.empty()) {
     return std::nullopt;
   }
@@ -56,8 +56,8 @@ std::optional<Segment *> SegmentUtils::getLast(const std::vector<Segment *> &seg
 }
 
 
-std::vector<Segment *> SegmentUtils::getCrafted(const std::vector<Segment *> &segments) {
-  std::vector<Segment *> result;
+std::vector<const Segment *> SegmentUtils::getCrafted(const std::vector<const Segment *> &segments) {
+  std::vector<const Segment *> result;
   std::copy_if(segments.begin(), segments.end(), std::back_inserter(result), [](const Segment *segment) {
     return segment->state == Segment::State::Crafted;
   });

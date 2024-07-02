@@ -22,11 +22,11 @@
 
 using namespace XJ;
 
-#define SEGMENT_STORE_CORE_HEADERS(ENTITY, ENTITIES)                     \
-  ENTITY *put(const ENTITY &choice);                                     \
-  std::optional<ENTITY *> read##ENTITY(int segmentId, const UUID &id);   \
-  std::set<ENTITY *> readAll##ENTITIES(int segmentId);                   \
-  std::set<ENTITY *> readAll##ENTITIES(const std::set<int> &segmentIds); \
+#define SEGMENT_STORE_CORE_HEADERS(ENTITY, ENTITIES)                           \
+  const ENTITY *put(const ENTITY &choice);                                     \
+  std::optional<const ENTITY *> read##ENTITY(int segmentId, const UUID &id);   \
+  std::set<const ENTITY *> readAll##ENTITIES(int segmentId);                   \
+  std::set<const ENTITY *> readAll##ENTITIES(const std::set<int> &segmentIds); \
   void delete##ENTITY(int segmentId, const UUID &id);
 
 
@@ -42,16 +42,18 @@ namespace XJ {
    */
   class SegmentEntityStore {
     std::optional<Chain> chain;
-    std::map<int, Segment> segments;
-    std::map<int, std::map<UUID, SegmentChoice>> segmentChoices;
-    std::map<int, std::map<UUID, SegmentChoiceArrangement>> segmentChoiceArrangements;
-    std::map<int, std::map<UUID, SegmentChoiceArrangementPick>> segmentChoiceArrangementPicks;
-    std::map<int, std::map<UUID, SegmentChord>> segmentChords;
-    std::map<int, std::map<UUID, SegmentChordVoicing>> segmentChordVoicings;
-    std::map<int, std::map<UUID, SegmentMeme>> segmentMemes;
-    std::map<int, std::map<UUID, SegmentMessage>> segmentMessages;
-    std::map<int, std::map<UUID, SegmentMeta>> segmentMetas;
+    std::map<int, const Segment> segments;
+    std::map<int, std::map<UUID, const SegmentChoice>> segmentChoices;
+    std::map<int, std::map<UUID, const SegmentChoiceArrangement>> segmentChoiceArrangements;
+    std::map<int, std::map<UUID, const SegmentChoiceArrangementPick>> segmentChoiceArrangementPicks;
+    std::map<int, std::map<UUID, const SegmentChord>> segmentChords;
+    std::map<int, std::map<UUID, const SegmentChordVoicing>> segmentChordVoicings;
+    std::map<int, std::map<UUID, const SegmentMeme>> segmentMemes;
+    std::map<int, std::map<UUID, const SegmentMessage>> segmentMessages;
+    std::map<int, std::map<UUID, const SegmentMeta>> segmentMetas;
+
     static void validate(SegmentMeme entity);
+
     static void validate(Segment entity);
 
   public:
@@ -83,7 +85,7 @@ namespace XJ {
      * Put a Segment in the entity store
      * @returns stored Segment
      */
-    Segment *put(const Segment &segment);
+    const Segment *put(const Segment &segment);
 
     /**
      * Read a Chain by #
@@ -95,7 +97,7 @@ namespace XJ {
      * Read a Segment by #
      * @returns requested Segment
      */
-    std::optional<Segment *> readSegment(int segmentId);
+    std::optional<const Segment *> readSegment(int segmentId);
 
     /**
      Get the segment at the given chain microseconds, if it is ready
@@ -106,7 +108,7 @@ namespace XJ {
      @param chainMicros the chain microseconds for which to get the segment
      @return the segment at the given chain microseconds, or an empty optional if the segment is not ready
      */
-    std::optional<Segment *> readSegmentAtChainMicros(long chainMicros);
+    std::optional<const Segment *> readSegmentAtChainMicros(long chainMicros);
 
     /**
     Get all segments for a chain id
@@ -114,7 +116,7 @@ namespace XJ {
     @return collection of segments
     @ on failure to retrieve the requested key
     */
-    std::vector<Segment *> readAllSegments();
+    std::vector<const Segment *> readAllSegments();
 
     /**
      Get all segments for a chain id in a given state
@@ -123,7 +125,7 @@ namespace XJ {
      @return collection of segments
      @throws exception on failure to retrieve the requested key
      */
-    std::vector<Segment *> readAllSegmentsInState(Segment::State segmentState);
+    std::vector<const Segment *> readAllSegmentsInState(Segment::State segmentState);
 
     /**
      Read all Segments that are accessible, by Chain ID, starting and ending at particular offsets
@@ -132,7 +134,7 @@ namespace XJ {
      @param toOffset   to read segments to
      @return list of segments as JSON
      */
-    std::vector<Segment> readSegmentsFromToOffset(int fromOffset, int toOffset);
+    std::vector<const Segment> readSegmentsFromToOffset(int fromOffset, int toOffset);
 
     /**
      Fetch all sub-entities records for many parent segments by id
@@ -140,7 +142,7 @@ namespace XJ {
      @param segmentIds to fetch records for.
      @return collection of all sub entities of these parent segments, different classes that extend EntityUtils
      */
-    std::set<SegmentEntity *> readAllSegmentEntities(const std::set<int> &segmentIds);
+    std::set<const SegmentEntity *> readAllSegmentEntities(const std::set<int> &segmentIds);
 
     /**
      Get the segments that span the given instant
@@ -172,7 +174,7 @@ namespace XJ {
      @param programType to get
      @return main choice
      */
-    std::optional<SegmentChoice *> readChoice(int segmentId, Program::Type programType);
+    std::optional<const SegmentChoice *> readChoice(int segmentId, Program::Type programType);
 
     /**
      Get a hash of all the choices for the given segment
@@ -187,7 +189,8 @@ namespace XJ {
     * @param segments    of segments
     * @return        list of choices
     */
-    std::set<const SegmentChoiceArrangementPick *> readAllSegmentChoiceArrangementPicks(const std::vector<const Segment *> &segments);
+    std::set<const SegmentChoiceArrangementPick *>
+    readAllSegmentChoiceArrangementPicks(const std::vector<const Segment *> &segments);
 
     /**
      Get the total number of segments in the store
@@ -209,7 +212,7 @@ namespace XJ {
      @param segment for the updated EntityUtils.
      @ on failure
      */
-    Segment *updateSegment(Segment &segment);
+    const Segment *updateSegment(Segment &segment);
 
     /**
      * Read a Chain by #

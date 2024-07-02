@@ -32,7 +32,7 @@ protected:
   ContentEntityStore *sourceMaterial = nullptr;
   SegmentEntityStore *store = nullptr;
   ContentFixtures *fake = nullptr;
-  Segment *segment4 = nullptr;
+  const Segment *segment4 = nullptr;
 
   void SetUp() override {
     craftFactory = new CraftFactory();

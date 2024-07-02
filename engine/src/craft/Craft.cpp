@@ -110,13 +110,14 @@ void Craft::precomputeDeltas(
       std::shuffle(orderedLayers.begin(), orderedLayers.end(), gen);
 
       auto delta = ValueUtils::roundToNearest(deltaUnits, MarbleBag::quickPick(deltaUnits * 4) -
-                                                              deltaUnits * 2 * numLayersIncoming);
+                                                          deltaUnits * 2 * numLayersIncoming);
       for (const std::string &orderedLayer: orderedLayers) {
         deltaIns[orderedLayer] = delta > 0 ? delta : SegmentChoice::DELTA_UNLIMITED;
         deltaOuts[orderedLayer] = SegmentChoice::DELTA_UNLIMITED;// all layers get delta out unlimited
         delta += ValueUtils::roundToNearest(deltaUnits, MarbleBag::quickPick(deltaUnits * 5));
       }
-    } break;
+    }
+      break;
 
     case Segment::Type::Continue: {
       for (const std::string &index: layersInCraftOrder)
@@ -127,7 +128,8 @@ void Craft::precomputeDeltas(
               deltaOuts[index] = choice->deltaOut;
             }
           }
-    } break;
+    }
+      break;
   }
 }
 
@@ -184,7 +186,7 @@ Craft::chooseFreshProgram(const Program::Type programType, const std::optional<I
 
   // report
   fabricator->putReport("choiceOf" + (voicingType.has_value() ? Instrument::toString(voicingType.value()) : "") +
-                            Program::toString(programType) + "Program",
+                        Program::toString(programType) + "Program",
                         bag->toString());
 
   // (4) return the top choice
@@ -507,7 +509,7 @@ void Craft::craftChordParts(const float tempo, const Instrument *instrument) {
   choice.instrumentId = instrument->id;
 
   // Whether there is a prior choice for this voice
-  const std::optional<SegmentChoice *> priorChoice = fabricator->getChoiceIfContinued(instrument->type);
+  const std::optional<const SegmentChoice *> priorChoice = fabricator->getChoiceIfContinued(instrument->type);
 
   if (priorChoice.has_value()) {
     choice.deltaIn = priorChoice.value()->deltaIn;
@@ -612,7 +614,7 @@ void Craft::craftNoteEventSectionRestartingEachChord(
 
 std::vector<Craft::Section> Craft::computeSections() const {
   // guaranteed to be in order of position ascending
-  std::vector<SegmentChord *> chords(fabricator->getSegmentChords().size());
+  std::vector<const SegmentChord *> chords(fabricator->getSegmentChords().size());
   auto i = 0;
   for (const auto &chord: fabricator->getSegmentChords()) {
     chords[i] = chord;
@@ -705,27 +707,28 @@ void Craft::pickNotesAndInstrumentAudioForEvent(
 
   const float duration = std::min(event->duration, toPosition - segmentPosition);
   const auto chord = fabricator->getChordAt(segmentPosition);
-  const std::optional<SegmentChordVoicing *> voicing = chord.has_value()
-                                                           ? fabricator->chooseVoicing(chord.value(), instrument->type)
-                                                           : std::nullopt;
+  const std::optional<const SegmentChordVoicing *> voicing = chord.has_value()
+                                                             ? fabricator->chooseVoicing(chord.value(),
+                                                                                         instrument->type)
+                                                             : std::nullopt;
 
   const auto volRatio = computeVolumeRatioForPickedNote(*choice, segmentPosition);
   if (0 >= volRatio) return;
 
   // The note is voiced from the chord voicing (if found) or else the default is used
   const std::set<std::string> notes = chord.value() && voicing.has_value()
-                                          ? pickNotesForEvent(instrument->type, choice, event, chord.value(),
-                                                              voicing.value(), range)
-                                          : defaultAtonal ? std::set<std::string>{"ATONAL"}
+                                      ? pickNotesForEvent(instrument->type, choice, event, chord.value(),
+                                                          voicing.value(), range)
+                                      : defaultAtonal ? std::set<std::string>{"ATONAL"}
                                                       : std::set<std::string>{};
 
   // Pick attributes are expressed "rendered" as actual seconds
   const long startAtSegmentMicros = fabricator->getSegmentMicrosAtPosition(tempo, segmentPosition);
   const std::optional<long> lengthMicros = fabricator->isOneShot(instrument, fabricator->getTrackName(event))
-                                               ? std::nullopt
-                                               : std::optional(
-                                                     fabricator->getSegmentMicrosAtPosition(tempo, segmentPosition + duration) -
-                                                     startAtSegmentMicros);
+                                           ? std::nullopt
+                                           : std::optional(
+          fabricator->getSegmentMicrosAtPosition(tempo, segmentPosition + duration) -
+          startAtSegmentMicros);
 
   // pick an audio for each note
   for (auto &note: notes)
@@ -758,7 +761,7 @@ void Craft::finalizeNoteEventCutoffsOfOneShotInstrumentAudioPicks(const SegmentC
     return;
 
   // get all the picks, ordered chronologically, and skip the rest of this process if there are none
-  std::vector<SegmentChoiceArrangementPick *> picks = fabricator->getPicks(choice);
+  std::vector<const SegmentChoiceArrangementPick *> picks = fabricator->getPicks(choice);
   if (picks.empty()) return;
 
   // build an ordered unique list of the moments in time when the one-shot will be cut off
@@ -780,15 +783,18 @@ void Craft::finalizeNoteEventCutoffsOfOneShotInstrumentAudioPicks(const SegmentC
       nextCutoffAtSegmentMicros = *it;
     }
 
+
     if (nextCutoffAtSegmentMicros.has_value()) {
-      pick->lengthMicros = nextCutoffAtSegmentMicros.value() - pick->startAtSegmentMicros;
-      fabricator->put(*pick);
+      SegmentChoiceArrangementPick updatedPick = *pick;
+      updatedPick.lengthMicros = nextCutoffAtSegmentMicros.value() - pick->startAtSegmentMicros;
+      fabricator->put(updatedPick);
       continue;
     }
 
     if (pick->startAtSegmentMicros < fabricator->getTotalSegmentMicros()) {
-      pick->lengthMicros = fabricator->getTotalSegmentMicros() - pick->startAtSegmentMicros;
-      fabricator->put(*pick);
+      SegmentChoiceArrangementPick updatedPick = *pick;
+      updatedPick.lengthMicros = fabricator->getTotalSegmentMicros() - pick->startAtSegmentMicros;
+      fabricator->put(updatedPick);
       continue;
     }
 
@@ -800,8 +806,8 @@ float Craft::computeVolumeRatioForPickedNote(const SegmentChoice &choice, const 
   if (!fabricator->getTemplateConfig().deltaArcEnabled) return 1.0f;
   return static_cast<float>(inBounds(choice.deltaIn, choice.deltaOut,
                                      static_cast<float>(fabricator->getSegment()->delta) + segmentPosition)
-                                ? 1.0
-                                : 0.0);
+                            ? 1.0
+                            : 0.0);
 }
 
 std::set<std::string> Craft::pickNotesForEvent(
@@ -833,8 +839,8 @@ std::set<std::string> Craft::pickNotesForEvent(
   std::sort(eventNotes.begin(), eventNotes.end());
 
   auto dpEventRelativeOffsetWithinRangeSemitones = dpRange.shifted(
-                                                              dpTransposeSemitones + dpTransposeOctaveSemitones)
-                                                       .getDeltaSemitones(NoteRange::ofNotes(eventNotes));
+          dpTransposeSemitones + dpTransposeOctaveSemitones)
+      .getDeltaSemitones(NoteRange::ofNotes(eventNotes));
   auto dpEventRangeWithinWholeDP = NoteRange::ofNotes(eventNotes).shifted(dpEventRelativeOffsetWithinRangeSemitones);
 
   if (optimalRange->empty() && !dpEventRangeWithinWholeDP.empty())
@@ -859,8 +865,8 @@ std::set<std::string> Craft::pickNotesForEvent(
   std::vector<Note> pickedNotes;
   for (size_t i = 0; i < eventNotes.size(); i++) {
     Note pickedNote = eventNotes[i].isAtonal() && bun.has_value()
-                          ? bun.value().compute(voicingNotes, static_cast<int>(i))
-                          : notePicker.pick(eventNotes[i]);
+                      ? bun.value().compute(voicingNotes, static_cast<int>(i))
+                      : notePicker.pick(eventNotes[i]);
     pickedNotes.push_back(pickedNote);
   }
 
@@ -886,8 +892,8 @@ void Craft::pickInstrumentAudio(
     const std::optional<UUID> &segmentChordVoicingId,
     const float &volRatio) const {
   const auto audio = fabricator->getInstrumentConfig(instrument).isMultiphonic
-                         ? selectMultiphonicInstrumentAudio(instrument, event, note)
-                         : selectMonophonicInstrumentAudio(instrument, event);
+                     ? selectMultiphonicInstrumentAudio(instrument, event, note)
+                     : selectMonophonicInstrumentAudio(instrument, event);
 
   // Should gracefully skip audio if unfulfilled by instrument https://github.com/xjmusic/xjmusic/issues/240
   if (!audio.has_value()) return;
@@ -993,17 +999,19 @@ Craft::selectNewMultiphonicInstrumentAudio(const Instrument *instrument, std::st
 
   if (filteredAudios.empty()) {
     std::vector<Note> availableNotes;
+    availableNotes.reserve(instrumentAudios.size());
     for (const auto audio: instrumentAudios) {
-      availableNotes.push_back(Note::of(audio->tones));
+      availableNotes.emplace_back(Note::of(audio->tones));
     }
     std::sort(availableNotes.begin(), availableNotes.end());
     std::vector<std::string> availableNoteNames;
+    availableNoteNames.reserve(availableNotes.size());
     for (auto N: availableNotes) {
-      availableNoteNames.push_back(N.toString(Sharp));
+      availableNoteNames.emplace_back(N.toString(Sharp));
     }
     const std::map<std::string, std::string> reportMissingData = {
-        {"instrumentId", instrument->id},
-        {"searchForNote", note},
+        {"instrumentId",   instrument->id},
+        {"searchForNote",  note},
         {"availableNotes", CsvUtils::join(availableNoteNames)}};
     reportMissing(reportMissingData);
     return std::nullopt;
@@ -1020,8 +1028,8 @@ bool Craft::instrumentContainsAudioEventsLike(
   for (auto event: requireEvents) {
     auto audios = fabricator->getSourceMaterial()->getAudiosOfInstrument(instrument.id);
     if (!std::any_of(audios.begin(), audios.end(), [&event](const InstrumentAudio *a) {
-          return event == a->event;
-        }))
+      return event == a->event;
+    }))
       return false;
   }
   return true;

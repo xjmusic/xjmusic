@@ -30,7 +30,7 @@ protected:
   MockSegmentRetrospective *mockRetrospective = nullptr;
   Fabricator *subject = nullptr;
   ContentFixtures *fake = nullptr;
-  Segment *segment = nullptr;
+  const Segment *segment = nullptr;
 
 protected:
   void SetUp() override {
@@ -100,9 +100,9 @@ TEST_F(FabricatorTest, PickReturnedByPicks) {
   pick.tones = "A4";
   store->put(pick);
 
-  std::set<SegmentChoiceArrangementPick *> result = subject->getPicks();
+  std::set<const SegmentChoiceArrangementPick *> result = subject->getPicks();
 
-  SegmentChoiceArrangementPick *resultPick = *result.begin();
+  const SegmentChoiceArrangementPick *resultPick = *result.begin();
   ASSERT_EQ(beatArrangement->id, resultPick->segmentChoiceArrangementId);
   ASSERT_EQ(fake->instrument8_audio8kick.id, resultPick->instrumentAudioId);
   ASSERT_NEAR(0.273 * ValueUtils::MICROS_PER_SECOND, resultPick->startAtSegmentMicros, 0.001);
@@ -424,9 +424,9 @@ TEST_F(FabricatorTest, PutAddsMemesForChoice) {
   ASSERT_EQ("WILD", sortedResultMemes[4].name);
 
   const auto resultChoices = store->readAllSegmentChoices(segment->id);
-  std::vector<SegmentChoice *> sortedResultChoices;
-  for (SegmentChoice *pointer: resultChoices) {
-    sortedResultChoices.push_back(pointer);
+  std::vector<const SegmentChoice *> sortedResultChoices;
+  for (const SegmentChoice *pointer: resultChoices) {
+    sortedResultChoices.emplace_back(pointer);
   }
   std::sort(sortedResultChoices.begin(), sortedResultChoices.end(), [](const SegmentChoice *a, const SegmentChoice *b) {
     return a->programType < b->programType;

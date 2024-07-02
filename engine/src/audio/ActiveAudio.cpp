@@ -8,14 +8,14 @@ ActiveAudio::ActiveAudio(
     const SegmentChoiceArrangementPick* pick,
     const Instrument *instrument,
     const InstrumentAudio* audio,
-    unsigned long long startAtMixerMicros,
-    std::optional<unsigned long long> stopAtMixerMicros,
+    unsigned long long startAtChainMicros,
+    std::optional<unsigned long long> stopAtChainMicros,
     float fromIntensityAmplitude,
     float toIntensityAmplitude) {
   this->pick = pick;
   this->audio = audio;
-  this->startAtMixerMicros = startAtMixerMicros;
-  this->stopAtMixerMicros = stopAtMixerMicros;
+  this->startAtChainMicros = startAtChainMicros;
+  this->stopAtChainMicros = stopAtChainMicros;
   this->instrument = instrument;
 
   // computed
@@ -36,12 +36,12 @@ const Instrument * ActiveAudio::getInstrument() {
   return instrument;
 }
 
-unsigned long long ActiveAudio::getStartAtMixerMicros() const {
-  return startAtMixerMicros;
+unsigned long long ActiveAudio::getStartAtChainMicros() const {
+  return startAtChainMicros;
 }
 
-std::optional<unsigned long long> ActiveAudio::getStopAtMixerMicros() const {
-  return stopAtMixerMicros;
+std::optional<unsigned long long> ActiveAudio::getStopAtChainMicros() const {
+  return stopAtChainMicros;
 }
 
 const InstrumentAudio * ActiveAudio::getAudio() {

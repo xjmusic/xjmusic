@@ -10,11 +10,8 @@
 
 #include "xjmusic/craft/Craft.h"
 #include "xjmusic/craft/CraftFactory.h"
-#include "xjmusic/fabricator/ChainUtils.h"
 #include "xjmusic/fabricator/FabricatorFactory.h"
-#include "xjmusic/fabricator/SegmentUtils.h"
 #include "xjmusic/util/CsvUtils.h"
-#include "xjmusic/util/ValueUtils.h"
 
 // NOLINTNEXTLINE
 using ::testing::_;
@@ -31,7 +28,7 @@ protected:
   SegmentEntityStore *store = nullptr;
   ContentFixtures *fake = nullptr;
   Chain *chain2 = nullptr;
-  Segment *segment0 = nullptr;
+  const Segment *segment0 = nullptr;
 
   void SetUp() override {
     craftFactory = new CraftFactory();

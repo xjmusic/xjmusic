@@ -74,7 +74,7 @@ std::vector<const Segment *> CraftWork::getSegmentsIfReady(const unsigned long l
   return segments;
 }
 
-std::optional<Segment *> CraftWork::getSegmentAtChainMicros(const unsigned long long chainMicros) const {
+std::optional<const Segment *> CraftWork::getSegmentAtChainMicros(const unsigned long long chainMicros) const {
   // require current segment in crafted state
   const auto currentSegment = store->readSegmentAtChainMicros(chainMicros);
   if (!currentSegment.has_value() || currentSegment.value()->state != Segment::State::Crafted) {
@@ -83,7 +83,7 @@ std::optional<Segment *> CraftWork::getSegmentAtChainMicros(const unsigned long 
   return currentSegment;
 }
 
-std::optional<Segment *> CraftWork::getSegmentAtOffset(const int offset) const {
+std::optional<const Segment *> CraftWork::getSegmentAtOffset(const int offset) const {
   // require current segment in crafted state
   const auto currentSegment = store->readSegment(offset);
   if (!currentSegment.has_value() || currentSegment.value()->state != Segment::State::Crafted) {
@@ -231,7 +231,7 @@ void CraftWork::doFabricationDefault(
     // Build next segment in chain
     // Get the last segment in the chain
     // If the chain had no last segment, it must be empty; return a template for its first segment
-    Segment *segment;
+    Segment segment;
     const auto existing = store->readSegmentLast();
     if (!existing.has_value()) {
       segment = buildSegmentInitial();
@@ -241,8 +241,7 @@ void CraftWork::doFabricationDefault(
     } else {
       segment = buildSegmentFollowing(&existing.value());
     }
-    segment = store->put(*segment);
-    doFabricationWork(segment, std::nullopt, overrideMacroProgram, overrideMemes);
+    doFabricationWork(store->put(segment), std::nullopt, overrideMacroProgram, overrideMemes);
 
   } catch (
       std::exception e) {
@@ -293,10 +292,9 @@ void CraftWork::doFabricationRewrite(
       spdlog::warn("Neither override memes nor macros are present: unsure what rewrite action to take");
     }
     store->deleteSegmentsAfter(lastSegment.value()->id);
-    Segment *segment = buildSegmentFollowing(lastSegment.value());
-    segment->type = Segment::Type::NextMacro;
-    segment = store->put(*segment);
-    doFabricationWork(segment, Segment::Type::NextMacro, overrideMacroProgram, overrideMemes);
+    Segment followingSegment = buildSegmentFollowing(lastSegment.value());
+    followingSegment.type = Segment::Type::NextMacro;
+    doFabricationWork(store->put(followingSegment), Segment::Type::NextMacro, overrideMacroProgram, overrideMemes);
     didOverride = true;
 
   } catch (
@@ -305,21 +303,23 @@ void CraftWork::doFabricationRewrite(
   }
 }
 
-void CraftWork::doCutoffLastSegment(Segment *segment, double cutoffAfterBeats) const {
+void CraftWork::doCutoffLastSegment(const Segment *inputSegment, float cutoffAfterBeats) const {
   try {
-    const auto durationMicros = cutoffAfterBeats * ValueUtils::MICROS_PER_MINUTE / segment->tempo;
+    const long durationMicros = cutoffAfterBeats * ValueUtils::MICROS_PER_MINUTE / inputSegment->tempo;
     spdlog::info("Will cut current segment short after {} beats.", cutoffAfterBeats);
-    segment->total = static_cast<int>(cutoffAfterBeats);
-    segment->durationMicros = static_cast<long>(durationMicros);
-    segment = store->updateSegment(*segment);
-    for (const auto pick: store->readAllSegmentChoiceArrangementPicks(segment->id)) {
+    Segment updateSegment = *inputSegment;
+    updateSegment.total = static_cast<int>(cutoffAfterBeats);
+    updateSegment.durationMicros = static_cast<long>(durationMicros);
+    store->updateSegment(updateSegment);
+    for (const auto pick: store->readAllSegmentChoiceArrangementPicks(inputSegment->id)) {
       try {
         if (pick->startAtSegmentMicros >= durationMicros)
-          store->deleteSegmentChoiceArrangementPick(segment->id, pick->id);
+          store->deleteSegmentChoiceArrangementPick(inputSegment->id, pick->id);
         else if (0 < pick->lengthMicros &&
                  pick->startAtSegmentMicros + pick->lengthMicros > durationMicros) {
-          pick->lengthMicros = static_cast<long>(durationMicros - pick->startAtSegmentMicros);
-          store->put(*pick);
+          SegmentChoiceArrangementPick updatePick = *pick;
+          updatePick.lengthMicros = static_cast<long>(durationMicros - pick->startAtSegmentMicros);
+          store->put(updatePick);
         }
       } catch (std::exception e) {
         spdlog::error("Failed to cut SegmentChoiceArrangementPick[{}] short to {} beats because {}", pick->id,
@@ -329,20 +329,20 @@ void CraftWork::doCutoffLastSegment(Segment *segment, double cutoffAfterBeats) c
 
   } catch (std::exception e) {
     throw FabricationException(
-        "Failed to cut Segment[" + std::to_string(segment->id) + "] short to " + std::to_string(cutoffAfterBeats) + " beats: " + e.what());
+        "Failed to cut Segment[" + std::to_string(inputSegment->id) + "] short to " + std::to_string(cutoffAfterBeats) + " beats: " + e.what());
   }
 }
 
 void CraftWork::doFabricationWork(
-    Segment *segment,
+    const Segment *inputSegment,
     const std::optional<Segment::Type> overrideSegmentType,
     const std::optional<const Program *> overrideMacroProgram,
     const std::set<std::string> &overrideMemes) const {
-  spdlog::debug("[segId={}] will prepare fabricator", segment->id);
-  Fabricator *fabricator = fabricatorFactory->fabricate(content, segment->id, overrideSegmentType);
+  spdlog::debug("[segId={}] will prepare fabricator", inputSegment->id);
+  Fabricator *fabricator = fabricatorFactory->fabricate(content, inputSegment->id, overrideSegmentType);
 
-  spdlog::debug("[segId={}] will do craft work", segment->id);
-  updateSegmentState(fabricator, segment, Segment::State::Planned, Segment::State::Crafting);
+  spdlog::debug("[segId={}] will do craft work", inputSegment->id);
+  updateSegmentState(fabricator, inputSegment, Segment::State::Planned, Segment::State::Crafting);
   craftFactory->macroMain(fabricator, overrideMacroProgram, overrideMemes).doWork();
 
   craftFactory->beat(fabricator).doWork();
@@ -350,94 +350,84 @@ void CraftWork::doFabricationWork(
   craftFactory->transition(fabricator).doWork();
   craftFactory->background(fabricator).doWork();
 
-  spdlog::debug("Fabricated Segment[{}]", segment->id);
+  spdlog::debug("Fabricated Segment[{}]", inputSegment->id);
 
-  updateSegmentState(fabricator, segment, Segment::State::Crafting, Segment::State::Crafted);
+  updateSegmentState(fabricator, inputSegment, Segment::State::Crafting, Segment::State::Crafted);
 }
 
-/**
- Delete segments before the given shipped-to chain micros
-
- @param shippedToChainMicros the shipped-to chain micros
- */
 void CraftWork::doSegmentCleanup(const long shippedToChainMicros) const {
   const auto segment = getSegmentAtChainMicros(shippedToChainMicros - persistenceWindowMicros);
   if (segment.has_value())
     store->deleteSegmentsBefore(segment.value()->id);
 }
 
-/**
- Create the initial template segment
-
- @return initial template segment
- */
-Segment *CraftWork::buildSegmentInitial() const {
-  const auto segment = new Segment();
-  segment->id = 0;
-  segment->chainId = chain->id;
-  segment->beginAtChainMicros = 0L;
-  segment->delta = 0;
-  segment->type = Segment::Type::Pending;
-  segment->state = Segment::State::Planned;
+Segment CraftWork::buildSegmentInitial() const {
+   auto segment = Segment();
+  segment.id = 0;
+  segment.chainId = chain->id;
+  segment.beginAtChainMicros = 0L;
+  segment.delta = 0;
+  segment.type = Segment::Type::Pending;
+  segment.state = Segment::State::Planned;
   return segment;
 }
 
-/**
- Create the next segment in the chain, following the last segment
-
- @param last segment
- @return next segment
- */
-Segment *CraftWork::buildSegmentFollowing(const Segment *last) const {
+Segment CraftWork::buildSegmentFollowing(const Segment *last) const {
   if (!last->durationMicros.has_value()) {
     throw std::runtime_error("Last segment has no duration, cannot fabricate next segment");
   }
-  Segment *segment = new Segment();
-  segment->id = last->id + 1;
-  segment->chainId = chain->id;
-  segment->beginAtChainMicros = last->beginAtChainMicros + last->durationMicros.value();
-  segment->delta = last->delta;
-  segment->type = Segment::Type::Pending;
-  segment->state = Segment::State::Planned;
+   auto segment = Segment();
+  segment.id = last->id + 1;
+  segment.chainId = chain->id;
+  segment.beginAtChainMicros = last->beginAtChainMicros + last->durationMicros.value();
+  segment.delta = last->delta;
+  segment.type = Segment::Type::Pending;
+  segment.state = Segment::State::Planned;
   return segment;
 }
 
-/**
- Log and send notification of error that job failed while (message)
-
- @param msgWhile phrased like "Doing work"
- @param e        exception (optional)
- */
 void CraftWork::didFailWhile(std::string msgWhile, const std::exception &e) {
   spdlog::error("Failed while {} because {}\n{}", msgWhile, e.what());
   running = false;
   finish();
 }
 
-/**
- Update Segment to Working state
-
- @param fabricator to update
- @param segment    to update
- @param fromState  of existing segment
- @param toState    of new segment
- @ if record is invalid
- */
-void CraftWork::updateSegmentState(Fabricator *fabricator, Segment *segment, const Segment::State fromState, const Segment::State toState) {
-  if (fromState != segment->state)
-    throw new std::runtime_error("Segment[" + std::to_string(segment->id) + "] " + Segment::toString(toState) + " requires Segment must be in " + Segment::toString(fromState) + " state.");
-  segment->state = toState;
-  fabricator->updateSegment(*segment);
-  spdlog::debug("[segId={}] Segment transitioned to state {} OK", segment->id, Segment::toString(toState));
+const Segment *
+CraftWork::updateSegmentState(Fabricator *fabricator, const Segment *inputSegment, const Segment::State fromState, const Segment::State toState) {
+  if (fromState != inputSegment->state)
+    throw new std::runtime_error("Segment[" + std::to_string(inputSegment->id) + "] " + Segment::toString(toState) + " requires Segment must be in " + Segment::toString(fromState) + " state.");
+  Segment updateSegment = *inputSegment;
+  updateSegment.state = toState;
+  auto updatedSegment = fabricator->updateSegment(updateSegment);
+  spdlog::debug("[segId={}] Segment transitioned to state {} OK", inputSegment->id, Segment::toString(toState));
+  return updatedSegment;
 }
 
-
-/**
- Bootstrap a chain from JSON chain bootstrap data.
- */
 const Chain *CraftWork::createChainForTemplate(const Template *tmpl) const {
   spdlog::info("Will bootstrap Template[{}]", TemplateUtils::getIdentifier(tmpl));
   auto entity = ChainUtils::fromTemplate(tmpl);
   entity.id = EntityUtils::computeUniqueId();
   return store->put(entity);
 }
+
+std::set<const SegmentChoice *> CraftWork::getChoices(const Segment *segment) {
+  return store->readAllSegmentChoices(segment->id);
+}
+
+std::set<const SegmentChoiceArrangement *> CraftWork::getArrangements(const SegmentChoice *choice) {
+  std::set<const SegmentChoiceArrangement *> results;
+  for (auto arrangement : store->readAllSegmentChoiceArrangements( choice->segmentId))
+    if (arrangement->segmentChoiceId == choice->id)
+      results.emplace(arrangement);
+  return results;
+}
+
+std::set<const SegmentChoiceArrangementPick *> CraftWork::getPicks(const SegmentChoiceArrangement *arrangement) {
+  std::set<const SegmentChoiceArrangementPick *> results;
+  for (auto pick : store->readAllSegmentChoiceArrangementPicks( arrangement->segmentId))
+    if (pick->segmentChoiceArrangementId == arrangement->id)
+      results.emplace(pick);
+  return results;
+}
+
+

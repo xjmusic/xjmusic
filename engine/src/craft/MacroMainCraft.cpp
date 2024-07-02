@@ -69,23 +69,24 @@ void MacroMainCraft::doWork() const {
   }
 
   // Update the segment with fabricated content
-  segment->type = fabricator->getType();
-  segment->tempo = mainProgram->tempo;
-  segment->key = computeSegmentKey(mainSequence);
-  segment->total = mainSequence->total;
-  segment->durationMicros = segmentLengthMicros(mainProgram, mainSequence);
+  Segment updatedSegment = *segment;
+  updatedSegment.type = fabricator->getType();
+  updatedSegment.tempo = mainProgram->tempo;
+  updatedSegment.key = computeSegmentKey(mainSequence);
+  updatedSegment.total = mainSequence->total;
+  updatedSegment.durationMicros = segmentLengthMicros(mainProgram, mainSequence);
 
   // If the type is not Continue, we will reset the offset main
   if (Segment::Type::Continue == fabricator->getType())
-    segment->delta = segment->delta + segment->total;
+    updatedSegment.delta = segment->delta + segment->total;
   else
-    segment->delta = 0;
+    updatedSegment.delta = 0;
 
   // Set the intensity
-  segment->intensity = computeSegmentIntensity(segment->delta, macroSequence, mainSequence);
+  updatedSegment.intensity = computeSegmentIntensity(segment->delta, macroSequence, mainSequence);
 
   // Finished
-  fabricator->updateSegment(*segment);
+  fabricator->updateSegment(updatedSegment);
 }
 
 const ProgramSequence *MacroMainCraft::doMacroChoiceWork(const Segment *segment) const {

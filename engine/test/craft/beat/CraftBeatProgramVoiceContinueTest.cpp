@@ -6,15 +6,11 @@
 
 #include "../../_helper/ContentFixtures.h"
 #include "../../_helper/SegmentFixtures.h"
-#include "../../_helper/YamlTest.h"
 
 #include "xjmusic/craft/Craft.h"
 #include "xjmusic/craft/CraftFactory.h"
-#include "xjmusic/fabricator/ChainUtils.h"
 #include "xjmusic/fabricator/FabricatorFactory.h"
-#include "xjmusic/fabricator/SegmentUtils.h"
 #include "xjmusic/util/CsvUtils.h"
-#include "xjmusic/util/ValueUtils.h"
 
 // NOLINTNEXTLINE
 using ::testing::_;
@@ -31,7 +27,7 @@ protected:
   SegmentEntityStore *store = nullptr;
   ContentFixtures *fake = nullptr;
   Chain *chain1 = nullptr;
-  Segment *segment4 = nullptr;
+  const Segment *segment4 = nullptr;
   InstrumentAudio *audioKick = nullptr;
   InstrumentAudio *audioSnare = nullptr;
 
