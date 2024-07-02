@@ -229,4 +229,5 @@ std::vector<std::string> StringUtils::sort(const std::set<std::string> &items) {
     sorted.push_back(item);
   }
   std::sort(sorted.begin(), sorted.end());
+  return sorted;
 }

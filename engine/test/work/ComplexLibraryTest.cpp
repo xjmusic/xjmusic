@@ -32,11 +32,11 @@ class ComplexLibraryTest : public testing::Test {
 protected:
   int MARATHON_NUMBER_OF_SEGMENTS = 50;
   long MICROS_PER_CYCLE = 1000000;
-  int MAXIMUM_TEST_WAIT_SECONDS = 10 * MARATHON_NUMBER_OF_SEGMENTS;
-  int MILLIS_PER_SECOND = 1000;
+  long long MAXIMUM_TEST_WAIT_SECONDS = 10 * MARATHON_NUMBER_OF_SEGMENTS;
+  long long MILLIS_PER_SECOND = 1000;
   int GENERATED_FIXTURE_COMPLEXITY = 3;
   long WORK_CYCLE_MILLIS = 120;
-  long startTime = EntityUtils::currentTimeMillis();
+  long long startTime = EntityUtils::currentTimeMillis();
   SegmentEntityStore *store = nullptr;
   ContentEntityStore *content = nullptr;
   CraftWork *work = nullptr;

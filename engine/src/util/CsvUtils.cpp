@@ -1,5 +1,9 @@
 // Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
 
+#include <sstream>
+#include <ostream>
+#include <iosfwd>
+
 #include "xjmusic/util/CsvUtils.h"
 
 using namespace XJ;

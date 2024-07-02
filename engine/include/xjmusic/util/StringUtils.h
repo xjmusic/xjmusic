@@ -217,7 +217,7 @@ namespace XJ {
     * @param items  set of strings
     * @return     vector of strings
     */
-   std::vector<std::string> sort(const std::set<std::string> &items);
+    static std::vector<std::string> sort(const std::set<std::string> &items);
   };
 
 
