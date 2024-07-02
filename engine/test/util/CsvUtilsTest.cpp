@@ -2,6 +2,9 @@
 
 #include <gtest/gtest.h>
 
+#include <vector>
+#include <string>
+
 #include "xjmusic/util/CsvUtils.h"
 
 using namespace XJ;
@@ -68,4 +71,22 @@ TEST(CsvUtilsTest, prettyFrom) {
   const auto actual = CsvUtils::prettyFrom({"One", "Two", "Three"}, "or");
 
   ASSERT_EQ(expected, actual);
+}
+
+TEST(StringUtilsTest, toProperCsvAnd) {
+  EXPECT_EQ("One", CsvUtils::toProperCsvAnd({"One"}));
+  EXPECT_EQ("One and Two", CsvUtils::toProperCsvAnd({"One", "Two"}));
+  EXPECT_EQ("One, Two, and Three", CsvUtils::toProperCsvAnd({"One", "Two", "Three"}));
+}
+
+TEST(StringUtilsTest, toProperCsvOr) {
+  EXPECT_EQ("One", CsvUtils::toProperCsvOr({"One"}));
+  EXPECT_EQ("One or Two", CsvUtils::toProperCsvOr({"One", "Two"}));
+  EXPECT_EQ("One, Two, or Three", CsvUtils::toProperCsvOr({"One", "Two", "Three"}));
+}
+
+TEST(StringUtilsTest, toProperCsv) {
+  EXPECT_EQ("One", CsvUtils::toProperCsv({"One"}, "or maybe"));
+  EXPECT_EQ("One or maybe Two", CsvUtils::toProperCsv({"One", "Two"}, "or maybe"));
+  EXPECT_EQ("One, Two, or maybe Three", CsvUtils::toProperCsv({"One", "Two", "Three"}, "or maybe"));
 }

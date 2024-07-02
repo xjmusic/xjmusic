@@ -27,7 +27,7 @@ namespace XJ {
 
     static long computeFabricatedToChainMicros(const std::vector<Segment *> &segments);
 
-    static Chain fromTemplate(const Template &tmpl);
+    static Chain fromTemplate(const Template *tmpl);
 
     static std::string computeBaseKey(const Chain &chain);
 

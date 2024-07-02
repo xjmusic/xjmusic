@@ -1,11 +1,11 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-#include "SegmentFixtures.h"
-
-#include "ContentFixtures.h"
-
 #include <utility>
-#include <xjmusic/util/ValueUtils.h>
+
+#include "xjmusic/util/ValueUtils.h"
+
+#include "SegmentFixtures.h"
+#include "ContentFixtures.h"
 
 using namespace XJ;
 

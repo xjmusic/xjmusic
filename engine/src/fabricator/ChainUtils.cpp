@@ -45,12 +45,12 @@ long ChainUtils::computeFabricatedToChainMicros(const std::vector<Segment *> &se
 }
 
 
-Chain ChainUtils::fromTemplate(const Template &tmpl) {
+Chain ChainUtils::fromTemplate(const Template *tmpl) {
   Chain chain;
-  chain.templateId = tmpl.id;
-  chain.templateConfig = tmpl.config;
-  chain.shipKey = tmpl.shipKey;
-  chain.name = tmpl.name;
+  chain.templateId = tmpl->id;
+  chain.templateConfig = tmpl->config;
+  chain.shipKey = tmpl->shipKey;
+  chain.name = tmpl->name;
   return chain;
 }
 

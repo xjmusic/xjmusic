@@ -1,14 +1,17 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-#include <gtest/gtest.h>
 #include <string>
+
+#include <gtest/gtest.h>
+#include <spdlog/spdlog.h>
+
+#include "xjmusic/fabricator/FabricationException.h"
+#include "xjmusic/segment/SegmentEntityStore.h"
+#include "xjmusic/util/ValueUtils.h"
 
 #include "../_helper/ContentFixtures.h"
 #include "../_helper/SegmentFixtures.h"
-#include "xjmusic/fabricator/FabricationException.h"
-#include "xjmusic/segment/SegmentEntityStore.h"
 
-#include <xjmusic/util/ValueUtils.h>
 
 using namespace XJ;
 
@@ -342,6 +345,16 @@ TEST_F(SegmentEntityStoreTest, ReadAllSegments) {
   ASSERT_EQ(Segment::State::Planned, result4->state);
 }
 
+TEST_F(SegmentEntityStoreTest, ReadAllSegmentChoiceArrangementPicks) {
+  std::vector<const Segment *> input;
+  input.emplace_back(segment2);
+
+  subject->readAllSegmentChoiceArrangementPicks(input);
+
+  // TODO: assert something
+  spdlog::info("SegmentEntityStoreTest::ReadAllSegmentChoiceArrangementPicks");
+}
+
 /**
  List of Segments returned should not be more than a dozen or so https://github.com/xjmusic/xjmusic/issues/302
  */
@@ -481,7 +494,7 @@ TEST_F(SegmentEntityStoreTest, GetSegmentCount) {
 
 TEST_F(SegmentEntityStoreTest, IsSegmentsEmpty) {
   subject->clear();
-  ASSERT_TRUE(subject->isEmpty());
+  ASSERT_TRUE(subject->empty());
 
   subject->put(SegmentFixtures::buildSegment(&fakeChain,
                                              0,
@@ -492,7 +505,7 @@ TEST_F(SegmentEntityStoreTest, IsSegmentsEmpty) {
                                              120.0f,
                                              "chains-3-segments-9f7s89d8a7892.wav"));
 
-  ASSERT_FALSE(subject->isEmpty());
+  ASSERT_FALSE(subject->empty());
 }
 
 
