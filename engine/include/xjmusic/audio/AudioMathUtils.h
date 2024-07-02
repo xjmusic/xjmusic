@@ -3,7 +3,7 @@
 #ifndef XJMUSIC_AUDIO_MATH_UTILS_H
 #define XJMUSIC_AUDIO_MATH_UTILS_H
 
-#include <xjmusic/content/InstrumentAudio.h>
+#include "xjmusic/content/InstrumentAudio.h"
 
 namespace XJ {
   class InstrumentAudio;

@@ -11,6 +11,7 @@
 
 #include "FabricationSettings.h"
 #include "FabricationState.h"
+#include "xjmusic/audio/ActiveAudio.h"
 
 namespace XJ {
 
@@ -54,10 +55,10 @@ namespace XJ {
 
     /**
     * Run the tick cycle
-    * (between 1 and 10 times per second)
-    * TODO implement this in the app-- maybe returns the list of audio that should be queued up for playback in a structured way
+    * (1-3 times per second)
+    * This returns the list of audio that should be queued up for playback in a structured way
     */
-    void tick();
+    std::set<ActiveAudio> runCycle(unsigned long long atChainMicros);
 
     /**
      Get the entity store

@@ -4,14 +4,13 @@
 #include <gmock/gmock.h>
 #include <vector>
 
-#include "../_helper/SegmentFixtures.h"
-#include "../_helper/ContentFixtures.h"
-#include "../_mock/MockSegmentRetrospective.h"
-
 #include "xjmusic/fabricator/ChainUtils.h"
 #include "xjmusic/fabricator/FabricatorFactory.h"
+#include "xjmusic/util/ValueUtils.h"
 
-#include <xjmusic/util/ValueUtils.h>
+#include "../_helper/ContentFixtures.h"
+#include "../_helper/SegmentFixtures.h"
+#include "../_mock/MockSegmentRetrospective.h"
 
 namespace XJ {
   class ContentFixtures;

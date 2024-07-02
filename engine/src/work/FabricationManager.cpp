@@ -1,8 +1,9 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-#include "xjmusic/work/FabricationManager.h"
+#include <spdlog/spdlog.h>
 
-#include <xjmusic/util/ValueUtils.h>
+#include "xjmusic/work/FabricationManager.h"
+#include "xjmusic/util/ValueUtils.h"
 
 using namespace XJ;
 
@@ -32,7 +33,8 @@ void FabricationManager::start(
   spdlog::debug("Did clear entity store");
 
   // get system milliseconds UTC now
-  startedAtMillis = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+  startedAtMillis = std::chrono::duration_cast<std::chrono::milliseconds>(
+      std::chrono::system_clock::now().time_since_epoch()).count();
   isAudioLoaded = false;
   state = Starting;
   spdlog::debug("Did update work state to Starting");
@@ -47,7 +49,7 @@ void FabricationManager::finish(const bool cancelled) {
   state = cancelled ? Cancelled : Done;
 }
 
-void FabricationManager::tick() {
+std::set<ActiveAudio> FabricationManager::runCycle() {
   this->runControlCycle();
   this->runCraftCycle();
   this->runDubCycle();
@@ -141,24 +143,28 @@ void FabricationManager::runControlCycle() {
 
       case Starting: {
         updateState(PreparingAudio);
-      } break;
+      }
+        break;
 
       case PreparingAudio: {
-        if (isAudioLoaded()) {
+        if (isAudioLoaded) {
           updateState(PreparedAudio);
         }
-      } break;
+      }
+        break;
 
       case PreparedAudio: {
         updateState(Initializing);
         initialize();
-      } break;
+      }
+        break;
 
       case Initializing: {
         if (isInitialized()) {
           updateState(Active);
         }
-      } break;
+      }
+        break;
 
       case Active:
       case Standby:
@@ -166,7 +172,8 @@ void FabricationManager::runControlCycle() {
       case Failed:
       default: {
         // no op
-      } break;
+      }
+        break;
     }
     spdlog::debug("Did run control cycle");
 
@@ -204,6 +211,8 @@ void FabricationManager::runCraftCycle() {
    Run the dub cycle
    */
 void FabricationManager::runDubCycle() {
+  // TODO inject the current micros position all the way in from the top of the runCycle call to fabrication manager determine the logic of how the request for the cycle knows the current micros position
+
   if (state != Active) {
     spdlog::debug("Will not run dub cycle because work state is {}", state);
     return;
@@ -213,7 +222,7 @@ void FabricationManager::runDubCycle() {
 
   try {
     spdlog::debug("Will run dub cycle");
-    dubWork->runCycle(dubWork->getDubbedToChainMicros().value_or(0L));
+    return dubWork->runCycle(dubWork->getDubbedToChainMicros().value_or(0L));
     spdlog::debug("Did run dub cycle");
 
   } catch (std::exception e) {
@@ -235,22 +244,24 @@ void FabricationManager::initialize() {
 
   // If memes/macro already engaged at fabrication start (which is always true in a manual control mode),
   // the first segment should be governed by that selection https://github.com/xjmusic/xjmusic/issues/201
-  switch (config.controlMode()) {
-    case Fabricator::ControlMode::MACRO:
+  switch (config.controlMode) {
+    case Fabricator::ControlMode::MACRO: {
       auto programs = getAllMacroPrograms();
       if (!programs.empty())
         doOverrideMacro(*programs.begin());
+    }
       break;
-    case Fabricator::ControlMode::TAXONOMY:
+    case Fabricator::ControlMode::TAXONOMY: {
       auto taxonomy = getMemeTaxonomy();
       if (taxonomy.has_value()) {
         std::set<std::string> memes;
-        for (auto category : taxonomy.value().getCategories()) {
+        for (auto category: taxonomy.value().getCategories()) {
           if (category.getMemes().size() > 0)
             memes.insert(*category.getMemes().begin());
         }
         if (!memes.empty()) doOverrideMemes(memes);
       }
+    }
       break;
     default:
       break;

@@ -43,7 +43,7 @@ namespace XJ {
     /**
      Run the work cycle
      */
-    void runCycle(long shippedToChainMicros);
+    std::set<ActiveAudio> runCycle(long shippedToChainMicros);
 
    /**
     Do dub frame
@@ -53,7 +53,7 @@ namespace XJ {
     <p>
     Ensure mixer has continuity of its processes/effects, e.g. the compressor levels at the last frame of the last chunk are carried over to the first frame of the next chunk
     */
-    void doDubFrame();
+   std::set<ActiveAudio> doDubFrame();
 
     /**
      Get the chain from craft work

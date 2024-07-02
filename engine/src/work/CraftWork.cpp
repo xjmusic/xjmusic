@@ -94,7 +94,7 @@ std::optional<Segment *> CraftWork::getSegmentAtOffset(const int offset) const {
   return currentSegment;
 }
 
-std::set<const SegmentChoiceArrangementPick *> CraftWork::getPicks(const std::vector<Segment *> &segments) const {
+std::set<const SegmentChoiceArrangementPick *> CraftWork::getPicks(std::vector<const Segment *> segments) const {
   return store->readAllSegmentChoiceArrangementPicks(segments);
 }
 
@@ -114,7 +114,7 @@ const InstrumentAudio *CraftWork::getInstrumentAudio(const SegmentChoiceArrangem
   return audio.value();
 }
 
-bool CraftWork::isMuted(SegmentChoiceArrangementPick *pick) const {
+bool CraftWork::isMuted(const SegmentChoiceArrangementPick *pick) const {
   try {
     const auto segment = store->readSegment(pick->segmentId);
     if (!segment.has_value()) {

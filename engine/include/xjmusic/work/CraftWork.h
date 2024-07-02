@@ -106,7 +106,7 @@ namespace XJ {
      @param segments the segments for which to get picks
      @return the picks for the given segments
      */
-   std::set<const SegmentChoiceArrangementPick *> getPicks(const std::vector<Segment *> &segments) const;
+   std::set<const SegmentChoiceArrangementPick *> getPicks(std::vector<const Segment *> segments) const;
 
     /**
      Get the instrument for the given pick
@@ -130,7 +130,7 @@ namespace XJ {
      @param pick the pick for which to get audio
      @return true if the given pick is muted
      */
-    bool isMuted(SegmentChoiceArrangementPick *pick) const;
+    bool isMuted(const SegmentChoiceArrangementPick *pick) const;
 
     /**
      Get the main program for the given segment

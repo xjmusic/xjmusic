@@ -1,15 +1,17 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-#include <gtest/gtest.h>
 #include <string>
+
+#include <gtest/gtest.h>
+#include <spdlog/spdlog.h>
+
+#include "xjmusic/fabricator/FabricationException.h"
+#include "xjmusic/segment/SegmentEntityStore.h"
+#include "xjmusic/util/ValueUtils.h"
 
 #include "../_helper/ContentFixtures.h"
 #include "../_helper/SegmentFixtures.h"
-#include "xjmusic/fabricator/FabricationException.h"
-#include "xjmusic/segment/SegmentEntityStore.h"
 
-#include <spdlog/spdlog.h>
-#include <xjmusic/util/ValueUtils.h>
 
 using namespace XJ;
 
