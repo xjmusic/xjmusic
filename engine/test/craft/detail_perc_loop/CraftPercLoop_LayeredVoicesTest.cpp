@@ -119,8 +119,7 @@ protected:
     delete fabricatorFactory;
     delete sourceMaterial;
     delete fake;
-    delete segment4;
-  }
+      }
 
   /**
    Some custom fixtures for testing

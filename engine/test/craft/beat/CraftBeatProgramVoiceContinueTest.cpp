@@ -86,8 +86,7 @@ protected:
     delete store;
     delete fake;
     delete chain1;
-    delete segment4;
-  }
+      }
 
   /**
    Some custom fixtures for testing

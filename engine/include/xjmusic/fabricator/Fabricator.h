@@ -812,7 +812,7 @@ namespace XJ {
      @param segment to set
      @ on failure
      */
-    virtual void updateSegment(Segment segment);
+    virtual Segment *updateSegment(Segment segment);
 
     /**
      Get the Segment Retrospective

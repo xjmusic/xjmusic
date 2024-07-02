@@ -11,7 +11,7 @@
 
 namespace XJ {
 
-/**
+  /**
  THERE IS NO SPOON
  <p>
  Ground-up rewrite of the XJ work logic. First we instantiate the dub cycle, which depends on the craft cycle
@@ -22,7 +22,7 @@ namespace XJ {
  duration of the segment. E.g., during gapless album output, the chunk will cut short if necessary to begin the next
  chunk at exactly the top of the following segment.
  */
-  class DubWork final : Work {
+  class DubWork final {
     int BITS_PER_BYTE = 8;
     bool running = new bool(true);
     CraftWork *craftWork;
@@ -38,15 +38,25 @@ namespace XJ {
 
   public:
     DubWork(CraftWork *craftWork, int dubAheadSeconds);
-    void finish() override;
-    bool isFinished() override;
+
+    /**
+ Stop work
+ */
+    void finish();
+
+    /**
+    Check whether the craft work is finished
+
+    @return true if finished (not running)
+    */
+    bool isFinished();
 
     /**
      Run the work cycle
      */
     std::set<ActiveAudio> runCycle(unsigned long long atChainMicros);
 
-   /**
+    /**
     Do dub frame
     <p>
     instead of mixing to file, mix to memory (produce to a BytePipeline) and let ship work consume the buffer
@@ -54,7 +64,7 @@ namespace XJ {
     <p>
     Ensure mixer has continuity of its processes/effects, e.g. the compressor levels at the last frame of the last chunk are carried over to the first frame of the next chunk
     */
-   std::set<ActiveAudio> computeActiveAudios(unsigned long long atChainMicros);
+    std::set<ActiveAudio> computeActiveAudios(unsigned long long atChainMicros);
 
     /**
      Get the chain from craft work
@@ -103,14 +113,13 @@ namespace XJ {
     void setIntensityOverride(std::optional<float> intensity);
 
   private:
-   /**
+    /**
     Log and of segment message of error that job failed while (message)
 
     @param msgWhile phrased like "Doing work"
     @param e        exception (optional)
     */
-   void didFailWhile(std::string msgWhile, const std::exception &e);
-
+    void didFailWhile(std::string msgWhile, const std::exception &e);
   };
 
 }// namespace XJ

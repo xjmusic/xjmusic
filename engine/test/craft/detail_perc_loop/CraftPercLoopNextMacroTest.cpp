@@ -83,8 +83,7 @@ protected:
     delete store;
     delete sourceMaterial;
     delete chain1;
-    delete segment4;
-  }
+      }
 
   /**
  Insert fixture segments 3 and 4, including the percLoop choice for segment 3 only if specified

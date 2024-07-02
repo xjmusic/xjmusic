@@ -121,8 +121,7 @@ protected:
     delete store;
     delete fake;
     delete program42;
-    delete segment4;
-    delete audioHihat;
+        delete audioHihat;
     delete audioKick;
     delete audioSnare;
   }

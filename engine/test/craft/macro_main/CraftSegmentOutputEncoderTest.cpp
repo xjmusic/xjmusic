@@ -65,8 +65,7 @@ protected:
     delete fabricatorFactory;
     delete store;
     delete craftFactory;
-    delete segment6;
-  }
+      }
 };
 
 TEST_F(CraftSegmentOutputEncoderTest, CraftFoundationInitial) {

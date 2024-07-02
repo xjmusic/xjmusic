@@ -78,8 +78,7 @@ protected:
     delete store;
     delete fake;
     delete chain1;
-    delete segment4;
-  }
+      }
 
   /**
    Insert fixture segments 3 and 4, including the hook choice for segment 3 only if specified

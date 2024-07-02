@@ -79,7 +79,6 @@ protected:
     delete store;
     delete fake;
     delete chain1;
-    delete segment4;
   }
 
   /**

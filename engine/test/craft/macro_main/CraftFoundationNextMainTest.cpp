@@ -93,8 +93,7 @@ protected:
     delete fabricatorFactory;
     delete craftFactory;
     delete chain1;
-    delete segment4;
-  }
+      }
 };
 
 TEST_F(CraftFoundationNextMainTest, CraftFoundationNextMain) {

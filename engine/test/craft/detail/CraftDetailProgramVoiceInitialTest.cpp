@@ -64,8 +64,7 @@ protected:
     delete store;
     delete fake;
     delete chain2;
-    delete segment1;
-  }
+      }
 
   /**
    Insert fixture segment 6, including the detail choice only if specified

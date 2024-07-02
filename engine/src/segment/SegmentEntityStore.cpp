@@ -79,9 +79,8 @@ Chain *SegmentEntityStore::put(const Chain &chain) {
 }
 
 Segment *SegmentEntityStore::put(const Segment &segment) {
-  const auto sc = new Segment(segment);
-  this->segments[segment.id] = *sc;
-  return sc;
+  this->segments[segment.id] = segment;
+  return &this->segments[segment.id];
 }
 
 std::optional<Segment *> SegmentEntityStore::readSegmentAtChainMicros(const long chainMicros) {
@@ -114,7 +113,7 @@ std::vector<Segment *> SegmentEntityStore::readAllSegments() {
 }
 
 
-std::vector<Segment *> SegmentEntityStore::readAllSegmentsInState(Segment::State segmentState) {
+std::vector<Segment *> SegmentEntityStore::readAllSegmentsInState(const Segment::State segmentState) {
   std::vector<Segment *> result;
   for (auto &[_, segment]: segments) {
     if (segment.state == segmentState) {
@@ -123,8 +122,8 @@ std::vector<Segment *> SegmentEntityStore::readAllSegmentsInState(Segment::State
     std::sort(result.begin(), result.end(), [](const Segment *a, const Segment *b) {
       return a->id < b->id;
     });
-    return result;
   }
+  return result;
 }
 
 std::vector<Segment> SegmentEntityStore::readSegmentsFromToOffset(const int fromOffset, const int toOffset) {
@@ -243,7 +242,7 @@ bool SegmentEntityStore::empty() const {
 }
 
 
-void SegmentEntityStore::updateSegment(Segment &segment) {
+Segment *SegmentEntityStore::updateSegment(Segment &segment) {
   // validate and cache to-state
   validate(segment);
   const Segment::State toState = segment.state;
@@ -270,7 +269,7 @@ void SegmentEntityStore::updateSegment(Segment &segment) {
   segment.updatedAt = EntityUtils::currentTimeMillis();
 
   // save segment
-  put(segment);
+  return put(segment);
 }
 
 

@@ -209,7 +209,7 @@ namespace XJ {
      @param segment for the updated EntityUtils.
      @ on failure
      */
-    void updateSegment(Segment &segment);
+    Segment *updateSegment(Segment &segment);
 
     /**
      * Read a Chain by #

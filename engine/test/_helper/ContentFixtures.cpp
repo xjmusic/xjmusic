@@ -1156,8 +1156,7 @@ void ContentFixtures::setupFixtureB4_DetailBass(ContentEntityStore *store) {
   store->put(instrument9_audio8);
 }
 
-void ContentFixtures::generatedFixture(ContentEntityStore *store, int N) {
-
+void ContentFixtures::generateFixtures(ContentEntityStore *store, int N) {
   project1 = buildProject("Generated");
   store->put(project1);
   library1 = buildLibrary(&project1, "generated");

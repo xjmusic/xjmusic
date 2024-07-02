@@ -65,8 +65,7 @@ protected:
     delete store;
     delete fake;
     delete chain2;
-    delete segment0;
-  }
+      }
 
   /**
  Insert fixture segment 6, including the background choice only if specified

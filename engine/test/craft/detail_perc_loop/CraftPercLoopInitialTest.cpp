@@ -91,8 +91,7 @@ protected:
     delete fabricatorFactory;
     delete sourceMaterial;
     delete store;
-    delete segment6;
-  }
+      }
 };
 
 TEST_F(CraftPercLoopInitialTest, CraftPercLoopInitial) {

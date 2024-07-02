@@ -132,8 +132,7 @@ protected:
     delete fabricatorFactory;
     delete sourceMaterial;
     delete fake;
-    delete segment4;
-  }
+      }
 };
 
 TEST_F(CraftTransition_LayeredVoicesTest, craftTransitionVoiceContinue) {

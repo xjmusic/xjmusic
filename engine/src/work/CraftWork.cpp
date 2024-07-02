@@ -18,7 +18,7 @@ CraftWork::CraftWork(
     SegmentEntityStore *store,
     ContentEntityStore *content,
     const long persistenceWindowSeconds,
-    const long craftAheadSeconds) : Work() {
+    const long craftAheadSeconds) {
   this->craftFactory = craftFactory;
   this->fabricatorFactory = fabricatorFactory;
   this->outputChannels = outputChannels;
@@ -173,7 +173,7 @@ void CraftWork::runCycle(const long atChainMicros) {
   if (!running) return;
 
   try {
-    doFabrication(atChainMicros, atChainMicros + craftAheadMicros);
+    doFabrication(atChainMicros + craftAheadMicros);
     doSegmentCleanup(atChainMicros);
 
   } catch (std::exception e) {
@@ -209,9 +209,9 @@ void CraftWork::doNextCycleRewriteUnlessInitialSegment() {
     nextCycleRewrite = true;
 }
 
-void CraftWork::doFabrication(long dubbedToChainMicros, long craftToChainMicros) {
+void CraftWork::doFabrication(const long craftToChainMicros) {
   if (nextCycleRewrite) {
-    doFabricationRewrite(dubbedToChainMicros, nextCycleOverrideMacroProgram, nextCycleOverrideMemes);
+    doFabricationRewrite(craftToChainMicros, nextCycleOverrideMacroProgram, nextCycleOverrideMemes);
     nextCycleRewrite = false;
   } else {
     doFabricationDefault(craftToChainMicros, nextCycleOverrideMacroProgram, nextCycleOverrideMemes);
@@ -225,14 +225,16 @@ void CraftWork::doFabricationDefault(
   try {
     // currently fabricated AT (vs target fabricated TO)
     const long atChainMicros = ChainUtils::computeFabricatedToChainMicros(store->readAllSegments());
-    const float aheadSeconds = (static_cast<float>(atChainMicros - toChainMicros) / ValueUtils::MICROS_PER_SECOND);
+    const float aheadSeconds = atChainMicros > toChainMicros
+                                   ? (static_cast<float>(atChainMicros - toChainMicros) / ValueUtils::MICROS_PER_SECOND)
+                                   : 0;
     if (aheadSeconds > 0) return;
 
     // Build next segment in chain
     // Get the last segment in the chain
     // If the chain had no last segment, it must be empty; return a template for its first segment
     Segment *segment;
-    auto existing = store->readSegmentLast();
+    const auto existing = store->readSegmentLast();
     if (!existing.has_value()) {
       segment = buildSegmentInitial();
     } else if (!existing.value().durationMicros.has_value()) {
@@ -311,7 +313,7 @@ void CraftWork::doCutoffLastSegment(Segment *segment, double cutoffAfterBeats) c
     spdlog::info("Will cut current segment short after {} beats.", cutoffAfterBeats);
     segment->total = static_cast<int>(cutoffAfterBeats);
     segment->durationMicros = static_cast<long>(durationMicros);
-    store->updateSegment(*segment);
+    segment = store->updateSegment(*segment);
     for (const auto pick: store->readAllSegmentChoiceArrangementPicks(segment->id)) {
       try {
         if (pick->startAtSegmentMicros >= durationMicros)
@@ -361,7 +363,7 @@ void CraftWork::doFabricationWork(
 
  @param shippedToChainMicros the shipped-to chain micros
  */
-void CraftWork::doSegmentCleanup(long shippedToChainMicros) const {
+void CraftWork::doSegmentCleanup(const long shippedToChainMicros) const {
   const auto segment = getSegmentAtChainMicros(shippedToChainMicros - persistenceWindowMicros);
   if (segment.has_value())
     store->deleteSegmentsBefore(segment.value()->id);
@@ -373,7 +375,7 @@ void CraftWork::doSegmentCleanup(long shippedToChainMicros) const {
  @return initial template segment
  */
 Segment *CraftWork::buildSegmentInitial() const {
-  Segment *segment = new Segment();
+  const auto segment = new Segment();
   segment->id = 0;
   segment->chainId = chain->id;
   segment->beginAtChainMicros = 0L;
@@ -427,9 +429,8 @@ void CraftWork::didFailWhile(std::string msgWhile, const std::exception &e) {
 void CraftWork::updateSegmentState(Fabricator *fabricator, Segment *segment, const Segment::State fromState, const Segment::State toState) {
   if (fromState != segment->state)
     throw new std::runtime_error("Segment[" + std::to_string(segment->id) + "] " + Segment::toString(toState) + " requires Segment must be in " + Segment::toString(fromState) + " state.");
-  const auto seg = fabricator->getSegment();
-  seg->state = toState;
-  fabricator->updateSegment(*seg);
+  segment->state = toState;
+  fabricator->updateSegment(*segment);
   spdlog::debug("[segId={}] Segment transitioned to state {} OK", segment->id, Segment::toString(toState));
 }
 

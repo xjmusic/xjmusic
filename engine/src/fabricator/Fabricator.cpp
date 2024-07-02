@@ -247,7 +247,7 @@ std::optional<SegmentChoice *> Fabricator::getChoiceIfContinued(const Instrument
     return *it;
   }
 
-  spdlog::warn("[seg-{}] Could not get previous choice for instrumentType={}", segmentId,
+  spdlog::debug("[seg-{}] Could not get previous choice for instrumentType={}", segmentId,
                Instrument::toString(instrumentType));
   return std::nullopt;
 }
@@ -266,7 +266,7 @@ Fabricator::getChoiceIfContinued(const Instrument::Type instrumentType, const In
     return *it;
   }
 
-  spdlog::warn("[seg-{}] Could not get previous choice for instrumentType={}", segmentId,
+  spdlog::debug("[seg-{}] Could not get previous choice for instrumentType={}", segmentId,
                Instrument::toString(instrumentType));
   return std::nullopt;
 }
@@ -282,7 +282,7 @@ std::set<SegmentChoice *> Fabricator::getChoicesIfContinued(const Program::Type 
       filteredChoices.emplace(choice);
 
   if (filteredChoices.empty()) {
-    spdlog::warn("[seg-{}] Could not get previous choice for programType={}", segmentId,
+    spdlog::debug("[seg-{}] Could not get previous choice for programType={}", segmentId,
                  Program::toString(programType));
   }
 
@@ -959,12 +959,13 @@ void Fabricator::putReport(const std::string &key, const std::string &value) {
 }
 
 
-void Fabricator::updateSegment(Segment segment) {
+Segment *Fabricator::updateSegment(Segment segment) {
   try {
-    store->updateSegment(segment);
+    return store->updateSegment(segment);
 
   } catch (const FabricationException &e) {
     spdlog::error("Failed to update Segment", e.what());
+    return &segment;
   }
 }
 

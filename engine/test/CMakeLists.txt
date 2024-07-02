@@ -8,6 +8,7 @@ add_executable(xjmusic_test
         _helper/SegmentFixtures.cpp
         _helper/TestHelpers.cpp
         _helper/YamlTest.cpp
+        audio/AudioMathUtilsTest.cpp
         content/ContentEntityStoreTest.cpp
         content/InstrumentAudioTest.cpp
         content/InstrumentConfigTest.cpp
@@ -118,7 +119,7 @@ add_executable(xjmusic_test
         util/CsvUtilsTest.cpp
         util/StringUtilsTest.cpp
         util/ValueUtilsTest.cpp
-        audio/AudioMathUtilsTest.cpp
+        work/ComplexLibraryTest.cpp
 )
 
 # I'm using C++17 in the test

@@ -65,8 +65,7 @@ protected:
     delete store;
     delete fabricatorFactory;
     delete craftFactory;
-    delete segment6;
-  }
+      }
 };
 
 TEST_F(CraftFoundationInitialTest, CraftFoundationInitial) {

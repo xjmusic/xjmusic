@@ -11,8 +11,6 @@
 #include "xjmusic/fabricator/FabricatorFactory.h"
 #include "xjmusic/segment/SegmentEntityStore.h"
 
-#include "Work.h"
-
 namespace XJ {
 
   /**
@@ -26,7 +24,7 @@ namespace XJ {
  duration of the segment. E.g., during gapless album output, the chunk will cut short if necessary to begin the next
  chunk at exactly the top of the following segment.
  */
-  class CraftWork final : Work {
+  class CraftWork final {
     CraftFactory *craftFactory = nullptr;
     FabricatorFactory *fabricatorFactory = nullptr;
     SegmentEntityStore *store = nullptr;
@@ -52,9 +50,17 @@ namespace XJ {
         long persistenceWindowSeconds,
         long craftAheadSeconds);
 
-    void finish() override;
-    bool isFinished() override;
+   /**
+    Stop work
+    */
+   void finish();
 
+   /**
+    Check whether the craft work is finished
+
+    @return true if finished (not running)
+    */
+   bool isFinished();
 
    /**
     This is the internal cycle that's run indefinitely
@@ -194,11 +200,11 @@ namespace XJ {
     <p>
     Only ready to dub after at least one craft cycle is completed since the last time we weren't ready to dub live performance modulation https://github.com/xjmusic/xjmusic/issues/197
 
-    @param dubbedToChainMicros already dubbed to here
+    @param atChainMicros already dubbed to here
     @param craftToChainMicros  target to craft until
     @throws FabricationFatalException if the chain cannot be fabricated
     */
-   void doFabrication(long dubbedToChainMicros, long craftToChainMicros);
+   void doFabrication(long craftToChainMicros);
 
    /**
     Default behavior is to fabricate the next segment if we are not crafted enough ahead, otherwise skip

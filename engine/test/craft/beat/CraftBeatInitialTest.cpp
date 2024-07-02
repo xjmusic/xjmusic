@@ -13,7 +13,6 @@
 #include "xjmusic/fabricator/ChainUtils.h"
 #include "xjmusic/fabricator/FabricatorFactory.h"
 #include "xjmusic/fabricator/SegmentUtils.h"
-#include "xjmusic/util/CsvUtils.h"
 #include "xjmusic/util/ValueUtils.h"
 
 // NOLINTNEXTLINE
@@ -91,8 +90,7 @@ protected:
     delete fabricatorFactory;
     delete sourceMaterial;
     delete store;
-    delete segment6;
-  }
+      }
 };
 
 TEST_F(CraftBeatInitialTest, CraftBeatInitial) {

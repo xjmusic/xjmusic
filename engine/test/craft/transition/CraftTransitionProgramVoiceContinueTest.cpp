@@ -83,8 +83,7 @@ protected:
     delete sourceMaterial;
     delete store;
     delete fake;
-    delete segment4;
-    delete chain1;
+        delete chain1;
     delete audioKick;
     delete audioSnare;
   }

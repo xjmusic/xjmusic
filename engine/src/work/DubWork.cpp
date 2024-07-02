@@ -10,7 +10,7 @@ using namespace XJ;
 DubWork::DubWork(
     CraftWork *craftWork,
     const int dubAheadSeconds
-) : Work() {
+) {
   this->craftWork = craftWork;
   dubAheadMicros = dubAheadSeconds * ValueUtils::MICROS_PER_SECOND;
   templateConfig = craftWork->getTemplateConfig();
