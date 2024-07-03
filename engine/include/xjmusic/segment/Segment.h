@@ -6,11 +6,7 @@
 #include <optional>
 #include <string>
 
-#include <nlohmann/json.hpp>
-
 #include "xjmusic/util/EntityUtils.h"
-
-using json = nlohmann::json;
 
 namespace XJ {
 
