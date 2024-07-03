@@ -9,13 +9,9 @@
 #include "../_helper/ContentFixtures.h"
 #include "../_helper/YamlTest.h"
 
-#include "xjmusic/content/ContentEntityStore.h"
 #include "xjmusic/craft/Craft.h"
-#include "xjmusic/fabricator/ChainUtils.h"
 #include "xjmusic/fabricator/FabricatorFactory.h"
 #include "xjmusic/fabricator/SegmentUtils.h"
-#include "xjmusic/segment/SegmentEntityStore.h"
-#include "xjmusic/util/ValueUtils.h"
 
 #include <xjmusic/work/WorkManager.h>
 
@@ -56,8 +52,6 @@ protected:
     store = new SegmentEntityStore();
     const auto fabricatorFactory = new FabricatorFactory(store);
 
-    // Dependencies
-    const auto
     // work
     work = new WorkManager(fabricatorFactory, store);
     auto settings = WorkSettings();
