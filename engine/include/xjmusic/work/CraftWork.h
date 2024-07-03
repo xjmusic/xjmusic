@@ -58,7 +58,7 @@ namespace XJ {
 
     @return true if finished (not running)
     */
-   bool isFinished();
+   bool isFinished() const;
 
    /**
     This is the internal cycle that's run indefinitely
@@ -193,21 +193,21 @@ namespace XJ {
      * @param segment for which to get choices
      * @return  choices
      */
-    std::set<const SegmentChoice *> getChoices(const Segment *segment);
+    std::set<const SegmentChoice *> getChoices(const Segment *segment) const;
 
     /**
      * Get all arrangements for the given choice
      * @param choice for which to get arrangements
      * @return  arrangements
      */
-    std::set<const SegmentChoiceArrangement *> getArrangements(const SegmentChoice *choice);
+    std::set<const SegmentChoiceArrangement *> getArrangements(const SegmentChoice *choice) const;
 
     /**
      * Get all picks for the given arrangement
      * @param arrangement for which to get picks
      * @return  picks
      */
-    std::set<const SegmentChoiceArrangementPick *> getPicks(const SegmentChoiceArrangement *arrangement);
+    std::set<const SegmentChoiceArrangementPick *> getPicks(const SegmentChoiceArrangement *arrangement) const;
 
   private:
     /**

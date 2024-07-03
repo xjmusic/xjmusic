@@ -70,7 +70,7 @@ namespace XJ {
      @param mainSequence  of which to compute segment tempo
      @return intensity
      */
-    double computeSegmentIntensity(
+    float computeSegmentIntensity(
         int delta,
         std::optional<const ProgramSequence *> macroSequence,
         std::optional<const ProgramSequence *> mainSequence) const;

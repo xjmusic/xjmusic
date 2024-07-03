@@ -11,7 +11,7 @@ using namespace XJ;
 #define SEGMENT_STORE_CORE_METHODS(ENTITY, ENTITIES, STORE)                                         \
   const ENTITY *SegmentEntityStore::put(const ENTITY &entity) {                                     \
     if (STORE.find(entity.segmentId) == STORE.end()) {                                              \
-      STORE[entity.segmentId] = std::map<UUID, const ENTITY>();                                     \
+      STORE[entity.segmentId] = std::map<UUID, ENTITY>();                                           \
     }                                                                                               \
     STORE[entity.segmentId].emplace(entity.id, entity);                                             \
     return &STORE[entity.segmentId][entity.id];                                                     \
@@ -36,7 +36,7 @@ using namespace XJ;
     return result;                                                                                  \
   }                                                                                                 \
   std::set<const ENTITY *> SegmentEntityStore::readAll##ENTITIES(const std::set<int> &segmentIds) { \
-    std::set<const ENTITY *> result;                                                                      \
+    std::set<const ENTITY *> result;                                                                \
     for (auto &segmentId: segmentIds) {                                                             \
       if (STORE.find(segmentId) == STORE.end()) {                                                   \
         continue;                                                                                   \
@@ -78,11 +78,7 @@ Chain *SegmentEntityStore::put(const Chain &c) {
 }
 
 const Segment *SegmentEntityStore::put(const Segment &segment) {
-  auto existing = this->segments.find(segment.id);
-  if (existing != this->segments.end()) {
-    this->segments.erase(segment.id);
-  }
-  this->segments.emplace(segment.id, segment); // TODO this seems terrible -- think about replacing keys in a map of const
+  this->segments[segment.id] = segment;
   return &this->segments.at(segment.id);
 }
 
@@ -129,11 +125,11 @@ std::vector<const Segment *> SegmentEntityStore::readAllSegmentsInState(const Se
   return result;
 }
 
-std::vector<const Segment> SegmentEntityStore::readSegmentsFromToOffset(const int fromOffset, const int toOffset) {
-  std::vector<const Segment> result;
+std::vector<const Segment *> SegmentEntityStore::readSegmentsFromToOffset(const int fromOffset, const int toOffset) {
+  std::vector<const Segment *> result;
   for (auto &[_, segment]: segments) {
     if (segment.id >= fromOffset && segment.id <= toOffset) {
-      result.emplace_back(segment);
+      result.emplace_back(&segment);
     }
   }
   return result;
@@ -172,11 +168,11 @@ std::set<const SegmentEntity *> SegmentEntityStore::readAllSegmentEntities(const
 }
 
 
-std::vector<Segment> SegmentEntityStore::readAllSegmentsSpanning(const long fromChainMicros, const long toChainMicros) {
-  std::vector<Segment> result;
+std::vector<const Segment *> SegmentEntityStore::readAllSegmentsSpanning(const long fromChainMicros, const long toChainMicros) {
+  std::vector<const Segment *> result;
   for (auto &[id, segment]: segments) {
     if (SegmentUtils::isSpanning(&segment, fromChainMicros, toChainMicros)) {
-      result.emplace_back(segment);
+      result.emplace_back(&segment);
     }
   }
   return result;
@@ -191,11 +187,11 @@ int SegmentEntityStore::readLastSegmentId() const {
 }
 
 
-std::optional<Segment> SegmentEntityStore::readSegmentLast() {
+std::optional<const Segment *> SegmentEntityStore::readSegmentLast() {
   if (segments.empty()) {
     return std::nullopt;
   }
-  return {segments.rbegin()->second};
+  return {&segments.rbegin()->second};
 }
 
 
@@ -301,28 +297,28 @@ void SegmentEntityStore::protectSegmentStateTransition(const Segment::State from
   switch (fromState) {
     case Segment::State::Planned:
       onlyAllowSegmentStateTransitions(toState, {
-          Segment::State::Planned,
-          Segment::State::Crafting,
-      });
+                                                    Segment::State::Planned,
+                                                    Segment::State::Crafting,
+                                                });
       break;
     case Segment::State::Crafting:
       onlyAllowSegmentStateTransitions(toState, {
-          Segment::State::Crafting,
-          Segment::State::Crafted,
-          Segment::State::Failed,
-          Segment::State::Planned,
-      });
+                                                    Segment::State::Crafting,
+                                                    Segment::State::Crafted,
+                                                    Segment::State::Failed,
+                                                    Segment::State::Planned,
+                                                });
       break;
     case Segment::State::Crafted:
       onlyAllowSegmentStateTransitions(toState, {
-          Segment::State::Crafted,
-          Segment::State::Crafting,
-      });
+                                                    Segment::State::Crafted,
+                                                    Segment::State::Crafting,
+                                                });
       break;
     case Segment::State::Failed:
       onlyAllowSegmentStateTransitions(toState, {
-          Segment::State::Failed,
-      });
+                                                    Segment::State::Failed,
+                                                });
       break;
     default:
       onlyAllowSegmentStateTransitions(toState, {Segment::State::Planned});
