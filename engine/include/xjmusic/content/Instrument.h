@@ -5,7 +5,7 @@
 
 #include <string>
 
-#include "nlohmann/json.hpp"
+#include <nlohmann/json.hpp>
 
 #include "xjmusic/util/EntityUtils.h"
 #include "ContentEntity.h"

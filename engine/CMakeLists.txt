@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.25)
+cmake_minimum_required(VERSION 3.24)
 
 # Project name and a few useful settings. Other commands can pick up the results
 project(

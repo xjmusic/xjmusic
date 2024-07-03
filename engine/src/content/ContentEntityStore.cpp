@@ -4,7 +4,7 @@
 #include <set>
 #include <vector>
 
-#include "nlohmann/json.hpp"
+#include <nlohmann/json.hpp>
 #include <spdlog/spdlog.h>
 
 #include "xjmusic/content/ContentEntityStore.h"

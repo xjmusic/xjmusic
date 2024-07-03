@@ -6,7 +6,7 @@
 #include <optional>
 #include <string>
 
-#include "nlohmann/json.hpp"
+#include <nlohmann/json.hpp>
 
 #include "xjmusic/util/EntityUtils.h"
 

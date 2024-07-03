@@ -6,7 +6,7 @@
 #include <map>
 #include <string>
 
-#include "nlohmann/json.hpp"
+#include <nlohmann/json.hpp>
 using json = nlohmann::json;
 
 #include "xjmusic/music/Note.h"
