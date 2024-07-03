@@ -153,6 +153,11 @@ FetchContent_Declare(spdlog URL https://github.com/gabime/spdlog/archive/v1.13.0
 FetchContent_MakeAvailable(spdlog)
 target_link_libraries(xjmusic_test PRIVATE spdlog::spdlog)
 
+# JSON for Modern C++
+FetchContent_Declare(json URL https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz)
+FetchContent_MakeAvailable(json)
+target_link_libraries(xjmusic PRIVATE nlohmann_json::nlohmann_json)
+
 # For Windows: Prevent overriding the parent project's compiler/linker settings
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 
