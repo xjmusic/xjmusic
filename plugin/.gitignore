@@ -1,5 +1,0 @@
-
-#Remove project in which plugin is developing
-!*/
-*/*
-!*/Plugins/

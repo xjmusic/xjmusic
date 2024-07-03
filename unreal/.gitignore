@@ -1,0 +1,9 @@
+
+#Remove project in which plugin is developing
+!*/
+*/*
+!*/Plugins/
+
+#Ignore any build information
+*/Plugins/*/Binaries/
+*/Plugins/*/Intermediate/
