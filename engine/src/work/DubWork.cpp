@@ -1,5 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
+#include <spdlog/spdlog.h>
+
 #include "xjmusic/audio/ActiveAudio.h"
 #include "xjmusic/audio/AudioMathUtils.h"
 #include "xjmusic/util/ValueUtils.h"

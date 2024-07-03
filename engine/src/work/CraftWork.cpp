@@ -2,19 +2,20 @@
 
 #include <algorithm>
 
+#include <spdlog/spdlog.h>
+
+#include "xjmusic/craft/BackgroundCraft.h"
+#include "xjmusic/craft/BeatCraft.h"
+#include "xjmusic/craft/DetailCraft.h"
+#include "xjmusic/craft/MacroMainCraft.h"
+#include "xjmusic/craft/TransitionCraft.h"
 #include "xjmusic/fabricator/ChainUtils.h"
+#include "xjmusic/fabricator/FabricationException.h"
 #include "xjmusic/fabricator/SegmentUtils.h"
 #include "xjmusic/fabricator/TemplateUtils.h"
 #include "xjmusic/util/CsvUtils.h"
 #include "xjmusic/util/ValueUtils.h"
 #include "xjmusic/work/CraftWork.h"
-#include "spdlog/spdlog.h"
-#include "xjmusic/fabricator/FabricationException.h"
-#include "xjmusic/craft/MacroMainCraft.h"
-#include "xjmusic/craft/BeatCraft.h"
-#include "xjmusic/craft/DetailCraft.h"
-#include "xjmusic/craft/TransitionCraft.h"
-#include "xjmusic/craft/BackgroundCraft.h"
 
 using namespace XJ;
 

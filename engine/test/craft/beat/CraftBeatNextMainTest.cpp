@@ -10,6 +10,7 @@
 #include "../../_helper/SegmentFixtures.h"
 #include "../../_helper/YamlTest.h"
 
+#include "xjmusic/craft/BeatCraft.h"
 #include "xjmusic/craft/Craft.h"
 #include "xjmusic/fabricator/ChainUtils.h"
 #include "xjmusic/fabricator/FabricatorFactory.h"
