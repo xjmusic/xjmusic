@@ -7,7 +7,6 @@
 #include <gtest/gtest.h>
 
 #include "../_helper/ContentFixtures.h"
-#include "../_helper/YamlTest.h"
 
 #include "xjmusic/craft/Craft.h"
 #include "xjmusic/fabricator/FabricatorFactory.h"
@@ -28,7 +27,6 @@ protected:
   long long MAXIMUM_TEST_WAIT_SECONDS = 10 * MARATHON_NUMBER_OF_SEGMENTS;
   long long MILLIS_PER_SECOND = 1000;
   int GENERATED_FIXTURE_COMPLEXITY = 3;
-  long WORK_CYCLE_MILLIS = 120;
   long long startTime = EntityUtils::currentTimeMillis();
   SegmentEntityStore *store = nullptr;
   ContentEntityStore *content = nullptr;
@@ -82,7 +80,7 @@ protected:
 
    @return true if it has at least N segments
    */
-  bool hasSegmentsDubbedPastMinimumOffset() const {
+  [[nodiscard]] bool hasSegmentsDubbedPastMinimumOffset() const {
     const auto segment = SegmentUtils::getLastCrafted(store->readAllSegments());
     return segment.has_value() && segment.value()->id >= MARATHON_NUMBER_OF_SEGMENTS;
   }
