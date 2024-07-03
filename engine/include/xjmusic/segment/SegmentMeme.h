@@ -34,7 +34,7 @@ namespace XJ {
      * @param segmentMemes  The set of Segment Memes
      * @return       The names
      */
-    static std::set<std::string> getNames(const std::set<SegmentMeme *> &segmentMemes);
+    static std::set<std::string> getNames(const std::set<const SegmentMeme *> &segmentMemes);
   };
 
 }// namespace XJ

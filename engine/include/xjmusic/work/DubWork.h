@@ -79,7 +79,7 @@ namespace XJ {
      @param atChainMicros the chain micros
      @return the segment, or empty if not yet available
      */
-    std::optional<Segment *> getSegmentAtChainMicros(long atChainMicros) const;
+    std::optional<const Segment *> getSegmentAtChainMicros(long atChainMicros) const;
 
     /**
      Get the segment at the given offset
@@ -87,7 +87,7 @@ namespace XJ {
      @param offset the offset
      @return the segment, or empty if not yet available
      */
-    std::optional<Segment *> getSegmentAtOffset(int offset) const;
+    std::optional<const Segment *> getSegmentAtOffset(int offset) const;
 
     /**
      Get the main program for the given segment

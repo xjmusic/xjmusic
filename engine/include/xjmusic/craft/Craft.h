@@ -85,7 +85,7 @@ namespace XJ {
      */
     class Section {
     public:
-      SegmentChord *chord;
+      const SegmentChord *chord;
       float fromPos{};
       float toPos{};
     };

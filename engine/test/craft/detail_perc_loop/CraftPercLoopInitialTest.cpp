@@ -29,7 +29,7 @@ protected:
   FabricatorFactory *fabricatorFactory = nullptr;
   ContentEntityStore *sourceMaterial = nullptr;
   SegmentEntityStore *store = nullptr;
-  Segment *segment6 = nullptr;
+  const Segment *segment6 = nullptr;
 
   void SetUp() override {
     craftFactory = new CraftFactory();

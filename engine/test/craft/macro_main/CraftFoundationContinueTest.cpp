@@ -15,7 +15,6 @@
 #include "xjmusic/fabricator/ChainUtils.h"
 #include "xjmusic/fabricator/FabricatorFactory.h"
 #include "xjmusic/fabricator/SegmentUtils.h"
-#include "xjmusic/util/CsvUtils.h"
 #include "xjmusic/util/ValueUtils.h"
 
 // NOLINTNEXTLINE
@@ -32,7 +31,7 @@ protected:
   ContentEntityStore *sourceMaterial = nullptr;
   SegmentEntityStore *store = nullptr;
   ContentFixtures *fake = nullptr;
-  Segment *segment4 = nullptr;
+  const Segment *segment4 = nullptr;
 
   void SetUp() override {
     craftFactory = new CraftFactory();
@@ -121,7 +120,7 @@ TEST_F(CraftFoundationContinueTest, CraftFoundationContinue) {
   ASSERT_EQ(Segment::Type::Continue, result->type);
   ASSERT_EQ(32 * ValueUtils::MICROS_PER_MINUTE / 140, result->durationMicros);
   ASSERT_EQ(32, result->total);
-  ASSERT_NEAR(0.23, result->intensity, 0.001);
+  ASSERT_NEAR(0.2, result->intensity, 0.001);
   ASSERT_EQ("G -", result->key);
   ASSERT_NEAR(140, result->tempo, 0.001);
   ASSERT_EQ(Segment::Type::Continue, result->type);

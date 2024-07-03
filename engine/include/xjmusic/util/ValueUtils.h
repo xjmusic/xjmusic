@@ -28,6 +28,7 @@ namespace XJ {
     static long MICROS_PER_MILLI;
     static long NANOS_PER_MICRO;
     static long MICROS_PER_SECOND;
+    static float MICROS_PER_SECOND_FLOAT;
     static long NANOS_PER_SECOND;
     static long SECONDS_PER_MINUTE;
     static long MICROS_PER_MINUTE;
@@ -150,10 +151,9 @@ namespace XJ {
      * @param floor      bottom value
      * @param ceiling    top value
      * @param position   between 0 and 1 of value to interpolate between the floor and ceiling
-     * @param multiplier of value (above ceiling)
      * @return interpolated value
      */
-    static float interpolate(float floor, float ceiling, float position, float multiplier);
+    static float interpolate(float floor, float ceiling, float position);
 
     /**
      * Enforce a maximum

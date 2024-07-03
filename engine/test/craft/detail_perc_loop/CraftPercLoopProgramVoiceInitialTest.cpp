@@ -31,7 +31,7 @@ protected:
   SegmentEntityStore *store = nullptr;
   ContentFixtures *fake = nullptr;
   Chain* chain2=nullptr;
-  Segment* segment0=nullptr;
+  const Segment* segment0=nullptr;
 
   void SetUp() override {
     craftFactory = new CraftFactory();

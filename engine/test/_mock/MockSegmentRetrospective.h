@@ -18,22 +18,22 @@ namespace XJ {
       auto segment = Segment();
     }
 
-    MOCK_METHOD(std::set<SegmentChoiceArrangementPick*>, getPreviousPicksForInstrument, (UUID instrumentId));
-    MOCK_METHOD(SegmentChoiceArrangement *, getArrangement, (const SegmentChoiceArrangementPick * pick));
-    MOCK_METHOD(std::set<SegmentChoice *>, getChoices, ());
-    MOCK_METHOD(SegmentChoice, getChoice, (const SegmentChoiceArrangement& arrangement));
+    MOCK_METHOD(std::set<const SegmentChoiceArrangementPick*>, getPreviousPicksForInstrument, (UUID instrumentId));
+    MOCK_METHOD(const SegmentChoiceArrangement *, getArrangement, (const SegmentChoiceArrangementPick * pick));
+    MOCK_METHOD(std::set<const SegmentChoice *>, getChoices, ());
+    MOCK_METHOD(const SegmentChoice *, getChoice, (const SegmentChoiceArrangement& arrangement));
     MOCK_METHOD(Instrument::Type, getInstrumentType, (SegmentChoiceArrangementPick pick));
-    MOCK_METHOD(std::optional<SegmentMeta*>, getPreviousMeta, (const std::string& key));
-    MOCK_METHOD(std::set<SegmentChoice*>, getPreviousChoicesForInstrument, (const UUID& instrumentId));
-    MOCK_METHOD(std::set<SegmentChoiceArrangement*>, getPreviousArrangementsForInstrument, (UUID instrumentId));
-    MOCK_METHOD(std::optional<SegmentChoice*>, getPreviousChoiceOfType, (const Segment &segment, Program::Type type));
-    MOCK_METHOD(std::optional<SegmentChoice*>, getPreviousChoiceOfType, (Program::Type type));
-    MOCK_METHOD(std::set<SegmentChoice*>, getPreviousChoicesOfMode, (Instrument::Mode instrumentMode));
-    MOCK_METHOD(std::set<SegmentChoice*>, getPreviousChoicesOfTypeMode, (Instrument::Type instrumentType, Instrument::Mode instrumentModes));
-    MOCK_METHOD(std::optional<SegmentChoice*>, getPreviousChoiceOfType, (Instrument::Type instrumentType));
-    MOCK_METHOD(std::optional<Segment*>, getPreviousSegment, ());
-    MOCK_METHOD(std::vector<Segment*>, getSegments, ());
-    MOCK_METHOD(std::vector<SegmentChord*>, getSegmentChords, (int segmentId));
+    MOCK_METHOD(std::optional<const SegmentMeta*>, getPreviousMeta, (const std::string& key));
+    MOCK_METHOD(std::set<const SegmentChoice*>, getPreviousChoicesForInstrument, (const UUID& instrumentId));
+    MOCK_METHOD(std::set<const SegmentChoiceArrangement*>, getPreviousArrangementsForInstrument, (UUID instrumentId));
+    MOCK_METHOD(std::optional<const SegmentChoice*>, getPreviousChoiceOfType, (const Segment &segment, Program::Type type));
+    MOCK_METHOD(std::optional<const SegmentChoice*>, getPreviousChoiceOfType, (Program::Type type));
+    MOCK_METHOD(std::set<const SegmentChoice*>, getPreviousChoicesOfMode, (Instrument::Mode instrumentMode));
+    MOCK_METHOD(std::set<const SegmentChoice*>, getPreviousChoicesOfTypeMode, (Instrument::Type instrumentType, Instrument::Mode instrumentModes));
+    MOCK_METHOD(std::optional<const SegmentChoice*>, getPreviousChoiceOfType, (Instrument::Type instrumentType));
+    MOCK_METHOD(std::optional<const Segment*>, getPreviousSegment, ());
+    MOCK_METHOD(std::vector<const Segment*>, getSegments, ());
+    MOCK_METHOD(std::vector<const SegmentChord*>, getSegmentChords, (int segmentId));
   };
 
 } // namespace XJ

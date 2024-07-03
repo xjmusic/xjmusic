@@ -30,24 +30,28 @@ protected:
   ContentEntityStore *sourceMaterial = nullptr;
   MockSegmentRetrospective *mockSegmentRetrospective = nullptr;
   Craft *subject = nullptr;
-  Segment *segment0 = nullptr;
+  const Segment *segment0 = nullptr;
   Program *program1 = nullptr;
-  TemplateConfig * templateConfig = nullptr;
+  TemplateConfig *templateConfig = nullptr;
 
   void SetUp() override {
     sourceMaterial = new ContentEntityStore();
     segmentEntityStore = new SegmentEntityStore();
     const Project *project1 = sourceMaterial->put(ContentFixtures::buildProject("fish"));
     const Library *library1 = sourceMaterial->put(ContentFixtures::buildLibrary(project1, "sea"));
-    program1 = sourceMaterial->put(ContentFixtures::buildProgram(library1, Program::Type::Detail, Program::State::Published, "swimming",
-                                                                 "C", 120.0f));
-    const Template *template1 = sourceMaterial->put(ContentFixtures::buildTemplate(project1, "Test Template 1", "test1"));
+    program1 = sourceMaterial->put(
+        ContentFixtures::buildProgram(library1, Program::Type::Detail, Program::State::Published, "swimming",
+                                      "C", 120.0f));
+    const Template *template1 = sourceMaterial->put(
+        ContentFixtures::buildTemplate(project1, "Test Template 1", "test1"));
     // Chain "Test Print #1" is fabricating segments
-    const Chain *chain1 = segmentEntityStore->put(SegmentFixtures::buildChain("Test Print #1", Chain::Type::Production, Chain::State::Fabricate,
-                                                                              template1));
+    const Chain *chain1 = segmentEntityStore->put(
+        SegmentFixtures::buildChain("Test Print #1", Chain::Type::Production, Chain::State::Fabricate,
+                                    template1));
 
-    segment0 = segmentEntityStore->put(SegmentFixtures::buildSegment(chain1, Segment::Type::Initial, 2, 128, Segment::State::Crafted, "D major",
-                                                                     64, 0.73f, 120.0f, "chains-1-segments-9f7s89d8a7892", true));
+    segment0 = segmentEntityStore->put(
+        SegmentFixtures::buildSegment(chain1, Segment::Type::Initial, 2, 128, Segment::State::Crafted, "D major",
+                                      64, 0.73f, 120.0f, "chains-1-segments-9f7s89d8a7892", true));
 
     templateConfig = new TemplateConfig(template1);
     mockSegmentRetrospective = new MockSegmentRetrospective(segmentEntityStore, 2);
@@ -110,6 +114,7 @@ TEST_F(CraftTest, PrecomputeDeltas) {
     return choice->programType == Program::Type::Detail;
   };
   std::vector<std::string> detailLayerOrder;
+  detailLayerOrder.reserve(templateConfig->detailLayerOrder.size());
   for (const auto &type: templateConfig->detailLayerOrder) {
     detailLayerOrder.push_back(Instrument::toString(type));
   }
@@ -232,7 +237,7 @@ TEST_F(CraftTest, ChooseFreshInstrumentAudio) {
 
   // Call the method under test
   const auto result = subject->chooseFreshInstrumentAudio({Instrument::Type::Percussion}, {Instrument::Mode::Event},
-                                                    {instrument1audio->instrumentId}, {"PRIMARY"});
+                                                          {instrument1audio->instrumentId}, {"PRIMARY"});
 
   // Check the result
   EXPECT_TRUE(result.has_value());
@@ -303,7 +308,8 @@ TEST_F(CraftTest, SelectGeneralAudioIntensityLayers_ThreeLayers) {
   EXPECT_CALL(*mockFabricator, getSourceMaterial()).WillRepeatedly(Return(sourceMaterial));
   EXPECT_CALL(*mockFabricator, getRetrospective()).WillRepeatedly(Return(mockSegmentRetrospective));
   EXPECT_CALL(*mockFabricator, getSegment()).WillRepeatedly(Return(segment0));
-  EXPECT_CALL(*mockSegmentRetrospective, getPreviousPicksForInstrument(instrument1->id)).WillOnce(Return(std::set<SegmentChoiceArrangementPick*>{}));
+  EXPECT_CALL(*mockSegmentRetrospective, getPreviousPicksForInstrument(instrument1->id)).WillOnce(
+      Return(std::set<const SegmentChoiceArrangementPick *>{}));
 
   // Call the method under test
   auto result = subject->selectGeneralAudioIntensityLayers(instrument1);
@@ -366,7 +372,8 @@ TEST_F(CraftTest, SelectGeneralAudioIntensityLayers_ContinueSegment) {
   EXPECT_CALL(*mockFabricator, getSourceMaterial()).WillRepeatedly(Return(sourceMaterial));
   EXPECT_CALL(*mockFabricator, getRetrospective()).WillRepeatedly(Return(mockSegmentRetrospective));
   EXPECT_CALL(*mockFabricator, getSegment()).WillRepeatedly(Return(segment0));
-  EXPECT_CALL(*mockSegmentRetrospective, getPreviousPicksForInstrument(instrument1->id)).WillOnce(Return(std::set{&pick1, &pick2, &pick3}));
+  EXPECT_CALL(*mockSegmentRetrospective, getPreviousPicksForInstrument(instrument1->id)).WillOnce(
+      Return(std::set<const SegmentChoiceArrangementPick *>({&pick1, &pick2, &pick3})));
   EXPECT_CALL(*mockFabricator, getInstrumentConfig(_)).WillOnce(Return(instrumentConfig));
 
   // Call the method under test

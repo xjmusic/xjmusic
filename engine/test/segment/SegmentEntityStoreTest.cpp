@@ -4,7 +4,6 @@
 #include <vector>
 
 #include <gtest/gtest.h>
-#include <spdlog/spdlog.h>
 
 #include "xjmusic/fabricator/FabricationException.h"
 #include "xjmusic/segment/SegmentEntityStore.h"
@@ -66,7 +65,7 @@ protected:
         120.0,
         "chains-1-segments-9f7s89d8a7892.wav",
         true));
-    const auto segment2mutable = subject->put(SegmentFixtures::buildSegment(
+    auto segment2mutable = *subject->put(SegmentFixtures::buildSegment(
         chain3,
         Segment::Type::Continue,
         1,
@@ -78,8 +77,8 @@ protected:
         120.0,
         "chains-1-segments-9f7s89d8a7892.wav",
         true));
-    segment2mutable->waveformPreroll = 1.523;
-    segment2 = subject->put(*segment2mutable);
+    segment2mutable.waveformPreroll = 1.523;
+    segment2 = subject->put(segment2mutable);
     segment3 = subject->put(SegmentFixtures::buildSegment(
         chain3,
         Segment::Type::Continue,
@@ -142,7 +141,7 @@ TEST_F(SegmentEntityStoreTest, Create) {
   inputData.key = "C# minor 7 b9";
   inputData.tempo = 120.0;
 
-  Segment *result = subject->put(inputData);
+  const auto result = subject->put(inputData);
 
   EXPECT_EQ(chain3->id, result->chainId);
   EXPECT_EQ(5, result->id);
@@ -174,7 +173,7 @@ TEST_F(SegmentEntityStoreTest, Create_Get_Segment) {
   segment.storageKey = "chains-1-segments-9f7s89d8a7892.wav";
 
   subject->put(segment);
-  Segment *result = subject->readSegment(segment.id).value();
+  const auto result = subject->readSegment(segment.id).value();
 
   ASSERT_EQ(segment.id, result->id);
   ASSERT_EQ(chainId, result->chainId);
@@ -222,14 +221,14 @@ TEST_F(SegmentEntityStoreTest, CreateAll_ReadAll) {
   auto program = ContentFixtures::buildProgram(Program::Type::Macro, "C", 120.0f);
   auto programSequence = ContentFixtures::buildProgramSequence(&program, 8, "Hay", 0.6f, "G");
   auto programSequenceBinding = ContentFixtures::buildProgramSequenceBinding(&programSequence, 0);
-  Segment *chain3_segment0 = subject->put(SegmentFixtures::buildSegment(chain3,
-                                                                        0,
-                                                                        Segment::State::Crafted,
-                                                                        "D Major",
-                                                                        64,
-                                                                        0.73f,
-                                                                        120.0f,
-                                                                        "chains-3-segments-9f7s89d8a7892.wav"));
+  const auto chain3_segment0 = subject->put(SegmentFixtures::buildSegment(chain3,
+                                                                          0,
+                                                                          Segment::State::Crafted,
+                                                                          "D Major",
+                                                                          64,
+                                                                          0.73f,
+                                                                          120.0f,
+                                                                          "chains-3-segments-9f7s89d8a7892.wav"));
   subject->put(
       SegmentFixtures::buildSegmentChoice(chain3_segment0, SegmentChoice::DELTA_UNLIMITED,
                                           SegmentChoice::DELTA_UNLIMITED, &program,
@@ -287,11 +286,11 @@ TEST_F(SegmentEntityStoreTest, ReadSegmentsFromToOffset) {
 
   ASSERT_EQ(2, result.size());
   auto it = result.begin();
-  Segment result1 = *it;
-  ASSERT_EQ(Segment::State::Crafted, result1.state);
+  const Segment *result1 = *it;
+  ASSERT_EQ(Segment::State::Crafted, result1->state);
   ++it;
-  Segment result2 = *it;
-  ASSERT_EQ(Segment::State::Crafting, result2.state);
+  const Segment *result2 = *it;
+  ASSERT_EQ(Segment::State::Crafting, result2->state);
 }
 
 

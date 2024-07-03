@@ -14,8 +14,8 @@ namespace XJ {
     const Instrument *instrument;
     const InstrumentAudio *audio;
     InstrumentConfig instrumentConfig;
-    unsigned long long startAtMixerMicros;
-    std::optional<unsigned long long> stopAtMixerMicros;
+    unsigned long long startAtChainMicros;
+    std::optional<unsigned long long> stopAtChainMicros;
     float fromAmplitude;
     float toAmplitude;
 
@@ -24,8 +24,8 @@ namespace XJ {
         const SegmentChoiceArrangementPick *pick,
         const Instrument *instrument,
         const InstrumentAudio *audio,
-        unsigned long long startAtMixerMicros,
-        std::optional<unsigned long long> stopAtMixerMicros,
+        unsigned long long startAtChainMicros,
+        std::optional<unsigned long long> stopAtChainMicros,
         float fromIntensityAmplitude,
         float toIntensityAmplitude);
 
@@ -35,9 +35,9 @@ namespace XJ {
 
     const Instrument * getInstrument();
 
-    unsigned long long getStartAtMixerMicros() const;
+    unsigned long long getStartAtChainMicros() const;
 
-    std::optional<unsigned long long> getStopAtMixerMicros() const;
+    std::optional<unsigned long long> getStopAtChainMicros() const;
 
     const InstrumentAudio * getAudio();
 
@@ -58,7 +58,7 @@ namespace XJ {
      * @return   true if lhs < rhs
      */
     friend bool operator<(const ActiveAudio &lhs, const ActiveAudio &rhs) {
-      return lhs.getStartAtMixerMicros() < rhs.getStartAtMixerMicros();
+      return lhs.getStartAtChainMicros() < rhs.getStartAtChainMicros();
     }
 
   };
