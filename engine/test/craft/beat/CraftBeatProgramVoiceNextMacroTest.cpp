@@ -10,7 +10,6 @@
 #include "../../_helper/SegmentFixtures.h"
 
 #include "xjmusic/craft/BeatCraft.h"
-#include "xjmusic/craft/Craft.h"
 #include "xjmusic/fabricator/FabricatorFactory.h"
 #include "xjmusic/fabricator/SegmentUtils.h"
 #include "xjmusic/util/CsvUtils.h"
@@ -172,6 +171,23 @@ protected:
     store->put(SegmentFixtures::buildSegmentChord(segment4, 0.0f, "F minor"));
     store->put(SegmentFixtures::buildSegmentChord(segment4, 8.0f, "Gb minor"));
   }
+
+  static std::optional<const SegmentChoice *> findChoiceByType(const std::set<const SegmentChoice *>& choices, Program::Type type) {
+    for (const auto choice: choices) {
+      if (choice->programType == type)
+        return choice;
+    }
+    return std::nullopt;
+  }
+
+  static std::optional<const SegmentChoiceArrangement*> findArrangementByChoiceId(const std::set<const SegmentChoiceArrangement*>& arrangements, const std::string& choiceId) {
+    for (const auto arrangement: arrangements) {
+      if (arrangement->segmentChoiceId == choiceId)
+        return arrangement;
+    }
+    return std::nullopt;
+  }
+
 };
 
 TEST_F(CraftBeatProgramVoiceNextMacroTest, CraftBeatVoiceNextMacro) {
@@ -182,19 +198,12 @@ TEST_F(CraftBeatProgramVoiceNextMacroTest, CraftBeatVoiceNextMacro) {
 
   // assert beat choice
   auto segmentChoices = fabricator->getChoices();
+  auto beatChoice = findChoiceByType(segmentChoices, Program::Type::Beat);
+  ASSERT_TRUE(beatChoice.has_value());
 
-  // Assuming segmentChoices is a std::vector<SegmentChoice>
-  const auto beatChoiceIt = std::find_if(segmentChoices.begin(), segmentChoices.end(), [](const SegmentChoice *c) {
-    return c->programType == Program::Type::Beat;
-  });
-  ASSERT_FALSE(beatChoiceIt == segmentChoices.end());
-  auto beatChoice = *beatChoiceIt;
-
-  const auto arrangementIt = std::find_if(fabricator->getArrangements().begin(), fabricator->getArrangements().end(),
-                                          [beatChoice](const SegmentChoiceArrangement *a) {
-                                            return a->segmentChoiceId == beatChoice->id;
-                                          });
-  ASSERT_FALSE(arrangementIt == fabricator->getArrangements().end());
+  // assert arrangement
+  auto arrangement = findArrangementByChoiceId(fabricator->getArrangements(), beatChoice.value()->id);
+  ASSERT_TRUE(arrangement.has_value());
 
   int pickedKick = 0;
   int pickedSnare = 0;
