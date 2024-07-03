@@ -7,7 +7,6 @@
 #include <set>
 #include <string>
 
-#include "xjmusic/craft/CraftFactory.h"
 #include "xjmusic/fabricator/FabricatorFactory.h"
 #include "xjmusic/segment/SegmentEntityStore.h"
 
@@ -25,8 +24,7 @@ namespace XJ {
  chunk at exactly the top of the following segment.
  */
   class CraftWork final {
-    CraftFactory *craftFactory = nullptr;
-    FabricatorFactory *fabricatorFactory = nullptr;
+      FabricatorFactory *fabricatorFactory = nullptr;
     SegmentEntityStore *store = nullptr;
     ContentEntityStore *content = nullptr;
     bool running = new bool(true);
@@ -41,7 +39,6 @@ namespace XJ {
 
   public:
     CraftWork(
-        CraftFactory *craftFactory,
         FabricatorFactory *fabricatorFactory,
         SegmentEntityStore *store,
         ContentEntityStore *content,

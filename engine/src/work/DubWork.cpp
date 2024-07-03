@@ -153,7 +153,7 @@ std::set<ActiveAudio> DubWork::computeActiveAudios(const unsigned long long atCh
     spdlog::debug("Dubbed to {}", toChainMicros / ValueUtils::MICROS_PER_SECOND_FLOAT);
     return activeAudios;
 
-  } catch (std::exception e) {
+  } catch (std::exception &e) {
     didFailWhile("dubbing frame", e);
     return {};
   }

@@ -31,7 +31,6 @@ add_library(xjmusic
         craft/BackgroundCraft.cpp
         craft/BeatCraft.cpp
         craft/Craft.cpp
-        craft/CraftFactory.cpp
         craft/DetailCraft.cpp
         craft/MacroMainCraft.cpp
         craft/TransitionCraft.cpp

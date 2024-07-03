@@ -1,19 +1,18 @@
+// Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
+
 #include <set>
-#include <vector>
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
 #include "../../_helper/ContentFixtures.h"
 #include "../../_helper/SegmentFixtures.h"
-#include "../../_helper/YamlTest.h"
 
+#include "xjmusic/craft/BackgroundCraft.h"
 #include "xjmusic/craft/Craft.h"
-#include "xjmusic/craft/CraftFactory.h"
 #include "xjmusic/fabricator/ChainUtils.h"
 #include "xjmusic/fabricator/FabricatorFactory.h"
 #include "xjmusic/util/CsvUtils.h"
-#include "xjmusic/util/ValueUtils.h"
 
 // NOLINTNEXTLINE
 using ::testing::_;
@@ -27,14 +26,12 @@ using namespace XJ;
  */
 class CraftBackground_LayeredVoicesTest : public testing::Test {
 protected:
-  CraftFactory *craftFactory = nullptr;
   FabricatorFactory *fabricatorFactory = nullptr;
   ContentEntityStore *sourceMaterial = nullptr;
   ContentFixtures *fake = nullptr;
   const Segment *segment4 = nullptr;
 
   void SetUp() override {
-    craftFactory = new CraftFactory();
     const auto store = new SegmentEntityStore();
     fabricatorFactory = new FabricatorFactory(store);
 
@@ -49,7 +46,9 @@ protected:
 
 
     // Chain "Test Print #1" has 5 total segments
-    const auto chain1 = store->put(SegmentFixtures::buildChain("Test Print #1", Chain::Type::Production, Chain::State::Fabricate, &fake->template1, ""));
+    const auto chain1 = store->put(
+        SegmentFixtures::buildChain("Test Print #1", Chain::Type::Production, Chain::State::Fabricate, &fake->template1,
+                                    ""));
     store->put(SegmentFixtures::buildSegment(
         chain1,
         Segment::Type::Initial,
@@ -108,7 +107,7 @@ protected:
     store->put(SegmentFixtures::buildSegmentChoice(segment4, Program::Type::Macro, &fake->program4_sequence0_binding0));
     store->put(SegmentFixtures::buildSegmentChoice(segment4, Program::Type::Main, &fake->program5_sequence1_binding0));
 
-    for (const std::string memeName: std::set<std::string>({"Cozy", "Classic", "Outlook", "Rosy"}))
+    for (const std::string &memeName: std::set<std::string>({"Cozy", "Classic", "Outlook", "Rosy"}))
       store->put(SegmentFixtures::buildSegmentMeme(segment4, memeName));
 
     store->put(SegmentFixtures::buildSegmentChord(segment4, 0.0f, "A minor"));
@@ -116,11 +115,10 @@ protected:
   }
 
   void TearDown() override {
-    delete craftFactory;
     delete fabricatorFactory;
     delete sourceMaterial;
     delete fake;
-      }
+  }
 
   /**
    Some custom fixtures for testing
@@ -129,16 +127,24 @@ protected:
    */
   void setupCustomFixtures() const {
     // Instrument "808"
-    const auto instrument1 = sourceMaterial->put(ContentFixtures::buildInstrument(&fake->library2, Instrument::Type::Background, Instrument::Mode::Loop, Instrument::State::Published, "Bongo Loop"));
+    const auto instrument1 = sourceMaterial->put(
+        ContentFixtures::buildInstrument(&fake->library2, Instrument::Type::Background, Instrument::Mode::Loop,
+                                         Instrument::State::Published, "Bongo Loop"));
     sourceMaterial->put(ContentFixtures::buildMeme(instrument1, "heavy"));
-    sourceMaterial->put(ContentFixtures::buildAudio(instrument1, "Kick", "19801735098q47895897895782138975898.wav", 0.01f, 2.123f, 120.0f, 0.6f, "KICK", "Eb", 1.0f));
-    sourceMaterial->put(ContentFixtures::buildAudio(instrument1, "Snare", "a1g9f8u0k1v7f3e59o7j5e8s98.wav", 0.01f, 1.5f, 120.0f, 0.6f, "SNARE", "Ab", 1.0f));
-    sourceMaterial->put(ContentFixtures::buildAudio(instrument1, "Hihat", "iop0803k1k2l3h5a3s2d3f4g.wav", 0.01f, 1.5f, 120.0f, 0.6f, "HIHAT", "Ab", 1.0f));
+    sourceMaterial->put(
+        ContentFixtures::buildAudio(instrument1, "Kick", "19801735098q47895897895782138975898.wav", 0.01f, 2.123f,
+                                    120.0f, 0.6f, "KICK", "Eb", 1.0f));
+    sourceMaterial->put(
+        ContentFixtures::buildAudio(instrument1, "Snare", "a1g9f8u0k1v7f3e59o7j5e8s98.wav", 0.01f, 1.5f, 120.0f, 0.6f,
+                                    "SNARE", "Ab", 1.0f));
+    sourceMaterial->put(
+        ContentFixtures::buildAudio(instrument1, "Hihat", "iop0803k1k2l3h5a3s2d3f4g.wav", 0.01f, 1.5f, 120.0f, 0.6f,
+                                    "HIHAT", "Ab", 1.0f));
   }
 };
 
 TEST_F(CraftBackground_LayeredVoicesTest, CraftBackgroundVoiceContinue) {
   const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, std::nullopt);
 
-  craftFactory->background(fabricator).doWork();
+  BackgroundCraft(fabricator).doWork();
 }

@@ -1,5 +1,6 @@
+// Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
+
 #include <set>
-#include <vector>
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
@@ -8,7 +9,7 @@
 #include "../../_helper/SegmentFixtures.h"
 
 #include "xjmusic/craft/Craft.h"
-#include "xjmusic/craft/CraftFactory.h"
+#include "xjmusic/craft/TransitionCraft.h"
 #include "xjmusic/fabricator/FabricatorFactory.h"
 #include "xjmusic/util/CsvUtils.h"
 
@@ -21,7 +22,6 @@ using namespace XJ;
 
 class CraftTransitionProgramVoiceInitialTest : public testing::Test {
 protected:
-  CraftFactory *craftFactory = nullptr;
   FabricatorFactory *fabricatorFactory = nullptr;
   ContentEntityStore *sourceMaterial = nullptr;
   SegmentEntityStore *store = nullptr;
@@ -30,7 +30,6 @@ protected:
   const Segment *segment0 = nullptr;
 
   void SetUp() override {
-    craftFactory = new CraftFactory();
     store = new SegmentEntityStore();
     fabricatorFactory = new FabricatorFactory(store);
 
@@ -55,13 +54,12 @@ protected:
   }
 
   void TearDown() override {
-    delete craftFactory;
     delete fabricatorFactory;
     delete sourceMaterial;
     delete store;
     delete fake;
     delete chain2;
-      }
+  }
 
   /**
    Insert fixture segment 6, including the transition choice only if specified
@@ -76,9 +74,13 @@ protected:
         0.55f,
         130.0f,
         "chains-1-segments-9f7s89d8a7892.wav"));
-    store->put(SegmentFixtures::buildSegmentChoice(segment0, SegmentChoice::DELTA_UNLIMITED, SegmentChoice::DELTA_UNLIMITED, &fake->program4, &fake->program4_sequence0_binding0));
-    store->put(SegmentFixtures::buildSegmentChoice(segment0, SegmentChoice::DELTA_UNLIMITED, SegmentChoice::DELTA_UNLIMITED, &fake->program5, &fake->program5_sequence0_binding0));
-    for (const std::string memeName: std::set<std::string>({"Special", "Wild", "Pessimism", "Outlook"}))
+    store->put(
+        SegmentFixtures::buildSegmentChoice(segment0, SegmentChoice::DELTA_UNLIMITED, SegmentChoice::DELTA_UNLIMITED,
+                                            &fake->program4, &fake->program4_sequence0_binding0));
+    store->put(
+        SegmentFixtures::buildSegmentChoice(segment0, SegmentChoice::DELTA_UNLIMITED, SegmentChoice::DELTA_UNLIMITED,
+                                            &fake->program5, &fake->program5_sequence0_binding0));
+    for (const std::string &memeName: std::set<std::string>({"Special", "Wild", "Pessimism", "Outlook"}))
       store->put(SegmentFixtures::buildSegmentMeme(segment0, memeName));
 
     store->put(SegmentFixtures::buildSegmentChord(segment0, 0.0f, "C minor"));
@@ -91,12 +93,12 @@ TEST_F(CraftTransitionProgramVoiceInitialTest, CraftTransitionVoiceInitial) {
 
   const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment0->id, std::nullopt);
 
-  craftFactory->transition(fabricator).doWork();
+  TransitionCraft(fabricator).doWork();
 }
 
 TEST_F(CraftTransitionProgramVoiceInitialTest, CraftTransitionVoiceInitial_okWhenNoTransitionChoice) {
   insertSegment();
   const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment0->id, std::nullopt);
 
-  craftFactory->transition(fabricator).doWork();
+  TransitionCraft(fabricator).doWork();
 }

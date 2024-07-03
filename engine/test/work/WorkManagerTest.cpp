@@ -11,7 +11,6 @@
 
 #include "xjmusic/content/ContentEntityStore.h"
 #include "xjmusic/craft/Craft.h"
-#include "xjmusic/craft/CraftFactory.h"
 #include "xjmusic/fabricator/ChainUtils.h"
 #include "xjmusic/fabricator/FabricatorFactory.h"
 #include "xjmusic/fabricator/SegmentUtils.h"
@@ -58,10 +57,9 @@ protected:
     const auto fabricatorFactory = new FabricatorFactory(store);
 
     // Dependencies
-    const auto craftFactory = new CraftFactory();
-
+    const auto
     // work
-    work = new WorkManager(craftFactory, fabricatorFactory, store);
+    work = new WorkManager(fabricatorFactory, store);
     auto settings = WorkSettings();
     settings.inputTemplate = tmpl;
     work->start(content, settings);
