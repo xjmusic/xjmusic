@@ -8,9 +8,9 @@
 using namespace XJ;
 
 
-std::regex SlashRoot::rgxSlashPost("[^/]*/([A-G♯#♭b]+)$");
+std::regex SlashRoot::rgxSlashPost("[^/]*/([A-G##bb]+)$");
 std::regex SlashRoot::rgxSlashNote("/([A-G])$");
-std::regex SlashRoot::rgxSlashNoteModified("/([A-G][♯#♭b])$");
+std::regex SlashRoot::rgxSlashNoteModified("/([A-G][##bb])$");
 std::regex SlashRoot::rgxSlashPre("^([^/]*)/");
 
 

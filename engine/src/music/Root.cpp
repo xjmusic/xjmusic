@@ -11,14 +11,12 @@ std::regex Root::rgxNoteModified("^([ABCDEFG][#b]).*");
 
 Root::Root(const std::string &name) {
   {
-    const std::string normalized = accidentalNormalized(name);
-
     // as a default, the whole thing is remaining text, and pitch class is None
     pitchClass = Atonal;
-    remainingText = normalized;
+    remainingText = name;
 
-    evaluate(rgxNote, normalized);
-    evaluate(rgxNoteModified, normalized);
+    evaluate(rgxNote, name);
+    evaluate(rgxNoteModified, name);
   }
 }
 

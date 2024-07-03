@@ -10,8 +10,6 @@
 #include "xjmusic/craft/MacroMainCraft.h"
 #include "xjmusic/craft/TransitionCraft.h"
 #include "xjmusic/fabricator/ChainUtils.h"
-#include "xjmusic/fabricator/FabricationException.h"
-#include "xjmusic/fabricator/SegmentUtils.h"
 #include "xjmusic/fabricator/TemplateUtils.h"
 #include "xjmusic/util/CsvUtils.h"
 #include "xjmusic/util/ValueUtils.h"

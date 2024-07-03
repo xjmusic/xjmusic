@@ -25,7 +25,7 @@ static void assertRoot(const std::string& text, const PitchClass expectPitchClas
 TEST(Music_Root, RootOfTest) {
   assertRoot("C", C, "");
   assertRoot("Cmaj", C, "maj");
-  assertRoot("B♭min", As, "min");
+  assertRoot("Bbmin", As, "min");
   assertRoot("C#dim", Cs, "dim");
   assertRoot("JAMS", Atonal, "JAMS");
   assertRoot("CM6add9", C, "M6add9");
