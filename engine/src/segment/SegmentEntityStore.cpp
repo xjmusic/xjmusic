@@ -71,15 +71,19 @@ SEGMENT_STORE_CORE_METHODS(SegmentMessage, SegmentMessages, segmentMessages)
 SEGMENT_STORE_CORE_METHODS(SegmentMeta, SegmentMetas, segmentMetas)
 
 
-Chain *SegmentEntityStore::put(const Chain &chain) {
-  const auto cc = new Chain(chain);
+Chain *SegmentEntityStore::put(const Chain &c) {
+  const auto cc = new Chain(c);
   this->chain = *cc;
   return cc;
 }
 
 const Segment *SegmentEntityStore::put(const Segment &segment) {
-  this->segments.emplace(segment.id, segment);
-  return &this->segments[segment.id];
+  auto existing = this->segments.find(segment.id);
+  if (existing != this->segments.end()) {
+    this->segments.erase(segment.id);
+  }
+  this->segments.emplace(segment.id, segment); // TODO this seems terrible -- think about replacing keys in a map of const
+  return &this->segments.at(segment.id);
 }
 
 std::optional<const Segment *> SegmentEntityStore::readSegmentAtChainMicros(const long chainMicros) {
@@ -270,7 +274,8 @@ const Segment *SegmentEntityStore::updateSegment(Segment &segment) {
   segment.updatedAt = EntityUtils::currentTimeMillis();
 
   // save segment
-  return put(segment);
+  auto updated = put(segment);
+  return updated;
 }
 
 

@@ -79,7 +79,7 @@ namespace XJ {
      * Put the Chain in the entity store
      * @returns stored Chain
      */
-    Chain *put(const Chain &chain);
+    Chain *put(const Chain &c);
 
     /**
      * Put a Segment in the entity store

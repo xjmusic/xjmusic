@@ -342,7 +342,7 @@ void CraftWork::doFabricationWork(
   Fabricator *fabricator = fabricatorFactory->fabricate(content, inputSegment->id, overrideSegmentType);
 
   spdlog::debug("[segId={}] will do craft work", inputSegment->id);
-  updateSegmentState(fabricator, inputSegment, Segment::State::Planned, Segment::State::Crafting);
+  const Segment * updatedSegment = updateSegmentState(fabricator, inputSegment, Segment::State::Planned, Segment::State::Crafting);
   craftFactory->macroMain(fabricator, overrideMacroProgram, overrideMemes).doWork();
 
   craftFactory->beat(fabricator).doWork();
@@ -352,7 +352,7 @@ void CraftWork::doFabricationWork(
 
   spdlog::debug("Fabricated Segment[{}]", inputSegment->id);
 
-  updateSegmentState(fabricator, inputSegment, Segment::State::Crafting, Segment::State::Crafted);
+  updateSegmentState(fabricator, updatedSegment, Segment::State::Crafting, Segment::State::Crafted);
 }
 
 void CraftWork::doSegmentCleanup(const long shippedToChainMicros) const {
@@ -395,7 +395,7 @@ void CraftWork::didFailWhile(std::string msgWhile, const std::exception &e) {
 const Segment *
 CraftWork::updateSegmentState(Fabricator *fabricator, const Segment *inputSegment, const Segment::State fromState, const Segment::State toState) {
   if (fromState != inputSegment->state)
-    throw new std::runtime_error("Segment[" + std::to_string(inputSegment->id) + "] " + Segment::toString(toState) + " requires Segment must be in " + Segment::toString(fromState) + " state.");
+    throw std::runtime_error("Segment[" + std::to_string(inputSegment->id) + "] " + Segment::toString(toState) + " requires Segment must be in " + Segment::toString(fromState) + " state.");
   Segment updateSegment = *inputSegment;
   updateSegment.state = toState;
   auto updatedSegment = fabricator->updateSegment(updateSegment);
