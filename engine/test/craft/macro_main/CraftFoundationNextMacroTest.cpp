@@ -1,16 +1,15 @@
+// Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
+
 #include <set>
-#include <vector>
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
 #include "../../_helper/ContentFixtures.h"
 #include "../../_helper/SegmentFixtures.h"
-#include "../../_helper/YamlTest.h"
 
 #include "xjmusic/craft/Craft.h"
-#include "xjmusic/craft/CraftFactory.h"
-#include "xjmusic/fabricator/ChainUtils.h"
+#include "xjmusic/craft/MacroMainCraft.h"
 #include "xjmusic/fabricator/FabricatorFactory.h"
 #include "xjmusic/fabricator/SegmentUtils.h"
 #include "xjmusic/util/CsvUtils.h"
@@ -32,7 +31,6 @@ static int TEST_REPEAT_ITERATIONS = 14;
    */
 TEST(CraftFoundationNextMacroTest, CraftFoundationNextMacro) {
   for (int i = 0; i < TEST_REPEAT_ITERATIONS; i++) {
-    auto craftFactory = new CraftFactory();
     auto store = new SegmentEntityStore();
     auto fabricatorFactory = new FabricatorFactory(store);
 
@@ -46,7 +44,9 @@ TEST(CraftFoundationNextMacroTest, CraftFoundationNextMacro) {
     fake->setupFixtureB2(sourceMaterial);
 
     // Chain "Test Print #1" has 5 total segments
-    const auto chain1 = store->put(SegmentFixtures::buildChain("Test Print #1", Chain::Type::Production, Chain::State::Fabricate, &fake->template1, ""));
+    const auto chain1 = store->put(
+        SegmentFixtures::buildChain("Test Print #1", Chain::Type::Production, Chain::State::Fabricate, &fake->template1,
+                                    ""));
     store->put(SegmentFixtures::buildSegment(
         chain1,
         0,
@@ -80,11 +80,12 @@ TEST(CraftFoundationNextMacroTest, CraftFoundationNextMacro) {
     store->put(SegmentFixtures::buildSegmentChoice(segment3, Program::Type::Main, &fake->program5_sequence1_binding0));
 
     // Chain "Test Print #1" has a planned segment
-    auto segment4 = store->put(SegmentFixtures::buildSegment(chain1, 3, Segment::State::Planned, "C", 8, 0.8f, 120, "chain-1-waveform-12345"));
+    auto segment4 = store->put(
+        SegmentFixtures::buildSegment(chain1, 3, Segment::State::Planned, "C", 8, 0.8f, 120, "chain-1-waveform-12345"));
 
     auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, std::nullopt);
 
-    craftFactory->macroMain(fabricator, std::nullopt, {}).doWork();
+    MacroMainCraft(fabricator, std::nullopt, {}).doWork();
 
     auto result = store->readSegment(segment4->id).value();
     ASSERT_EQ(Segment::Type::NextMacro, result->type);

@@ -1,20 +1,18 @@
+// Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
+
 #include <set>
-#include <vector>
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
 #include "../../_helper/ContentFixtures.h"
 #include "../../_helper/SegmentFixtures.h"
-#include "../../_helper/YamlTest.h"
 
+#include "xjmusic/craft/BeatCraft.h"
 #include "xjmusic/craft/Craft.h"
-#include "xjmusic/craft/CraftFactory.h"
-#include "xjmusic/fabricator/ChainUtils.h"
 #include "xjmusic/fabricator/FabricatorFactory.h"
 #include "xjmusic/fabricator/SegmentUtils.h"
 #include "xjmusic/util/CsvUtils.h"
-#include "xjmusic/util/ValueUtils.h"
 
 // NOLINTNEXTLINE
 using ::testing::_;
@@ -25,7 +23,6 @@ using namespace XJ;
 
 class CraftBeatProgramVoiceNextMainTest : public testing::Test {
 protected:
-  CraftFactory *craftFactory = nullptr;
   FabricatorFactory *fabricatorFactory = nullptr;
   ContentFixtures *fake = nullptr;
   SegmentEntityStore *store = nullptr;
@@ -36,7 +33,6 @@ protected:
   InstrumentAudio *audioSnare = nullptr;
 
   void SetUp() override {
-    craftFactory = new CraftFactory();
     store = new SegmentEntityStore();
     fabricatorFactory = new FabricatorFactory(store);
 
@@ -77,13 +73,12 @@ protected:
   }
 
   void TearDown() override {
-    delete craftFactory;
     delete fabricatorFactory;
     delete fake;
     delete store;
     delete sourceMaterial;
     delete chain1;
-        delete audioKick;
+    delete audioKick;
     delete audioSnare;
   }
 
@@ -187,7 +182,7 @@ protected:
         SegmentChoice::DELTA_UNLIMITED,
         &fake->program15,
         &fake->program15_sequence0_binding0));
-    for (const std::string memeName: std::set<std::string>({"Regret", "Sky", "Hindsight", "Tropical"}))
+    for (const std::string &memeName: std::set<std::string>({"Regret", "Sky", "Hindsight", "Tropical"}))
       store->put(SegmentFixtures::buildSegmentMeme(segment4, memeName));
 
     store->put(SegmentFixtures::buildSegmentChord(segment4, 0.0f, "G minor"));
@@ -199,7 +194,7 @@ TEST_F(CraftBeatProgramVoiceNextMainTest, CraftBeatVoiceNextMain) {
   insertSegments3and4(true);
   const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, std::nullopt);
 
-  craftFactory->beat(fabricator).doWork();
+  BeatCraft(fabricator).doWork();
 
   std::set choices = {fabricator->getCurrentBeatChoice().value()};
   ASSERT_FALSE(fabricator->getArrangements(choices).empty());
@@ -222,5 +217,5 @@ TEST_F(CraftBeatProgramVoiceNextMainTest, CraftBeatVoiceNextMain_okIfNoBeatChoic
   insertSegments3and4(false);
   const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, std::nullopt);
 
-  craftFactory->beat(fabricator).doWork();
+  BeatCraft(fabricator).doWork();
 }

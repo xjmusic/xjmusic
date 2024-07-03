@@ -270,8 +270,7 @@ const Segment *SegmentEntityStore::updateSegment(Segment &segment) {
   segment.updatedAt = EntityUtils::currentTimeMillis();
 
   // save segment
-  auto updated = put(segment);
-  return updated;
+  return put(segment);
 }
 
 

@@ -1,16 +1,15 @@
+// Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
+
 #include <set>
-#include <vector>
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
 #include "../../_helper/ContentFixtures.h"
 #include "../../_helper/SegmentFixtures.h"
-#include "../../_helper/YamlTest.h"
 
 #include "xjmusic/craft/Craft.h"
-#include "xjmusic/craft/CraftFactory.h"
-#include "xjmusic/fabricator/ChainUtils.h"
+#include "xjmusic/craft/MacroMainCraft.h"
 #include "xjmusic/fabricator/FabricatorFactory.h"
 #include "xjmusic/fabricator/SegmentUtils.h"
 #include "xjmusic/util/CsvUtils.h"
@@ -25,7 +24,6 @@ using namespace XJ;
 
 class CraftFoundationInitialTest : public testing::Test {
 protected:
-  CraftFactory *craftFactory = nullptr;
   FabricatorFactory *fabricatorFactory = nullptr;
   ContentEntityStore *sourceMaterial = nullptr;
   SegmentEntityStore *store = nullptr;
@@ -33,7 +31,6 @@ protected:
   const Segment *segment6 = nullptr;
 
   void SetUp() override {
-    craftFactory = new CraftFactory();
     store = new SegmentEntityStore();
     fabricatorFactory = new FabricatorFactory(store);
 
@@ -64,14 +61,13 @@ protected:
     delete sourceMaterial;
     delete store;
     delete fabricatorFactory;
-    delete craftFactory;
-      }
+  }
 };
 
 TEST_F(CraftFoundationInitialTest, CraftFoundationInitial) {
   auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment6->id, std::nullopt);
 
-  craftFactory->macroMain(fabricator, std::nullopt, {}).doWork();
+  MacroMainCraft(fabricator, std::nullopt, {}).doWork();
 
   auto result = store->readSegment(segment6->id).value();
   ASSERT_EQ(segment6->id, result->id);

@@ -69,6 +69,12 @@ protected:
     delete sourceMaterial;
     delete fake;
   }
+
+  static bool setContains(const std::set<std::string> &items, const char *string) {
+    return std::any_of(items.begin(), items.end(), [string](const std::string &item) {
+      return item == string;
+    });
+  }
 };
 
 
@@ -200,8 +206,8 @@ TEST_F(FabricatorTest, GetMemeIsometryOfNextSequenceInPreviousMacro) {
   // Get the result
   auto result = subject->getMemeIsometryOfNextSequenceInPreviousMacro();
   ASSERT_EQ(2, result.getSources().size());
-  ASSERT_FALSE(result.getSources().find("COZY") == result.getSources().end());
-  ASSERT_FALSE(result.getSources().find("TROPICAL") == result.getSources().end());
+  ASSERT_TRUE(setContains(result.getSources(), "COZY"));
+  ASSERT_TRUE(setContains(result.getSources(), "TROPICAL"));
 }
 
 
@@ -409,6 +415,7 @@ TEST_F(FabricatorTest, PutAddsMemesForChoice) {
   const auto resultMemes = store->readAllSegmentMemes(segment->id);
 
   std::vector<SegmentMeme> sortedResultMemes;
+  sortedResultMemes.reserve(resultMemes.size());
   for (const SegmentMeme *pointer: resultMemes) {
     sortedResultMemes.push_back(*pointer);
   }
@@ -425,6 +432,7 @@ TEST_F(FabricatorTest, PutAddsMemesForChoice) {
 
   const auto resultChoices = store->readAllSegmentChoices(segment->id);
   std::vector<const SegmentChoice *> sortedResultChoices;
+  sortedResultChoices.reserve(resultChoices.size());
   for (const SegmentChoice *pointer: resultChoices) {
     sortedResultChoices.emplace_back(pointer);
   }

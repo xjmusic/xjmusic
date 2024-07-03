@@ -95,7 +95,7 @@ TEST(StringUtilsTest, StripExtraSpaces) {
 
 TEST(StringUtilsTest, Match) {
   const std::regex abc("^([ABC]+)$");
-  const std::regex rgxSlashPost("[^/]*/([A-G♯#♭b]+)$");
+  const std::regex rgxSlashPost("[^/]*/([A-G##bb]+)$");
 
   ASSERT_FALSE(StringUtils::match(abc, "123").has_value());
   ASSERT_EQ("A", StringUtils::match(abc, "A"));
@@ -104,8 +104,8 @@ TEST(StringUtilsTest, Match) {
 
 TEST(StringUtilsTest, CountMatches) {
   const std::regex abc("[ABC]");
-  const std::regex accidentalSharp("[♯#]");
-  const std::regex accidentalFlat("[♭b]");
+  const std::regex accidentalSharp("[##]");
+  const std::regex accidentalFlat("[bb]");
 
   ASSERT_EQ(3, StringUtils::countMatches(abc, "A B C"));
   ASSERT_EQ(1, StringUtils::countMatches(accidentalSharp, "C#/Eb"));

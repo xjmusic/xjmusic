@@ -125,10 +125,6 @@ add_executable(xjmusic_test
 # I'm using C++17 in the test
 target_compile_features(xjmusic_test PRIVATE cxx_std_17)
 
-# Turn off the optimizer for faster build and easier debugging
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0")
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0")
-
 # Link the libraries from the main project
 target_link_libraries(xjmusic_test PRIVATE xjmusic)
 
@@ -152,6 +148,11 @@ target_link_libraries(xjmusic_test PUBLIC yaml-cpp::yaml-cpp)
 FetchContent_Declare(spdlog URL https://github.com/gabime/spdlog/archive/v1.13.0.tar.gz)
 FetchContent_MakeAvailable(spdlog)
 target_link_libraries(xjmusic_test PRIVATE spdlog::spdlog)
+
+# JSON for Modern C++
+FetchContent_Declare(json URL https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz)
+FetchContent_MakeAvailable(json)
+target_link_libraries(xjmusic PRIVATE nlohmann_json::nlohmann_json)
 
 # For Windows: Prevent overriding the parent project's compiler/linker settings
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)

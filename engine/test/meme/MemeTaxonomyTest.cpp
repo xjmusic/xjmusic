@@ -1,4 +1,4 @@
-// Copyright (c) 1999-2022, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
 #include <gtest/gtest.h>
 #include <set>
@@ -22,6 +22,12 @@ using namespace XJ;
  <p>
  That would tell XJ about the existence of a meme category called City with values `CHICAGO`, `DENVER`, and `PHILADELPHIA`. And these would function as exclusion like numeric memes, e.g. after content having `CHICAGO` is chosen, we can choose nothing with `DENVER` or `PHILADELPHIA`.
  */
+
+static bool setContains(const std::set<std::string> &items, const char *string) {
+  return std::any_of(items.begin(), items.end(), [string](const std::string &item) {
+    return item == string;
+  });
+}
 
 TEST(MemeTaxonomyTest, DefaultCategoryName) {
   std::set<MapStringToOneOrManyString> input = {
@@ -81,13 +87,13 @@ TEST(MemeTaxonomyTest, GetCategories) {
 
   ASSERT_EQ(2, categories.size());
   ASSERT_EQ("COLOR", categories[0].getName());
-  ASSERT_TRUE(categories[0].getMemes().find("RED") != categories[0].getMemes().end());
-  ASSERT_TRUE(categories[0].getMemes().find("GREEN") != categories[0].getMemes().end());
-  ASSERT_TRUE(categories[0].getMemes().find("BLUE") != categories[0].getMemes().end());
+  ASSERT_TRUE(setContains(categories[0].getMemes(), "RED"));
+  ASSERT_TRUE(setContains(categories[0].getMemes(), "GREEN"));
+  ASSERT_TRUE(setContains(categories[0].getMemes(), "BLUE"));
   ASSERT_EQ("SIZE", categories[1].getName());
-  ASSERT_TRUE(categories[1].getMemes().find("LARGE") != categories[1].getMemes().end());
-  ASSERT_TRUE(categories[1].getMemes().find("MEDIUM") != categories[1].getMemes().end());
-  ASSERT_TRUE(categories[1].getMemes().find("SMALL") != categories[1].getMemes().end());
+  ASSERT_TRUE(setContains(categories[1].getMemes(), "LARGE"));
+  ASSERT_TRUE(setContains(categories[1].getMemes(), "MEDIUM"));
+  ASSERT_TRUE(setContains(categories[1].getMemes(), "SMALL"));
 }
 
 TEST(MemeTaxonomyTest, IsAllowed) {

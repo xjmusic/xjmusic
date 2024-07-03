@@ -12,8 +12,8 @@ namespace XJ {
   public:
     Fabricator::ControlMode controlMode = Fabricator::ControlMode::Auto;
     Template inputTemplate;
-    int craftAheadSeconds = 300;
-    int dubAheadSeconds = 150;
+    int craftAheadSeconds = 20;
+    int dubAheadSeconds = 10;
     long persistenceWindowSeconds = 3600;
     std::string toString() const;
   };

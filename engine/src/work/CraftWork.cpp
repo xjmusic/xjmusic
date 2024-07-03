@@ -2,8 +2,14 @@
 
 #include <algorithm>
 
+#include <spdlog/spdlog.h>
+
+#include "xjmusic/craft/BackgroundCraft.h"
+#include "xjmusic/craft/BeatCraft.h"
+#include "xjmusic/craft/DetailCraft.h"
+#include "xjmusic/craft/MacroMainCraft.h"
+#include "xjmusic/craft/TransitionCraft.h"
 #include "xjmusic/fabricator/ChainUtils.h"
-#include "xjmusic/fabricator/SegmentUtils.h"
 #include "xjmusic/fabricator/TemplateUtils.h"
 #include "xjmusic/util/CsvUtils.h"
 #include "xjmusic/util/ValueUtils.h"
@@ -13,13 +19,11 @@ using namespace XJ;
 
 
 CraftWork::CraftWork(
-    CraftFactory *craftFactory,
     FabricatorFactory *fabricatorFactory,
     SegmentEntityStore *store,
     ContentEntityStore *content,
     const long persistenceWindowSeconds,
     const long craftAheadSeconds) {
-  this->craftFactory = craftFactory;
   this->fabricatorFactory = fabricatorFactory;
   this->store = store;
 
@@ -125,7 +129,7 @@ bool CraftWork::isMuted(const SegmentChoiceArrangementPick *pick) const {
     const auto choice = store->readSegmentChoice(pick->segmentId, arrangement.value()->segmentChoiceId);
     return choice.has_value() ? choice.value()->mute : false;
 
-  } catch (std::exception e) {
+  } catch (std::exception &e) {
     spdlog::warn("Unable to determine if SegmentChoiceArrangementPick[{}] is muted because {}", pick->id, e.what());
     return false;
   }
@@ -174,7 +178,7 @@ void CraftWork::runCycle(const long atChainMicros) {
     doFabrication(atChainMicros + craftAheadMicros);
     doSegmentCleanup(atChainMicros);
 
-  } catch (std::exception e) {
+  } catch (std::exception &e) {
     didFailWhile("running craft work", e);
   }
 }
@@ -270,7 +274,7 @@ void CraftWork::doFabricationRewrite(
     ProgramConfig mainProgramConfig;
     try {
       mainProgramConfig = ProgramConfig(currentMainProgram.value()->config);
-    } catch (std::exception e) {
+    } catch (std::exception &e) {
       throw FabricationException("Failed to get main program config");
     }
     const auto subBeats = mainProgramConfig.barBeats * mainProgramConfig.cutoffMinimumBars;
@@ -321,13 +325,13 @@ void CraftWork::doCutoffLastSegment(const Segment *inputSegment, float cutoffAft
           updatePick.lengthMicros = static_cast<long>(durationMicros - pick->startAtSegmentMicros);
           store->put(updatePick);
         }
-      } catch (std::exception e) {
+      } catch (std::exception &e) {
         spdlog::error("Failed to cut SegmentChoiceArrangementPick[{}] short to {} beats because {}", pick->id,
                       cutoffAfterBeats, e.what());
       }
     }
 
-  } catch (std::exception e) {
+  } catch (std::exception &e) {
     throw FabricationException(
         "Failed to cut Segment[" + std::to_string(inputSegment->id) + "] short to " + std::to_string(cutoffAfterBeats) + " beats: " + e.what());
   }
@@ -343,12 +347,12 @@ void CraftWork::doFabricationWork(
 
   spdlog::debug("[segId={}] will do craft work", inputSegment->id);
   const Segment * updatedSegment = updateSegmentState(fabricator, inputSegment, Segment::State::Planned, Segment::State::Crafting);
-  craftFactory->macroMain(fabricator, overrideMacroProgram, overrideMemes).doWork();
+  MacroMainCraft(fabricator, overrideMacroProgram, overrideMemes).doWork();
 
-  craftFactory->beat(fabricator).doWork();
-  craftFactory->detail(fabricator).doWork();
-  craftFactory->transition(fabricator).doWork();
-  craftFactory->background(fabricator).doWork();
+  BeatCraft(fabricator).doWork();
+  DetailCraft(fabricator).doWork();
+  TransitionCraft(fabricator).doWork();
+  BackgroundCraft(fabricator).doWork();
 
   spdlog::debug("Fabricated Segment[{}]", inputSegment->id);
 

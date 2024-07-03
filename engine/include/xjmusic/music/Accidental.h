@@ -29,12 +29,6 @@ namespace XJ {
    */
   Accidental accidentalOfBeginning(const std::string &name);
 
-  /**
-   * Replace any accidentals with the explicit text "s" or "b"
-   * @param name within which to replace text
-   */
-  std::string accidentalNormalized(const std::string &name);
-
 } // namespace XJ
 
 #endif //XJMUSIC_MUSIC_ACCIDENTAL_H

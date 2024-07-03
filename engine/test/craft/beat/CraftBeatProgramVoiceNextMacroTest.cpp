@@ -1,21 +1,18 @@
+// Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
+
 #include <algorithm>
 #include <set>
-#include <vector>
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
 #include "../../_helper/ContentFixtures.h"
 #include "../../_helper/SegmentFixtures.h"
-#include "../../_helper/YamlTest.h"
 
-#include "xjmusic/craft/Craft.h"
-#include "xjmusic/craft/CraftFactory.h"
-#include "xjmusic/fabricator/ChainUtils.h"
+#include "xjmusic/craft/BeatCraft.h"
 #include "xjmusic/fabricator/FabricatorFactory.h"
 #include "xjmusic/fabricator/SegmentUtils.h"
 #include "xjmusic/util/CsvUtils.h"
-#include "xjmusic/util/ValueUtils.h"
 
 // NOLINTNEXTLINE
 using ::testing::_;
@@ -26,7 +23,6 @@ using namespace XJ;
 
 class CraftBeatProgramVoiceNextMacroTest : public testing::Test {
 protected:
-  CraftFactory *craftFactory = nullptr;
   FabricatorFactory *fabricatorFactory = nullptr;
   ContentEntityStore *sourceMaterial = nullptr;
   SegmentEntityStore *store = nullptr;
@@ -37,7 +33,6 @@ protected:
   InstrumentAudio *audioSnare = nullptr;
 
   void SetUp() override {
-    craftFactory = new CraftFactory();
     store = new SegmentEntityStore();
     fabricatorFactory = new FabricatorFactory(store);
 
@@ -52,7 +47,9 @@ protected:
     setupCustomFixtures();
 
     // Chain "Test Print #1" has 5 total segments
-    chain1 = store->put(SegmentFixtures::buildChain("Test Print #1", Chain::Type::Production, Chain::State::Fabricate, &fake->template1, ""));
+    chain1 = store->put(
+        SegmentFixtures::buildChain("Test Print #1", Chain::Type::Production, Chain::State::Fabricate, &fake->template1,
+                                    ""));
     store->put(SegmentFixtures::buildSegment(
         chain1,
         Segment::Type::Initial,
@@ -80,13 +77,12 @@ protected:
   }
 
   void TearDown() override {
-    delete craftFactory;
     delete fabricatorFactory;
     delete sourceMaterial;
     delete store;
     delete fake;
     delete chain1;
-        delete audioKick;
+    delete audioKick;
     delete audioSnare;
   }
 
@@ -97,10 +93,16 @@ protected:
    */
   void setupCustomFixtures() {
     // Instrument "808"
-    const auto instrument1 = sourceMaterial->put(ContentFixtures::buildInstrument(&fake->library2, Instrument::Type::Drum, Instrument::Mode::Event, Instrument::State::Published, "808 Drums"));
+    const auto instrument1 = sourceMaterial->put(
+        ContentFixtures::buildInstrument(&fake->library2, Instrument::Type::Drum, Instrument::Mode::Event,
+                                         Instrument::State::Published, "808 Drums"));
     sourceMaterial->put(ContentFixtures::buildMeme(instrument1, "heavy"));
-    audioKick = sourceMaterial->put(ContentFixtures::buildAudio(instrument1, "Kick", "19801735098q47895897895782138975898.wav", 0.01f, 2.123f, 120.0f, 0.6f, "KICK", "Eb", 1.0f));
-    audioSnare = sourceMaterial->put(ContentFixtures::buildAudio(instrument1, "Snare", "a1g9f8u0k1v7f3e59o7j5e8s98.wav", 0.01f, 1.5f, 120.0f, 0.6f, "SNARE", "Ab", 1.0f));
+    audioKick = sourceMaterial->put(
+        ContentFixtures::buildAudio(instrument1, "Kick", "19801735098q47895897895782138975898.wav", 0.01f, 2.123f,
+                                    120.0f, 0.6f, "KICK", "Eb", 1.0f));
+    audioSnare = sourceMaterial->put(
+        ContentFixtures::buildAudio(instrument1, "Snare", "a1g9f8u0k1v7f3e59o7j5e8s98.wav", 0.01f, 1.5f, 120.0f, 0.6f,
+                                    "SNARE", "Ab", 1.0f));
   }
 
   /**
@@ -164,33 +166,44 @@ protected:
         SegmentChoice::DELTA_UNLIMITED,
         &fake->program15,
         &fake->program15_sequence0_binding0));
-    for (const std::string memeName: std::set<std::string>({"Hindsight", "Chunky", "Regret", "Tangy"}))
+    for (const std::string &memeName: std::set<std::string>({"Hindsight", "Chunky", "Regret", "Tangy"}))
       store->put(SegmentFixtures::buildSegmentMeme(segment4, memeName));
     store->put(SegmentFixtures::buildSegmentChord(segment4, 0.0f, "F minor"));
     store->put(SegmentFixtures::buildSegmentChord(segment4, 8.0f, "Gb minor"));
   }
+
+  static std::optional<const SegmentChoice *> findChoiceByType(const std::set<const SegmentChoice *>& choices, Program::Type type) {
+    for (const auto choice: choices) {
+      if (choice->programType == type)
+        return choice;
+    }
+    return std::nullopt;
+  }
+
+  static std::optional<const SegmentChoiceArrangement*> findArrangementByChoiceId(const std::set<const SegmentChoiceArrangement*>& arrangements, const std::string& choiceId) {
+    for (const auto arrangement: arrangements) {
+      if (arrangement->segmentChoiceId == choiceId)
+        return arrangement;
+    }
+    return std::nullopt;
+  }
+
 };
 
 TEST_F(CraftBeatProgramVoiceNextMacroTest, CraftBeatVoiceNextMacro) {
   insertSegments3and4(true);
   const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, std::nullopt);
 
-  craftFactory->beat(fabricator).doWork();
+  BeatCraft(fabricator).doWork();
 
   // assert beat choice
   auto segmentChoices = fabricator->getChoices();
+  auto beatChoice = findChoiceByType(segmentChoices, Program::Type::Beat);
+  ASSERT_TRUE(beatChoice.has_value());
 
-  // Assuming segmentChoices is a std::vector<SegmentChoice>
-  const auto beatChoiceIt = std::find_if(segmentChoices.begin(), segmentChoices.end(), [](const SegmentChoice *c) {
-    return c->programType == Program::Type::Beat;
-  });
-  ASSERT_FALSE(beatChoiceIt == segmentChoices.end());
-  auto beatChoice = *beatChoiceIt;
-
-  const auto arrangementIt = std::find_if(fabricator->getArrangements().begin(), fabricator->getArrangements().end(), [beatChoice](const SegmentChoiceArrangement *a) {
-    return a->segmentChoiceId == beatChoice->id;
-  });
-  ASSERT_FALSE(arrangementIt == fabricator->getArrangements().end());
+  // assert arrangement
+  auto arrangement = findArrangementByChoiceId(fabricator->getArrangements(), beatChoice.value()->id);
+  ASSERT_TRUE(arrangement.has_value());
 
   int pickedKick = 0;
   int pickedSnare = 0;
@@ -209,5 +222,5 @@ TEST_F(CraftBeatProgramVoiceNextMacroTest, CraftBeatVoiceNextMacro_okIfNoBeatCho
   insertSegments3and4(false);
   const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, std::nullopt);
 
-  craftFactory->beat(fabricator).doWork();
+  BeatCraft(fabricator).doWork();
 }

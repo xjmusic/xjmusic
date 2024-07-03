@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <sstream>
 #include <utility>
-#include "nlohmann/json.hpp"
+#include <nlohmann/json.hpp>
 
 #include "xjmusic/music/StickyBun.h"
 

@@ -31,7 +31,6 @@ add_library(xjmusic
         craft/BackgroundCraft.cpp
         craft/BeatCraft.cpp
         craft/Craft.cpp
-        craft/CraftFactory.cpp
         craft/DetailCraft.cpp
         craft/MacroMainCraft.cpp
         craft/TransitionCraft.cpp
@@ -100,6 +99,11 @@ target_compile_features(xjmusic PUBLIC cxx_std_17)
 FetchContent_Declare(spdlog URL https://github.com/gabime/spdlog/archive/refs/tags/v1.14.1.zip)
 FetchContent_MakeAvailable(spdlog)
 target_link_libraries(xjmusic PRIVATE spdlog::spdlog)
+
+# JSON for Modern C++
+FetchContent_Declare(json URL https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz)
+FetchContent_MakeAvailable(json)
+target_link_libraries(xjmusic PRIVATE nlohmann_json::nlohmann_json)
 
 # IDEs should put the headers in a nice place
 source_group(

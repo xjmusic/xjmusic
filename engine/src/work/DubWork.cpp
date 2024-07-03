@@ -1,5 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
+#include <spdlog/spdlog.h>
+
 #include "xjmusic/audio/ActiveAudio.h"
 #include "xjmusic/audio/AudioMathUtils.h"
 #include "xjmusic/util/ValueUtils.h"
@@ -153,7 +155,7 @@ std::set<ActiveAudio> DubWork::computeActiveAudios(const unsigned long long atCh
     spdlog::debug("Dubbed to {}", toChainMicros / ValueUtils::MICROS_PER_SECOND_FLOAT);
     return activeAudios;
 
-  } catch (std::exception e) {
+  } catch (std::exception &e) {
     didFailWhile("dubbing frame", e);
     return {};
   }

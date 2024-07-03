@@ -7,18 +7,11 @@
 #include <gtest/gtest.h>
 
 #include "../_helper/ContentFixtures.h"
-#include "../_helper/YamlTest.h"
 
-#include "xjmusic/content/ContentEntityStore.h"
 #include "xjmusic/craft/Craft.h"
-#include "xjmusic/craft/CraftFactory.h"
-#include "xjmusic/fabricator/ChainUtils.h"
 #include "xjmusic/fabricator/FabricatorFactory.h"
 #include "xjmusic/fabricator/SegmentUtils.h"
-#include "xjmusic/segment/SegmentEntityStore.h"
-#include "xjmusic/util/ValueUtils.h"
-
-#include <xjmusic/work/WorkManager.h>
+#include "xjmusic/work/WorkManager.h"
 
 // NOLINTNEXTLINE
 using ::testing::_;
@@ -34,7 +27,6 @@ protected:
   long long MAXIMUM_TEST_WAIT_SECONDS = 10 * MARATHON_NUMBER_OF_SEGMENTS;
   long long MILLIS_PER_SECOND = 1000;
   int GENERATED_FIXTURE_COMPLEXITY = 3;
-  long WORK_CYCLE_MILLIS = 120;
   long long startTime = EntityUtils::currentTimeMillis();
   SegmentEntityStore *store = nullptr;
   ContentEntityStore *content = nullptr;
@@ -57,11 +49,8 @@ protected:
     store = new SegmentEntityStore();
     const auto fabricatorFactory = new FabricatorFactory(store);
 
-    // Dependencies
-    const auto craftFactory = new CraftFactory();
-
     // work
-    work = new WorkManager(craftFactory, fabricatorFactory, store);
+    work = new WorkManager(fabricatorFactory, store);
     auto settings = WorkSettings();
     settings.inputTemplate = tmpl;
     work->start(content, settings);
@@ -91,7 +80,7 @@ protected:
 
    @return true if it has at least N segments
    */
-  bool hasSegmentsDubbedPastMinimumOffset() const {
+  [[nodiscard]] bool hasSegmentsDubbedPastMinimumOffset() const {
     const auto segment = SegmentUtils::getLastCrafted(store->readAllSegments());
     return segment.has_value() && segment.value()->id >= MARATHON_NUMBER_OF_SEGMENTS;
   }

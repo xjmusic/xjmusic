@@ -1,19 +1,18 @@
+// Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
+
 #include <set>
-#include <vector>
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
 #include "../../_helper/ContentFixtures.h"
 #include "../../_helper/SegmentFixtures.h"
-#include "../../_helper/YamlTest.h"
 
 #include "xjmusic/craft/Craft.h"
-#include "xjmusic/craft/CraftFactory.h"
+#include "xjmusic/craft/MacroMainCraft.h"
 #include "xjmusic/fabricator/ChainUtils.h"
 #include "xjmusic/fabricator/FabricatorFactory.h"
 #include "xjmusic/util/CsvUtils.h"
-#include "xjmusic/util/ValueUtils.h"
 
 // NOLINTNEXTLINE
 using ::testing::_;
@@ -47,7 +46,8 @@ protected:
     TemplateBinding templateBinding1 = ContentFixtures::buildTemplateBinding(&template1, &library2);
 
     // Macro Program already chosen for previous segment
-    auto macro1 = ContentFixtures::buildProgram(&library2, Program::Type::Macro, Program::State::Published, "Chosen Macro", "C", 120.0f);
+    auto macro1 = ContentFixtures::buildProgram(&library2, Program::Type::Macro, Program::State::Published,
+                                                "Chosen Macro", "C", 120.0f);
     auto macro1_meme = ContentFixtures::buildMeme(&macro1, "Tropical");
     auto macro1_sequenceA = ContentFixtures::buildSequence(&macro1, 0, "Start Wild", 0.6f, "C");
     auto macro1_sequenceA_binding = ContentFixtures::buildBinding(&macro1_sequenceA, 0);
@@ -57,20 +57,23 @@ protected:
     auto macro1_sequenceB_bindingMeme = ContentFixtures::buildMeme(&macro1_sequenceB_binding, "Green");
 
     // Main Program already chosen for previous segment
-    auto main5 = ContentFixtures::buildProgram(&library2, Program::Type::Main, Program::State::Published, "Chosen Main", "C", 120.0f);
+    auto main5 = ContentFixtures::buildProgram(&library2, Program::Type::Main, Program::State::Published, "Chosen Main",
+                                               "C", 120.0f);
     auto main5_meme = ContentFixtures::buildMeme(&main5, "Tropical");
     auto main5_sequenceA = ContentFixtures::buildSequence(&main5, 0, "Start Wild", 0.6f, "C");
     ProgramSequenceBinding main5_sequenceA_binding = ContentFixtures::buildBinding(&main5_sequenceA, 0);
 
     // Macro Program will be chosen because of matching meme
-    macro2a = ContentFixtures::buildProgram(&library2, Program::Type::Macro, Program::State::Published, "Always Chosen", "C", 120.0f);
+    macro2a = ContentFixtures::buildProgram(&library2, Program::Type::Macro, Program::State::Published, "Always Chosen",
+                                            "C", 120.0f);
     auto macro2a_meme = ContentFixtures::buildMeme(&macro2a, "Tropical");
     auto macro2a_sequenceA = ContentFixtures::buildSequence(&macro2a, 0, "Start Wild", 0.6f, "C");
     auto macro2a_sequenceA_binding = ContentFixtures::buildBinding(&macro2a_sequenceA, 0);
     auto macro2a_sequenceA_bindingMeme = ContentFixtures::buildMeme(&macro2a_sequenceA_binding, "Green");
 
     // Macro Program will NEVER be chosen because of non-matching meme
-    auto macro2b = ContentFixtures::buildProgram(&library2, Program::Type::Macro, Program::State::Published, "Never Chosen", "C", 120.0f);
+    auto macro2b = ContentFixtures::buildProgram(&library2, Program::Type::Macro, Program::State::Published,
+                                                 "Never Chosen", "C", 120.0f);
     auto macro2b_meme = ContentFixtures::buildMeme(&macro2a, "Tropical");
     auto macro2b_sequenceA = ContentFixtures::buildSequence(&macro2a, 0, "Start Wild", 0.6f, "C");
     auto macro2b_sequenceA_binding = ContentFixtures::buildBinding(&macro2b_sequenceA, 0);
@@ -105,7 +108,8 @@ protected:
     sourceMaterial->put(templateBinding1);
 
     // Chain "Test Print #1" has 5 total segments
-    const auto chain1 = store->put(SegmentFixtures::buildChain("Test Print #1", Chain::Type::Production, Chain::State::Fabricate, &template1, ""));
+    const auto chain1 = store->put(
+        SegmentFixtures::buildChain("Test Print #1", Chain::Type::Production, Chain::State::Fabricate, &template1, ""));
     auto segment1 = store->put(SegmentFixtures::buildSegment(
         chain1,
         0,
@@ -128,7 +132,8 @@ protected:
         120.0f,
         "chains-1-segments-9f7s89d8a7892.wav"));
 
-    subject = new MacroMainCraft(fabricatorFactory->fabricate(sourceMaterial, segment2->id, std::nullopt), std::nullopt, {});
+    subject = new MacroMainCraft(fabricatorFactory->fabricate(sourceMaterial, segment2->id, std::nullopt), std::nullopt,
+                                 {});
   }
 };
 

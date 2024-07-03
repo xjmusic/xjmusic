@@ -1,20 +1,18 @@
+// Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
+
 #include <set>
-#include <vector>
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
 #include "../../_helper/ContentFixtures.h"
 #include "../../_helper/SegmentFixtures.h"
-#include "../../_helper/YamlTest.h"
 
 #include "xjmusic/craft/Craft.h"
-#include "xjmusic/craft/CraftFactory.h"
-#include "xjmusic/fabricator/ChainUtils.h"
+#include "xjmusic/craft/DetailCraft.h"
 #include "xjmusic/fabricator/FabricatorFactory.h"
 #include "xjmusic/fabricator/SegmentUtils.h"
 #include "xjmusic/util/CsvUtils.h"
-#include "xjmusic/util/ValueUtils.h"
 
 // NOLINTNEXTLINE
 using ::testing::_;
@@ -25,7 +23,6 @@ using namespace XJ;
 
 class CraftHookProgramVoiceNextMainTest : public testing::Test {
 protected:
-  CraftFactory *craftFactory = nullptr;
   FabricatorFactory *fabricatorFactory = nullptr;
   ContentFixtures *fake = nullptr;
   SegmentEntityStore *store = nullptr;
@@ -36,7 +33,6 @@ protected:
   InstrumentAudio *audioSnare = nullptr;
 
   void SetUp() override {
-    craftFactory = new CraftFactory();
     store = new SegmentEntityStore();
     fabricatorFactory = new FabricatorFactory(store);
 
@@ -79,13 +75,12 @@ protected:
   }
 
   void TearDown() override {
-    delete craftFactory;
     delete fabricatorFactory;
     delete fake;
     delete store;
     delete sourceMaterial;
     delete chain1;
-        delete audioKick;
+    delete audioKick;
     delete audioSnare;
   }
 
@@ -96,7 +91,9 @@ protected:
    */
   void setupCustomFixtures() {
     // Instrument "808"
-    const auto instrument1 = sourceMaterial->put(ContentFixtures::buildInstrument(&fake->library2, Instrument::Type::Hook, Instrument::Mode::Event, Instrument::State::Published, "Bongo Loop"));
+    const auto instrument1 = sourceMaterial->put(
+        ContentFixtures::buildInstrument(&fake->library2, Instrument::Type::Hook, Instrument::Mode::Event,
+                                         Instrument::State::Published, "Bongo Loop"));
     sourceMaterial->put(ContentFixtures::buildInstrumentMeme(instrument1, "heavy"));
     audioKick = sourceMaterial->put(ContentFixtures::buildInstrumentAudio(
         instrument1,
@@ -177,7 +174,7 @@ protected:
         SegmentChoice::DELTA_UNLIMITED,
         &fake->program15,
         &fake->program15_sequence0_binding0));
-    for (const std::string memeName: std::set<std::string>({"Regret", "Sky", "Hindsight", "Tropical"}))
+    for (const std::string &memeName: std::set<std::string>({"Regret", "Sky", "Hindsight", "Tropical"}))
       store->put(SegmentFixtures::buildSegmentMeme(segment4, memeName));
 
     store->put(SegmentFixtures::buildSegmentChord(segment4, 0.0f, "G minor"));
@@ -189,5 +186,5 @@ TEST_F(CraftHookProgramVoiceNextMainTest, CraftHookVoiceNextMain) {
   insertSegments3and4();
   const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, std::nullopt);
 
-  craftFactory->detail(fabricator).doWork();
+  DetailCraft(fabricator).doWork();
 }

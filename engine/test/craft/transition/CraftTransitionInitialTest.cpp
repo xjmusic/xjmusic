@@ -1,20 +1,18 @@
+// Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
+
 #include <set>
-#include <vector>
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
 #include "../../_helper/ContentFixtures.h"
 #include "../../_helper/SegmentFixtures.h"
-#include "../../_helper/YamlTest.h"
 
 #include "xjmusic/craft/Craft.h"
-#include "xjmusic/craft/CraftFactory.h"
-#include "xjmusic/fabricator/ChainUtils.h"
+#include "xjmusic/craft/TransitionCraft.h"
 #include "xjmusic/fabricator/FabricatorFactory.h"
 #include "xjmusic/fabricator/SegmentUtils.h"
 #include "xjmusic/util/CsvUtils.h"
-#include "xjmusic/util/ValueUtils.h"
 
 // NOLINTNEXTLINE
 using ::testing::_;
@@ -25,14 +23,12 @@ using namespace XJ;
 
 class CraftTransitionInitialTest : public testing::Test {
 protected:
-  CraftFactory *craftFactory = nullptr;
   FabricatorFactory *fabricatorFactory = nullptr;
   ContentEntityStore *sourceMaterial = nullptr;
   SegmentEntityStore *store = nullptr;
   const Segment *segment6 = nullptr;
 
   void SetUp() override {
-    craftFactory = new CraftFactory();
     store = new SegmentEntityStore();
     fabricatorFactory = new FabricatorFactory(store);
 
@@ -79,7 +75,7 @@ protected:
         SegmentChoice::DELTA_UNLIMITED,
         &fake->program5,
         &fake->program5_sequence0_binding0));
-    for (const std::string memeName: std::set<std::string>({"Special", "Wild", "Pessimism", "Outlook"}))
+    for (const std::string &memeName: std::set<std::string>({"Special", "Wild", "Pessimism", "Outlook"}))
       store->put(SegmentFixtures::buildSegmentMeme(segment6, memeName));
 
     store->put(SegmentFixtures::buildSegmentChord(segment6, 0.0f, "C minor"));
@@ -87,15 +83,14 @@ protected:
   }
 
   void TearDown() override {
-    delete craftFactory;
     delete fabricatorFactory;
     delete sourceMaterial;
     delete store;
-      }
+  }
 };
 
 TEST_F(CraftTransitionInitialTest, CraftTransitionInitial) {
   const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment6->id, std::nullopt);
 
-  craftFactory->transition(fabricator).doWork();
+  TransitionCraft(fabricator).doWork();
 }

@@ -86,7 +86,7 @@ std::optional<Note> Note::ifTonal(const std::string &name) {
 
 
 bool Note::isValid(const std::string &name) {
-  return std::regex_match(accidentalNormalized(name), rgxValidNote);
+  return std::regex_match(name, rgxValidNote);
 }
 
 

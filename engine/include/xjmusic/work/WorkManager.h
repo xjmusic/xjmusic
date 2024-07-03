@@ -4,7 +4,6 @@
 #define XJMUSIC_WORK_FABRICATION_MANAGER_H
 
 #include "xjmusic/audio/ActiveAudio.h"
-#include "xjmusic/craft/CraftFactory.h"
 #include "xjmusic/fabricator/FabricatorFactory.h"
 #include "xjmusic/segment/SegmentEntityStore.h"
 
@@ -16,8 +15,7 @@
 namespace XJ {
 
   class WorkManager {
-    CraftFactory *craftFactory = nullptr;
-    FabricatorFactory *fabricatorFactory = nullptr;
+      FabricatorFactory *fabricatorFactory = nullptr;
     SegmentEntityStore *entityStore = nullptr;
     CraftWork *craftWork = nullptr;
     DubWork *dubWork = nullptr;
@@ -31,12 +29,10 @@ namespace XJ {
 
     /**
     * Construct a new WorkManager
-    * @param craftFactory  for craft
     * @param fabricatorFactory  for fabrication
     * @param store  for segments
     */
     WorkManager(
-        CraftFactory *craftFactory,
         FabricatorFactory *fabricatorFactory,
         SegmentEntityStore *store);
 
