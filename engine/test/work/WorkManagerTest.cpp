@@ -12,8 +12,7 @@
 #include "xjmusic/craft/Craft.h"
 #include "xjmusic/fabricator/FabricatorFactory.h"
 #include "xjmusic/fabricator/SegmentUtils.h"
-
-#include <xjmusic/work/WorkManager.h>
+#include "xjmusic/work/WorkManager.h"
 
 // NOLINTNEXTLINE
 using ::testing::_;
