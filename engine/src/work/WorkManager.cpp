@@ -7,10 +7,8 @@
 using namespace XJ;
 
 WorkManager::WorkManager(
-    CraftFactory *craftFactory,
     FabricatorFactory *fabricatorFactory,
     SegmentEntityStore *store) {
-  this->craftFactory = craftFactory;
   this->fabricatorFactory = fabricatorFactory;
   this->entityStore = store;
 }
@@ -24,7 +22,7 @@ void WorkManager::start(
 
   try {
     entityStore->clear();
-  } catch (std::exception e) {
+  } catch (std::exception &e) {
     spdlog::warn("Failed to clear entity store", e.what());
   }
   spdlog::debug("Did clear entity store");
@@ -70,7 +68,7 @@ std::optional<MemeTaxonomy> WorkManager::getMemeTaxonomy() const {
       throw std::runtime_error("No template found in source material");
     auto templateConfig = TemplateConfig(*getSourceMaterial()->getTemplates().begin());
     return {MemeTaxonomy(templateConfig.memeTaxonomy)};
-  } catch (std::exception e) {
+  } catch (std::exception &e) {
     spdlog::error("Failed to get meme taxonomy from template config: {}", e.what());
     return std::nullopt;
   }
@@ -152,7 +150,7 @@ void WorkManager::runControlCycle() {
     }
     spdlog::debug("Did run control cycle");
 
-  } catch (std::exception e) {
+  } catch (std::exception &e) {
     didFailWhile("running control cycle", e);
   }
 }
@@ -174,7 +172,7 @@ void WorkManager::runCraftCycle(const unsigned long long atChainMicros) {
     craftWork->runCycle(atChainMicros);
     spdlog::debug("Did run craft cycle");
 
-  } catch (std::exception e) {
+  } catch (std::exception &e) {
     didFailWhile("running craft cycle", e);
   }
 }
@@ -191,7 +189,7 @@ std::set<ActiveAudio> WorkManager::runDubCycle(const unsigned long long atChainM
     spdlog::debug("Will run dub cycle");
     return dubWork->runCycle(atChainMicros);
 
-  } catch (std::exception e) {
+  } catch (std::exception &e) {
     didFailWhile("running dub cycle", e);
     return {};
   }
@@ -199,7 +197,6 @@ std::set<ActiveAudio> WorkManager::runDubCycle(const unsigned long long atChainM
 
 void WorkManager::initialize() {
   craftWork = new CraftWork(
-      craftFactory,
       fabricatorFactory,
       entityStore,
       content,

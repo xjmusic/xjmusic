@@ -62,7 +62,7 @@ TEST(SegmentMemeTest, testGetNames) {
   segmentMeme2.segmentId = 2;
   segmentMeme2.name = "name2";
 
-  std::set<SegmentMeme*> segmentMemes;
+  std::set<const SegmentMeme*> segmentMemes;
   segmentMemes.insert(&segmentMeme1);
   segmentMemes.insert(&segmentMeme2);
 

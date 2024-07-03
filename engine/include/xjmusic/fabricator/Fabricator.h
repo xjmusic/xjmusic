@@ -113,7 +113,7 @@ namespace XJ {
 
      @return arrangements for segment
      */
-    virtual std::set<SegmentChoiceArrangement *> getArrangements();
+    virtual std::set<const SegmentChoiceArrangement *> getArrangements();
 
     /**
      Get segment arrangements for a given choice
@@ -121,7 +121,7 @@ namespace XJ {
      @param choices to get segment arrangements for
      @return segments arrangements for the given segment choice
      */
-    virtual std::set<SegmentChoiceArrangement *> getArrangements(std::set<const SegmentChoice *> &choices);
+    virtual std::set<const SegmentChoiceArrangement *> getArrangements(std::set<const SegmentChoice *> &choices);
 
     /**
      Get the Chain
@@ -143,7 +143,7 @@ namespace XJ {
 
      @return choices for segment
      */
-    [[nodiscard]] virtual std::set<SegmentChoice *> getChoices() const;
+    [[nodiscard]] virtual std::set<const SegmentChoice *> getChoices() const;
 
     /**
      Determine if a choice has been previously crafted
@@ -161,7 +161,7 @@ namespace XJ {
 
      @return choice if previously made, or null if none is found
      */
-    virtual std::set<SegmentChoice *> getChoicesIfContinued(const Program::Type programType);
+    virtual std::set<const SegmentChoice *> getChoicesIfContinued(const Program::Type programType);
 
     /**
      Determine if a choice has been previously crafted
@@ -169,7 +169,7 @@ namespace XJ {
 
      @return choice if previously made, or null if none is found
      */
-    virtual std::optional<SegmentChoice *> getChoiceIfContinued(Instrument::Type instrumentType);
+    virtual std::optional<const SegmentChoice *> getChoiceIfContinued(Instrument::Type instrumentType);
 
     /**
      Determine if a choice has been previously crafted
@@ -177,7 +177,7 @@ namespace XJ {
 
      @return choice if previously made, or null if none is found
      */
-    virtual std::optional<SegmentChoice *>
+    virtual std::optional<const SegmentChoice *>
     getChoiceIfContinued(Instrument::Type instrumentType, Instrument::Mode instrumentMode);
 
     /**
@@ -187,7 +187,7 @@ namespace XJ {
      @param position in segment
      @return ChordEntity
      */
-    virtual std::optional<SegmentChord *> getChordAt(float position);
+    virtual std::optional<const SegmentChord *> getChordAt(float position);
 
     /**
      fetch the main-type choice for the current segment in the chain
@@ -253,14 +253,14 @@ namespace XJ {
 
      @return macro-type segment choice, null if none found
      */
-    virtual std::optional<SegmentChoice *> getMacroChoiceOfPreviousSegment();
+    virtual std::optional<const SegmentChoice *> getMacroChoiceOfPreviousSegment();
 
     /**
      fetch the main-type choice for the previous segment in the chain
 
      @return main-type segment choice, null if none found
      */
-    virtual std::optional<SegmentChoice *> getPreviousMainChoice();
+    virtual std::optional<const SegmentChoice *> getPreviousMainChoice();
 
     /**
      Get the configuration of the current main program
@@ -315,7 +315,7 @@ namespace XJ {
 
      @return arrangement picks for segment
      */
-    virtual std::set<SegmentChoiceArrangementPick *> getPicks();
+    virtual std::set<const SegmentChoiceArrangementPick *> getPicks();
 
     /**
      Get the picks for a given choice, in order of position ascending from beginning of segment
@@ -323,7 +323,7 @@ namespace XJ {
      @param choice for which to get picks
      @return picks
      */
-    virtual std::vector<SegmentChoiceArrangementPick *> getPicks(const SegmentChoice *choice);
+    virtual std::vector<const SegmentChoiceArrangementPick *> getPicks(const SegmentChoice *choice);
 
     /**
      Get preferred (previously chosen) instrument audios
@@ -495,28 +495,28 @@ namespace XJ {
 
      @return Segment
      */
-    virtual Segment *getSegment();
+    virtual const Segment *getSegment();
 
     /**
      Get all segment chords, guaranteed to be in order of position ascending
 
      @return segment chords
      */
-    virtual std::vector<SegmentChord *> getSegmentChords();
+    virtual std::vector<const SegmentChord *> getSegmentChords();
 
     /**
      Get all segment chord voicings
 
      @return segment chord voicings
      */
-    virtual std::set<SegmentChordVoicing *> getChordVoicings();
+    virtual std::set<const SegmentChordVoicing *> getChordVoicings();
 
     /**
      Get all segment memes
 
      @return segment memes
      */
-    virtual std::set<SegmentMeme *> getSegmentMemes();
+    virtual std::set<const SegmentMeme *> getSegmentMemes();
 
     /**
      Get the sequence for a Choice either directly (beat- and detail-type sequences), or by sequence-pattern (macro- or main-type sequences) https://github.com/xjmusic/xjmusic/issues/204
@@ -592,7 +592,7 @@ namespace XJ {
      @param instrumentType for which to get voicing
      @return chord voicing for chord
      */
-    virtual std::optional<SegmentChordVoicing *>
+    virtual std::optional<const SegmentChordVoicing *>
     chooseVoicing(const SegmentChord *chord, Instrument::Type instrumentType);
 
     /**
@@ -706,7 +706,7 @@ namespace XJ {
      @return choice if successfully put
      @ on failure
      */
-    virtual std::optional<SegmentChoice *> put(SegmentChoice entity, bool force);
+    virtual std::optional<const SegmentChoice *> put(SegmentChoice entity, bool force);
 
     /**
      Put a SegmentChoiceArrangement in the store
@@ -715,7 +715,7 @@ namespace XJ {
      @return Arrangement successfully put
      @ on failure
      */
-    virtual SegmentChoiceArrangement *put(SegmentChoiceArrangement entity);
+    virtual const SegmentChoiceArrangement *put(SegmentChoiceArrangement entity);
 
     /**
      Put a SegmentChoiceArrangementPick in the store
@@ -724,7 +724,7 @@ namespace XJ {
      @return ChoiceArrangementPick successfully put
      @ on failure
      */
-    virtual SegmentChoiceArrangementPick *put(SegmentChoiceArrangementPick entity);
+    virtual const SegmentChoiceArrangementPick *put(SegmentChoiceArrangementPick entity);
 
     /**
      Put a SegmentChord in the store
@@ -733,7 +733,7 @@ namespace XJ {
      @return Chord successfully put
      @ on failure
      */
-    virtual SegmentChord* put(SegmentChord entity);
+    virtual const SegmentChord* put(SegmentChord entity);
 
     /**
      Put a SegmentChordVoicing in the store
@@ -742,7 +742,7 @@ namespace XJ {
      @return ChordVoicing successfully put
      @ on failure
      */
-    virtual SegmentChordVoicing* put(SegmentChordVoicing entity);
+    virtual const SegmentChordVoicing* put(SegmentChordVoicing entity);
 
     /**
      Put a SegmentMeme in the store
@@ -752,7 +752,7 @@ namespace XJ {
      @return Meme successfully put
      @ on failure
      */
-    virtual std::optional<SegmentMeme *> put(SegmentMeme entity, bool force);
+    virtual std::optional<const SegmentMeme *> put(SegmentMeme entity, bool force);
 
     /**
      Put a SegmentMessage in the store
@@ -761,7 +761,7 @@ namespace XJ {
      @return Message successfully put
      @ on failure
      */
-    virtual SegmentMessage *put(SegmentMessage entity);
+    virtual const SegmentMessage *put(SegmentMessage entity);
 
     /**
      Put a SegmentMeta in the store
@@ -770,7 +770,7 @@ namespace XJ {
      @return Meta successfully put
      @ on failure
      */
-    virtual SegmentMeta* put(SegmentMeta entity);
+    virtual const SegmentMeta* put(SegmentMeta entity);
 
     /**
      Set the preferred audio for a key
@@ -808,7 +808,7 @@ namespace XJ {
      @param segment to set
      @ on failure
      */
-    virtual Segment *updateSegment(Segment segment);
+    virtual const Segment *updateSegment(Segment segment);
 
     /**
      Get the Segment Retrospective
@@ -918,7 +918,7 @@ namespace XJ {
     std::map<std::string, NoteRange> rangeForChoice;
     std::map<std::string, std::optional<Note>> rootNotesByVoicingAndChord;
     std::map<UUID, std::vector<const ProgramSequenceChord *>> completeChordsForProgramSequence;
-    std::map<UUID, std::vector<SegmentChoiceArrangementPick*>> picksForChoice;
+    std::map<UUID, std::vector<const SegmentChoiceArrangementPick*>> picksForChoice;
     SegmentEntityStore *store;
     SegmentRetrospective *retrospective;
     std::set<UUID> boundInstrumentIds;
@@ -927,8 +927,8 @@ namespace XJ {
     int segmentId;
     std::optional<Segment::Type> type;
 
-    std::optional<SegmentChoice*> macroChoiceOfPreviousSegment;
-    std::optional<SegmentChoice*> mainChoiceOfPreviousSegment;
+    std::optional<const SegmentChoice*> macroChoiceOfPreviousSegment;
+    std::optional<const SegmentChoice*> mainChoiceOfPreviousSegment;
 
     double microsPerBeat{};
 

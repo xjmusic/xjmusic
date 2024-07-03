@@ -1,16 +1,15 @@
+// Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
+
 #include <set>
-#include <vector>
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
 #include "../../_helper/ContentFixtures.h"
 #include "../../_helper/SegmentFixtures.h"
-#include "../../_helper/YamlTest.h"
 
 #include "xjmusic/craft/Craft.h"
-#include "xjmusic/craft/CraftFactory.h"
-#include "xjmusic/fabricator/ChainUtils.h"
+#include "xjmusic/craft/DetailCraft.h"
 #include "xjmusic/fabricator/FabricatorFactory.h"
 #include "xjmusic/fabricator/SegmentUtils.h"
 #include "xjmusic/util/CsvUtils.h"
@@ -25,16 +24,14 @@ using namespace XJ;
 
 class CraftDetailProgramVoiceNextMacroTest : public testing::Test {
 protected:
-  CraftFactory *craftFactory = nullptr;
   FabricatorFactory *fabricatorFactory = nullptr;
   ContentEntityStore *sourceMaterial = nullptr;
   SegmentEntityStore *store = nullptr;
   ContentFixtures *fake = nullptr;
   Chain *chain1 = nullptr;
-  Segment *segment4 = nullptr;
+  const Segment *segment4 = nullptr;
 
   void SetUp() override {
-    craftFactory = new CraftFactory();
     store = new SegmentEntityStore();
     fabricatorFactory = new FabricatorFactory(store);
 
@@ -49,7 +46,9 @@ protected:
     fake->setupFixtureB4_DetailBass(sourceMaterial);
 
     // Chain "Test Print #1" has 5 total segments
-    chain1 = store->put(SegmentFixtures::buildChain("Test Print #1", Chain::Type::Production, Chain::State::Fabricate, &fake->template1, ""));
+    chain1 = store->put(
+        SegmentFixtures::buildChain("Test Print #1", Chain::Type::Production, Chain::State::Fabricate, &fake->template1,
+                                    ""));
     store->put(SegmentFixtures::buildSegment(
         chain1,
         Segment::Type::Initial,
@@ -76,13 +75,12 @@ protected:
   }
 
   void TearDown() override {
-    delete craftFactory;
     delete fabricatorFactory;
     delete sourceMaterial;
     delete store;
     delete fake;
     delete chain1;
-      }
+  }
 
   /**
    Insert fixture segments 3 and 4, including the detail choice for segment 3 only if specified
@@ -145,12 +143,28 @@ protected:
         SegmentChoice::DELTA_UNLIMITED,
         &fake->program15,
         &fake->program15_sequence0_binding0));
-    for (const std::string memeName: std::set<std::string>({"Hindsight", "Chunky", "Regret", "Tangy"}))
+    for (const std::string &memeName: std::set<std::string>({"Hindsight", "Chunky", "Regret", "Tangy"}))
       store->put(SegmentFixtures::buildSegmentMeme(segment4, memeName));
     const auto chord0 = store->put(SegmentFixtures::buildSegmentChord(segment4, 0.0f, "F minor"));
     store->put(SegmentFixtures::buildSegmentChordVoicing(chord0, Instrument::Type::Bass, "F2, Ab2, B2"));
     const auto chord1 = store->put(SegmentFixtures::buildSegmentChord(segment4, 8.0f, "Gb minor"));
     store->put(SegmentFixtures::buildSegmentChordVoicing(chord1, Instrument::Type::Bass, "Gb2, A2, Db3"));
+  }
+
+  static std::optional<const SegmentChoice *> findChoiceByType(const std::set<const SegmentChoice *>& choices, Program::Type type) {
+    for (const auto choice: choices) {
+      if (choice->programType == type)
+        return choice;
+    }
+    return std::nullopt;
+  }
+
+  static std::optional<const SegmentChoiceArrangement*> findArrangementByChoiceId(const std::set<const SegmentChoiceArrangement*>& arrangements, const std::string& choiceId) {
+    for (const auto arrangement: arrangements) {
+      if (arrangement->segmentChoiceId == choiceId)
+        return arrangement;
+    }
+    return std::nullopt;
   }
 };
 
@@ -158,20 +172,16 @@ TEST_F(CraftDetailProgramVoiceNextMacroTest, CraftDetailVoiceNextMacro) {
   insertSegments3and4(true);
   const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, std::nullopt);
 
-  craftFactory->detail(fabricator).doWork();
+  DetailCraft(fabricator).doWork();
 
   // assert detail choice
   auto segmentChoices = fabricator->getChoices();
-  const auto detailChoiceIt = std::find_if(segmentChoices.begin(), segmentChoices.end(), [](const SegmentChoice *c) {
-    return c->programType == Program::Type::Detail;
-  });
-  ASSERT_FALSE(detailChoiceIt == segmentChoices.end());
-  auto detailChoice = *detailChoiceIt;
+  auto detailChoice = findChoiceByType(segmentChoices, Program::Type::Detail);
+  ASSERT_TRUE(detailChoice.has_value());
 
-  const auto arrangementIt = std::find_if(fabricator->getArrangements().begin(), fabricator->getArrangements().end(), [detailChoice](const SegmentChoiceArrangement *a) {
-    return a->segmentChoiceId == detailChoice->id;
-  });
-  ASSERT_FALSE(arrangementIt == fabricator->getArrangements().end());
+  // assert arrangement
+  auto arrangement = findArrangementByChoiceId(fabricator->getArrangements(), detailChoice.value()->id);
+  ASSERT_TRUE(arrangement.has_value());
 
   int pickedBloop = 0;
   const auto picks = fabricator->getPicks();
@@ -186,5 +196,5 @@ TEST_F(CraftDetailProgramVoiceNextMacroTest, CraftDetailVoiceNextMacro_okIfNoDet
   insertSegments3and4(false);
   const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, std::nullopt);
 
-  craftFactory->detail(fabricator).doWork();
+  DetailCraft(fabricator).doWork();
 }

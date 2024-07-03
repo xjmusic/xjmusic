@@ -50,7 +50,7 @@ protected:
   std::map<Instrument::Type, std::vector<ProgramSequencePatternEvent>> detailProgramSequencePatternEvents;
   std::vector<StickyBun> stickyBuns;
   Chain *chain = nullptr;
-  Segment *segment = nullptr;
+  const Segment *segment = nullptr;
   std::map<Instrument::Type, const SegmentChoice *> segmentChoices;
   Program mainProgram1;
 
@@ -287,9 +287,9 @@ protected:
     auto objs = data[StringUtils::toLowerCase(Instrument::toString(type))];
     if (!objs) return;
 
-    std::vector<SegmentChoiceArrangementPick *> actualPicks;
+    std::vector<const SegmentChoiceArrangementPick *> actualPicks;
     for (const auto &pick: fabricator->getPicks())
-      actualPicks.push_back(pick);
+      actualPicks.emplace_back(pick);
     std::sort(actualPicks.begin(), actualPicks.end(), [](const auto *a, const auto *b) {
       return a->startAtSegmentMicros < b->startAtSegmentMicros;
     });

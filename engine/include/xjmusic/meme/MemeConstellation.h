@@ -1,4 +1,4 @@
-// Copyright (c) 1999-2022, XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
 #ifndef XJ_MUSIC_ENTITIES_MEME_CONSTELLATION_H
 #define XJ_MUSIC_ENTITIES_MEME_CONSTELLATION_H

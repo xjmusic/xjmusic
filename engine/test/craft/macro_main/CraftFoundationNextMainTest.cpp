@@ -1,16 +1,15 @@
+// Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
+
 #include <set>
-#include <vector>
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
 #include "../../_helper/ContentFixtures.h"
 #include "../../_helper/SegmentFixtures.h"
-#include "../../_helper/YamlTest.h"
 
 #include "xjmusic/craft/Craft.h"
-#include "xjmusic/craft/CraftFactory.h"
-#include "xjmusic/fabricator/ChainUtils.h"
+#include "xjmusic/craft/MacroMainCraft.h"
 #include "xjmusic/fabricator/FabricationFatalException.h"
 #include "xjmusic/fabricator/FabricatorFactory.h"
 #include "xjmusic/fabricator/SegmentUtils.h"
@@ -26,18 +25,16 @@ using namespace XJ;
 
 class CraftFoundationNextMainTest : public testing::Test {
 protected:
-  CraftFactory *craftFactory = nullptr;
   FabricatorFactory *fabricatorFactory = nullptr;
   ContentFixtures *fake = nullptr;
   SegmentEntityStore *store = nullptr;
   ContentEntityStore *sourceMaterial = nullptr;
   Chain *chain1 = nullptr;
-  Segment *segment4 = nullptr;
+  const Segment *segment4 = nullptr;
 
   void SetUp() override {
     store = new SegmentEntityStore();
     fabricatorFactory = new FabricatorFactory(store);
-    craftFactory = new CraftFactory();
 
     // Manipulate the underlying entity store; reset before each test
     store->clear();
@@ -49,7 +46,9 @@ protected:
     fake->setupFixtureB2(sourceMaterial);
 
     // Chain "Test Print #1" has 5 total segments
-    chain1 = store->put(SegmentFixtures::buildChain("Test Print #1", Chain::Type::Production, Chain::State::Fabricate, &fake->template1, ""));
+    chain1 = store->put(
+        SegmentFixtures::buildChain("Test Print #1", Chain::Type::Production, Chain::State::Fabricate, &fake->template1,
+                                    ""));
     store->put(SegmentFixtures::buildSegment(
         chain1,
         0,
@@ -83,7 +82,8 @@ protected:
     store->put(SegmentFixtures::buildSegmentChoice(segment3, Program::Type::Main, &fake->program5_sequence1_binding0));
 
     // Chain "Test Print #1" has a planned segment
-    segment4 = store->put(SegmentFixtures::buildSegment(chain1, 3, Segment::State::Planned, "C", 8, 0.8f, 120, "chain-1-waveform-12345"));
+    segment4 = store->put(
+        SegmentFixtures::buildSegment(chain1, 3, Segment::State::Planned, "C", 8, 0.8f, 120, "chain-1-waveform-12345"));
   }
 
   void TearDown() override {
@@ -91,15 +91,14 @@ protected:
     delete sourceMaterial;
     delete store;
     delete fabricatorFactory;
-    delete craftFactory;
     delete chain1;
-      }
+  }
 };
 
 TEST_F(CraftFoundationNextMainTest, CraftFoundationNextMain) {
   auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, std::nullopt);
 
-  craftFactory->macroMain(fabricator, std::nullopt, {}).doWork();
+  MacroMainCraft(fabricator, std::nullopt, {}).doWork();
 
   auto result = store->readSegment(segment4->id).value();
   ASSERT_EQ(Segment::Type::NextMain, result->type);

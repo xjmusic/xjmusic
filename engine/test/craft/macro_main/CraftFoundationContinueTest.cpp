@@ -1,21 +1,17 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
 #include <set>
-#include <vector>
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
 #include "../../_helper/ContentFixtures.h"
 #include "../../_helper/SegmentFixtures.h"
-#include "../../_helper/YamlTest.h"
 
 #include "xjmusic/craft/Craft.h"
-#include "xjmusic/craft/CraftFactory.h"
-#include "xjmusic/fabricator/ChainUtils.h"
+#include "xjmusic/craft/MacroMainCraft.h"
 #include "xjmusic/fabricator/FabricatorFactory.h"
 #include "xjmusic/fabricator/SegmentUtils.h"
-#include "xjmusic/util/CsvUtils.h"
 #include "xjmusic/util/ValueUtils.h"
 
 // NOLINTNEXTLINE
@@ -27,15 +23,13 @@ using namespace XJ;
 
 class CraftFoundationContinueTest : public testing::Test {
 protected:
-  CraftFactory *craftFactory = nullptr;
   FabricatorFactory *fabricatorFactory = nullptr;
   ContentEntityStore *sourceMaterial = nullptr;
   SegmentEntityStore *store = nullptr;
   ContentFixtures *fake = nullptr;
-  Segment *segment4 = nullptr;
+  const Segment *segment4 = nullptr;
 
   void SetUp() override {
-    craftFactory = new CraftFactory();
     store = new SegmentEntityStore();
     sourceMaterial = new ContentEntityStore();
     fabricatorFactory = new FabricatorFactory(store);
@@ -49,7 +43,9 @@ protected:
     fake->setupFixtureB2(sourceMaterial);
 
     // Chain "Test Print #1" has 5 total segments
-    const auto chain1 = store->put(SegmentFixtures::buildChain("Test Print #1", Chain::Type::Production, Chain::State::Fabricate, &fake->template1, ""));
+    const auto chain1 = store->put(
+        SegmentFixtures::buildChain("Test Print #1", Chain::Type::Production, Chain::State::Fabricate, &fake->template1,
+                                    ""));
     store->put(SegmentFixtures::buildSegment(
         chain1,
         0,
@@ -108,20 +104,19 @@ protected:
     delete sourceMaterial;
     delete store;
     delete fabricatorFactory;
-    delete craftFactory;
-      }
+  }
 };
 
 TEST_F(CraftFoundationContinueTest, CraftFoundationContinue) {
   auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, std::nullopt);
 
-  craftFactory->macroMain(fabricator, std::nullopt, {}).doWork();
+  MacroMainCraft(fabricator, std::nullopt, {}).doWork();
 
   auto result = store->readSegment(segment4->id).value();
   ASSERT_EQ(Segment::Type::Continue, result->type);
   ASSERT_EQ(32 * ValueUtils::MICROS_PER_MINUTE / 140, result->durationMicros);
   ASSERT_EQ(32, result->total);
-  ASSERT_NEAR(0.23, result->intensity, 0.001);
+  ASSERT_NEAR(0.2, result->intensity, 0.001);
   ASSERT_EQ("G -", result->key);
   ASSERT_NEAR(140, result->tempo, 0.001);
   ASSERT_EQ(Segment::Type::Continue, result->type);
@@ -143,6 +138,7 @@ TEST_F(CraftFoundationContinueTest, CraftFoundationContinue) {
   // assert main choice
   auto mainChoice = SegmentUtils::findFirstOfType(segmentChoices, Program::Type::Main);
   ASSERT_TRUE(mainChoice.has_value());
-  ASSERT_EQ(fake->program5_sequence1_binding0.id, mainChoice.value()->programSequenceBindingId);// next main sequence binding in same program as previous sequence
+  ASSERT_EQ(fake->program5_sequence1_binding0.id,
+            mainChoice.value()->programSequenceBindingId);// next main sequence binding in same program as previous sequence
   ASSERT_EQ(1, fabricator->getSequenceBindingOffsetForChoice(mainChoice.value()));
 }

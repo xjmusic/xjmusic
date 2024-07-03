@@ -59,12 +59,12 @@ namespace XJ {
      @return arrangement
      @ on failure to retrieve
      */
-    virtual SegmentChoiceArrangement *getArrangement(const SegmentChoiceArrangementPick *pick);
+    virtual const SegmentChoiceArrangement *getArrangement(const SegmentChoiceArrangementPick *pick);
 
     /**
      @return all choices
      */
-    virtual std::set<SegmentChoice *> getChoices();
+    virtual std::set<const SegmentChoice *> getChoices();
 
     /**
      Get the choice for the given arrangement
@@ -73,7 +73,7 @@ namespace XJ {
      @return choice
      @ on failure to retrieve
      */
-    virtual SegmentChoice *getChoice(const SegmentChoiceArrangement *arrangement);
+    virtual const SegmentChoice *getChoice(const SegmentChoiceArrangement *arrangement);
 
     /**
      Get the instrument type for a given pick
@@ -91,7 +91,7 @@ namespace XJ {
      @param key to search for meta
      @return meta if found
      */
-    virtual std::optional<SegmentMeta *> getPreviousMeta(const std::string &key);
+    virtual std::optional<const SegmentMeta *> getPreviousMeta(const std::string &key);
 
     /**
      Get the previous segment choices for the given instrument
@@ -100,7 +100,7 @@ namespace XJ {
      @param instrumentId for which to get choice
      @return previous segment choice
      */
-    virtual std::set<SegmentChoice *> getPreviousChoicesForInstrument(const UUID &instrumentId);
+    virtual std::set<const SegmentChoice *> getPreviousChoicesForInstrument(const UUID &instrumentId);
 
     /**
      Get the previous arrangements for the given instrument id
@@ -108,7 +108,7 @@ namespace XJ {
      @param instrumentId for which to get arrangements
      @return segment choice arrangements
      */
-    virtual std::set<SegmentChoiceArrangement *> getPreviousArrangementsForInstrument(UUID instrumentId);
+    virtual std::set<const SegmentChoiceArrangement *> getPreviousArrangementsForInstrument(UUID instrumentId);
 
     /**
      Get the picks of any previous segments which selected the same main sequence
@@ -117,7 +117,7 @@ namespace XJ {
 
      @return map of all previous segment meme constellations (as keys) to a collection of choices made
      */
-    virtual std::set<SegmentChoiceArrangementPick *> getPicks();
+    virtual std::set<const SegmentChoiceArrangementPick *> getPicks();
 
     /**
      Get the choice of a given type
@@ -126,7 +126,7 @@ namespace XJ {
      @param programType of choice to get
      @return choice of given type
      */
-    virtual std::optional<SegmentChoice *> getPreviousChoiceOfType(const Segment *segment, Program::Type programType);
+    virtual std::optional<const SegmentChoice *> getPreviousChoiceOfType(const Segment *segment, Program::Type programType);
 
     /**
      Get the previous-segment choice of a given type
@@ -134,7 +134,7 @@ namespace XJ {
      @param programType of choice to get
      @return choice of given type
      */
-    virtual std::optional<SegmentChoice *> getPreviousChoiceOfType(Program::Type programType);
+    virtual std::optional<const SegmentChoice *> getPreviousChoiceOfType(Program::Type programType);
 
     /**
      Get the previous-segment choices of a given instrument mode
@@ -142,7 +142,7 @@ namespace XJ {
      @param instrumentMode for which to get previous-segment choices
      @return choices
      */
-    virtual std::set<SegmentChoice *> getPreviousChoicesOfMode(Instrument::Mode instrumentMode);
+    virtual std::set<const SegmentChoice *> getPreviousChoicesOfMode(Instrument::Mode instrumentMode);
 
     /**
      Get the previous-segment choices of a given instrument type and mode
@@ -151,7 +151,7 @@ namespace XJ {
      @param instrumentMode for which to get previous-segment choices
      @return choices
      */
-    virtual std::set<SegmentChoice *>
+    virtual std::set<const SegmentChoice *>
     getPreviousChoicesOfTypeMode(Instrument::Type instrumentType, Instrument::Mode instrumentMode);
 
     /**
@@ -160,7 +160,7 @@ namespace XJ {
      @param instrumentType for which to get previous-segment choices
      @return choices
      */
-    virtual std::optional<SegmentChoice *> getPreviousChoiceOfType(Instrument::Type instrumentType);
+    virtual std::optional<const SegmentChoice *> getPreviousChoiceOfType(Instrument::Type instrumentType);
 
     /**
      Get the previous picks for the given instrument id
@@ -168,14 +168,14 @@ namespace XJ {
      @param instrumentId for which to get picks
      @return segment choice picks
      */
-    virtual std::set<SegmentChoiceArrangementPick *> getPreviousPicksForInstrument(UUID instrumentId);
+    virtual std::set<const SegmentChoiceArrangementPick *> getPreviousPicksForInstrument(UUID instrumentId);
 
     /**
      Get the segment immediately previous to the current segment
 
      @return previous segment
      */
-    virtual std::optional<Segment *> getPreviousSegment();
+    virtual std::optional<const Segment *> getPreviousSegment();
 
     /**
      @return all cached segments, ordered by id
@@ -185,7 +185,7 @@ namespace XJ {
      whether this retrospective is looking back on the current main program (Continue segment),
      or the previous one (NextMain/NextMacro segments)
      */
-    virtual std::vector<Segment *> getSegments();
+    virtual std::vector<const Segment *> getSegments();
 
     /**
      Get all segment chords for the given segment id, ordered by position
@@ -193,15 +193,15 @@ namespace XJ {
      @param segmentId for which to get chords
      @return chords
      */
-    virtual std::vector<SegmentChord *> getSegmentChords(int segmentId);
+    virtual std::vector<const SegmentChord *> getSegmentChords(int segmentId);
 
   private:
     int segmentId;
     SegmentEntityStore* entityStore{};
-    std::vector<Segment *> retroSegments{};
+    std::vector<const Segment *> retroSegments{};
     std::set<int> previousSegmentIds{};
-    std::optional<Segment *> previousSegment;
-    std::map<int, std::vector<SegmentChord *>> segmentChords{}; // indexed by id, vector of chords ordered by position
+    std::optional<const Segment *> previousSegment;
+    std::map<int, std::vector<const SegmentChord *>> segmentChords{}; // indexed by id, vector of chords ordered by position
   };
 
 }// namespace XJ

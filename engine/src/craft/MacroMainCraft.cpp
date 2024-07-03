@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-#include "xjmusic/util/ValueUtils.h"
 #include "xjmusic/craft/MacroMainCraft.h"
+#include "xjmusic/util/ValueUtils.h"
 
 using namespace XJ;
 
@@ -69,23 +69,24 @@ void MacroMainCraft::doWork() const {
   }
 
   // Update the segment with fabricated content
-  segment->type = fabricator->getType();
-  segment->tempo = mainProgram->tempo;
-  segment->key = computeSegmentKey(mainSequence);
-  segment->total = mainSequence->total;
-  segment->durationMicros = segmentLengthMicros(mainProgram, mainSequence);
+  Segment updatedSegment = *segment;
+  updatedSegment.type = fabricator->getType();
+  updatedSegment.tempo = mainProgram->tempo;
+  updatedSegment.key = computeSegmentKey(mainSequence);
+  updatedSegment.total = mainSequence->total;
+  updatedSegment.durationMicros = segmentLengthMicros(mainProgram, mainSequence);
 
   // If the type is not Continue, we will reset the offset main
   if (Segment::Type::Continue == fabricator->getType())
-    segment->delta = segment->delta + segment->total;
+    updatedSegment.delta = segment->delta + segment->total;
   else
-    segment->delta = 0;
+    updatedSegment.delta = 0;
 
   // Set the intensity
-  segment->intensity = computeSegmentIntensity(segment->delta, macroSequence, mainSequence);
+  updatedSegment.intensity = computeSegmentIntensity(segment->delta, macroSequence, mainSequence);
 
   // Finished
-  fabricator->updateSegment(*segment);
+  fabricator->updateSegment(updatedSegment);
 }
 
 const ProgramSequence *MacroMainCraft::doMacroChoiceWork(const Segment *segment) const {
@@ -112,7 +113,7 @@ const ProgramSequence *MacroMainCraft::doMacroChoiceWork(const Segment *segment)
   macroChoice.deltaOut = SegmentChoice::DELTA_UNLIMITED;
   macroChoice.programType = Program::Type::Macro;
   macroChoice.programSequenceBindingId = macroSequenceBinding.value()->id;
-  fabricator->put(macroChoice, true); // force put, because fabrication cannot proceed without a macro choice
+  fabricator->put(macroChoice, true);// force put, because fabrication cannot proceed without a macro choice
 
   return macroSequence.value();
 }
@@ -142,7 +143,7 @@ const ProgramSequence *MacroMainCraft::doMainChoiceWork(const Segment *segment) 
   mainChoice.deltaOut = SegmentChoice::DELTA_UNLIMITED;
   mainChoice.programType = Program::Type::Main;
   mainChoice.programSequenceBindingId = mainSequenceBinding.value()->id;
-  fabricator->put(mainChoice, true); // force put, because fabrication cannot proceed without a main choice
+  fabricator->put(mainChoice, true);// force put, because fabrication cannot proceed without a main choice
 
   return mainSequence.value();
 }
@@ -159,20 +160,17 @@ std::string MacroMainCraft::computeSegmentKey(const ProgramSequence *mainSequenc
   return Chord::of(mainKey).getName();
 }
 
-double MacroMainCraft::computeSegmentIntensity(
+float MacroMainCraft::computeSegmentIntensity(
     const int delta,
     const std::optional<const ProgramSequence *> macroSequence,
     const std::optional<const ProgramSequence *> mainSequence) const {
-  return fabricator->getTemplateConfig().intensityAutoCrescendoEnabled
-         ?
-         ValueUtils::limitDecimalPrecision(ValueUtils::interpolate(
-             fabricator->getTemplateConfig().intensityAutoCrescendoMinimum,
-             fabricator->getTemplateConfig().intensityAutoCrescendoMaximum,
-             static_cast<double>(delta) / fabricator->getTemplateConfig().mainProgramLengthMaxDelta,
-             computeIntensity(macroSequence, mainSequence)
-         ))
-         :
-         computeIntensity(macroSequence, mainSequence);
+  auto programmaticIntensity = computeIntensity(macroSequence, mainSequence);
+  if (!fabricator->getTemplateConfig().intensityAutoCrescendoEnabled) return programmaticIntensity;
+  return ValueUtils::interpolate(
+      fabricator->getTemplateConfig().intensityAutoCrescendoMinimum,
+      fabricator->getTemplateConfig().intensityAutoCrescendoMinimum +
+          (fabricator->getTemplateConfig().intensityAutoCrescendoMaximum - fabricator->getTemplateConfig().intensityAutoCrescendoMinimum) * programmaticIntensity,
+      delta / fabricator->getTemplateConfig().mainProgramLengthMaxDelta);
 }
 
 float MacroMainCraft::computeIntensity(
@@ -182,7 +180,7 @@ float MacroMainCraft::computeIntensity(
                                                                               macroSequence.value()->intensity)
                                                                         : std::nullopt;
   const std::optional<float> mainIntensity = mainSequence.has_value() ? std::optional(mainSequence.value()->intensity)
-                                                                : std::nullopt;
+                                                                      : std::nullopt;
   if (macroIntensity.has_value() && mainIntensity.has_value())
     return (macroIntensity.value() + mainIntensity.value()) / 2;
   if (macroIntensity.has_value())
@@ -282,8 +280,7 @@ const Program *MacroMainCraft::chooseMacroProgram() const {
   if (fabricator->isInitialSegment()) return chooseRandomProgram(candidates, {});
 
   // if continuing the macro program, use the same one
-  if (fabricator->isContinuationOfMacroProgram()
-      && fabricator->getMacroChoiceOfPreviousSegment().has_value()) {
+  if (fabricator->isContinuationOfMacroProgram() && fabricator->getMacroChoiceOfPreviousSegment().has_value()) {
     auto previousProgram = fabricator->getProgram(fabricator->getMacroChoiceOfPreviousSegment().value());
     if (!previousProgram.has_value()) {
       auto message =
@@ -297,8 +294,7 @@ const Program *MacroMainCraft::chooseMacroProgram() const {
 
   // Compute the meme isometry for use in selecting programs from the bag
   MemeIsometry iso =
-      !overrideMemes.empty() ?
-      MemeIsometry::of(fabricator->getMemeTaxonomy(), overrideMemes)
+      !overrideMemes.empty() ? MemeIsometry::of(fabricator->getMemeTaxonomy(), overrideMemes)
                              : fabricator->getMemeIsometryOfNextSequenceInPreviousMacro();
 
   // Compute any program id to avoid
@@ -353,11 +349,9 @@ const Program *MacroMainCraft::chooseMainProgram() const {
   auto candidates = fabricator->getSourceMaterial()->getProgramsOfType(Program::Type::Main);
 
   // if continuing the macro program, use the same one
-  if (Segment::Type::Continue == fabricator->getType()
-      && fabricator->getPreviousMainChoice().has_value()) {
+  if (Segment::Type::Continue == fabricator->getType() && fabricator->getPreviousMainChoice().has_value()) {
     auto previousChoice = fabricator->getPreviousMainChoice();
-    auto previousProgram = previousChoice.has_value() ?
-                           fabricator->getProgram(fabricator->getPreviousMainChoice().value())
+    auto previousProgram = previousChoice.has_value() ? fabricator->getProgram(fabricator->getPreviousMainChoice().value())
                                                       : std::nullopt;
     if (!previousProgram.has_value()) {
       auto message =

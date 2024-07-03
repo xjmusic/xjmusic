@@ -35,8 +35,7 @@ static std::map<std::string, PitchClass> pitchClassOfString = {
 PitchClass XJ::pitchClassOf(const std::string& name) {
   if (name.empty())
     return Atonal;
-  const std::string normalized = accidentalNormalized(name);
-  const std::string atBeginning = StringUtils::match(pitchClassAtBeginning, normalized).value_or("");
+  const std::string atBeginning = StringUtils::match(pitchClassAtBeginning, name).value_or("");
   if (pitchClassOfString.find(atBeginning) != pitchClassOfString.end())
     return pitchClassOfString[atBeginning];
   return Atonal;

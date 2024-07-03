@@ -1,20 +1,18 @@
+// Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
+
 #include <set>
-#include <vector>
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
 #include "../../_helper/ContentFixtures.h"
 #include "../../_helper/SegmentFixtures.h"
-#include "../../_helper/YamlTest.h"
 
+#include "xjmusic/craft/BeatCraft.h"
 #include "xjmusic/craft/Craft.h"
-#include "xjmusic/craft/CraftFactory.h"
-#include "xjmusic/fabricator/ChainUtils.h"
 #include "xjmusic/fabricator/FabricatorFactory.h"
 #include "xjmusic/fabricator/SegmentUtils.h"
 #include "xjmusic/util/CsvUtils.h"
-#include "xjmusic/util/ValueUtils.h"
 
 // NOLINTNEXTLINE
 using ::testing::_;
@@ -25,16 +23,14 @@ using namespace XJ;
 
 class CraftBeatProgramVoiceInitialTest : public testing::Test {
 protected:
-  CraftFactory *craftFactory = nullptr;
   FabricatorFactory *fabricatorFactory = nullptr;
   ContentEntityStore *sourceMaterial = nullptr;
   SegmentEntityStore *store = nullptr;
   ContentFixtures *fake = nullptr;
   Chain *chain2 = nullptr;
-  Segment *segment0 = nullptr;
+  const Segment *segment0 = nullptr;
 
   void SetUp() override {
-    craftFactory = new CraftFactory();
     store = new SegmentEntityStore();
     fabricatorFactory = new FabricatorFactory(store);
 
@@ -58,13 +54,12 @@ protected:
   }
 
   void TearDown() override {
-    delete craftFactory;
     delete fabricatorFactory;
     delete sourceMaterial;
     delete store;
     delete fake;
     delete chain2;
-      }
+  }
 
   /**
    Insert fixture segment 6, including the beat choice only if specified
@@ -93,7 +88,7 @@ protected:
         SegmentChoice::DELTA_UNLIMITED,
         &fake->program5,
         &fake->program5_sequence0_binding0));
-    for (const std::string memeName: std::set<std::string>({"Special", "Wild", "Pessimism", "Outlook"}))
+    for (const std::string &memeName: std::set<std::string>({"Special", "Wild", "Pessimism", "Outlook"}))
       store->put(SegmentFixtures::buildSegmentMeme(segment0, memeName));
 
     store->put(SegmentFixtures::buildSegmentChord(segment0, 0.0f, "C minor"));
@@ -106,7 +101,7 @@ TEST_F(CraftBeatProgramVoiceInitialTest, CraftBeatVoiceInitial) {
 
   const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment0->id, std::nullopt);
 
-  craftFactory->beat(fabricator).doWork();
+  BeatCraft(fabricator).doWork();
 
   const auto result = store->readSegment(segment0->id).value();
   ASSERT_FALSE(store->readAllSegmentChoices(result->id).empty());
@@ -116,5 +111,5 @@ TEST_F(CraftBeatProgramVoiceInitialTest, CraftBeatVoiceInitial_okWhenNoBeatChoic
   insertSegment();
   const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment0->id, std::nullopt);
 
-  craftFactory->beat(fabricator).doWork();
+  BeatCraft(fabricator).doWork();
 }

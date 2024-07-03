@@ -1,6 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-#include "nlohmann/json.hpp"
+#include <nlohmann/json.hpp>
 
 #include "xjmusic/content/TemplateBinding.h"
 #include "xjmusic/util/CsvUtils.h"

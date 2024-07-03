@@ -7,7 +7,6 @@
 #include <set>
 #include <string>
 
-#include "xjmusic/craft/CraftFactory.h"
 #include "xjmusic/fabricator/FabricatorFactory.h"
 #include "xjmusic/segment/SegmentEntityStore.h"
 
@@ -25,8 +24,7 @@ namespace XJ {
  chunk at exactly the top of the following segment.
  */
   class CraftWork final {
-    CraftFactory *craftFactory = nullptr;
-    FabricatorFactory *fabricatorFactory = nullptr;
+      FabricatorFactory *fabricatorFactory = nullptr;
     SegmentEntityStore *store = nullptr;
     ContentEntityStore *content = nullptr;
     bool running = new bool(true);
@@ -41,7 +39,6 @@ namespace XJ {
 
   public:
     CraftWork(
-        CraftFactory *craftFactory,
         FabricatorFactory *fabricatorFactory,
         SegmentEntityStore *store,
         ContentEntityStore *content,
@@ -58,7 +55,7 @@ namespace XJ {
 
     @return true if finished (not running)
     */
-   bool isFinished();
+   bool isFinished() const;
 
    /**
     This is the internal cycle that's run indefinitely
@@ -95,7 +92,7 @@ namespace XJ {
      @param chainMicros the microseconds since beginning of chain for which to get the segment
      @return the segment at the given chain microseconds, or an empty optional if the segment is not ready
      */
-    std::optional<Segment *> getSegmentAtChainMicros(unsigned long long chainMicros) const;
+    std::optional<const Segment *> getSegmentAtChainMicros(unsigned long long chainMicros) const;
 
     /**
      Get the segment at the given offset, if it is ready
@@ -103,7 +100,7 @@ namespace XJ {
      @param offset of segment
      @return the segment at the given offset
      */
-    std::optional<Segment *> getSegmentAtOffset(int offset) const;
+    std::optional<const Segment *> getSegmentAtOffset(int offset) const;
 
     /**
      Get the segments spanning the given time range, if they are ready- if not, return an empty list
@@ -188,10 +185,52 @@ namespace XJ {
      */
     bool getAndResetDidOverride();
 
+    /**
+     * Get all choices for the given segment
+     * @param segment for which to get choices
+     * @return  choices
+     */
+    std::set<const SegmentChoice *> getChoices(const Segment *segment) const;
+
+    /**
+     * Get all arrangements for the given choice
+     * @param choice for which to get arrangements
+     * @return  arrangements
+     */
+    std::set<const SegmentChoiceArrangement *> getArrangements(const SegmentChoice *choice) const;
+
+    /**
+     * Get all picks for the given arrangement
+     * @param arrangement for which to get picks
+     * @return  picks
+     */
+    std::set<const SegmentChoiceArrangementPick *> getPicks(const SegmentChoiceArrangement *arrangement) const;
+
   private:
+    /**
+     Bootstrap a chain from JSON chain bootstrap data.
+     */
     const Chain *createChainForTemplate(const Template *tmpl) const;
+
+    /**
+     Log and send notification of error that job failed while (message)
+    
+     @param msgWhile phrased like "Doing work"
+     @param e        exception (optional)
+     */
     void didFailWhile(std::string msgWhile, const std::exception &e);
-    static void updateSegmentState(Fabricator *fabricator, Segment *segment, Segment::State fromState, Segment::State toState);
+
+    /**
+     Update Segment to Working state
+    
+     @param fabricator to update
+     @param inputSegment    to update
+     @param fromState  of existing segment
+     @param toState    of new segment
+     @ if record is invalid
+     */
+    static const Segment *
+    updateSegmentState(Fabricator *fabricator, const Segment *inputSegment, const Segment::State fromState, const Segment::State toState);
 
    /**
     Fabricate the chain based on craft state
@@ -232,25 +271,44 @@ namespace XJ {
    /**
     Cut the current segment short after the given number of beats
 
-    @param segment          to cut short
+    @param inputSegment          segment to cut short
     @param cutoffAfterBeats number of beats to cut short after
     */
-   void doCutoffLastSegment(Segment *segment, double cutoffAfterBeats) const;
+   void doCutoffLastSegment(const Segment *inputSegment, float cutoffAfterBeats) const;
 
    /**
     Craft a Segment, or fail
 
-    @param segment              to craft
+    @param inputSegment              to craft
     @param overrideSegmentType  to use for crafting
     @param overrideMacroProgram to override fabrication
     @param overrideMemes        to override fabrication
     @ on configuration failure
     @ on craft failure
     */
-   void doFabricationWork(Segment *segment, std::optional<Segment::Type> overrideSegmentType, const std::optional<const Program *> overrideMacroProgram, const std::set<std::string> &overrideMemes) const;
+   void doFabricationWork(const Segment *inputSegment, std::optional<Segment::Type> overrideSegmentType, const std::optional<const Program *> overrideMacroProgram, const std::set<std::string> &overrideMemes) const;
+
+    /**
+     Delete segments before the given shipped-to chain micros
+    
+     @param shippedToChainMicros the shipped-to chain micros
+     */
    void doSegmentCleanup(long shippedToChainMicros) const;
-   Segment *buildSegmentInitial() const;
-   Segment *buildSegmentFollowing(const Segment *last) const;
+
+    /**
+     Create the initial template segment
+    
+     @return initial template segment
+     */
+   Segment buildSegmentInitial() const;
+
+    /**
+     Create the next segment in the chain, following the last segment
+    
+     @param last segment
+     @return next segment
+     */
+   Segment buildSegmentFollowing(const Segment *last) const;
 
    /**
     If memes/macro already engaged at fabrication start (which is always true in a manual control mode),

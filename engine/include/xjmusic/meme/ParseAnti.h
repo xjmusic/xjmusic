@@ -1,4 +1,4 @@
-// Copyright (c) XJ Music Inc. (https://xj.io) All Rights Reserved.
+// Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
 #ifndef XJMUSIC_ENTITIES_MEME_PARSE_ANTI_H
 #define XJMUSIC_ENTITIES_MEME_PARSE_ANTI_H

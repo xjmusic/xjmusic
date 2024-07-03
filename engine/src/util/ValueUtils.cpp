@@ -21,6 +21,7 @@ long ValueUtils::MILLIS_PER_SECOND = 1000;
 long ValueUtils::MICROS_PER_MILLI = 1000;
 long ValueUtils::NANOS_PER_MICRO = 1000;
 long ValueUtils::MICROS_PER_SECOND = MICROS_PER_MILLI * MILLIS_PER_SECOND;
+float ValueUtils::MICROS_PER_SECOND_FLOAT = static_cast<float>(MICROS_PER_SECOND);
 long ValueUtils::NANOS_PER_SECOND = NANOS_PER_MICRO * MICROS_PER_SECOND;
 long ValueUtils::SECONDS_PER_MINUTE = 60;
 long ValueUtils::MICROS_PER_MINUTE = SECONDS_PER_MINUTE * MICROS_PER_SECOND;
@@ -128,8 +129,8 @@ int ValueUtils::multipleFloor(const int factor, const float value) {
 }
 
 
-float ValueUtils::interpolate(const float floor, const float ceiling, const float position, const float multiplier) {
-  return floor + (ceiling - floor) * position * multiplier;
+float ValueUtils::interpolate(const float floor, const float ceiling, const float position) {
+  return floor + (ceiling - floor) * position;
 }
 
 
@@ -143,9 +144,9 @@ std::optional<UUID> ValueUtils::getKeyOfHighestValue(const std::map<UUID, int> &
   if (map.empty()) return std::nullopt;
 
   const auto max_it = std::max_element(map.begin(), map.end(),
-                                 [](const auto &a, const auto &b) {
-                                   return a.second < b.second;
-                                 });
+                                       [](const auto &a, const auto &b) {
+                                         return a.second < b.second;
+                                       });
 
   return max_it->first;
 }

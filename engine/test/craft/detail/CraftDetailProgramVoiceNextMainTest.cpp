@@ -1,20 +1,18 @@
+// Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
+
 #include <set>
-#include <vector>
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
 #include "../../_helper/ContentFixtures.h"
 #include "../../_helper/SegmentFixtures.h"
-#include "../../_helper/YamlTest.h"
 
 #include "xjmusic/craft/Craft.h"
-#include "xjmusic/craft/CraftFactory.h"
-#include "xjmusic/fabricator/ChainUtils.h"
+#include "xjmusic/craft/DetailCraft.h"
 #include "xjmusic/fabricator/FabricatorFactory.h"
 #include "xjmusic/fabricator/SegmentUtils.h"
 #include "xjmusic/util/CsvUtils.h"
-#include "xjmusic/util/ValueUtils.h"
 
 // NOLINTNEXTLINE
 using ::testing::_;
@@ -25,16 +23,14 @@ using namespace XJ;
 
 class CraftDetailProgramVoiceNextMainTest : public testing::Test {
 protected:
-  CraftFactory *craftFactory = nullptr;
   FabricatorFactory *fabricatorFactory = nullptr;
   ContentEntityStore *sourceMaterial = nullptr;
   SegmentEntityStore *store = nullptr;
   ContentFixtures *fake = nullptr;
   Chain *chain1 = nullptr;
-  Segment *segment4 = nullptr;
+  const Segment *segment4 = nullptr;
 
   void SetUp() override {
-    craftFactory = new CraftFactory();
     store = new SegmentEntityStore();
     fabricatorFactory = new FabricatorFactory(store);
 
@@ -50,7 +46,9 @@ protected:
 
 
     // Chain "Test Print #1" has 5 total segments
-    chain1 = store->put(SegmentFixtures::buildChain("Test Print #1", Chain::Type::Production, Chain::State::Fabricate, &fake->template1, ""));
+    chain1 = store->put(
+        SegmentFixtures::buildChain("Test Print #1", Chain::Type::Production, Chain::State::Fabricate, &fake->template1,
+                                    ""));
     store->put(SegmentFixtures::buildSegment(
         chain1,
         Segment::Type::Initial,
@@ -78,13 +76,12 @@ protected:
   }
 
   void TearDown() override {
-    delete craftFactory;
     delete fabricatorFactory;
     delete sourceMaterial;
     delete store;
     delete fake;
     delete chain1;
-      }
+  }
 
   /**
    Insert fixture segments 3 and 4, including the detail choice for segment 3 only if specified
@@ -146,7 +143,7 @@ protected:
         SegmentChoice::DELTA_UNLIMITED,
         &fake->program15,
         &fake->program15_sequence0_binding0));
-    for (const std::string memeName: std::set<std::string>({"Regret", "Sky", "Hindsight", "Tropical"}))
+    for (const std::string &memeName: std::set<std::string>({"Regret", "Sky", "Hindsight", "Tropical"}))
       store->put(SegmentFixtures::buildSegmentMeme(segment4, memeName));
 
     const auto chord0 = store->put(SegmentFixtures::buildSegmentChord(segment4, 0.0f, "G minor"));
@@ -160,7 +157,7 @@ TEST_F(CraftDetailProgramVoiceNextMainTest, CraftDetailVoiceNextMain) {
   insertSegments3and4(true);
   const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, std::nullopt);
 
-  craftFactory->detail(fabricator).doWork();
+  DetailCraft(fabricator).doWork();
 
   std::set<const SegmentChoice *> choices = fabricator->getCurrentDetailChoices();
   ASSERT_FALSE(fabricator->getArrangements(choices).empty());
@@ -178,5 +175,5 @@ TEST_F(CraftDetailProgramVoiceNextMainTest, CraftDetailVoiceNextMain_okIfNoDetai
   insertSegments3and4(false);
   const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, std::nullopt);
 
-  craftFactory->detail(fabricator).doWork();
+  DetailCraft(fabricator).doWork();
 }

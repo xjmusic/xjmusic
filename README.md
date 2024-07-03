@@ -8,14 +8,14 @@
 </a>
 
 
-# Dynamic music engine
+# Adaptive music engine
 
-XJ music enables composers to realize new possibilities in dynamic music for video games.
+XJ music enables composers to realize new possibilities in adaptive music for video games.
 
-XJ includes the [XJ music workstation](workstation/README.md), a DAW dedicated to preparing dynamic video game music, and the 
+XJ includes the [XJ music workstation](workstation/README.md), a DAW dedicated to preparing adaptive video game music, and the 
 [XJ music engine](engine/README.md) to integrate the product within your game audio system.
 
-Download and install the XJ music workstation on your computer to start creating dynamic music for video games. The latest version of the XJ music workstation can be downloaded from [xjmusic.com/download](https://xjmusic.com/download).
+Download and install the XJ music workstation on your computer to start creating adaptive music for video games. The latest version of the XJ music workstation can be downloaded from [xjmusic.com/download](https://xjmusic.com/download).
 
 ![XJ music workstation in action](workstation/design/xjmusic-workstation-screenshot-fabrication.png)
   

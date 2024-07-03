@@ -1,6 +1,5 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-#include <fstream>
 #include <gtest/gtest.h>
 #include <string>
 
@@ -14,7 +13,7 @@ using namespace XJ;
 
 class SegmentUtilsTest : public testing::Test {
 protected:
-  std::vector<Segment *> segments;
+  std::vector<const Segment *> segments;
   Project project;
   Template tmpl;
   Chain chain;
@@ -112,7 +111,7 @@ TEST_F(SegmentUtilsTest, FindFirstOfType) {
   ch1.deltaOut = SegmentChoice::DELTA_UNLIMITED;
   ch1.programType = Program::Type::Macro;
 
-  std::set choices = {&ch0, &ch1};
+  std::set<const SegmentChoice *> choices = {&ch0, &ch1};
   ASSERT_EQ(ch0.id, SegmentUtils::findFirstOfType(choices, Program::Type::Main).value()->id);
 }
 
@@ -123,7 +122,7 @@ TEST_F(SegmentUtilsTest, GetIdentifier) {
 
 // Test for getLastDubbed
 TEST_F(SegmentUtilsTest, GetLastDubbed) {
-  const std::optional<Segment *> lastCrafted = SegmentUtils::getLastCrafted(segments);
+  const std::optional<const Segment *> lastCrafted = SegmentUtils::getLastCrafted(segments);
 
   ASSERT_TRUE(lastCrafted.has_value());
   ASSERT_EQ(seg2.id, lastCrafted.value()->id);
@@ -131,7 +130,7 @@ TEST_F(SegmentUtilsTest, GetLastDubbed) {
 
 // Test for getLast
 TEST_F(SegmentUtilsTest, GetLast) {
-  const std::optional<Segment *> last = SegmentUtils::getLast(segments);
+  const std::optional<const Segment *> last = SegmentUtils::getLast(segments);
 
   ASSERT_TRUE(last.has_value());
   ASSERT_EQ(seg3.id, last.value()->id);
