@@ -146,10 +146,16 @@ jobs:
           cmake ..
           cmake --build .
 
-      - name: Test
+      - name: Test (Windows)
+        if: runner.os == 'Windows'
+        working-directory: engine/
+        run: |
+          cd build/test
+          .\Debug\xjmusic_test.exe
+
+      - name: Test (macOS/Linux)
+        if: runner.os == 'Linux' || runner.os == 'macOS'
         working-directory: engine/
         run: |
           cd build
           ctest --verbose
-
-
