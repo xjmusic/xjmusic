@@ -159,7 +159,7 @@ TEST_F(CraftDetailProgramVoiceContinueTest, CraftDetailVoiceContinue) {
 
   DetailCraft(fabricator).doWork();
 
-  store->readSegment(segment4->id).value();
+  ASSERT_TRUE(store->readSegment(segment4->id).has_value());
   ASSERT_FALSE(fabricator->getChoices().empty());
 
   int pickedBloop = 0;
