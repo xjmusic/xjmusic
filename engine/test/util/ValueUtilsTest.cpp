@@ -140,9 +140,9 @@ TEST(ValueUtils, multipleFloor) {
 }
 
 TEST(ValueUtils, interpolate) {
-  ASSERT_NEAR(10, ValueUtils::interpolate(10, 20, 0, 1.0), 0.000001);
-  ASSERT_NEAR(20, ValueUtils::interpolate(10, 20, 1, 1.0), 0.000001);
-  ASSERT_NEAR(15, ValueUtils::interpolate(10, 20, 1, 0.5), 0.000001);
+  ASSERT_NEAR(10, ValueUtils::interpolate(10, 20, 0), 0.000001);
+  ASSERT_NEAR(20, ValueUtils::interpolate(10, 20, 1), 0.000001);
+  ASSERT_NEAR(15, ValueUtils::interpolate(10, 20, 0.5), 0.000001);
 }
 
 TEST(ValueUtils, enforceMaxStereo) {

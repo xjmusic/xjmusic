@@ -61,14 +61,14 @@ std::vector<const Segment *> CraftWork::getSegmentsIfReady(const unsigned long l
   if (currentSegments.empty()) {
     return {};
   }
-  auto previousSegment = store->readSegment(currentSegments.at(0).id - 1);
-  auto nextSegment = store->readSegment(currentSegments.at(currentSegments.size() - 1).id + 1);
+  auto previousSegment = store->readSegment(currentSegments.at(0)->id - 1);
+  auto nextSegment = store->readSegment(currentSegments.at(currentSegments.size() - 1)->id + 1);
   std::vector<const Segment *> segments;
   if (previousSegment.has_value() && Segment::State::Crafted == previousSegment.value()->state)
     segments.emplace_back(previousSegment.value());
   for (auto segment: currentSegments)
-    if (Segment::State::Crafted == segment.state)
-      segments.emplace_back(&segment);
+    if (Segment::State::Crafted == segment->state)
+      segments.emplace_back(segment);
   if (nextSegment.has_value() && Segment::State::Crafted == nextSegment.value()->state)
     segments.emplace_back(nextSegment.value());
   return segments;
@@ -131,7 +131,7 @@ bool CraftWork::isMuted(const SegmentChoiceArrangementPick *pick) const {
   }
 }
 
-bool CraftWork::isFinished() {
+bool CraftWork::isFinished() const {
   return !running;
 }
 
@@ -235,11 +235,11 @@ void CraftWork::doFabricationDefault(
     const auto existing = store->readSegmentLast();
     if (!existing.has_value()) {
       segment = buildSegmentInitial();
-    } else if (!existing.value().durationMicros.has_value()) {
+    } else if (!existing.value()->durationMicros.has_value()) {
       spdlog::debug("Last segment in chain has no duration, cannot fabricate next segment");
       return;
     } else {
-      segment = buildSegmentFollowing(&existing.value());
+      segment = buildSegmentFollowing(existing.value());
     }
     doFabricationWork(store->put(segment), std::nullopt, overrideMacroProgram, overrideMemes);
 
@@ -410,11 +410,11 @@ const Chain *CraftWork::createChainForTemplate(const Template *tmpl) const {
   return store->put(entity);
 }
 
-std::set<const SegmentChoice *> CraftWork::getChoices(const Segment *segment) {
+std::set<const SegmentChoice *> CraftWork::getChoices(const Segment *segment) const {
   return store->readAllSegmentChoices(segment->id);
 }
 
-std::set<const SegmentChoiceArrangement *> CraftWork::getArrangements(const SegmentChoice *choice) {
+std::set<const SegmentChoiceArrangement *> CraftWork::getArrangements(const SegmentChoice *choice) const {
   std::set<const SegmentChoiceArrangement *> results;
   for (auto arrangement : store->readAllSegmentChoiceArrangements( choice->segmentId))
     if (arrangement->segmentChoiceId == choice->id)
@@ -422,7 +422,7 @@ std::set<const SegmentChoiceArrangement *> CraftWork::getArrangements(const Segm
   return results;
 }
 
-std::set<const SegmentChoiceArrangementPick *> CraftWork::getPicks(const SegmentChoiceArrangement *arrangement) {
+std::set<const SegmentChoiceArrangementPick *> CraftWork::getPicks(const SegmentChoiceArrangement *arrangement) const {
   std::set<const SegmentChoiceArrangementPick *> results;
   for (auto pick : store->readAllSegmentChoiceArrangementPicks( arrangement->segmentId))
     if (pick->segmentChoiceArrangementId == arrangement->id)

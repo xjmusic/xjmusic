@@ -129,8 +129,8 @@ int ValueUtils::multipleFloor(const int factor, const float value) {
 }
 
 
-float ValueUtils::interpolate(const float floor, const float ceiling, const float position, const float multiplier) {
-  return floor + (ceiling - floor) * position * multiplier;
+float ValueUtils::interpolate(const float floor, const float ceiling, const float position) {
+  return floor + (ceiling - floor) * position;
 }
 
 

@@ -42,15 +42,15 @@ namespace XJ {
    */
   class SegmentEntityStore {
     std::optional<Chain> chain;
-    std::map<int, const Segment> segments;
-    std::map<int, std::map<UUID, const SegmentChoice>> segmentChoices;
-    std::map<int, std::map<UUID, const SegmentChoiceArrangement>> segmentChoiceArrangements;
-    std::map<int, std::map<UUID, const SegmentChoiceArrangementPick>> segmentChoiceArrangementPicks;
-    std::map<int, std::map<UUID, const SegmentChord>> segmentChords;
-    std::map<int, std::map<UUID, const SegmentChordVoicing>> segmentChordVoicings;
-    std::map<int, std::map<UUID, const SegmentMeme>> segmentMemes;
-    std::map<int, std::map<UUID, const SegmentMessage>> segmentMessages;
-    std::map<int, std::map<UUID, const SegmentMeta>> segmentMetas;
+    std::map<int, Segment> segments;
+    std::map<int, std::map<UUID, SegmentChoice>> segmentChoices;
+    std::map<int, std::map<UUID, SegmentChoiceArrangement>> segmentChoiceArrangements;
+    std::map<int, std::map<UUID, SegmentChoiceArrangementPick>> segmentChoiceArrangementPicks;
+    std::map<int, std::map<UUID, SegmentChord>> segmentChords;
+    std::map<int, std::map<UUID, SegmentChordVoicing>> segmentChordVoicings;
+    std::map<int, std::map<UUID, SegmentMeme>> segmentMemes;
+    std::map<int, std::map<UUID, SegmentMessage>> segmentMessages;
+    std::map<int, std::map<UUID, SegmentMeta>> segmentMetas;
 
     static void validate(SegmentMeme entity);
 
@@ -134,7 +134,7 @@ namespace XJ {
      @param toOffset   to read segments to
      @return list of segments as JSON
      */
-    std::vector<const Segment> readSegmentsFromToOffset(int fromOffset, int toOffset);
+    std::vector<const Segment*> readSegmentsFromToOffset(int fromOffset, int toOffset);
 
     /**
      Fetch all sub-entities records for many parent segments by id
@@ -151,7 +151,7 @@ namespace XJ {
      @param toChainMicros   for which to get segments
      @return segments that span the given instant, empty if none found
      */
-    std::vector<Segment> readAllSegmentsSpanning(long fromChainMicros, long toChainMicros);
+    std::vector<const Segment*> readAllSegmentsSpanning(long fromChainMicros, long toChainMicros);
 
     /**
      Get the last known segment id
@@ -165,7 +165,7 @@ namespace XJ {
 
      @return Last Segment in Chain
      */
-    std::optional<Segment> readSegmentLast();
+    std::optional<const Segment*> readSegmentLast();
 
     /**
      Read a choice for a given segment id and program type

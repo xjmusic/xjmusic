@@ -222,13 +222,13 @@ TEST_F(SegmentEntityStoreTest, CreateAll_ReadAll) {
   auto programSequence = ContentFixtures::buildProgramSequence(&program, 8, "Hay", 0.6f, "G");
   auto programSequenceBinding = ContentFixtures::buildProgramSequenceBinding(&programSequence, 0);
   const auto chain3_segment0 = subject->put(SegmentFixtures::buildSegment(chain3,
-                                                                        0,
-                                                                        Segment::State::Crafted,
-                                                                        "D Major",
-                                                                        64,
-                                                                        0.73f,
-                                                                        120.0f,
-                                                                        "chains-3-segments-9f7s89d8a7892.wav"));
+                                                                          0,
+                                                                          Segment::State::Crafted,
+                                                                          "D Major",
+                                                                          64,
+                                                                          0.73f,
+                                                                          120.0f,
+                                                                          "chains-3-segments-9f7s89d8a7892.wav"));
   subject->put(
       SegmentFixtures::buildSegmentChoice(chain3_segment0, SegmentChoice::DELTA_UNLIMITED,
                                           SegmentChoice::DELTA_UNLIMITED, &program,
@@ -286,11 +286,11 @@ TEST_F(SegmentEntityStoreTest, ReadSegmentsFromToOffset) {
 
   ASSERT_EQ(2, result.size());
   auto it = result.begin();
-  Segment result1 = *it;
-  ASSERT_EQ(Segment::State::Crafted, result1.state);
+  const Segment *result1 = *it;
+  ASSERT_EQ(Segment::State::Crafted, result1->state);
   ++it;
-  Segment result2 = *it;
-  ASSERT_EQ(Segment::State::Crafting, result2.state);
+  const Segment *result2 = *it;
+  ASSERT_EQ(Segment::State::Crafting, result2->state);
 }
 
 

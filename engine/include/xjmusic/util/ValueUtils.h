@@ -151,10 +151,9 @@ namespace XJ {
      * @param floor      bottom value
      * @param ceiling    top value
      * @param position   between 0 and 1 of value to interpolate between the floor and ceiling
-     * @param multiplier of value (above ceiling)
      * @return interpolated value
      */
-    static float interpolate(float floor, float ceiling, float position, float multiplier);
+    static float interpolate(float floor, float ceiling, float position);
 
     /**
      * Enforce a maximum
