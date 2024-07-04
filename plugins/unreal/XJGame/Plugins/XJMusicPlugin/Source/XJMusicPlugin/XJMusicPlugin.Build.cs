@@ -12,8 +12,6 @@ public class XJMusicPlugin : ModuleRules
 
         PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
 
-        Definitions.Add("GTEST_LINKED_AS_SHARED_LIBRARY");
-
         PublicDependencyModuleNames.AddRange(
 			new string[]
 			{
@@ -36,12 +34,7 @@ public class XJMusicPlugin : ModuleRules
 		);
 
         PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "../../Lib/xjmusic.lib"));
-        PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "../../Lib/spdlog.lib"));
-        PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "../../Lib/gtest_main.lib"));
-        PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "../../Lib/gmock.lib"));
-        PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "../../Lib/gmock_main.lib"));
-        PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "../../Lib/gtest.lib"));
-        PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "../../Lib/yaml-cpp.lib"));
+		PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "../../Lib/spdlog.lib"));
 
         PublicIncludePaths.Add(Path.Combine(ModuleDirectory, "../../Include/"));
     }
