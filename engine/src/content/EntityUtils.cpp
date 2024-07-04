@@ -7,19 +7,70 @@
 using namespace XJ;
 
 
-/**
- * XJ legacy application used UUIDs because networked data was a possibility.
- * But since the domain of this application is now entirely local, we do not require globally-unique randomness.
- * Instead, we use a simple counter, which provides guaranteed locally unique identifiers
- * <p>
- * In the future, all entity IDs should be simple integers-- but that's a massive refactoring job
- * See: https://github.com/xjmusic/xjmusic/issues/400
- * <p>
- * @return locally unique identifier
- */
 std::string EntityUtils::computeUniqueId() {
   std::stringstream ss;
   ss << std::hex << std::setw(12) << std::setfill('0') << UNIQUE_ID_COUNTER++;
   return ss.str();
+}
+
+void EntityUtils::setRequired(const json &json, const std::string &key, UUID &value) {
+  if (!json.contains(key)) {
+    throw std::invalid_argument("Missing required UUID: " + key);
+  }
+  try {
+    value = json.at(key).get<std::string>();
+  } catch (const std::exception &e) {
+    throw std::invalid_argument("Invalid value for UUID: " + key + " - " + e.what());
+  }
+}
+
+void EntityUtils::setIfNotNull(const json &json, const std::string &key, std::string &value) {
+  if (json.contains(key) && json.at(key).is_string()) {
+    try {
+      value = json.at(key).get<std::string>();
+    } catch (const std::exception &e) {
+      throw std::invalid_argument("Invalid value for string " + key + " - " + e.what());
+    }
+  }
+}
+
+void EntityUtils::setIfNotNull(const json &json, const std::string &key, float &value) {
+  if (json.contains(key) && json.at(key).is_number_float()) {
+    try {
+      value = json.at(key).get<float>();
+    } catch (const std::exception &e) {
+      throw std::invalid_argument("Invalid value for float " + key + " - " + e.what());
+    }
+  }
+}
+
+void EntityUtils::setIfNotNull(const json &json, const std::string &key, bool &value) {
+  if (json.contains(key) && json.at(key).is_boolean()) {
+    try {
+      value = json.at(key).get<bool>();
+    } catch (const std::exception &e) {
+      throw std::invalid_argument("Invalid value for bool " + key + " - " + e.what());
+    }
+  }
+}
+
+void EntityUtils::setIfNotNull(const json &json, const std::string &key, int &value) {
+  if (json.contains(key) && json.at(key).is_number_integer()) {
+    try {
+      value = json.at(key).get<int>();
+    } catch (const std::exception &e) {
+      throw std::invalid_argument("Invalid value for integer " + key + " - " + e.what());
+    }
+  }
+}
+
+void EntityUtils::setIfNotNull(const json &json, const std::string &key, long long int &value) {
+  if (json.contains(key) && json.at(key).is_number_unsigned()) {
+    try {
+      value = json.at(key).get<long long>();
+    } catch (const std::exception &e) {
+      throw std::invalid_argument("Invalid value for long " + key + " - " + e.what());
+    }
+  }
 }
 
