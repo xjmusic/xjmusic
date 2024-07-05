@@ -5,8 +5,9 @@
 
 #include <string>
 
-#include "xjmusic/util/EntityUtils.h"
 #include "ContentEntity.h"
+#include "TemplateConfig.h"
+#include "xjmusic/util/EntityUtils.h"
 
 namespace XJ {
 
@@ -17,7 +18,7 @@ namespace XJ {
 
     UUID projectId;
     std::string name;
-    std::string config;
+    TemplateConfig config;
     std::string shipKey;
     bool isDeleted{false};
     long long updatedAt{EntityUtils::currentTimeMillis()};
@@ -32,10 +33,14 @@ namespace XJ {
     EntityUtils::setRequired(json, "id", entity.id);
     EntityUtils::setRequired(json, "projectId", entity.projectId);
     EntityUtils::setIfNotNull(json, "name", entity.name);
-    EntityUtils::setIfNotNull(json, "config", entity.config);
     EntityUtils::setIfNotNull(json, "shipKey", entity.shipKey);
     EntityUtils::setIfNotNull(json, "isDeleted", entity.isDeleted);
     EntityUtils::setIfNotNull(json, "updatedAt", entity.updatedAt);
+
+    if (json.contains("config") && json.at("config").is_string()) {
+      const auto configStr = json.at("config").get<std::string>();
+      entity.config = TemplateConfig(configStr);
+    }
   }
 
 }// namespace XJ

@@ -7,6 +7,8 @@
 
 #include "xjmusic/content/InstrumentConfig.h"
 
+#include <xjmusic/util/StringUtils.h>
+
 using namespace XJ;
 
 
@@ -22,11 +24,6 @@ const std::string InstrumentConfig::DEFAULT = R"(
 
 
 InstrumentConfig::InstrumentConfig() : InstrumentConfig(DEFAULT) {}
-
-
-InstrumentConfig::InstrumentConfig(const Instrument &source) : InstrumentConfig(source.config) {}
-
-InstrumentConfig::InstrumentConfig(const Instrument *source) : InstrumentConfig(source->config) {}
 
 
 InstrumentConfig::InstrumentConfig(const std::string &input) : ConfigParser(input, ConfigParser(DEFAULT)) {

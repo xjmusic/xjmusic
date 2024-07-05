@@ -86,7 +86,7 @@ namespace XJ {
 
     explicit ContentFixtures() = default;
 
-    static const std::string TEST_TEMPLATE_CONFIG;
+    static const TemplateConfig TEST_TEMPLATE_CONFIG;
 
     // Test data
     Project project1;
@@ -501,7 +501,7 @@ namespace XJ {
         const Project *project1,
         std::string name,
         std::string shipKey,
-        std::string config);
+        const std::string &config);
 
     /**
      * Build a template

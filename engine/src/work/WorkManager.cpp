@@ -21,6 +21,15 @@ void WorkManager::start(
   spdlog::debug("Did set work configuration: {}", config.toString());
 
   try {
+    const auto tmpls = getSourceMaterial()->getTemplates();
+    if (tmpls.empty())
+      throw std::runtime_error("No template found in source material");
+    memeTaxonomy = {MemeTaxonomy((*tmpls.begin())->config.memeTaxonomy)};
+  } catch (std::exception &e) {
+    spdlog::error("Failed to get meme taxonomy from template config: {}", e.what());
+  }
+
+  try {
     entityStore->clear();
   } catch (std::exception &e) {
     spdlog::warn("Failed to clear entity store", e.what());
@@ -62,16 +71,7 @@ void WorkManager::doOverrideMacro(const Program *macroProgram) const {
 }
 
 std::optional<MemeTaxonomy> WorkManager::getMemeTaxonomy() const {
-  try {
-    const auto tmpls = getSourceMaterial()->getTemplates();
-    if (tmpls.empty())
-      throw std::runtime_error("No template found in source material");
-    auto templateConfig = TemplateConfig(*getSourceMaterial()->getTemplates().begin());
-    return {MemeTaxonomy(templateConfig.memeTaxonomy)};
-  } catch (std::exception &e) {
-    spdlog::error("Failed to get meme taxonomy from template config: {}", e.what());
-    return std::nullopt;
-  }
+  return this->memeTaxonomy;
 }
 
 std::vector<const Program *> WorkManager::getAllMacroPrograms() const {
@@ -111,9 +111,7 @@ void WorkManager::reset() {
 }
 
 ContentEntityStore *WorkManager::getSourceMaterial() const {
-  if (craftWork == nullptr)
-    throw std::runtime_error("Craft work is not initialized");
-  return craftWork->getSourceMaterial();
+  return content;
 }
 
 void WorkManager::updateState(const WorkState fabricationState) {
@@ -164,8 +162,6 @@ void WorkManager::runCraftCycle(const unsigned long long atChainMicros) {
     throw std::runtime_error("Craft work is not initialized");
   if (dubWork == nullptr)
     throw std::runtime_error("Dub work is not initialized");
-  if (craftWork == nullptr)
-    throw std::runtime_error("Craft work is not initialized");
 
   try {
     spdlog::debug("Will run craft cycle");
@@ -234,7 +230,7 @@ bool WorkManager::isInitialized() const {
   return craftWork != nullptr && dubWork != nullptr;
 }
 
-void WorkManager::didFailWhile(std::string msgWhile, std::exception e) {
+void WorkManager::didFailWhile(std::string msgWhile, const std::exception &e) {
   spdlog::error("Failed while {}: {}", msgWhile, e.what());
   // This will cascade-send the finish() instruction to dub and ship
   if (craftWork != nullptr)

@@ -19,9 +19,6 @@ const std::string ProgramConfig::DEFAULT = R"(
 ProgramConfig::ProgramConfig() : ProgramConfig(DEFAULT) {}
 
 
-ProgramConfig::ProgramConfig(const Program &source) : ProgramConfig(source.config) {}
-
-
 ProgramConfig::ProgramConfig(const std::string &input) : ConfigParser(input, ConfigParser(DEFAULT)) {
   doPatternRestartOnChord = getSingleValue("doPatternRestartOnChord").getBool();
   barBeats = getSingleValue("barBeats").getInt();
@@ -53,6 +50,3 @@ std::string ProgramConfig::toString() const {
 std::string ProgramConfig::getDefaultString() {
   return DEFAULT;
 }
-
-
-ProgramConfig::ProgramConfig(const Program *pProgram) : ProgramConfig(pProgram->config) {}

@@ -230,14 +230,6 @@ namespace XJ {
     virtual long getElapsedMicros();
 
     /**
-     Get the InstrumentConfig from a given instrument, with fallback to instrument section of injected config values
-
-     @param instrument to get config of
-     @return InstrumentConfig from a given instrument, with fallback values
-     */
-    virtual InstrumentConfig getInstrumentConfig(const Instrument *instrument);
-
-    /**
      Get the Key for any given Choice, preferring its Sequence Key (bound), defaulting to the Program Key.
      <p>
      If Sequence has no key/tempo/intensity inherit from Program https://github.com/xjmusic/xjmusic/issues/246
@@ -339,15 +331,6 @@ namespace XJ {
      @return Program for the specified choice
      */
     virtual std::optional<const Program *> getProgram(const SegmentChoice *choice);
-
-    /**
-     Get the ProgramConfig from a given program, with fallback to program section of injected config values
-
-     @param program to get config of
-     @return ProgramConfig from a given program, with fallback values
-     @ on failure
-     */
-    static ProgramConfig getProgramConfig(const Program *program);
 
     /**
      Get the complete set of program sequence chords,

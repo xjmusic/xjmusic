@@ -7,10 +7,9 @@
 #include <string>
 #include <vector>
 
-#include "xjmusic/util/ConfigParser.h"
 #include "Instrument.h"
 #include "xjmusic/meme/MemeTaxonomy.h"
-#include "Template.h"
+#include "xjmusic/util/ConfigParser.h"
 
 namespace XJ {
 
@@ -21,8 +20,6 @@ namespace XJ {
     static std::string formatInstrumentTypeList(const std::vector<Instrument::Type> &input);
     static std::string formatInstrumentTypeList(const std::set<Instrument::Type> &input);
     explicit TemplateConfig();
-
-    explicit TemplateConfig(const Template *input);
 
     explicit TemplateConfig(const std::string &input);
 
@@ -98,6 +95,13 @@ namespace XJ {
      * @return The Intensity Layers
      */
     int getIntensityLayers(Instrument::Type type);
+
+    /**
+     * Compare two TemplateConfigs for equality
+     * @param template_config  The TemplateConfig to compare
+     * @return  true if equal
+     */
+    bool operator==(const TemplateConfig & template_config) const;
   };
 
 }// namespace XJ

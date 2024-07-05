@@ -5,14 +5,14 @@
 
 #include <string>
 
-#include "xjmusic/util/EntityUtils.h"
 #include "ContentEntity.h"
+#include "InstrumentConfig.h"
+#include "xjmusic/util/EntityUtils.h"
 
 namespace XJ {
 
   class Instrument : public ContentEntity {
   public:
-
     enum Type {
       Background,
       Bass,
@@ -44,7 +44,7 @@ namespace XJ {
     Type type{};
     Mode mode{};
     std::string name{};
-    std::string config{};
+    InstrumentConfig config{};
     float volume{0};
     bool isDeleted{false};
     long long updatedAt{EntityUtils::currentTimeMillis()};
@@ -91,9 +91,13 @@ namespace XJ {
      */
     static std::string toString(const State &state);
 
+    /**
+     * Convert a set of Instrument Type enum values to a set of strings
+     * @param types  The set of Instrument Type enum values
+     * @return     The set of strings
+     */
     static const std::vector<std::string> &toStrings(std::vector<Type> types);
   };
-
   /**
    * Parse a Instrument from a JSON object
    * @param json  input
@@ -106,11 +110,16 @@ namespace XJ {
     entity.type = Instrument::parseType(json.at("type").get<std::string>());
     entity.mode = Instrument::parseMode(json.at("mode").get<std::string>());
     EntityUtils::setIfNotNull(json, "name", entity.name);
-    EntityUtils::setIfNotNull(json, "config", entity.config);
     EntityUtils::setIfNotNull(json, "volume", entity.volume);
     EntityUtils::setIfNotNull(json, "isDeleted", entity.isDeleted);
     EntityUtils::setIfNotNull(json, "updatedAt", entity.updatedAt);
+
+    if (json.contains("config") && json.at("config").is_string()) {
+      const auto configStr = json.at("config").get<std::string>();
+      entity.config = InstrumentConfig(configStr);
+    }
   }
+
 
 }// namespace XJ
 

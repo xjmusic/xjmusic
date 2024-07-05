@@ -40,7 +40,7 @@ void Craft::craftNoteEventArrangements(const float tempo, const SegmentChoice *c
   if (!fabricator->getProgram(choice).has_value())
     throw FabricationException("Can't get program config");
 
-  if (const auto programConfig = Fabricator::getProgramConfig(fabricator->getProgram(choice).value());
+  if (const auto programConfig = fabricator->getProgram(choice).value()->config;
       fabricator->getSegmentChords().empty() || !programConfig.doPatternRestartOnChord) {
     craftNoteEventSection(tempo, choice, 0, static_cast<float>(fabricator->getSegment()->total), &range, defaultAtonal);
   } else {
@@ -309,7 +309,7 @@ Craft::selectNewChordPartInstrumentAudio(const Instrument *instrument, const Cho
 
 std::set<const InstrumentAudio *> Craft::selectGeneralAudioIntensityLayers(const Instrument *instrument) const {
   const auto previous = fabricator->getRetrospective()->getPreviousPicksForInstrument(instrument->id);
-  if (!previous.empty() && fabricator->getInstrumentConfig(instrument).isAudioSelectionPersistent) {
+  if (!previous.empty() && instrument->config.isAudioSelectionPersistent) {
     std::set<const InstrumentAudio *> result;
     for (const auto &pick: previous) {
       auto audio = fabricator->getSourceMaterial()->getInstrumentAudio(pick->instrumentAudioId);
@@ -891,7 +891,7 @@ void Craft::pickInstrumentAudio(
     const std::optional<long> &lengthMicros,
     const std::optional<UUID> &segmentChordVoicingId,
     const float &volRatio) const {
-  const auto audio = fabricator->getInstrumentConfig(instrument).isMultiphonic
+  const auto audio = instrument->config.isMultiphonic
                      ? selectMultiphonicInstrumentAudio(instrument, event, note)
                      : selectMonophonicInstrumentAudio(instrument, event);
 
@@ -909,7 +909,7 @@ void Craft::pickInstrumentAudio(
   pick.startAtSegmentMicros = startAtSegmentMicros;
   if (lengthMicros.has_value()) pick.lengthMicros = lengthMicros.value();
   pick.amplitude = event->velocity * volRatio;
-  pick.tones = fabricator->getInstrumentConfig(instrument).isTonal ? note : Note::ATONAL;
+  pick.tones = instrument->config.isTonal ? note : Note::ATONAL;
   if (segmentChordVoicingId.has_value()) pick.segmentChordVoicingId = segmentChordVoicingId.value();
   fabricator->put(pick);
 }
@@ -919,7 +919,7 @@ Craft::selectMultiphonicInstrumentAudio(
     const Instrument *instrument,
     const ProgramSequencePatternEvent *event,
     const std::string &note) const {
-  if (fabricator->getInstrumentConfig(instrument).isAudioSelectionPersistent) {
+  if (instrument->config.isAudioSelectionPersistent) {
     if (!fabricator->getPreferredAudio(event->programVoiceTrackId, note).has_value()) {
       const auto audio = selectNewMultiphonicInstrumentAudio(instrument, note);
       if (audio.has_value()) {
@@ -934,7 +934,7 @@ Craft::selectMultiphonicInstrumentAudio(
 
 std::optional<const InstrumentAudio *>
 Craft::selectMonophonicInstrumentAudio(const Instrument *instrument, const ProgramSequencePatternEvent *event) const {
-  if (fabricator->getInstrumentConfig(instrument).isAudioSelectionPersistent) {
+  if (instrument->config.isAudioSelectionPersistent) {
     if (!fabricator->getPreferredAudio(event->programVoiceTrackId, event->tones).has_value()) {
       const auto selection = selectNewNoteEventInstrumentAudio(instrument, event);
       if (!selection.has_value()) throw FabricationException("Unable to select note event instrument audio!");
@@ -948,7 +948,7 @@ Craft::selectMonophonicInstrumentAudio(const Instrument *instrument, const Progr
 
 std::optional<const InstrumentAudio *>
 Craft::selectChordPartInstrumentAudio(const Instrument *instrument, const Chord &chord) const {
-  if (fabricator->getInstrumentConfig(instrument).isAudioSelectionPersistent) {
+  if (instrument->config.isAudioSelectionPersistent) {
     if (!fabricator->getPreferredAudio(instrument->id, chord.getName()).has_value()) {
 
       const auto audio = selectNewChordPartInstrumentAudio(instrument, chord);

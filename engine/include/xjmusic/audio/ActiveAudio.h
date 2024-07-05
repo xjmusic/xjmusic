@@ -13,7 +13,6 @@ namespace XJ {
     const SegmentChoiceArrangementPick *pick;
     const Instrument *instrument;
     const InstrumentAudio *audio;
-    InstrumentConfig instrumentConfig;
     unsigned long long startAtChainMicros;
     std::optional<unsigned long long> stopAtChainMicros;
     float fromAmplitude;
@@ -29,17 +28,17 @@ namespace XJ {
         float fromIntensityAmplitude,
         float toIntensityAmplitude);
 
-    UUID getId();
+    UUID getId() const;
 
-    const SegmentChoiceArrangementPick * getPick();
+    const SegmentChoiceArrangementPick * getPick() const;
 
-    const Instrument * getInstrument();
+    const Instrument * getInstrument() const;
 
     unsigned long long getStartAtChainMicros() const;
 
     std::optional<unsigned long long> getStopAtChainMicros() const;
 
-    const InstrumentAudio * getAudio();
+    const InstrumentAudio * getAudio() const;
 
     int getReleaseMillis() const;
 

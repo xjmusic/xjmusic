@@ -15,7 +15,7 @@ TEST(InstrumentTest, FieldValues) {
   subject.type = Instrument::Type::Drum;
   subject.state = Instrument::State::Draft;
   subject.name = "Test Instrument";
-  subject.config = "isAudioSelectionPersistent = true";
+  subject.config = InstrumentConfig("isAudioSelectionPersistent = true");
   subject.isDeleted = false;
   subject.volume = 0.5f;
   subject.mode = Instrument::Mode::Event;
@@ -26,7 +26,7 @@ TEST(InstrumentTest, FieldValues) {
   ASSERT_EQ(Instrument::Type::Drum, subject.type);
   ASSERT_EQ(Instrument::State::Draft, subject.state);
   ASSERT_EQ("Test Instrument", subject.name);
-  ASSERT_EQ("isAudioSelectionPersistent = true", subject.config);
+  ASSERT_EQ("isAudioSelectionPersistent = true", subject.config.toString());
   ASSERT_EQ(false, subject.isDeleted);
   ASSERT_EQ(0.5f, subject.volume);
   ASSERT_EQ(Instrument::Mode::Event, subject.mode);

@@ -42,7 +42,7 @@ protected:
 
     Template tmpl = **content->getTemplates().begin();
     tmpl.shipKey = "complex_library_test";
-    tmpl.config = "outputEncoding=\"PCM_SIGNED\"\noutputContainer = \"WAV\"\ndeltaArcEnabled = false\n";
+    tmpl.config = TemplateConfig("outputEncoding=\"PCM_SIGNED\"\noutputContainer = \"WAV\"\ndeltaArcEnabled = false\n");
     content->put(tmpl);
 
     // Manipulate the underlying entity store; reset before each test
