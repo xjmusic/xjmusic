@@ -99,7 +99,7 @@ namespace XJ {
    * @param json  input
    * @param entity  output
    */
-  void from_json(const json &json, Instrument &entity) {
+  inline void from_json(const json &json, Instrument &entity) {
     EntityUtils::setRequired(json, "id", entity.id);
     EntityUtils::setRequired(json, "libraryId", entity.libraryId);
     entity.state = Instrument::parseState(json.at("state").get<std::string>());

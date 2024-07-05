@@ -18,7 +18,7 @@ namespace XJ {
   /**
    * Parse a ContentEntityStore from a JSON object
    * @param json  input
-   * @param entity  output
+   * @param store  output
    */
   void from_json(const json &json, ContentEntityStore &store) {
     if (json.contains("instruments"))

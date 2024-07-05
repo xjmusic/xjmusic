@@ -5,7 +5,6 @@
 
 #include <set>
 #include <string>
-#include <utility>
 
 #include "Instrument.h"
 
@@ -34,7 +33,7 @@ namespace XJ {
    * @param json  input
    * @param entity  output
    */
-  void from_json(const json &json, ProgramVoice &entity) {
+  inline void from_json(const json &json, ProgramVoice &entity) {
     EntityUtils::setRequired(json, "id", entity.id);
     EntityUtils::setRequired(json, "programId", entity.programId);
     entity.type = Instrument::parseType(json.at("type").get<std::string>());

@@ -26,7 +26,7 @@ namespace XJ {
    * @param json  input
    * @param entity  output
    */
-  void from_json(const json &json, Project &entity) {
+  inline void from_json(const json &json, Project &entity) {
     EntityUtils::setRequired(json, "id", entity.id);
     EntityUtils::setIfNotNull(json, "name", entity.name);
     EntityUtils::setIfNotNull(json, "platformVersion", entity.platformVersion);

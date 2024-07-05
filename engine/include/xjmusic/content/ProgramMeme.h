@@ -33,7 +33,7 @@ namespace XJ {
    * @param json  input
    * @param entity  output
    */
-  void from_json(const json &json, ProgramMeme &entity) {
+  inline void from_json(const json &json, ProgramMeme &entity) {
     EntityUtils::setRequired(json, "id", entity.id);
     EntityUtils::setRequired(json, "programId", entity.programId);
     EntityUtils::setIfNotNull(json, "name", entity.name);

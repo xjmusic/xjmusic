@@ -4,7 +4,6 @@
 #define XJMUSIC_PROGRAM_SEQUENCE_CHORD_H
 
 #include <string>
-#include <utility>
 
 #include "xjmusic/util/EntityUtils.h"
 #include "ContentEntity.h"
@@ -27,7 +26,7 @@ namespace XJ {
    * @param json  input
    * @param entity  output
    */
-  void from_json(const json &json, ProgramSequenceChord &entity) {
+  inline void from_json(const json &json, ProgramSequenceChord &entity) {
     EntityUtils::setRequired(json, "id", entity.id);
     EntityUtils::setRequired(json, "programId", entity.programId);
     EntityUtils::setRequired(json, "programSequenceId", entity.programSequenceId);

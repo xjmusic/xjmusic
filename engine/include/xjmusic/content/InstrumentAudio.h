@@ -4,7 +4,6 @@
 #define XJMUSIC_INSTRUMENT_AUDIO_H
 
 #include <string>
-#include <utility>
 
 #include "xjmusic/util/EntityUtils.h"
 #include "ContentEntity.h"
@@ -33,7 +32,7 @@ namespace XJ {
    * @param json  input
    * @param entity  output
    */
-  void from_json(const json &json, InstrumentAudio &entity) {
+  inline void from_json(const json &json, InstrumentAudio &entity) {
     EntityUtils::setRequired(json, "id", entity.id);
     EntityUtils::setRequired(json, "instrumentId", entity.instrumentId);
     EntityUtils::setIfNotNull(json, "name", entity.name);

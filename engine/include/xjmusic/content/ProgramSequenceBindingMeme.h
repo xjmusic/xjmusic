@@ -4,7 +4,6 @@
 #define XJMUSIC_PROGRAM_SEQUENCE_BINDING_MEME_H
 
 #include <string>
-#include <utility>
 #include <set>
 
 #include "xjmusic/util/EntityUtils.h"
@@ -35,7 +34,7 @@ namespace XJ {
    * @param json  input
    * @param entity  output
    */
-  void from_json(const json &json, ProgramSequenceBindingMeme &entity) {
+  inline void from_json(const json &json, ProgramSequenceBindingMeme &entity) {
     EntityUtils::setRequired(json, "id", entity.id);
     EntityUtils::setRequired(json, "programId", entity.programId);
     EntityUtils::setRequired(json, "programSequenceBindingId", entity.programSequenceBindingId);

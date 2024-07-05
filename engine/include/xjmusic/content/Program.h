@@ -27,8 +27,8 @@ namespace XJ {
     Program() = default;
 
     UUID libraryId;
-    Program::State state{};
-    Program::Type type{};
+    State state{};
+    Type type{};
     std::string key;
     float tempo{};
     std::string name;
@@ -41,28 +41,28 @@ namespace XJ {
      * @param value  The string to parse
      * @return      The Program Type enum value
      */
-    static Program::Type parseType(const std::string &value);
+    static Type parseType(const std::string &value);
 
     /**
      * Parse the Program State enum value from a string
      * @param value  The string to parse
      * @return      The Program State enum value
      */
-    static Program::State parseState(const std::string &value);
+    static State parseState(const std::string &value);
 
     /**
      * Convert a Program Type enum value to a string
      * @param type  The Program Type enum value
      * @return      The string representation of the Program Type
      */
-    static std::string toString(const Program::Type &type);
+    static std::string toString(const Type &type);
 
     /**
      * Convert a Program State enum value to a string
      * @param state  The Program State enum value
      * @return      The string representation of the Program State
      */
-    static std::string toString(const Program::State &state);
+    static std::string toString(const State &state);
   };
 
   /**
@@ -70,7 +70,7 @@ namespace XJ {
    * @param json  input
    * @param entity  output
    */
-  void from_json(const json &json, Program &entity) {
+  inline void from_json(const json &json, Program &entity) {
     EntityUtils::setRequired(json, "id", entity.id);
     EntityUtils::setRequired(json, "libraryId", entity.libraryId);
     entity.state = Program::parseState(json.at("state").get<std::string>());
