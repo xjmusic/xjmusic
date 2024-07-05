@@ -27,7 +27,7 @@ namespace XJ {
       FabricatorFactory *fabricatorFactory = nullptr;
     SegmentEntityStore *store = nullptr;
     ContentEntityStore *content = nullptr;
-    bool running = new bool(true);
+    bool running = true;
     long craftAheadMicros = 0;
     TemplateConfig templateConfig;
     const Chain *chain = nullptr;
@@ -35,7 +35,7 @@ namespace XJ {
     bool nextCycleRewrite = false;
     std::optional<const Program*> nextCycleOverrideMacroProgram = std::nullopt;
     std::set<std::string> nextCycleOverrideMemes = {};
-    bool didOverride = new bool(false);
+    bool didOverride = false;
 
   public:
     CraftWork(

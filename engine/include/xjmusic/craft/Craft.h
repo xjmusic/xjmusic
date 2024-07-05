@@ -90,7 +90,7 @@ namespace XJ {
       float toPos{};
     };
 
-    ChoiceIndexProvider *choiceIndexProvider = {};
+    ChoiceIndexProvider choiceIndexProvider = {};
 
     /**
      Must extend this class and inject
@@ -171,7 +171,7 @@ namespace XJ {
      */
     void precomputeDeltas(
         const std::function<bool(const SegmentChoice *)> &choiceFilter,
-        ChoiceIndexProvider *setChoiceIndexProvider,
+        const ChoiceIndexProvider &setChoiceIndexProvider,
         const std::vector<std::string> &layersInCraftOrder,
         const std::set<std::string> &layerPrioritizationSearches,
         const int numLayersIncoming);

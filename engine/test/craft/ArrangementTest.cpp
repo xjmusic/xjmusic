@@ -368,9 +368,9 @@ protected:
           fabricator->putStickyBun(bun);
         }
         fabricator->put(SegmentFixtures::buildSegmentChoice(segment, &mainProgram1), false);
-        auto *subject = new Craft(fabricator);
+        auto subject = Craft(fabricator);
         for (const auto &[instrumentType, choice]: segmentChoices)
-          subject->craftNoteEventArrangements(static_cast<float>(TEMPO), choice, false);
+          subject.craftNoteEventArrangements(static_cast<float>(TEMPO), choice, false);
 
         // assert picks
         loadAndPerformAssertions(data);

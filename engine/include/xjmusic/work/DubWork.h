@@ -24,7 +24,7 @@ namespace XJ {
  */
   class DubWork final {
     int BITS_PER_BYTE = 8;
-    bool running = new bool(true);
+    bool running = true;
     CraftWork *craftWork;
     TemplateConfig templateConfig;
     unsigned long dubAheadMicros = 0;

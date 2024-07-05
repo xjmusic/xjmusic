@@ -105,7 +105,7 @@ protected:
 };
 
 TEST_F(CraftTest, PrecomputeDeltas) {
-  Craft::ChoiceIndexProvider *choiceIndexProvider = new Craft::LambdaChoiceIndexProvider(
+  auto choiceIndexProvider = Craft::LambdaChoiceIndexProvider(
       [](const SegmentChoice &choice) -> std::string {
         return Instrument::toString(choice.instrumentType);
       });

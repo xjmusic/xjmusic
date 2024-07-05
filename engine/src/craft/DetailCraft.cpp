@@ -19,7 +19,7 @@ DetailCraft::DetailCraft(
 
 void DetailCraft::doWork() {
   // Segments have delta arcs; automate mixer layers in and out of each main program https://github.com/xjmusic/xjmusic/issues/233
-  ChoiceIndexProvider *choiceIndexProvider = new LambdaChoiceIndexProvider(
+  auto choiceIndexProvider = LambdaChoiceIndexProvider(
       [](const SegmentChoice &choice) -> std::string {
         auto typeString = Instrument::toString(choice.instrumentType);
         if (typeString.empty()) {

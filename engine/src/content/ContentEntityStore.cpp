@@ -3,6 +3,7 @@
 #include <optional>
 #include <set>
 #include <vector>
+#include <memory>
 
 #include <nlohmann/json.hpp>
 #include <spdlog/spdlog.h>
@@ -103,7 +104,7 @@ namespace XJ {
     try {                                                                                  \
       STORE.clear();                                                                       \
       for (const auto &entity: entities) {                                                 \
-        STORE[entity.id] = entity;                                                         \
+        STORE[entity.id] = std::move(entity);                                              \
       }                                                                                    \
     } catch (const std::exception &e) {                                                    \
       spdlog::error("Error putting all {}: {}", #ENTITY, e.what());                        \
@@ -112,9 +113,8 @@ namespace XJ {
   }                                                                                        \
   ENTITY* ContentEntityStore::put(const ENTITY &entity) {                                  \
     try {                                                                                  \
-      auto newEntity = new ENTITY(entity);                                                 \
-      STORE[newEntity->id] = *newEntity;                                                   \
-      return newEntity;                                                                    \
+      STORE[entity.id] = std::move(entity);                                                \
+      return &STORE[entity.id];                                                            \
     } catch (const std::exception &e) {                                                    \
       spdlog::error("Error putting {}: {}", "ENTITY", e.what());                           \
       return nullptr;                                                                      \
