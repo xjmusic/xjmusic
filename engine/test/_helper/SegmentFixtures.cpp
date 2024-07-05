@@ -55,7 +55,7 @@ Chain SegmentFixtures::buildChain(
   chain.name = std::move(name);
   chain.type = type;
   chain.state = state;
-  chain.templateConfig = ContentFixtures::TEST_TEMPLATE_CONFIG;
+  chain.templateConfig = TemplateConfig("outputEncoding=\"PCM_SIGNED\"\noutputContainer = \"WAV\"\ndeltaArcEnabled = false\n");
   chain.shipKey = shipKey;
   return chain;
 }

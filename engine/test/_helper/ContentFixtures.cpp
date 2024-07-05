@@ -8,8 +8,6 @@
 
 using namespace XJ;
 
-const TemplateConfig ContentFixtures::TEST_TEMPLATE_CONFIG = TemplateConfig("outputEncoding=\"PCM_SIGNED\"\noutputContainer = \"WAV\"\ndeltaArcEnabled = false\n");
-
 std::vector<float> ContentFixtures::listOfRandomValues(const int N) {
   std::vector<float> result(N);
   for (int i = 0; i < N; i++) {
@@ -417,7 +415,7 @@ Template ContentFixtures::buildTemplate(
   Template tmpl;
   tmpl.id = EntityUtils::computeUniqueId();
   tmpl.shipKey = std::move(shipKey);
-  tmpl.config = TemplateConfig(TEST_TEMPLATE_CONFIG);
+  tmpl.config = TemplateConfig("outputEncoding=\"PCM_SIGNED\"\noutputContainer = \"WAV\"\ndeltaArcEnabled = false\n");
   tmpl.projectId = project1->id;
   tmpl.name = std::move(name);
   return tmpl;

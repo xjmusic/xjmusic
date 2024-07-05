@@ -17,7 +17,7 @@ TEST(ProgramTest, FieldValues) {
   subject.key = "C minor";
   subject.tempo = 120.0f;
   subject.name = "Test Program";
-  subject.config = ProgramConfig("barBeats = 4");
+  subject.config = ProgramConfig("barBeats = 7");
   subject.isDeleted = false;
   subject.updatedAt = 1711089919558;
 
@@ -28,7 +28,7 @@ TEST(ProgramTest, FieldValues) {
   ASSERT_EQ("C minor", subject.key);
   ASSERT_EQ(120.0f, subject.tempo);
   ASSERT_EQ("Test Program", subject.name);
-  ASSERT_EQ("barBeats = 4", subject.config.toString());
+  ASSERT_EQ(7, subject.config.barBeats);
   ASSERT_EQ(false, subject.isDeleted);
   ASSERT_EQ(1711089919558, subject.updatedAt);
 }

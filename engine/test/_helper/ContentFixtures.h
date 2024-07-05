@@ -86,8 +86,6 @@ namespace XJ {
 
     explicit ContentFixtures() = default;
 
-    static const TemplateConfig TEST_TEMPLATE_CONFIG;
-
     // Test data
     Project project1;
     Instrument instrument8;
