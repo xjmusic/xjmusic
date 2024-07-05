@@ -2,6 +2,7 @@
 
 
 #include "XjMusicInstanceSubsystem.h"
+#include <Settings/XJMusicDefaultSettings.h>
 
 
 void UXjMusicInstanceSubsystem::Initialize(FSubsystemCollectionBase& Collection)
@@ -55,4 +56,26 @@ void UXjMusicInstanceSubsystem::RunXjOneCycleTick()
 	}
 	
 	//ensure(hasSegmentsDubbedPastMinimumOffset());
+}
+
+void UXjMusicInstanceSubsystem::RetriveProjectsInfo()
+{
+	IFileManager& FileManager = IFileManager::Get();
+
+	TArray<FString> WavFiles;
+
+	UXJMusicDefaultSettings* XjSettings = GetMutableDefault<UXJMusicDefaultSettings>();
+	if (!XjSettings)
+	{
+		return;
+	}
+
+	FileManager.FindFilesRecursive(WavFiles, *XjSettings->GetFullWorkPath(), TEXT("*.wav"), true, false);
+
+	ImportedAudioFiles = WavFiles;
+
+	for (const FString& FilePath : WavFiles)
+	{
+		UE_LOG(LogTemp, Log, TEXT("Found .wav file: %s"), *FilePath);
+	}
 }

@@ -8,6 +8,7 @@
 #include "ISettingsModule.h"
 
 #include <Settings/XJMusicDefaultSettings.h>
+#include <Interfaces/IPluginManager.h>
 
 static const FName XJMusicPluginTabName("XJMusicPlugin");
 
@@ -63,7 +64,15 @@ void FXJMusicPluginModule::PluginButtonClicked()
 		return;
 	}
 
-	FPlatformProcess::CreateProc(*XjSettings->XjMusicPath, nullptr, true, false, false, nullptr, 0, nullptr, nullptr);
+	TSharedPtr<IPlugin> FoundPlugin = IPluginManager::Get().FindPlugin("XJMusicPlugin");
+	if (!FoundPlugin.IsValid())
+	{
+		return;
+	}
+
+	FString DirAbsolute = XjSettings->GetFullWorkPath();
+
+	FPlatformProcess::CreateProc(*XjSettings->XjMusicPath, *DirAbsolute, true, false, false, nullptr, 0, nullptr, nullptr);
 }
 
 void FXJMusicPluginModule::RegisterMenus()

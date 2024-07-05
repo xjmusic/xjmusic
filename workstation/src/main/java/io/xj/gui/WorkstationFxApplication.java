@@ -16,6 +16,8 @@ import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.GenericApplicationContext;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class WorkstationFxApplication extends Application {
@@ -23,6 +25,8 @@ public class WorkstationFxApplication extends Application {
 
   @Nullable
   ConfigurableApplicationContext ac;
+
+  String GameWorkDirectory;
 
   @Override
   public void start(Stage primaryStage) {
@@ -35,6 +39,15 @@ public class WorkstationFxApplication extends Application {
       ac.publishEvent(new StageReadyEvent(primaryStage));
     } catch (Exception e) {
       LOG.error("Failed to publish StageReadyEvent! {}\n{}", e.getMessage(), StringUtils.formatStackTrace(e));
+    }
+
+    Parameters params = getParameters();
+    List<String> paramsList = params.getRaw();
+
+    if(paramsList.size() > 0)
+    {
+      GameWorkDirectory = paramsList.get(0);
+      LOG.error("Work in folder: " + GameWorkDirectory);
     }
   }
 

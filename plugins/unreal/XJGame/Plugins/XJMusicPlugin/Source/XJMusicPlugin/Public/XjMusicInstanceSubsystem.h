@@ -28,6 +28,8 @@ public:
 
 	void RunXjOneCycleTick();
 
+	void RetriveProjectsInfo();
+
 private:
 
 	int MARATHON_NUMBER_OF_SEGMENTS = 50;
@@ -44,6 +46,8 @@ private:
 	ContentFixtures* fake = nullptr;
 
 	unsigned long long atChainMicros = 0;
+
+	TArray<FString> ImportedAudioFiles;
 
 	bool isWithinTimeLimit() const
 	{

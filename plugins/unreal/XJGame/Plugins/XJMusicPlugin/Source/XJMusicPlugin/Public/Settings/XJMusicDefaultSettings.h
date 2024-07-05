@@ -17,4 +17,9 @@ public:
 
 	UPROPERTY(Config, EditAnywhere, Category = Settings)
 	FString XjMusicPath;
+
+	UPROPERTY(Config, EditAnywhere, Category = Settings)
+	FString XjWorkDirectory;
+
+	FString GetFullWorkPath() const;
 };

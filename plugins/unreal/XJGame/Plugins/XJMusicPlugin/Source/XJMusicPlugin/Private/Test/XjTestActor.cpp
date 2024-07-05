@@ -12,6 +12,8 @@ AXjTestActor::AXjTestActor()
 void AXjTestActor::BeginPlay()
 {
 	Super::BeginPlay();
+
+	GetGameInstance()->GetSubsystem<UXjMusicInstanceSubsystem>()->RetriveProjectsInfo();
 	
 }
 
