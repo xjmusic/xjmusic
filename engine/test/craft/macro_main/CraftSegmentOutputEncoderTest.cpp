@@ -23,22 +23,22 @@ using namespace XJ;
 
 class CraftSegmentOutputEncoderTest : public testing::Test {
 protected:
-  FabricatorFactory *fabricatorFactory = nullptr;
-  SegmentEntityStore *store = nullptr;
-  ContentEntityStore *sourceMaterial = nullptr;
+  std::unique_ptr<FabricatorFactory> fabricatorFactory;
+  std::unique_ptr<SegmentEntityStore> store;
+  std::unique_ptr<ContentEntityStore> sourceMaterial;
   const Segment *segment6 = nullptr;
 
   void SetUp() override {
-    store = new SegmentEntityStore();
-    fabricatorFactory = new FabricatorFactory(store);
+    store = std::make_unique<SegmentEntityStore>();
+    fabricatorFactory = std::make_unique<FabricatorFactory>(store.get());
 
     // Manipulate the underlying entity store; reset before each test
     store->clear();
 
     // Mock request via HubClientFactory returns fake generated library of model content
-    const auto fake = new ContentFixtures();
-    sourceMaterial = new ContentEntityStore();
-    fake->setupFixtureB1(sourceMaterial);
+    const auto fake = std::make_unique<ContentFixtures>();
+    sourceMaterial = std::make_unique<ContentEntityStore>();
+    fake->setupFixtureB1(sourceMaterial.get());
 
     // Chain "Print #2" has 1 initial planned segment
     const auto chain2 = store->put(SegmentFixtures::buildChain(
@@ -59,13 +59,12 @@ protected:
 
   void TearDown() override {
     delete sourceMaterial;
-    delete fabricatorFactory;
-    delete store;
-  }
+
+      }
 };
 
 TEST_F(CraftSegmentOutputEncoderTest, CraftFoundationInitial) {
-  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment6->id, std::nullopt);
+  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial.get(), segment6->id, std::nullopt);
 
   MacroMainCraft(fabricator, std::nullopt, {}).doWork();
 

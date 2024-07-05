@@ -26,22 +26,22 @@ using namespace XJ;
   */
 class CraftPercLoop_LayeredVoicesTest : public testing::Test {
 protected:
-  FabricatorFactory *fabricatorFactory = nullptr;
-  ContentEntityStore *sourceMaterial = nullptr;
-  ContentFixtures *fake = nullptr;
+  std::unique_ptr<FabricatorFactory> fabricatorFactory;
+  std::unique_ptr<ContentEntityStore> sourceMaterial;
+  std::unique_ptr<ContentFixtures> fake;
   const Segment *segment4 = nullptr;
 
   void SetUp() override {
-    const auto store = new SegmentEntityStore();
-    fabricatorFactory = new FabricatorFactory(store);
+    const auto store = std::make_unique<SegmentEntityStore>();
+    fabricatorFactory = std::make_unique<FabricatorFactory>(store.get());
 
     // Manipulate the underlying entity store; reset before each test
     store->clear();
 
     // Mock request via HubClientFactory returns fake generated library of model content
-    fake = new ContentFixtures();
-    sourceMaterial = new ContentEntityStore();
-    fake->setupFixtureB1(sourceMaterial, false);
+    fake = std::make_unique<ContentFixtures>();
+    sourceMaterial = std::make_unique<ContentEntityStore>();
+    fake->setupFixtureB1(sourceMaterial.get(), false);
     setupCustomFixtures();
 
     // Chain "Test Print #1" has 5 total segments
@@ -113,11 +113,6 @@ protected:
     store->put(SegmentFixtures::buildSegmentChord(segment4, 8.0f, "D Major"));
   }
 
-  void TearDown() override {
-    delete fabricatorFactory;
-    delete sourceMaterial;
-    delete fake;
-  }
 
   /**
    Some custom fixtures for testing
@@ -143,7 +138,7 @@ protected:
 };
 
 TEST_F(CraftPercLoop_LayeredVoicesTest, craftPercLoopVoiceContinue) {
-  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, std::nullopt);
+  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial.get(), segment4->id, std::nullopt);
 
   DetailCraft(fabricator).doWork();
 }

@@ -23,25 +23,25 @@ using namespace XJ;
 
 class CraftDetailContinueTest : public testing::Test {
 protected:
-  FabricatorFactory *fabricatorFactory = nullptr;
-  ContentEntityStore *sourceMaterial = nullptr;
-  SegmentEntityStore *store = nullptr;
-  ContentFixtures *fake = nullptr;
+  std::unique_ptr<FabricatorFactory> fabricatorFactory;
+  std::unique_ptr<ContentEntityStore> sourceMaterial;
+  std::unique_ptr<SegmentEntityStore> store;
+  std::unique_ptr<ContentFixtures> fake;
   Chain *chain1 = nullptr;
   const Segment *segment4 = nullptr;
 
   void SetUp() override {
-    store = new SegmentEntityStore();
-    fabricatorFactory = new FabricatorFactory(store);
+    store = std::make_unique<SegmentEntityStore>();
+    fabricatorFactory = std::make_unique<FabricatorFactory>(store.get());
 
     // Manipulate the underlying entity store; reset before each test
     store->clear();
 
     // Mock request via HubClientFactory returns fake generated library of model content
-    fake = new ContentFixtures();
-    sourceMaterial = new ContentEntityStore();
-    fake->setupFixtureB1(sourceMaterial);
-    fake->setupFixtureB2(sourceMaterial);
+    fake = std::make_unique<ContentFixtures>();
+    sourceMaterial = std::make_unique<ContentEntityStore>();
+    fake->setupFixtureB1(sourceMaterial.get());
+    fake->setupFixtureB2(sourceMaterial.get());
     fake->setupFixtureB4_DetailBass(sourceMaterial);
 
     // Chain "Test Print #1" is fabricating segments
@@ -76,13 +76,6 @@ protected:
         true));
   }
 
-  void TearDown() override {
-    delete fabricatorFactory;
-    delete sourceMaterial;
-    delete store;
-    delete fake;
-    delete chain1;
-  }
 
   /**
    Insert fixture segments 3 and 4, including the detail choice for segment 3 only if specified
@@ -157,7 +150,7 @@ protected:
 
 TEST_F(CraftDetailContinueTest, CraftDetailContinue) {
   insertSegments3and4(false);
-  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, std::nullopt);
+  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial.get(), segment4->id, std::nullopt);
 
   DetailCraft(fabricator).doWork();
   // assert choice of detail-type sequence
@@ -168,7 +161,7 @@ TEST_F(CraftDetailContinueTest, CraftDetailContinue) {
 
 TEST_F(CraftDetailContinueTest, CraftDetailContinue_okEvenWithoutPreviousSegmentDetailChoice) {
   insertSegments3and4(true);
-  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, std::nullopt);
+  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial.get(), segment4->id, std::nullopt);
   DetailCraft(fabricator).doWork();
 
   // assert choice of detail-type sequence

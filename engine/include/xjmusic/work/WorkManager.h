@@ -15,8 +15,8 @@
 namespace XJ {
 
   class WorkManager {
-    FabricatorFactory *fabricatorFactory = nullptr;
-    SegmentEntityStore *entityStore = nullptr;
+    FabricatorFactory* fabricatorFactory;
+    SegmentEntityStore *entityStore;
     CraftWork *craftWork = nullptr;
     DubWork *dubWork = nullptr;
     ContentEntityStore *content = nullptr;
@@ -33,7 +33,7 @@ namespace XJ {
     * @param fabricatorFactory  for fabrication
     * @param store  for segments
     */
-    WorkManager(
+    explicit WorkManager(
         FabricatorFactory *fabricatorFactory,
         SegmentEntityStore *store);
 

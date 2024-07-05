@@ -23,24 +23,24 @@ using namespace XJ;
 
 class CraftFoundationContinueTest : public testing::Test {
 protected:
-  FabricatorFactory *fabricatorFactory = nullptr;
-  ContentEntityStore *sourceMaterial = nullptr;
-  SegmentEntityStore *store = nullptr;
-  ContentFixtures *fake = nullptr;
+  std::unique_ptr<FabricatorFactory> fabricatorFactory;
+  std::unique_ptr<ContentEntityStore> sourceMaterial;
+  std::unique_ptr<SegmentEntityStore> store;
+  std::unique_ptr<ContentFixtures> fake;
   const Segment *segment4 = nullptr;
 
   void SetUp() override {
-    store = new SegmentEntityStore();
-    sourceMaterial = new ContentEntityStore();
-    fabricatorFactory = new FabricatorFactory(store);
+    store = std::make_unique<SegmentEntityStore>();
+    sourceMaterial = std::make_unique<ContentEntityStore>();
+    fabricatorFactory = std::make_unique<FabricatorFactory>(store.get());
 
     // Manipulate the underlying entity store; reset before each test
     store->clear();
 
     // Mock request via HubClientFactory returns fake generated library of model content
-    fake = new ContentFixtures();
-    fake->setupFixtureB1(sourceMaterial);
-    fake->setupFixtureB2(sourceMaterial);
+    fake = std::make_unique<ContentFixtures>();
+    fake->setupFixtureB1(sourceMaterial.get());
+    fake->setupFixtureB2(sourceMaterial.get());
 
     // Chain "Test Print #1" has 5 total segments
     const auto chain1 = store->put(
@@ -99,16 +99,10 @@ protected:
         "chains-1-segments-9f7s89d8a7892"));
   }
 
-  void TearDown() override {
-    delete fake;
-    delete sourceMaterial;
-    delete store;
-    delete fabricatorFactory;
-  }
-};
+  };
 
 TEST_F(CraftFoundationContinueTest, CraftFoundationContinue) {
-  auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, std::nullopt);
+  auto fabricator = fabricatorFactory->fabricate(sourceMaterial.get(), segment4->id, std::nullopt);
 
   MacroMainCraft(fabricator, std::nullopt, {}).doWork();
 

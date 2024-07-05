@@ -37,10 +37,10 @@ protected:
       Instrument::Type::Stripe,
       Instrument::Type::Sticky};
   // this is how we provide content for fabrication
-  FabricatorFactory *fabrication{};
-  SegmentEntityStore *store{};
-  ContentEntityStore *content{};
-  Fabricator *fabricator{};
+  std::unique_ptr<FabricatorFactory> fabrication;
+  std::unique_ptr<SegmentEntityStore> store;
+  std::unique_ptr<ContentEntityStore> content;
+  std::unique_ptr<Fabricator> fabricator;
   // list of all entities to return from Hub
   // maps with specific entities that will reference each other
   std::map<Instrument::Type, Instrument> instruments;
@@ -59,8 +59,8 @@ protected:
    Reset the resources before each repetition of each test
    */
   void reset() {
-    store = new SegmentEntityStore();
-    fabrication = new FabricatorFactory(store);
+    store = std::make_unique<SegmentEntityStore>();
+    fabrication = std::make_unique<FabricatorFactory>(store.get());
 
     // Manipulate the underlying entity store; reset before each test
     store->clear();
@@ -74,7 +74,7 @@ protected:
     chain = store->put(SegmentFixtures::buildChain(&template1));
 
     // prepare content
-    content = new ContentEntityStore();
+    content = std::make_unique<ContentEntityStore>();
     content->put(template1);
     content->put(library1);
     content->put(mainProgram1);
@@ -117,8 +117,8 @@ protected:
       if (!notesObj.IsScalar()) return;
       const auto notesString = notesObj.as<std::string>();
       for (const auto &item: ContentFixtures::buildInstrumentWithAudios(
-          &instrument,
-          notesString)) {
+               &instrument,
+               notesString)) {
         // check if item is Instrument or InstrumentAudio
         if (std::holds_alternative<Instrument>(item)) {
           content->put(std::get<Instrument>(item));
@@ -248,7 +248,8 @@ protected:
         YAML::Node vObj = cObj["voicings"];
         for (const auto &[instrumentType, instrument]: instruments) {
           if (auto notes = getStr(vObj,
-                                  StringUtils::toLowerCase(Instrument::toString(instrument.type))); notes.has_value())
+                                  StringUtils::toLowerCase(Instrument::toString(instrument.type)));
+              notes.has_value())
             store->put(SegmentFixtures::buildSegmentChordVoicing(chord, instrument.type, notes.value()));
         }
       }
@@ -323,7 +324,7 @@ protected:
 
       if (count.has_value())
         ASSERT_EQ(count.value(), actualNoteStrings.size())
-                      << "Count " + std::to_string(count.value()) + " " + assertionName;
+            << "Count " + std::to_string(count.value()) + " " + assertionName;
 
       if (notes.has_value()) {
         std::vector<std::string> expectedNoteStrings = CsvUtils::split(notes.value());

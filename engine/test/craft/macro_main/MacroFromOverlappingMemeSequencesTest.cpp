@@ -31,9 +31,9 @@ protected:
   Program macro2a;
 
   void SetUp() override {
-    auto store = new SegmentEntityStore();
+    auto store = std::make_unique<SegmentEntityStore>();
 
-    auto fabricatorFactory = new FabricatorFactory(store);
+    auto fabricatorFactory = std::make_unique<FabricatorFactory>(store.get());
 
     // Manipulate the underlying entity store; reset before each test
     store->clear();
@@ -79,7 +79,7 @@ protected:
     auto macro2b_sequenceA_binding = ContentFixtures::buildBinding(&macro2b_sequenceA, 0);
     auto macro2b_sequenceA_bindingMeme = ContentFixtures::buildMeme(&macro2b_sequenceA_binding, "Purple");
 
-    auto sourceMaterial = new ContentEntityStore();
+    auto sourceMaterial = std::make_unique<ContentEntityStore>();
     sourceMaterial->put(project1);
     sourceMaterial->put(library2);
     sourceMaterial->put(macro1);
@@ -132,7 +132,7 @@ protected:
         120.0f,
         "chains-1-segments-9f7s89d8a7892.wav"));
 
-    subject = new MacroMainCraft(fabricatorFactory->fabricate(sourceMaterial, segment2->id, std::nullopt), std::nullopt,
+    subject = new MacroMainCraft(fabricatorFactory->fabricate(sourceMaterial.get(), segment2->id, std::nullopt), std::nullopt,
                                  {});
   }
 };

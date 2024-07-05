@@ -17,7 +17,7 @@ using namespace XJ;
 
 class SegmentEntityStoreTest : public testing::Test {
 protected:
-  ContentFixtures *fake = nullptr;
+  std::unique_ptr<ContentFixtures> fake;
   SegmentEntityStore *subject = nullptr;
   Chain fakeChain;
   Chain *chain3 = nullptr;
@@ -30,7 +30,7 @@ protected:
   Template template1;
 
   void SetUp() override {
-    fake = new ContentFixtures();
+    fake = std::make_unique<ContentFixtures>();
     // Instantiate the test subject and put the payload
     subject = new SegmentEntityStore();
 

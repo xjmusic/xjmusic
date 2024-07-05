@@ -23,26 +23,26 @@ using namespace XJ;
 
 class CraftBeatNextMacroTest : public testing::Test {
 protected:
-  FabricatorFactory *fabricatorFactory = nullptr;
-  ContentFixtures *fake = nullptr;
-  SegmentEntityStore *store = nullptr;
-  ContentEntityStore *sourceMaterial = nullptr;
+  std::unique_ptr<FabricatorFactory> fabricatorFactory;
+  std::unique_ptr<ContentFixtures> fake;
+  std::unique_ptr<SegmentEntityStore> store;
+  std::unique_ptr<ContentEntityStore> sourceMaterial;
   Chain *chain1 = nullptr;
   const Segment *segment4 = nullptr;
 
   void SetUp() override {
-    store = new SegmentEntityStore();
-    fabricatorFactory = new FabricatorFactory(store);
+    store = std::make_unique<SegmentEntityStore>();
+    fabricatorFactory = std::make_unique<FabricatorFactory>(store.get());
 
     // Manipulate the underlying entity store; reset before each test
     store->clear();
 
     // Mock request via HubClientFactory returns fake generated library of model content
-    fake = new ContentFixtures();
-    sourceMaterial = new ContentEntityStore();
-    fake->setupFixtureB1(sourceMaterial);
-    fake->setupFixtureB2(sourceMaterial);
-    fake->setupFixtureB3(sourceMaterial);
+    fake = std::make_unique<ContentFixtures>();
+    sourceMaterial = std::make_unique<ContentEntityStore>();
+    fake->setupFixtureB1(sourceMaterial.get());
+    fake->setupFixtureB2(sourceMaterial.get());
+    fake->setupFixtureB3(sourceMaterial.get());
 
     // Chain "Test Print #1" has 5 total segments
     chain1 = store->put(
@@ -73,13 +73,6 @@ protected:
         "chains-1-segments-9f7s89d8a7892.wav", true));
   }
 
-  void TearDown() override {
-    delete fabricatorFactory;
-    delete fake;
-    delete store;
-    delete sourceMaterial;
-    delete chain1;
-  }
 
   /**
    Insert fixture segments 3 and 4, including the beat choice for segment 3 only if specified
@@ -151,7 +144,7 @@ protected:
 
 TEST_F(CraftBeatNextMacroTest, CraftBeatNextMacro) {
   insertSegments3and4(true);
-  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, std::nullopt);
+  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial.get(), segment4->id, std::nullopt);
 
   BeatCraft(fabricator).doWork();
 
@@ -163,7 +156,7 @@ TEST_F(CraftBeatNextMacroTest, CraftBeatNextMacro) {
 
 TEST_F(CraftBeatNextMacroTest, CraftBeatNextMacro_okEvenWithoutPreviousSegmentBeatChoice) {
   insertSegments3and4(false);
-  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, std::nullopt);
+  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial.get(), segment4->id, std::nullopt);
 
   BeatCraft(fabricator).doWork();
 

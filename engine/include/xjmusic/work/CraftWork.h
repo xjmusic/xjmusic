@@ -24,8 +24,8 @@ namespace XJ {
  chunk at exactly the top of the following segment.
  */
   class CraftWork final {
-      FabricatorFactory *fabricatorFactory = nullptr;
-    SegmentEntityStore *store = nullptr;
+    FabricatorFactory* fabricatorFactory;
+    SegmentEntityStore* store;
     ContentEntityStore *content = nullptr;
     bool running = true;
     long craftAheadMicros = 0;

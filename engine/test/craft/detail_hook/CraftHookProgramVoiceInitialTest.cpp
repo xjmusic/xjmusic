@@ -23,26 +23,26 @@ using namespace XJ;
 
 class CraftHookProgramVoiceInitialTest : public testing::Test {
 protected:
-  FabricatorFactory *fabricatorFactory = nullptr;
-  ContentEntityStore *sourceMaterial = nullptr;
-  SegmentEntityStore *store = nullptr;
-  ContentFixtures *fake = nullptr;
+  std::unique_ptr<FabricatorFactory> fabricatorFactory;
+  std::unique_ptr<ContentEntityStore> sourceMaterial;
+  std::unique_ptr<SegmentEntityStore> store;
+  std::unique_ptr<ContentFixtures> fake;
   Chain *chain2 = nullptr;
   const Segment *segment0 = nullptr;
 
   void SetUp() override {
-    store = new SegmentEntityStore();
-    fabricatorFactory = new FabricatorFactory(store);
+    store = std::make_unique<SegmentEntityStore>();
+    fabricatorFactory = std::make_unique<FabricatorFactory>(store.get());
 
     // Manipulate the underlying entity store; reset before each test
     store->clear();
 
     // force known hook selection by destroying program 35
     // Mock request via HubClientFactory returns fake generated library of model content
-    fake = new ContentFixtures();
-    sourceMaterial = new ContentEntityStore();
-    fake->setupFixtureB1(sourceMaterial, false);
-    fake->setupFixtureB3(sourceMaterial);
+    fake = std::make_unique<ContentFixtures>();
+    sourceMaterial = std::make_unique<ContentEntityStore>();
+    fake->setupFixtureB1(sourceMaterial.get(), false);
+    fake->setupFixtureB3(sourceMaterial.get());
 
     // Chain "Print #2" has 1 initial segment in crafting state - Foundation is complete
     chain2 = new Chain();
@@ -55,11 +55,8 @@ protected:
   }
 
   void TearDown() override {
-    delete fabricatorFactory;
-    delete sourceMaterial;
-    delete store;
-    delete fake;
-    delete chain2;
+
+                delete chain2;
   }
 
   /**
@@ -92,14 +89,14 @@ protected:
 TEST_F(CraftHookProgramVoiceInitialTest, CraftHookVoiceInitial) {
   insertSegment();
 
-  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment0->id, std::nullopt);
+  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial.get(), segment0->id, std::nullopt);
 
   DetailCraft(fabricator).doWork();
 }
 
 TEST_F(CraftHookProgramVoiceInitialTest, CraftHookVoiceInitial_okWhenNoHookChoice) {
   insertSegment();
-  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment0->id, std::nullopt);
+  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial.get(), segment0->id, std::nullopt);
 
   DetailCraft(fabricator).doWork();
 }

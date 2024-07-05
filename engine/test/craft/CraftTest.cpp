@@ -27,7 +27,7 @@ protected:
   int TEST_REPEAT_TIMES = 20;
   MockFabricator *mockFabricator = nullptr;
   SegmentEntityStore *segmentEntityStore = nullptr;
-  ContentEntityStore *sourceMaterial = nullptr;
+  std::unique_ptr<ContentEntityStore> sourceMaterial;
   MockSegmentRetrospective *mockSegmentRetrospective = nullptr;
   Craft *subject = nullptr;
   const Segment *segment0 = nullptr;
@@ -35,8 +35,8 @@ protected:
   TemplateConfig templateConfig{};
 
   void SetUp() override {
-    sourceMaterial = new ContentEntityStore();
-    segmentEntityStore = new SegmentEntityStore();
+    sourceMaterial = std::make_unique<ContentEntityStore>();
+    segmentEntitystore = std::make_unique<SegmentEntityStore>();
     const Project *project1 = sourceMaterial->put(ContentFixtures::buildProject("fish"));
     const Library *library1 = sourceMaterial->put(ContentFixtures::buildLibrary(project1, "sea"));
     program1 = sourceMaterial->put(
@@ -65,7 +65,6 @@ protected:
   }
 
   void TearDown() override {
-    delete sourceMaterial;
     delete segmentEntityStore;
     delete mockFabricator;
     delete mockSegmentRetrospective;
@@ -307,8 +306,7 @@ TEST_F(CraftTest, SelectGeneralAudioIntensityLayers_ThreeLayers) {
   EXPECT_CALL(*mockFabricator, getSourceMaterial()).WillRepeatedly(Return(sourceMaterial));
   EXPECT_CALL(*mockFabricator, getRetrospective()).WillRepeatedly(Return(mockSegmentRetrospective));
   EXPECT_CALL(*mockFabricator, getSegment()).WillRepeatedly(Return(segment0));
-  EXPECT_CALL(*mockSegmentRetrospective, getPreviousPicksForInstrument(instrument1->id)).WillOnce(
-      Return(std::set<const SegmentChoiceArrangementPick *>{}));
+  EXPECT_CALL(*mockSegmentRetrospective, getPreviousPicksForInstrument(instrument1->id)).WillOnce(Return(std::set<const SegmentChoiceArrangementPick *>{}));
 
   // Call the method under test
   auto result = subject->selectGeneralAudioIntensityLayers(instrument1);
@@ -370,8 +368,7 @@ TEST_F(CraftTest, SelectGeneralAudioIntensityLayers_ContinueSegment) {
   EXPECT_CALL(*mockFabricator, getSourceMaterial()).WillRepeatedly(Return(sourceMaterial));
   EXPECT_CALL(*mockFabricator, getRetrospective()).WillRepeatedly(Return(mockSegmentRetrospective));
   EXPECT_CALL(*mockFabricator, getSegment()).WillRepeatedly(Return(segment0));
-  EXPECT_CALL(*mockSegmentRetrospective, getPreviousPicksForInstrument(instrument1->id)).WillOnce(
-      Return(std::set<const SegmentChoiceArrangementPick *>({&pick1, &pick2, &pick3})));
+  EXPECT_CALL(*mockSegmentRetrospective, getPreviousPicksForInstrument(instrument1->id)).WillOnce(Return(std::set<const SegmentChoiceArrangementPick *>({&pick1, &pick2, &pick3})));
 
   // Call the method under test
   auto result = subject->selectGeneralAudioIntensityLayers(instrument1);

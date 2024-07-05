@@ -25,23 +25,23 @@ using namespace XJ;
 class FabricatorTest : public testing::Test { // NOLINT(*-pro-type-member-init)
 protected:
   int SEQUENCE_TOTAL_BEATS = 64;
-  ContentEntityStore *sourceMaterial = nullptr;
-  SegmentEntityStore *store = nullptr;
+  std::unique_ptr<ContentEntityStore> sourceMaterial;
+  std::unique_ptr<SegmentEntityStore> store;
   MockSegmentRetrospective *mockRetrospective = nullptr;
   Fabricator *subject = nullptr;
-  ContentFixtures *fake = nullptr;
+  std::unique_ptr<ContentFixtures> fake;
   const Segment *segment = nullptr;
 
 protected:
   void SetUp() override {
-    sourceMaterial = new ContentEntityStore();
-    store = new SegmentEntityStore();
-    fake = new ContentFixtures();
+    sourceMaterial = std::make_unique<ContentEntityStore>();
+    store = std::make_unique<SegmentEntityStore>();
+    fake = std::make_unique<ContentFixtures>();
 
     // Mock request via HubClientFactory returns fake generated library of model content
-    fake->setupFixtureB1(sourceMaterial);
-    fake->setupFixtureB2(sourceMaterial);
-    fake->setupFixtureB3(sourceMaterial);
+    fake->setupFixtureB1(sourceMaterial.get());
+    fake->setupFixtureB2(sourceMaterial.get());
+    fake->setupFixtureB3(sourceMaterial.get());
 
     // Here's a basic setup that can be replaced for complex tests
     const auto chain = store->put(SegmentFixtures::buildChain(
@@ -63,12 +63,9 @@ protected:
   }
 
   void TearDown() override {
-    delete store;
-    delete mockRetrospective;
+        delete mockRetrospective;
     delete subject;
-    delete sourceMaterial;
-    delete fake;
-  }
+          }
 
   static bool setContains(const std::set<std::string> &items, const char *string) {
     return std::any_of(items.begin(), items.end(), [string](const std::string &item) {

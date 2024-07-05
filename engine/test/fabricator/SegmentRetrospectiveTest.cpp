@@ -16,9 +16,9 @@ class SegmentRetrospectiveTest : public testing::Test {
 protected:
   int SEQUENCE_TOTAL_BEATS = 64;
   UUID patternId = EntityUtils::computeUniqueId();
-  ContentEntityStore* sourceMaterial = new ContentEntityStore();
-  SegmentEntityStore* store = new SegmentEntityStore();
-  FabricatorFactory* fabricatorFactory = new FabricatorFactory(store);
+  ContentEntityStore* sourceMaterial = std::make_unique<ContentEntityStore>();
+  SegmentEntityStore* store = std::make_unique<SegmentEntityStore>();
+  FabricatorFactory* fabricatorFactory = std::make_unique<FabricatorFactory>(store.get());
   ContentFixtures fake;
   Segment segment0;
   Segment segment1;

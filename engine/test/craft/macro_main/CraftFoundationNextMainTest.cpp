@@ -25,25 +25,25 @@ using namespace XJ;
 
 class CraftFoundationNextMainTest : public testing::Test {
 protected:
-  FabricatorFactory *fabricatorFactory = nullptr;
-  ContentFixtures *fake = nullptr;
-  SegmentEntityStore *store = nullptr;
-  ContentEntityStore *sourceMaterial = nullptr;
+  std::unique_ptr<FabricatorFactory> fabricatorFactory;
+  std::unique_ptr<ContentFixtures> fake;
+  std::unique_ptr<SegmentEntityStore> store;
+  std::unique_ptr<ContentEntityStore> sourceMaterial;
   Chain *chain1 = nullptr;
   const Segment *segment4 = nullptr;
 
   void SetUp() override {
-    store = new SegmentEntityStore();
-    fabricatorFactory = new FabricatorFactory(store);
+    store = std::make_unique<SegmentEntityStore>();
+    fabricatorFactory = std::make_unique<FabricatorFactory>(store.get());
 
     // Manipulate the underlying entity store; reset before each test
     store->clear();
 
     // Mock request via HubClientFactory returns fake generated library of model content
-    sourceMaterial = new ContentEntityStore();
-    fake = new ContentFixtures();
-    fake->setupFixtureB1(sourceMaterial);
-    fake->setupFixtureB2(sourceMaterial);
+    sourceMaterial = std::make_unique<ContentEntityStore>();
+    fake = std::make_unique<ContentFixtures>();
+    fake->setupFixtureB1(sourceMaterial.get());
+    fake->setupFixtureB2(sourceMaterial.get());
 
     // Chain "Test Print #1" has 5 total segments
     chain1 = store->put(
@@ -86,17 +86,10 @@ protected:
         SegmentFixtures::buildSegment(chain1, 3, Segment::State::Planned, "C", 8, 0.8f, 120, "chain-1-waveform-12345"));
   }
 
-  void TearDown() override {
-    delete fake;
-    delete sourceMaterial;
-    delete store;
-    delete fabricatorFactory;
-    delete chain1;
-  }
-};
+  };
 
 TEST_F(CraftFoundationNextMainTest, CraftFoundationNextMain) {
-  auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, std::nullopt);
+  auto fabricator = fabricatorFactory->fabricate(sourceMaterial.get(), segment4->id, std::nullopt);
 
   MacroMainCraft(fabricator, std::nullopt, {}).doWork();
 
@@ -141,5 +134,5 @@ TEST_F(CraftFoundationNextMainTest, CraftFoundationNextMain_revertsAndRequeueOnF
       120.0f,
       "chain-1-waveform-12345.wav"));
 
-  ASSERT_THROW(fabricatorFactory->fabricate(sourceMaterial, segment5->id, std::nullopt), FabricationFatalException);
+  ASSERT_THROW(fabricatorFactory->fabricate(sourceMaterial.get(), segment5->id, std::nullopt), FabricationFatalException);
 }

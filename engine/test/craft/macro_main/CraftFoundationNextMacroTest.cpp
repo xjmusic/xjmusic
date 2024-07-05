@@ -31,17 +31,17 @@ static int TEST_REPEAT_ITERATIONS = 14;
    */
 TEST(CraftFoundationNextMacroTest, CraftFoundationNextMacro) {
   for (int i = 0; i < TEST_REPEAT_ITERATIONS; i++) {
-    auto store = new SegmentEntityStore();
-    auto fabricatorFactory = new FabricatorFactory(store);
+    auto store = std::make_unique<SegmentEntityStore>();
+    auto fabricatorFactory = std::make_unique<FabricatorFactory>(store.get());
 
     // Manipulate the underlying entity store; reset before each test
     store->clear();
 
     // Mock request via HubClientFactory returns fake generated library of model content
-    auto fake = new ContentFixtures();
-    auto sourceMaterial = new ContentEntityStore();
-    fake->setupFixtureB1(sourceMaterial);
-    fake->setupFixtureB2(sourceMaterial);
+    auto fake = std::make_unique<ContentFixtures>();
+    auto sourceMaterial = std::make_unique<ContentEntityStore>();
+    fake->setupFixtureB1(sourceMaterial.get());
+    fake->setupFixtureB2(sourceMaterial.get());
 
     // Chain "Test Print #1" has 5 total segments
     const auto chain1 = store->put(
@@ -83,7 +83,7 @@ TEST(CraftFoundationNextMacroTest, CraftFoundationNextMacro) {
     auto segment4 = store->put(
         SegmentFixtures::buildSegment(chain1, 3, Segment::State::Planned, "C", 8, 0.8f, 120, "chain-1-waveform-12345"));
 
-    auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, std::nullopt);
+    auto fabricator = fabricatorFactory->fabricate(sourceMaterial.get(), segment4->id, std::nullopt);
 
     MacroMainCraft(fabricator, std::nullopt, {}).doWork();
 

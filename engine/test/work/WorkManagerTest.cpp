@@ -28,14 +28,14 @@ protected:
   long long MILLIS_PER_SECOND = 1000;
   int GENERATED_FIXTURE_COMPLEXITY = 3;
   long long startTime = EntityUtils::currentTimeMillis();
-  SegmentEntityStore *store = nullptr;
+  std::unique_ptr<SegmentEntityStore> store;
   ContentEntityStore *content = nullptr;
   WorkManager *work = nullptr;
-  ContentFixtures *fake = nullptr;
+  std::unique_ptr<ContentFixtures> fake;
 
   void SetUp() override {
-    content = new ContentEntityStore();
-    fake = new ContentFixtures();
+    content = std::make_unique<ContentEntityStore>();
+    fake = std::make_unique<ContentFixtures>();
     fake->project1 = ContentFixtures::buildProject("fish");
     fake->library1 = ContentFixtures::buildLibrary(&fake->project1, "test");
     fake->generateFixtures(content, GENERATED_FIXTURE_COMPLEXITY);
@@ -46,20 +46,18 @@ protected:
     content->put(tmpl);
 
     // Manipulate the underlying entity store; reset before each test
-    store = new SegmentEntityStore();
-    const auto fabricatorFactory = new FabricatorFactory(store);
+    store = std::make_unique<SegmentEntityStore>();
+    const auto fabricatorFactory = std::make_unique<FabricatorFactory>(store.get());
 
     // work
-    work = new WorkManager(fabricatorFactory, store);
+    work = new WorkManager(fabricatorFactory.get(), store);
     auto settings = WorkSettings();
     settings.inputTemplate = tmpl;
     work->start(content, settings);
   }
 
   void TearDown() override {
-    delete store;
-    delete fake;
-    delete content;
+            delete content;
     delete work;
   }
 

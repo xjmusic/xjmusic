@@ -24,20 +24,20 @@ using namespace XJ;
 
 class CraftFoundationInitialTest : public testing::Test {
 protected:
-  FabricatorFactory *fabricatorFactory = nullptr;
-  ContentEntityStore *sourceMaterial = nullptr;
-  SegmentEntityStore *store = nullptr;
-  ContentFixtures *fake = nullptr;
+  std::unique_ptr<FabricatorFactory> fabricatorFactory;
+  std::unique_ptr<ContentEntityStore> sourceMaterial;
+  std::unique_ptr<SegmentEntityStore> store;
+  std::unique_ptr<ContentFixtures> fake;
   const Segment *segment6 = nullptr;
 
   void SetUp() override {
-    store = new SegmentEntityStore();
-    fabricatorFactory = new FabricatorFactory(store);
+    store = std::make_unique<SegmentEntityStore>();
+    fabricatorFactory = std::make_unique<FabricatorFactory>(store.get());
 
     // Mock request via HubClientFactory returns fake generated library of model content
-    fake = new ContentFixtures();
-    sourceMaterial = new ContentEntityStore();
-    fake->setupFixtureB1(sourceMaterial);
+    fake = std::make_unique<ContentFixtures>();
+    sourceMaterial = std::make_unique<ContentEntityStore>();
+    fake->setupFixtureB1(sourceMaterial.get());
 
     // Chain "Print #2" has 1 initial planned segment
     const auto chain2 = store->put(SegmentFixtures::buildChain(
@@ -56,16 +56,10 @@ protected:
         "chain-1-waveform-12345.wav"));
   }
 
-  void TearDown() override {
-    delete fake;
-    delete sourceMaterial;
-    delete store;
-    delete fabricatorFactory;
-  }
-};
+  };
 
 TEST_F(CraftFoundationInitialTest, CraftFoundationInitial) {
-  auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment6->id, std::nullopt);
+  auto fabricator = fabricatorFactory->fabricate(sourceMaterial.get(), segment6->id, std::nullopt);
 
   MacroMainCraft(fabricator, std::nullopt, {}).doWork();
 
