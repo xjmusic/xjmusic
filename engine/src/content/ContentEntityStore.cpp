@@ -8,7 +8,6 @@
 #include <spdlog/spdlog.h>
 
 #include "xjmusic/content/ContentEntityStore.h"
-#include "xjmusic/util/EntityUtils.h"
 
 using namespace XJ;
 
@@ -16,166 +15,11 @@ using json = nlohmann::json;
 
 namespace XJ {
 
-  void from_json(const json &json, Instrument &entity) {
-    EntityUtils::setRequired(json, "id", entity.id);
-    EntityUtils::setRequired(json, "libraryId", entity.libraryId);
-    entity.state = Instrument::parseState(json.at("state").get<std::string>());
-    entity.type = Instrument::parseType(json.at("type").get<std::string>());
-    entity.mode = Instrument::parseMode(json.at("mode").get<std::string>());
-    EntityUtils::setIfNotNull(json, "name", entity.name);
-    EntityUtils::setIfNotNull(json, "config", entity.config);
-    EntityUtils::setIfNotNull(json, "volume", entity.volume);
-    EntityUtils::setIfNotNull(json, "isDeleted", entity.isDeleted);
-    EntityUtils::setIfNotNull(json, "updatedAt", entity.updatedAt);
-  }
-
-  void from_json(const json &json, InstrumentAudio &entity) {
-    EntityUtils::setRequired(json, "id", entity.id);
-    EntityUtils::setRequired(json, "instrumentId", entity.instrumentId);
-    EntityUtils::setIfNotNull(json, "name", entity.name);
-    EntityUtils::setIfNotNull(json, "waveformKey", entity.waveformKey);
-    EntityUtils::setIfNotNull(json, "transientSeconds", entity.transientSeconds);
-    EntityUtils::setIfNotNull(json, "loopBeats", entity.loopBeats);
-    EntityUtils::setIfNotNull(json, "tempo", entity.tempo);
-    EntityUtils::setIfNotNull(json, "intensity", entity.intensity);
-    EntityUtils::setIfNotNull(json, "event", entity.event);
-    EntityUtils::setIfNotNull(json, "volume", entity.volume);
-    EntityUtils::setIfNotNull(json, "tones", entity.tones);
-  }
-
-  void from_json(const json &json, InstrumentMeme &entity) {
-    EntityUtils::setRequired(json, "id", entity.id);
-    EntityUtils::setRequired(json, "instrumentId", entity.instrumentId);
-    EntityUtils::setIfNotNull(json, "name", entity.name);
-  }
-
-  void from_json(const json &json, Library &entity) {
-    EntityUtils::setRequired(json, "id", entity.id);
-    EntityUtils::setRequired(json, "projectId", entity.projectId);
-    EntityUtils::setIfNotNull(json, "name", entity.name);
-    EntityUtils::setIfNotNull(json, "isDeleted", entity.isDeleted);
-    EntityUtils::setIfNotNull(json, "updatedAt", entity.updatedAt);
-  }
-
-  void from_json(const json &json, Program &entity) {
-    EntityUtils::setRequired(json, "id", entity.id);
-    EntityUtils::setRequired(json, "libraryId", entity.libraryId);
-    entity.state = Program::parseState(json.at("state").get<std::string>());
-    entity.type = Program::parseType(json.at("type").get<std::string>());
-    EntityUtils::setIfNotNull(json, "key", entity.key);
-    EntityUtils::setIfNotNull(json, "tempo", entity.tempo);
-    EntityUtils::setIfNotNull(json, "name", entity.name);
-    EntityUtils::setIfNotNull(json, "config", entity.config);
-    EntityUtils::setIfNotNull(json, "isDeleted", entity.isDeleted);
-    EntityUtils::setIfNotNull(json, "updatedAt", entity.updatedAt);
-  }
-
-  void from_json(const json &json, ProgramMeme &entity) {
-    EntityUtils::setRequired(json, "id", entity.id);
-    EntityUtils::setRequired(json, "programId", entity.programId);
-    EntityUtils::setIfNotNull(json, "name", entity.name);
-  }
-
-  void from_json(const json &json, ProgramSequence &entity) {
-    EntityUtils::setRequired(json, "id", entity.id);
-    EntityUtils::setRequired(json, "programId", entity.programId);
-    EntityUtils::setIfNotNull(json, "name", entity.name);
-    EntityUtils::setIfNotNull(json, "key", entity.key);
-    EntityUtils::setIfNotNull(json, "intensity", entity.intensity);
-    EntityUtils::setIfNotNull(json, "total", entity.total);
-  }
-
-  void from_json(const json &json, ProgramSequenceBinding &entity) {
-    EntityUtils::setRequired(json, "id", entity.id);
-    EntityUtils::setRequired(json, "programId", entity.programId);
-    EntityUtils::setRequired(json, "programSequenceId", entity.programSequenceId);
-    EntityUtils::setIfNotNull(json, "offset", entity.offset);
-  }
-
-  void from_json(const json &json, ProgramSequenceBindingMeme &entity) {
-    EntityUtils::setRequired(json, "id", entity.id);
-    EntityUtils::setRequired(json, "programId", entity.programId);
-    EntityUtils::setRequired(json, "programSequenceBindingId", entity.programSequenceBindingId);
-    EntityUtils::setIfNotNull(json, "name", entity.name);
-  }
-
-  void from_json(const json &json, ProgramSequenceChord &entity) {
-    EntityUtils::setRequired(json, "id", entity.id);
-    EntityUtils::setRequired(json, "programId", entity.programId);
-    EntityUtils::setRequired(json, "programSequenceId", entity.programSequenceId);
-    EntityUtils::setIfNotNull(json, "name", entity.name);
-    EntityUtils::setIfNotNull(json, "position", entity.position);
-  }
-
-  void from_json(const json &json, ProgramSequenceChordVoicing &entity) {
-    EntityUtils::setRequired(json, "id", entity.id);
-    EntityUtils::setRequired(json, "programId", entity.programId);
-    EntityUtils::setRequired(json, "programSequenceChordId", entity.programSequenceChordId);
-    EntityUtils::setRequired(json, "programVoiceId", entity.programVoiceId);
-    EntityUtils::setIfNotNull(json, "notes", entity.notes);
-  }
-
-  void from_json(const json &json, ProgramSequencePattern &entity) {
-    EntityUtils::setRequired(json, "id", entity.id);
-    EntityUtils::setRequired(json, "programId", entity.programId);
-    EntityUtils::setRequired(json, "programSequenceId", entity.programSequenceId);
-    EntityUtils::setRequired(json, "programVoiceId", entity.programVoiceId);
-    EntityUtils::setIfNotNull(json, "name", entity.name);
-    EntityUtils::setIfNotNull(json, "total", entity.total);
-  }
-
-  void from_json(const json &json, ProgramSequencePatternEvent &entity) {
-    EntityUtils::setRequired(json, "id", entity.id);
-    EntityUtils::setRequired(json, "programId", entity.programId);
-    EntityUtils::setRequired(json, "programSequencePatternId", entity.programSequencePatternId);
-    EntityUtils::setRequired(json, "programVoiceTrackId", entity.programVoiceTrackId);
-    EntityUtils::setIfNotNull(json, "velocity", entity.velocity);
-    EntityUtils::setIfNotNull(json, "position", entity.position);
-    EntityUtils::setIfNotNull(json, "duration", entity.duration);
-    EntityUtils::setIfNotNull(json, "tones", entity.tones);
-  }
-
-  void from_json(const json &json, ProgramVoice &entity) {
-    EntityUtils::setRequired(json, "id", entity.id);
-    EntityUtils::setRequired(json, "programId", entity.programId);
-    entity.type = Instrument::parseType(json.at("type").get<std::string>());
-    EntityUtils::setIfNotNull(json, "duration", entity.name);
-    EntityUtils::setIfNotNull(json, "tones", entity.order);
-  }
-
-  void from_json(const json &json, ProgramVoiceTrack &entity) {
-    EntityUtils::setRequired(json, "id", entity.id);
-    EntityUtils::setRequired(json, "programId", entity.programId);
-    EntityUtils::setRequired(json, "programVoiceId", entity.programVoiceId);
-    EntityUtils::setIfNotNull(json, "duration", entity.name);
-    EntityUtils::setIfNotNull(json, "tones", entity.order);
-  }
-
-  void from_json(const json &json, Project &entity) {
-    EntityUtils::setRequired(json, "id", entity.id);
-    EntityUtils::setIfNotNull(json, "name", entity.name);
-    EntityUtils::setIfNotNull(json, "platformVersion", entity.platformVersion);
-    EntityUtils::setIfNotNull(json, "isDeleted", entity.isDeleted);
-    EntityUtils::setIfNotNull(json, "updatedAt", entity.updatedAt);
-  }
-
-  void from_json(const json &json, Template &entity) {
-    EntityUtils::setRequired(json, "id", entity.id);
-    EntityUtils::setRequired(json, "projectId", entity.projectId);
-    EntityUtils::setIfNotNull(json, "name", entity.name);
-    EntityUtils::setIfNotNull(json, "config", entity.config);
-    EntityUtils::setIfNotNull(json, "shipKey", entity.shipKey);
-    EntityUtils::setIfNotNull(json, "isDeleted", entity.isDeleted);
-    EntityUtils::setIfNotNull(json, "updatedAt", entity.updatedAt);
-  }
-
-  void from_json(const json &json, TemplateBinding &entity) {
-    EntityUtils::setRequired(json, "id", entity.id);
-    EntityUtils::setRequired(json, "templateId", entity.templateId);
-    entity.type = TemplateBinding::parseType(json.at("type").get<std::string>());
-    EntityUtils::setRequired(json, "targetId", entity.targetId);
-  }
-
+  /**
+   * Parse a ContentEntityStore from a JSON object
+   * @param json  input
+   * @param entity  output
+   */
   void from_json(const json &json, ContentEntityStore &store) {
     if (json.contains("instruments"))
       store.setInstruments(

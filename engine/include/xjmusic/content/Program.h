@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-#ifndef PROGRAM_H
-#define PROGRAM_H
+#ifndef XJMUSIC_PROGRAM_H
+#define XJMUSIC_PROGRAM_H
 
 #include <string>
 
@@ -65,6 +65,24 @@ namespace XJ {
     static std::string toString(const Program::State &state);
   };
 
+  /**
+   * Parse a Program from a JSON object
+   * @param json  input
+   * @param entity  output
+   */
+  void from_json(const json &json, Program &entity) {
+    EntityUtils::setRequired(json, "id", entity.id);
+    EntityUtils::setRequired(json, "libraryId", entity.libraryId);
+    entity.state = Program::parseState(json.at("state").get<std::string>());
+    entity.type = Program::parseType(json.at("type").get<std::string>());
+    EntityUtils::setIfNotNull(json, "key", entity.key);
+    EntityUtils::setIfNotNull(json, "tempo", entity.tempo);
+    EntityUtils::setIfNotNull(json, "name", entity.name);
+    EntityUtils::setIfNotNull(json, "config", entity.config);
+    EntityUtils::setIfNotNull(json, "isDeleted", entity.isDeleted);
+    EntityUtils::setIfNotNull(json, "updatedAt", entity.updatedAt);
+  }
+
 }// namespace XJ
 
-#endif//PROGRAM_H
+#endif//XJMUSIC_PROGRAM_H

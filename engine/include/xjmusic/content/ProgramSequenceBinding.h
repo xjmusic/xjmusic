@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-#ifndef PROGRAM_SEQUENCE_BINDING_H
-#define PROGRAM_SEQUENCE_BINDING_H
+#ifndef XJMUSIC_PROGRAM_SEQUENCE_BINDING_H
+#define XJMUSIC_PROGRAM_SEQUENCE_BINDING_H
 
 #include <string>
 #include <utility>
@@ -21,6 +21,18 @@ namespace XJ {
     int offset{};
   };
 
+  /**
+   * Parse a ProgramSequenceBinding from a JSON object
+   * @param json  input
+   * @param entity  output
+   */
+  void from_json(const json &json, ProgramSequenceBinding &entity) {
+    EntityUtils::setRequired(json, "id", entity.id);
+    EntityUtils::setRequired(json, "programId", entity.programId);
+    EntityUtils::setRequired(json, "programSequenceId", entity.programSequenceId);
+    EntityUtils::setIfNotNull(json, "offset", entity.offset);
+  }
+
 }// namespace XJ
 
-#endif//PROGRAM_SEQUENCE_BINDING_H
+#endif//XJMUSIC_PROGRAM_SEQUENCE_BINDING_H

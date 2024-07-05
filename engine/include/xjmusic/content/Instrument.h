@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-#ifndef INSTRUMENT_H
-#define INSTRUMENT_H
+#ifndef XJMUSIC_INSTRUMENT_H
+#define XJMUSIC_INSTRUMENT_H
 
 #include <string>
 
@@ -94,6 +94,24 @@ namespace XJ {
     static const std::vector<std::string> &toStrings(std::vector<Type> types);
   };
 
+  /**
+   * Parse a Instrument from a JSON object
+   * @param json  input
+   * @param entity  output
+   */
+  void from_json(const json &json, Instrument &entity) {
+    EntityUtils::setRequired(json, "id", entity.id);
+    EntityUtils::setRequired(json, "libraryId", entity.libraryId);
+    entity.state = Instrument::parseState(json.at("state").get<std::string>());
+    entity.type = Instrument::parseType(json.at("type").get<std::string>());
+    entity.mode = Instrument::parseMode(json.at("mode").get<std::string>());
+    EntityUtils::setIfNotNull(json, "name", entity.name);
+    EntityUtils::setIfNotNull(json, "config", entity.config);
+    EntityUtils::setIfNotNull(json, "volume", entity.volume);
+    EntityUtils::setIfNotNull(json, "isDeleted", entity.isDeleted);
+    EntityUtils::setIfNotNull(json, "updatedAt", entity.updatedAt);
+  }
+
 }// namespace XJ
 
-#endif//INSTRUMENT_H
+#endif//XJMUSIC_INSTRUMENT_H

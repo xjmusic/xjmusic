@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-#ifndef TEMPLATE_H
-#define TEMPLATE_H
+#ifndef XJMUSIC_TEMPLATE_H
+#define XJMUSIC_TEMPLATE_H
 
 #include <string>
 
@@ -23,6 +23,21 @@ namespace XJ {
     long long updatedAt{EntityUtils::currentTimeMillis()};
   };
 
+  /**
+   * Parse a Template from a JSON object
+   * @param json  input
+   * @param entity  output
+   */
+  void from_json(const json &json, Template &entity) {
+    EntityUtils::setRequired(json, "id", entity.id);
+    EntityUtils::setRequired(json, "projectId", entity.projectId);
+    EntityUtils::setIfNotNull(json, "name", entity.name);
+    EntityUtils::setIfNotNull(json, "config", entity.config);
+    EntityUtils::setIfNotNull(json, "shipKey", entity.shipKey);
+    EntityUtils::setIfNotNull(json, "isDeleted", entity.isDeleted);
+    EntityUtils::setIfNotNull(json, "updatedAt", entity.updatedAt);
+  }
+
 }// namespace XJ
 
-#endif//TEMPLATE_H
+#endif//XJMUSIC_TEMPLATE_H

@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-#ifndef PROGRAM_SEQUENCE_PATTERN_EVENT_H
-#define PROGRAM_SEQUENCE_PATTERN_EVENT_H
+#ifndef XJMUSIC_PROGRAM_SEQUENCE_PATTERN_EVENT_H
+#define XJMUSIC_PROGRAM_SEQUENCE_PATTERN_EVENT_H
 
 #include <string>
 #include <utility>
@@ -25,6 +25,22 @@ namespace XJ {
     std::string tones;
   };
 
+  /**
+   * Parse a ProgramSequencePatternEvent from a JSON object
+   * @param json  input
+   * @param entity  output
+   */
+  void from_json(const json &json, ProgramSequencePatternEvent &entity) {
+    EntityUtils::setRequired(json, "id", entity.id);
+    EntityUtils::setRequired(json, "programId", entity.programId);
+    EntityUtils::setRequired(json, "programSequencePatternId", entity.programSequencePatternId);
+    EntityUtils::setRequired(json, "programVoiceTrackId", entity.programVoiceTrackId);
+    EntityUtils::setIfNotNull(json, "velocity", entity.velocity);
+    EntityUtils::setIfNotNull(json, "position", entity.position);
+    EntityUtils::setIfNotNull(json, "duration", entity.duration);
+    EntityUtils::setIfNotNull(json, "tones", entity.tones);
+  }
+
 }// namespace XJ
 
-#endif//PROGRAM_SEQUENCE_PATTERN_EVENT_H
+#endif//XJMUSIC_PROGRAM_SEQUENCE_PATTERN_EVENT_H

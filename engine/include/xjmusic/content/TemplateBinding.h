@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-#ifndef TEMPLATE_BINDING_H
-#define TEMPLATE_BINDING_H
+#ifndef XJMUSIC_TEMPLATE_BINDING_H
+#define XJMUSIC_TEMPLATE_BINDING_H
 
 #include <set>
 #include <string>
@@ -53,6 +53,18 @@ namespace XJ {
     static std::string toPrettyCsv(const std::set<const TemplateBinding *> &templateBindings);
   };
 
+  /**
+   * Parse a TemplateBinding from a JSON object
+   * @param json  input
+   * @param entity  output
+   */
+  void from_json(const json &json, TemplateBinding &entity) {
+    EntityUtils::setRequired(json, "id", entity.id);
+    EntityUtils::setRequired(json, "templateId", entity.templateId);
+    entity.type = TemplateBinding::parseType(json.at("type").get<std::string>());
+    EntityUtils::setRequired(json, "targetId", entity.targetId);
+  }
+
 }// namespace XJ
 
-#endif//TEMPLATE_BINDING_H
+#endif//XJMUSIC_TEMPLATE_BINDING_H

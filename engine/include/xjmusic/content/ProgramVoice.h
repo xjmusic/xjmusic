@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-#ifndef PROGRAM_VOICE_H
-#define PROGRAM_VOICE_H
+#ifndef XJMUSIC_PROGRAM_VOICE_H
+#define XJMUSIC_PROGRAM_VOICE_H
 
 #include <set>
 #include <string>
@@ -29,6 +29,19 @@ namespace XJ {
     static std::set<std::string> getNames(const std::set<const ProgramVoice *>& voices);
   };
 
+  /**
+   * Parse a ProgramVoice from a JSON object
+   * @param json  input
+   * @param entity  output
+   */
+  void from_json(const json &json, ProgramVoice &entity) {
+    EntityUtils::setRequired(json, "id", entity.id);
+    EntityUtils::setRequired(json, "programId", entity.programId);
+    entity.type = Instrument::parseType(json.at("type").get<std::string>());
+    EntityUtils::setIfNotNull(json, "duration", entity.name);
+    EntityUtils::setIfNotNull(json, "tones", entity.order);
+  }
+
 }// namespace XJ
 
-#endif//PROGRAM_VOICE_H
+#endif//XJMUSIC_PROGRAM_VOICE_H
