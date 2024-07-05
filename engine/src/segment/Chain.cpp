@@ -66,7 +66,7 @@ unsigned long long Chain::hashCode() const {
          std::hash<int>{}(type) ^
          std::hash<int>{}(state) ^
          std::hash<std::string>{}(shipKey) ^
-         std::hash<std::string>{}(templateConfig) ^
+         std::hash<std::string>{}(templateConfig.toString()) ^
          std::hash<std::string>{}(name);
 }
 

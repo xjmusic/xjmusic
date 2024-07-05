@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-#ifndef PROGRAM_MEME_H
-#define PROGRAM_MEME_H
+#ifndef XJMUSIC_PROGRAM_MEME_H
+#define XJMUSIC_PROGRAM_MEME_H
 
 #include <string>
 #include <set>
@@ -28,6 +28,17 @@ namespace XJ {
 
   };
 
+  /**
+   * Parse a ProgramMeme from a JSON object
+   * @param json  input
+   * @param entity  output
+   */
+  inline void from_json(const json &json, ProgramMeme &entity) {
+    EntityUtils::setRequired(json, "id", entity.id);
+    EntityUtils::setRequired(json, "programId", entity.programId);
+    EntityUtils::setIfNotNull(json, "name", entity.name);
+  }
+
 }// namespace XJ
 
-#endif//PROGRAM_MEME_H
+#endif//XJMUSIC_PROGRAM_MEME_H

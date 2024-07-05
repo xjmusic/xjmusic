@@ -6,15 +6,6 @@
 
 using namespace XJ;
 
-TEST(TemplateConfigTest, SetFromTemplate) {
-  Template input;
-  input.config = "mixerCompressToAmplitude = 0.95";
-
-  const TemplateConfig subject(&input);
-
-  EXPECT_NEAR(0.95, subject.mixerCompressToAmplitude, 0.01);
-}
-
 TEST(TemplateConfigTest, SetFromDefaults) {
   const TemplateConfig subject;
 

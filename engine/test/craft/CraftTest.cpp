@@ -32,7 +32,7 @@ protected:
   Craft *subject = nullptr;
   const Segment *segment0 = nullptr;
   Program *program1 = nullptr;
-  TemplateConfig *templateConfig = nullptr;
+  TemplateConfig templateConfig{};
 
   void SetUp() override {
     sourceMaterial = new ContentEntityStore();
@@ -53,7 +53,7 @@ protected:
         SegmentFixtures::buildSegment(chain1, Segment::Type::Initial, 2, 128, Segment::State::Crafted, "D major",
                                       64, 0.73f, 120.0f, "chains-1-segments-9f7s89d8a7892", true));
 
-    templateConfig = new TemplateConfig(template1);
+    templateConfig = template1->config;
     mockSegmentRetrospective = new MockSegmentRetrospective(segmentEntityStore, 2);
     mockFabricator = new MockFabricator(
         sourceMaterial,
@@ -70,7 +70,6 @@ protected:
     delete mockFabricator;
     delete mockSegmentRetrospective;
     delete subject;
-    delete templateConfig;
   }
 
   /**
@@ -114,8 +113,8 @@ TEST_F(CraftTest, PrecomputeDeltas) {
     return choice->programType == Program::Type::Detail;
   };
   std::vector<std::string> detailLayerOrder;
-  detailLayerOrder.reserve(templateConfig->detailLayerOrder.size());
-  for (const auto &type: templateConfig->detailLayerOrder) {
+  detailLayerOrder.reserve(templateConfig.detailLayerOrder.size());
+  for (const auto &type: templateConfig.detailLayerOrder) {
     detailLayerOrder.push_back(Instrument::toString(type));
   }
 
@@ -336,8 +335,7 @@ TEST_F(CraftTest, SelectGeneralAudioIntensityLayers_ContinueSegment) {
   Instrument *instrument1 = sourceMaterial->put(
       ContentFixtures::buildInstrument(&library1, Instrument::Type::Percussion, Instrument::Mode::Loop,
                                        Instrument::State::Published, "Test loop audio"));
-  instrument1->config = "isAudioSelectionPersistent=true";
-  auto instrumentConfig = InstrumentConfig(instrument1);
+  instrument1->config = InstrumentConfig("isAudioSelectionPersistent=true");
   InstrumentAudio *instrument1audio1a = sourceMaterial->put(
       ContentFixtures::buildInstrumentAudio(instrument1, "ping", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.2f, "PERC", "X",
                                             1.0f));
@@ -374,7 +372,6 @@ TEST_F(CraftTest, SelectGeneralAudioIntensityLayers_ContinueSegment) {
   EXPECT_CALL(*mockFabricator, getSegment()).WillRepeatedly(Return(segment0));
   EXPECT_CALL(*mockSegmentRetrospective, getPreviousPicksForInstrument(instrument1->id)).WillOnce(
       Return(std::set<const SegmentChoiceArrangementPick *>({&pick1, &pick2, &pick3})));
-  EXPECT_CALL(*mockFabricator, getInstrumentConfig(_)).WillOnce(Return(instrumentConfig));
 
   // Call the method under test
   auto result = subject->selectGeneralAudioIntensityLayers(instrument1);

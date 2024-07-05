@@ -9,8 +9,6 @@
 
 #include "xjmusic/util/ConfigParser.h"
 
-#include "Instrument.h"
-
 namespace XJ {
 
   class InstrumentConfig : public ConfigParser {
@@ -18,10 +16,6 @@ namespace XJ {
     static const std::string DEFAULT;
 
     explicit InstrumentConfig();
-
-    explicit InstrumentConfig(const Instrument &source);
-
-    explicit InstrumentConfig(const Instrument *source);
 
     explicit InstrumentConfig(const std::string &input);
 

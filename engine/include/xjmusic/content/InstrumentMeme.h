@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-#ifndef INSTRUMENT_MEME_H
-#define INSTRUMENT_MEME_H
+#ifndef XJMUSIC_INSTRUMENT_MEME_H
+#define XJMUSIC_INSTRUMENT_MEME_H
 
 #include <string>
 #include <set>
@@ -28,6 +28,17 @@ namespace XJ {
     
   };
 
+  /**
+   * Parse a InstrumentMeme from a JSON object
+   * @param json  input
+   * @param entity  output
+   */
+  inline void from_json(const json &json, InstrumentMeme &entity) {
+    EntityUtils::setRequired(json, "id", entity.id);
+    EntityUtils::setRequired(json, "instrumentId", entity.instrumentId);
+    EntityUtils::setIfNotNull(json, "name", entity.name);
+  }
+
 }// namespace XJ
 
-#endif//INSTRUMENT_MEME_H
+#endif//XJMUSIC_INSTRUMENT_MEME_H

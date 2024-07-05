@@ -101,7 +101,7 @@ std::set<const InstrumentAudio *> TransitionCraft::selectAudiosForInstrument(con
     if (names.find(seek) != names.end())
       previous.emplace(candidate);
   }
-  if (fabricator->getInstrumentConfig(instrument).isAudioSelectionPersistent && !previous.empty()) {
+  if (instrument->config.isAudioSelectionPersistent && !previous.empty()) {
     std::set<const InstrumentAudio *> result;
     for (const auto pick : previous) {
       auto audio = fabricator->getSourceMaterial()->getInstrumentAudio(pick->instrumentAudioId);

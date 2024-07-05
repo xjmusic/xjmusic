@@ -8,8 +8,6 @@
 
 using namespace XJ;
 
-const std::string ContentFixtures::TEST_TEMPLATE_CONFIG = "outputEncoding=\"PCM_SIGNED\"\noutputContainer = \"WAV\"\ndeltaArcEnabled = false\n";
-
 std::vector<float> ContentFixtures::listOfRandomValues(const int N) {
   std::vector<float> result(N);
   for (int i = 0; i < N; i++) {
@@ -164,7 +162,7 @@ Program ContentFixtures::buildDetailProgram(
   program.state = Program::State::Published;
   program.name = std::move(name);
   program.key = std::move(key);
-  program.config = "doPatternRestartOnChord=" + std::string(doPatternRestartOnChord ? "true" : "false");
+  program.config = ProgramConfig("doPatternRestartOnChord=" + std::string(doPatternRestartOnChord ? "true" : "false"));
   return program;
 }
 
@@ -349,8 +347,8 @@ Instrument ContentFixtures::buildInstrument(
   instrument.type = type;
   instrument.mode = mode;
   instrument.state = Instrument::State::Published;
-  instrument.config = "isTonal=" + std::string(isTonal ? "true" : "false") +
-                      "\nisMultiphonic=" + std::string(isMultiphonic ? "true" : "false");
+  instrument.config = InstrumentConfig("isTonal=" + std::string(isTonal ? "true" : "false") +
+                      "\nisMultiphonic=" + std::string(isMultiphonic ? "true" : "false"));
   instrument.name = "Test " + Instrument::toString(type) + "-Instrument";
   return instrument;
 }
@@ -417,7 +415,7 @@ Template ContentFixtures::buildTemplate(
   Template tmpl;
   tmpl.id = EntityUtils::computeUniqueId();
   tmpl.shipKey = std::move(shipKey);
-  tmpl.config = TEST_TEMPLATE_CONFIG;
+  tmpl.config = TemplateConfig("outputEncoding=\"PCM_SIGNED\"\noutputContainer = \"WAV\"\ndeltaArcEnabled = false\n");
   tmpl.projectId = project1->id;
   tmpl.name = std::move(name);
   return tmpl;
@@ -427,9 +425,9 @@ Template ContentFixtures::buildTemplate(
     const Project *project1,
     std::string name,
     std::string shipKey,
-    std::string config) {
+    const std::string &config) {
   Template tmpl = buildTemplate(project1, std::move(name), std::move(shipKey));
-  tmpl.config = std::move(config);
+  tmpl.config = TemplateConfig(config);
   return tmpl;
 }
 
@@ -610,7 +608,7 @@ Instrument ContentFixtures::buildInstrument(
     const Instrument::State state,
     std::string name) {
   Instrument instrument;
-  instrument.config = (new TemplateConfig())->toString();
+  instrument.config = InstrumentConfig();
   instrument.id = EntityUtils::computeUniqueId();
   instrument.libraryId = library->id;
   instrument.type = type;

@@ -15,18 +15,19 @@
 namespace XJ {
 
   class WorkManager {
-      FabricatorFactory *fabricatorFactory = nullptr;
+    FabricatorFactory *fabricatorFactory = nullptr;
     SegmentEntityStore *entityStore = nullptr;
     CraftWork *craftWork = nullptr;
     DubWork *dubWork = nullptr;
     ContentEntityStore *content = nullptr;
+    std::optional<MemeTaxonomy> memeTaxonomy{};
     WorkSettings config = WorkSettings();
     WorkState state = Standby;
     bool isAudioLoaded = false;
     long long startedAtMillis = 0;
     bool running = false;
-  public:
 
+  public:
     /**
     * Construct a new WorkManager
     * @param fabricatorFactory  for fabrication
@@ -140,27 +141,27 @@ namespace XJ {
      */
     void initialize();
 
-   /**
+    /**
     @return true if initialized
     */
-   bool isInitialized() const;
+    bool isInitialized() const;
 
-   /**
+    /**
     Log and of segment message of error that job failed while (message)
 
     @param msgWhile phrased like "Doing work"
     @param e        exception (optional)
     */
-   void didFailWhile(std::string msgWhile, std::exception e);
+    void didFailWhile(std::string msgWhile, const std::exception &e);
 
-   /**
+    /**
     * Get string representation of the work state
     * @param state  work state
     * @return  string representation
     */
-   static std::string toString(WorkState state);
+    static std::string toString(WorkState state);
 
-   /**
+    /**
      Update the current work state
 
      @param fabricationState work state

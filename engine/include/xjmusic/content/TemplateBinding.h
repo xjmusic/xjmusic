@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-#ifndef TEMPLATE_BINDING_H
-#define TEMPLATE_BINDING_H
+#ifndef XJMUSIC_TEMPLATE_BINDING_H
+#define XJMUSIC_TEMPLATE_BINDING_H
 
 #include <set>
 #include <string>
@@ -22,7 +22,7 @@ namespace XJ {
     TemplateBinding() = default;
 
     UUID templateId;
-    TemplateBinding::Type type{};
+    Type type{};
     UUID targetId;
 
     /**
@@ -36,14 +36,14 @@ namespace XJ {
      * @param value  The string to parse
      * @return      The TemplateBinding Type enum value
      */
-    static TemplateBinding::Type parseType(const std::string &value);
+    static Type parseType(const std::string &value);
 
     /**
      * Convert a TemplateBinding Type enum value to a string
      * @param type  The TemplateBinding Type enum value
      * @return      The string representation of the TemplateBinding Type
      */
-    static std::string toString(const TemplateBinding::Type &type);
+    static std::string toString(const Type &type);
 
     /**
      * Convert a set of TemplateBinding pointers to a string
@@ -53,6 +53,18 @@ namespace XJ {
     static std::string toPrettyCsv(const std::set<const TemplateBinding *> &templateBindings);
   };
 
+  /**
+   * Parse a TemplateBinding from a JSON object
+   * @param json  input
+   * @param entity  output
+   */
+  inline void from_json(const json &json, TemplateBinding &entity) {
+    EntityUtils::setRequired(json, "id", entity.id);
+    EntityUtils::setRequired(json, "templateId", entity.templateId);
+    entity.type = TemplateBinding::parseType(json.at("type").get<std::string>());
+    EntityUtils::setRequired(json, "targetId", entity.targetId);
+  }
+
 }// namespace XJ
 
-#endif//TEMPLATE_BINDING_H
+#endif//XJMUSIC_TEMPLATE_BINDING_H

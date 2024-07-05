@@ -218,7 +218,7 @@ TEST_F(ContentStoreTest, SetProgramGetProgram) {
   program.key = "C";
   program.tempo = 120.0f;
   program.name = "Test EntityUtils";
-  program.config = R"(barBeats = 4)";
+  program.config = ProgramConfig(R"(barBeats = 4)");
   program.isDeleted = false;
   program.updatedAt = 1711089919558;
 

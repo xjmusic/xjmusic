@@ -47,7 +47,7 @@ protected:
     chain2 = new Chain();
     chain2->id = EntityUtils::computeUniqueId();
     chain2->name = "Print #2";
-    chain2->templateConfig = TemplateConfig::DEFAULT;
+    chain2->templateConfig = TemplateConfig();
     chain2->type = Chain::Type::Production;
     chain2->state = Chain::State::Fabricate;
     store->put(*chain2);
