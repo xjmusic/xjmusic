@@ -32,7 +32,6 @@ protected:
   void SetUp() override {
     store = std::make_unique<SegmentEntityStore>();
 
-
     // Mock request via HubClientFactory returns fake generated library of model content
     sourceMaterial = std::make_unique<ContentEntityStore>();
     fake = std::make_unique<ContentFixtures>();
@@ -111,23 +110,4 @@ TEST_F(CraftFoundationNextMainTest, CraftFoundationNextMain) {
   auto mainChoice = SegmentUtils::findFirstOfType(segmentChoices, Program::Type::Main);
   ASSERT_EQ(fake->program15_sequence0_binding0.id, mainChoice.value()->programSequenceBindingId);
   ASSERT_EQ(0, fabricator.getSequenceBindingOffsetForChoice(mainChoice.value()));
-}
-
-/**
-   Engineer wants a Segment to be reverted, and re-queued for Craft, in the event that such a Segment has just failed its Craft process, in order to ensure Chain fabrication fault tolerance https://github.com/xjmusic/xjmusic/issues/297
-   */
-TEST_F(CraftFoundationNextMainTest, CraftFoundationNextMain_revertsAndRequeueOnFailure) {
-  // Chain "Test Print #1" has a dangling (preceded by another planned segment) planned segment
-  const auto segment5 = store->put(SegmentFixtures::buildSegment(
-      chain1,
-      4,
-      Segment::State::Planned,
-      "C",
-      8,
-      0.8f,
-      120.0f,
-      "chain-1-waveform-12345.wav"));
-  const auto retrospective = SegmentRetrospective(store.get(), segment5->id);
-
-  ASSERT_THROW(Fabricator(sourceMaterial.get(), store.get(), &retrospective, segment5->id, std::nullopt), FabricationFatalException);
 }

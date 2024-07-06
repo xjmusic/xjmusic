@@ -29,7 +29,7 @@ protected:
   int SEQUENCE_TOTAL_BEATS = 64;
   std::unique_ptr<ContentEntityStore> sourceMaterial;
   std::unique_ptr<SegmentEntityStore> store;
-  MockSegmentRetrospective *mockRetrospective = nullptr;
+  std::unique_ptr<MockSegmentRetrospective> mockRetrospective;
   Fabricator * subject = nullptr;
   std::unique_ptr<ContentFixtures> fake;
   const Segment *segment = nullptr;
@@ -60,12 +60,11 @@ protected:
         0.6f,
         240.0f,
         "seg123"));
-    mockRetrospective = new MockSegmentRetrospective(store.get(), 2);
-    subject = new Fabricator(sourceMaterial.get(), store.get(), mockRetrospective, 2, std::nullopt);
+    mockRetrospective = std::make_unique<MockSegmentRetrospective>(store.get(), 2);
+    subject = new Fabricator(sourceMaterial.get(), store.get(), mockRetrospective.get(), 2, std::nullopt);
   }
 
   void TearDown() override {
-    delete mockRetrospective;
     delete subject;
   }
 
