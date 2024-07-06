@@ -133,12 +133,12 @@ protected:
 TEST_F(MacroFromOverlappingMemeSequencesTest, ChooseNextMacroProgram_alwaysBasedOnOverlappingMemes) {
   const auto retrospective = SegmentRetrospective(store.get(), segment2->id);
   auto fabricator = Fabricator(sourceMaterial.get(), store.get(), &retrospective, segment2->id, std::nullopt);
-  const auto subject = new MacroMainCraft(&fabricator, std::nullopt, {});
+  MacroMainCraft subject = MacroMainCraft(&fabricator, std::nullopt, {});
 
   // This test is repeated many times to ensure the correct function of macro choice
   // At 100 repetitions, false positive is 2^100:1 against
   for (int i = 0; i < REPEAT_TIMES; i++) {
-    const auto result = subject->chooseMacroProgram();
+    const auto result = subject.chooseMacroProgram();
     ASSERT_EQ(macro2a.id, result->id);
   }
 }
