@@ -13,7 +13,7 @@ namespace XJ {
   class MockSegmentRetrospective final : public SegmentRetrospective {
   public:
     // Constructor
-    MockSegmentRetrospective(SegmentEntityStore *entityStore, int segmentId) : SegmentRetrospective(entityStore, segmentId) {
+    MockSegmentRetrospective(SegmentEntityStore *entityStore, int segmentId) : SegmentRetrospective(entityStore, segmentId, false) {
       auto segment = Segment();
     }
 

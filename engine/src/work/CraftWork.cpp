@@ -324,7 +324,7 @@ void CraftWork::doFabricationWork(
     const std::optional<const Program *> overrideMacroProgram,
     const std::set<std::string> &overrideMemes) const {
   spdlog::debug("[segId={}] will prepare fabricator", inputSegment->id);
-  auto retrospective = SegmentRetrospective(store, inputSegment->id);
+  const auto retrospective = SegmentRetrospective(store, inputSegment->id);
   auto fabricator = Fabricator(content, store, &retrospective, inputSegment->id, overrideSegmentType);
 
   spdlog::debug("[segId={}] will do craft work", inputSegment->id);

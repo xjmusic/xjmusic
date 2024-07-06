@@ -50,10 +50,11 @@ namespace XJ {
     * The previous segment is the first one cached here. We may cache even further back segments below if found
     * @param entityStore  for retrospective
     * @param segmentId    from which to create retrospective
+    * @param autoload     whether to autoload the retrospective
     * @throws FabricationFatalException on failure to retrieve
     * @ on failure to compute
     */
-    explicit SegmentRetrospective(SegmentEntityStore *entityStore, int segmentId);
+    explicit SegmentRetrospective(SegmentEntityStore *entityStore, int segmentId, bool autoload = true);
 
     /**
      Get the arrangement for the given pick

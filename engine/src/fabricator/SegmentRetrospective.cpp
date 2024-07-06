@@ -8,17 +8,16 @@
 
 using namespace XJ;
 
-SegmentRetrospective::SegmentRetrospective(SegmentEntityStore *entityStore, const int segmentId) {
+SegmentRetrospective::SegmentRetrospective(SegmentEntityStore *entityStore, const int segmentId, const bool autoload) {
   this->entityStore = entityStore;
   this->segmentId = segmentId;
 
   // NOTE: the segment retrospective is empty for segments of type Initial, NextMain, and NextMacro--
   // Only Continue-type segments have a retrospective
-
   // begin by getting the previous segment
   // only can build retrospective if there is at least one previous segment
   // the previous segment is the first one cached here. we may cache even further back segments below if found
-  if (segmentId <= 0) {
+  if (!autoload || segmentId <= 0) {
     retroSegments = std::vector<const Segment *>();
     previousSegmentIds = std::set<int>();
     previousSegment = std::nullopt;
