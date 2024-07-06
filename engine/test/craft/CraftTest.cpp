@@ -33,7 +33,7 @@ protected:
   const Segment *segment0 = nullptr;
   Program *program1 = nullptr;
   TemplateConfig templateConfig{};
-  const Template * template1 = nullptr;
+  const Template *template1 = nullptr;
 
   void SetUp() override {
     sourceMaterial = std::make_unique<ContentEntityStore>();

@@ -77,7 +77,7 @@ TEST(CraftFoundationNextMacroTest, CraftFoundationNextMacro) {
     auto segment4 = store->put(
         SegmentFixtures::buildSegment(chain1, 3, Segment::State::Planned, "C", 8, 0.8f, 120, "chain-1-waveform-12345"));
 
-  const auto retrospective = SegmentRetrospective(store.get(), segment4->id);
+    const auto retrospective = SegmentRetrospective(store.get(), segment4->id);
     auto fabricator = Fabricator(sourceMaterial.get(), store.get(), &retrospective, segment4->id, std::nullopt);
 
     MacroMainCraft(&fabricator, std::nullopt, {}).doWork();

@@ -22,7 +22,7 @@ using namespace XJ;
 
 class CraftTransitionInitialTest : public testing::Test {
 protected:
-    std::unique_ptr<ContentEntityStore> sourceMaterial;
+  std::unique_ptr<ContentEntityStore> sourceMaterial;
   std::unique_ptr<SegmentEntityStore> store;
   const Segment *segment6 = nullptr;
 
@@ -76,8 +76,7 @@ protected:
     store->put(SegmentFixtures::buildSegmentChord(segment6, 0.0f, "C minor"));
     store->put(SegmentFixtures::buildSegmentChord(segment6, 8.0f, "Db minor"));
   }
-
-  };
+};
 
 TEST_F(CraftTransitionInitialTest, CraftTransitionInitial) {
   const auto retrospective = SegmentRetrospective(store.get(), segment6->id);

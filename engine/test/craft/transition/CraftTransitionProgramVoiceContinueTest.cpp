@@ -22,7 +22,7 @@ using namespace XJ;
 
 class CraftTransitionProgramVoiceContinueTest : public testing::Test {
 protected:
-    std::unique_ptr<ContentEntityStore> sourceMaterial;
+  std::unique_ptr<ContentEntityStore> sourceMaterial;
   std::unique_ptr<SegmentEntityStore> store;
   std::unique_ptr<ContentFixtures> fake;
   const Segment *segment4 = nullptr;

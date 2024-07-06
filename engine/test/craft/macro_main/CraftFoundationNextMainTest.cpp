@@ -23,7 +23,7 @@ using namespace XJ;
 
 class CraftFoundationNextMainTest : public testing::Test {
 protected:
-    std::unique_ptr<ContentFixtures> fake;
+  std::unique_ptr<ContentFixtures> fake;
   std::unique_ptr<SegmentEntityStore> store;
   std::unique_ptr<ContentEntityStore> sourceMaterial;
   Chain *chain1 = nullptr;
@@ -79,8 +79,7 @@ protected:
     segment4 = store->put(
         SegmentFixtures::buildSegment(chain1, 3, Segment::State::Planned, "C", 8, 0.8f, 120, "chain-1-waveform-12345"));
   }
-
-  };
+};
 
 TEST_F(CraftFoundationNextMainTest, CraftFoundationNextMain) {
   const auto retrospective = SegmentRetrospective(store.get(), segment4->id);

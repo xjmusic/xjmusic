@@ -21,7 +21,7 @@ using namespace XJ;
 
 class CraftSegmentOutputEncoderTest : public testing::Test {
 protected:
-    std::unique_ptr<SegmentEntityStore> store;
+  std::unique_ptr<SegmentEntityStore> store;
   std::unique_ptr<ContentEntityStore> sourceMaterial;
   const Segment *segment6 = nullptr;
 

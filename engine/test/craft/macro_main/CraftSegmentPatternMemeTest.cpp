@@ -64,7 +64,7 @@ TEST(CraftSegmentPatternMemeTest, CraftSegment) {
     const auto segment = store->put(
         SegmentFixtures::buildSegment(chain, 2, Segment::State::Planned, "C", 8, 0.8f, 120, "chain-1-waveform-12345"));
 
-  const auto retrospective = SegmentRetrospective(store.get(), segment->id);
+    const auto retrospective = SegmentRetrospective(store.get(), segment->id);
     auto fabricator = Fabricator(sourceMaterial.get(), store.get(), &retrospective, segment->id, std::nullopt);
 
     MacroMainCraft(&fabricator, std::nullopt, {}).doWork();

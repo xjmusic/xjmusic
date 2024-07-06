@@ -22,7 +22,7 @@ using namespace XJ;
 
 class CraftTransitionNextMacroTest : public testing::Test {
 protected:
-    std::unique_ptr<ContentFixtures> fake;
+  std::unique_ptr<ContentFixtures> fake;
   std::unique_ptr<SegmentEntityStore> store;
   std::unique_ptr<ContentEntityStore> sourceMaterial;
   Chain *chain1 = nullptr;
