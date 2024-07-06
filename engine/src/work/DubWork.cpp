@@ -56,10 +56,6 @@ bool DubWork::isFinished() {
   return !running;
 }
 
-const Chain *DubWork::getChain() const {
-  return craftWork->getChain();
-}
-
 std::optional<const Segment *> DubWork::getSegmentAtChainMicros(long atChainMicros) const {
   return craftWork->getSegmentAtChainMicros(atChainMicros);
 }
@@ -83,7 +79,7 @@ void DubWork::setIntensityOverride(const std::optional<float> intensity) {
 // FUTURE don't recalculate all the active audios every time, cache and recompute only the ones that changed
 std::set<ActiveAudio> DubWork::computeActiveAudios(const unsigned long long atChainMicros) {
   const auto toChainMicros = atChainMicros + dubAheadMicros;
-  auto segments = craftWork->getSegmentsIfReady(atChainMicros, toChainMicros);
+  const auto segments = craftWork->getSegmentsIfReady(atChainMicros, toChainMicros);
   if (segments.empty()) {
     spdlog::debug("Waiting for segments");
     return {};
@@ -97,10 +93,10 @@ std::set<ActiveAudio> DubWork::computeActiveAudios(const unsigned long long atCh
 
   try {
     std::set<ActiveAudio> activeAudios;
-    for (auto segment: segments)
-      for (auto choice: craftWork->getChoices(segment))
+    for (const auto segment: segments)
+      for (const auto choice: craftWork->getChoices(segment))
         if (!choice->mute)
-          for (auto arrangement: craftWork->getArrangements(choice))
+          for (const auto arrangement: craftWork->getArrangements(choice))
             for (auto pick: craftWork->getPicks(arrangement)) {
 
               const InstrumentAudio *audio = craftWork->getInstrumentAudio(pick);
@@ -140,7 +136,7 @@ std::set<ActiveAudio> DubWork::computeActiveAudios(const unsigned long long atCh
                         audio,
                         templateConfig.getIntensityLayers(instrument->type),
                         templateConfig.getIntensityThreshold(instrument->type),
-                        false, prevIntensity.value()
+                        false, prevIntensity.has_value() ? prevIntensity.value() : nextIntensity.value()
                     ),
                     AudioMathUtils::computeIntensityAmplitude(
                         audio,

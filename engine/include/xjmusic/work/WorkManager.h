@@ -4,7 +4,7 @@
 #define XJMUSIC_WORK_FABRICATION_MANAGER_H
 
 #include "xjmusic/audio/ActiveAudio.h"
-#include "xjmusic/fabricator/FabricatorFactory.h"
+#include "xjmusic/content/ContentEntityStore.h"
 #include "xjmusic/segment/SegmentEntityStore.h"
 
 #include "CraftWork.h"
@@ -13,38 +13,33 @@
 #include "WorkState.h"
 
 namespace XJ {
-
   class WorkManager {
-    FabricatorFactory *fabricatorFactory = nullptr;
-    SegmentEntityStore *entityStore = nullptr;
-    CraftWork *craftWork = nullptr;
-    DubWork *dubWork = nullptr;
-    ContentEntityStore *content = nullptr;
-    std::optional<MemeTaxonomy> memeTaxonomy{};
+    SegmentEntityStore *store;
+    ContentEntityStore *content;
     WorkSettings config = WorkSettings();
+    CraftWork craftWork;
+    DubWork dubWork;
+    std::optional<MemeTaxonomy> memeTaxonomy{};
     WorkState state = Standby;
     bool isAudioLoaded = false;
     long long startedAtMillis = 0;
-    bool running = false;
 
   public:
     /**
     * Construct a new WorkManager
-    * @param fabricatorFactory  for fabrication
     * @param store  for segments
+    * @param content for source material
+    * @param config work settings
     */
-    WorkManager(
-        FabricatorFactory *fabricatorFactory,
-        SegmentEntityStore *store);
+    explicit WorkManager(
+        SegmentEntityStore *store,
+        ContentEntityStore *content,
+        const WorkSettings &config);
 
     /**
      Start work.
-     * @param content for fabrication
-     * @param config for fabrication
      */
-    void start(
-        ContentEntityStore *content,
-        const WorkSettings &config);
+    void start();
 
     /**
      Stop work
@@ -64,11 +59,6 @@ namespace XJ {
     SegmentEntityStore *getEntityStore() const;
 
     /**
-     Reset the factory including the segment manager and its store
-     */
-    void reset();
-
-    /**
      Get the Hub content source material
 
      @return source material
@@ -86,7 +76,7 @@ namespace XJ {
 
      @param macroProgram to go to
      */
-    void doOverrideMacro(const Program *macroProgram) const;
+    void doOverrideMacro(const Program *macroProgram);
 
     /**
      @return the meme taxonomy from the current template configuration
@@ -104,28 +94,23 @@ namespace XJ {
 
      @param memes specific (assumed allowably) set of taxonomy category memes
      */
-    void doOverrideMemes(const std::set<std::string> &memes) const;
+    void doOverrideMemes(const std::set<std::string> &memes);
 
     /**
      Get whether an override happened, and reset its state after getting
 
      @return true if an override happened
      */
-    bool getAndResetDidOverride() const;
+    bool getAndResetDidOverride();
 
     /**
      Set the intensity override to a value between 0 and 1, or null if no override
 
      @param intensity the intensity to set
      */
-    void setIntensityOverride(std::optional<float> intensity) const;
+    void setIntensityOverride(std::optional<float> intensity);
 
   private:
-    /**
-     * Run the control cycle
-     */
-    void runControlCycle();
-
     /**
      * Run the craft cycle
      */
@@ -135,16 +120,6 @@ namespace XJ {
      * Run the dub cycle
      */
     std::set<ActiveAudio> runDubCycle(unsigned long long atChainMicros);
-
-    /**
-     Initialize the work
-     */
-    void initialize();
-
-    /**
-    @return true if initialized
-    */
-    bool isInitialized() const;
 
     /**
     Log and of segment message of error that job failed while (message)

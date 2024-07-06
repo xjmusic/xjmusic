@@ -7,7 +7,8 @@
 #include <set>
 #include <string>
 
-#include "xjmusic/fabricator/FabricatorFactory.h"
+#include "xjmusic/content/ContentEntityStore.h"
+#include "xjmusic/fabricator/Fabricator.h"
 #include "xjmusic/segment/SegmentEntityStore.h"
 
 namespace XJ {
@@ -24,22 +25,18 @@ namespace XJ {
  chunk at exactly the top of the following segment.
  */
   class CraftWork final {
-      FabricatorFactory *fabricatorFactory = nullptr;
-    SegmentEntityStore *store = nullptr;
-    ContentEntityStore *content = nullptr;
-    bool running = new bool(true);
+    SegmentEntityStore* store;
+    ContentEntityStore *content;
+    bool running = true;
     long craftAheadMicros = 0;
-    TemplateConfig templateConfig;
-    const Chain *chain = nullptr;
     long persistenceWindowMicros = 0;
     bool nextCycleRewrite = false;
     std::optional<const Program*> nextCycleOverrideMacroProgram = std::nullopt;
     std::set<std::string> nextCycleOverrideMemes = {};
-    bool didOverride = new bool(false);
+    bool didOverride = false;
 
   public:
-    CraftWork(
-        FabricatorFactory *fabricatorFactory,
+    explicit CraftWork(
         SegmentEntityStore *store,
         ContentEntityStore *content,
         long persistenceWindowSeconds,
@@ -63,18 +60,11 @@ namespace XJ {
    void runCycle(long atChainMicros);
 
     /**
-     Get the current chain, if loaded
-
-     @return the current chain
-     */
-    const Chain *getChain() const;
-
-    /**
      Get the template config, if loaded
 
      @return the template config
      */
-    TemplateConfig getTemplateConfig();
+    TemplateConfig getTemplateConfig() const;
 
     /**
      Get the segments spanning the given time range, if they are ready- if not, return an empty list
@@ -207,12 +197,8 @@ namespace XJ {
     std::set<const SegmentChoiceArrangementPick *> getPicks(const SegmentChoiceArrangement *arrangement) const;
 
   private:
-    /**
-     Bootstrap a chain from JSON chain bootstrap data.
-     */
-    const Chain *createChainForTemplate(const Template *tmpl) const;
 
-    /**
+   /**
      Log and send notification of error that job failed while (message)
     
      @param msgWhile phrased like "Doing work"

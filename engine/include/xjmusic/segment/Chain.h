@@ -33,7 +33,7 @@ namespace XJ {
     Type type{};
     State state{};
     std::string shipKey{};
-    TemplateConfig templateConfig{};
+    TemplateConfig config{};
     std::string name{};
     long long updatedAt{EntityUtils::currentTimeMillis()};
 

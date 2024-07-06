@@ -11,7 +11,6 @@ namespace XJ {
   class WorkSettings {
   public:
     Fabricator::ControlMode controlMode = Fabricator::ControlMode::Auto;
-    Template inputTemplate;
     int craftAheadSeconds = 20;
     int dubAheadSeconds = 10;
     long persistenceWindowSeconds = 3600;

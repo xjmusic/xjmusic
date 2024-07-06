@@ -1,8 +1,8 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
 #include "ContentFixtures.h"
-#include "TestHelpers.h"
 #include "LoremIpsum.h"
+#include "TestHelpers.h"
 
 #include <utility>
 
@@ -21,7 +21,7 @@ std::vector<std::string> ContentFixtures::listOfUniqueRandom(const long N, const
   std::vector<std::string> items;
   while (count < N) {
     std::string p = random(sourceItems);
-    if (std::find(items.begin(), items.end(), p) == items.end()) {
+    if (count >= sourceItems.size() || std::find(items.begin(), items.end(), p) == items.end()) {
       items.push_back(p);
       count++;
     }
@@ -137,8 +137,7 @@ Program ContentFixtures::buildProgram(
 Program ContentFixtures::buildProgram(
     const Program::Type type,
     std::string key,
-    const float tempo
-) {
+    const float tempo) {
   Program program;
   program.id = EntityUtils::computeUniqueId();
   program.libraryId = EntityUtils::computeUniqueId();
@@ -153,8 +152,7 @@ Program ContentFixtures::buildProgram(
 Program ContentFixtures::buildDetailProgram(
     std::string key,
     const bool doPatternRestartOnChord,
-    std::string name
-) {
+    std::string name) {
   Program program;
   program.id = EntityUtils::computeUniqueId();
   program.libraryId = EntityUtils::computeUniqueId();
@@ -339,8 +337,7 @@ Instrument ContentFixtures::buildInstrument(
     const Instrument::Type type,
     const Instrument::Mode mode,
     const bool isTonal,
-    const bool isMultiphonic
-) {
+    const bool isMultiphonic) {
   Instrument instrument;
   instrument.id = EntityUtils::computeUniqueId();
   instrument.libraryId = EntityUtils::computeUniqueId();
@@ -348,7 +345,7 @@ Instrument ContentFixtures::buildInstrument(
   instrument.mode = mode;
   instrument.state = Instrument::State::Published;
   instrument.config = InstrumentConfig("isTonal=" + std::string(isTonal ? "true" : "false") +
-                      "\nisMultiphonic=" + std::string(isMultiphonic ? "true" : "false"));
+                                       "\nisMultiphonic=" + std::string(isMultiphonic ? "true" : "false"));
   instrument.name = "Test " + Instrument::toString(type) + "-Instrument";
   return instrument;
 }
@@ -400,8 +397,7 @@ Library ContentFixtures::buildLibrary(
 }
 
 Project ContentFixtures::buildProject(
-    std::string name
-) {
+    std::string name) {
   Project project;
   project.id = EntityUtils::computeUniqueId();
   project.name = std::move(name);
@@ -642,7 +638,7 @@ void ContentFixtures::setupFixtureB1(ContentEntityStore *store, const bool inclu
 
   // "Tropical, Wild to Cozy" macro-program in house library
   program4 = buildProgram(&library2, Program::Type::Macro, Program::State::Published,
-                                           "Tropical, Wild to Cozy", "C", 120.0f);
+                          "Tropical, Wild to Cozy", "C", 120.0f);
   program4_meme0 = buildMeme(&program4, "Tropical");
   //
   program4_sequence0 = buildSequence(&program4, 0, "Start Wild", 0.6f, "C");
@@ -660,7 +656,7 @@ void ContentFixtures::setupFixtureB1(ContentEntityStore *store, const bool inclu
 
   // Main program
   program5 = buildProgram(&library2, Program::Type::Main, Program::State::Published,
-                                           "Main Jam", "C minor", 140);
+                          "Main Jam", "C minor", 140);
   program5_voiceBass = buildVoice(&program5, Instrument::Type::Bass, "Bass");
   program5_voiceSticky = buildVoice(&program5, Instrument::Type::Sticky, "Sticky");
   program5_voiceStripe = buildVoice(&program5, Instrument::Type::Stripe, "Stripe");
@@ -670,41 +666,41 @@ void ContentFixtures::setupFixtureB1(ContentEntityStore *store, const bool inclu
   program5_sequence0 = buildSequence(&program5, 16, "Intro", 0.5f, "G major");
   program5_sequence0_chord0 = buildChord(&program5_sequence0, 0.0f, "G major");
   program5_sequence0_chord0_voicing = buildVoicing(&program5_sequence0_chord0,
-                                                                    &program5_voiceBass, "G3, B3, D4");
+                                                   &program5_voiceBass, "G3, B3, D4");
   program5_sequence0_chord1 = buildChord(&program5_sequence0, 8.0f, "Ab minor");
   program5_sequence0_chord1_voicing = buildVoicing(&program5_sequence0_chord1,
-                                                                    &program5_voiceBass,
-                                                                    "Ab3, Db3, F4");
+                                                   &program5_voiceBass,
+                                                   "Ab3, Db3, F4");
   program5_sequence0_chord2 = buildChord(&program5_sequence0, 75.0,
-                                                          "G-9");// this ChordEntity should be ignored, because it's past the end of the main-pattern total
+                                         "G-9");// this ChordEntity should be ignored, because it's past the end of the main-pattern total
   program5_sequence0_chord2_voicing = buildVoicing(&program5_sequence0_chord2,
-                                                                    &program5_voiceBass,
-                                                                    "G3, Bb3, D4, A4");
+                                                   &program5_voiceBass,
+                                                   "G3, Bb3, D4, A4");
   program5_sequence0_binding0 = buildBinding(&program5_sequence0, 0);
   program5_sequence0_binding0_meme0 = buildMeme(&program5_sequence0_binding0,
-                                                                 "Optimism");
+                                                "Optimism");
   //
   program5_sequence1 = buildSequence(&program5, 32, "Drop", 0.5f, "G minor");
   program5_sequence1_chord0 = buildChord(&program5_sequence1, 0.0f, "C major");
   //
   program5_sequence1_chord0_voicing = buildVoicing(&program5_sequence1_chord0,
-                                                                    &program5_voiceBass,
-                                                                    "Ab3, Db3, F4");
+                                                   &program5_voiceBass,
+                                                   "Ab3, Db3, F4");
   program5_sequence1_chord1 = buildChord(&program5_sequence1, 8.0f, "Bb minor");
   //
   program5_sequence1_chord1_voicing = buildVoicing(&program5_sequence1_chord1,
-                                                                    &program5_voiceBass,
-                                                                    "Ab3, Db3, F4");
+                                                   &program5_voiceBass,
+                                                   "Ab3, Db3, F4");
   program5_sequence1_binding0 = buildBinding(&program5_sequence1, 1);
   program5_sequence1_binding0_meme0 = buildMeme(&program5_sequence1_binding0,
-                                                                 "Pessimism");
+                                                "Pessimism");
   program5_sequence1_binding1 = buildBinding(&program5_sequence1, 1);
   program5_sequence1_binding1_meme0 = buildMeme(&program5_sequence1_binding0,
-                                                                 "Pessimism");
+                                                "Pessimism");
 
   // A basic beat
   program35 = buildProgram(&library2, Program::Type::Beat, Program::State::Published,
-                                            "Basic Beat", "C", 121);
+                           "Basic Beat", "C", 121);
   program35_meme0 = buildMeme(&program35, "Basic");
   program35_voice0 = buildVoice(&program35, Instrument::Type::Drum, "Drums");
   program35_voice0_track0 = buildTrack(&program35_voice0, "KICK");
@@ -714,34 +710,34 @@ void ContentFixtures::setupFixtureB1(ContentEntityStore *store, const bool inclu
   //
   program35_sequence0 = buildSequence(&program35, 16, "Base", 0.5f, "C");
   program35_sequence0_pattern0 = buildPattern(&program35_sequence0, &program35_voice0,
-                                                               4, "Drop");
+                                              4, "Drop");
   program35_sequence0_pattern0_event0 = buildEvent(&program35_sequence0_pattern0,
-                                                                    &program35_voice0_track0, 0.0f,
-                                                                    1.0f, "C2", 1.0f);
+                                                   &program35_voice0_track0, 0.0f,
+                                                   1.0f, "C2", 1.0f);
   program35_sequence0_pattern0_event1 = buildEvent(&program35_sequence0_pattern0,
-                                                                    &program35_voice0_track1, 1.0f,
-                                                                    1.0f, "G5", 0.8f);
+                                                   &program35_voice0_track1, 1.0f,
+                                                   1.0f, "G5", 0.8f);
   program35_sequence0_pattern0_event2 = buildEvent(&program35_sequence0_pattern0,
-                                                                    &program35_voice0_track2, 2.5f,
-                                                                    1.0f, "C2", 0.6f);
+                                                   &program35_voice0_track2, 2.5f,
+                                                   1.0f, "C2", 0.6f);
   program35_sequence0_pattern0_event3 = buildEvent(&program35_sequence0_pattern0,
-                                                                    &program35_voice0_track3, 3.0f,
-                                                                    1.0f, "G5", 0.9f);
+                                                   &program35_voice0_track3, 3.0f,
+                                                   1.0f, "G5", 0.9f);
   //
   program35_sequence0_pattern1 = buildPattern(&program35_sequence0, &program35_voice0,
-                                                               4, "Drop Alt");
+                                              4, "Drop Alt");
   program35_sequence0_pattern1_event0 = buildEvent(&program35_sequence0_pattern1,
-                                                                    &program35_voice0_track0, 0.0f,
-                                                                    1.0f, "B5", 0.9f);
+                                                   &program35_voice0_track0, 0.0f,
+                                                   1.0f, "B5", 0.9f);
   program35_sequence0_pattern1_event1 = buildEvent(&program35_sequence0_pattern1,
-                                                                    &program35_voice0_track1, 1.0f,
-                                                                    1.0f, "D2", 1.0f);
+                                                   &program35_voice0_track1, 1.0f,
+                                                   1.0f, "D2", 1.0f);
   program35_sequence0_pattern1_event2 = buildEvent(&program35_sequence0_pattern1,
-                                                                    &program35_voice0_track2, 2.5f,
-                                                                    1.0f, "E4", 0.7f);
+                                                   &program35_voice0_track2, 2.5f,
+                                                   1.0f, "E4", 0.7f);
   program35_sequence0_pattern1_event3 = buildEvent(&program35_sequence0_pattern1,
-                                                                    &program35_voice0_track3, 3.0f,
-                                                                    1.0f, "c3", 0.5f);
+                                                   &program35_voice0_track3, 3.0f,
+                                                   1.0f, "c3", 0.5f);
 
   // Put all entities into the given content store
   store->put(project1);
@@ -807,52 +803,52 @@ void ContentFixtures::setupFixtureB1(ContentEntityStore *store, const bool inclu
 void ContentFixtures::setupFixtureB2(ContentEntityStore *store) {
   // "Tangy, Chunky to Smooth" macro-program in house library
   program3 = buildProgram(&library2, Program::Type::Macro, Program::State::Published,
-                                           "Tangy, Chunky to Smooth", "G minor", 120.0f);
+                          "Tangy, Chunky to Smooth", "G minor", 120.0f);
   program3_meme0 = buildMeme(&program3, "Tangy");
   //
   program3_sequence0 = buildSequence(&program3, 0, "Start Chunky", 0.4f, "G minor");
   program3_sequence0_binding0 = buildBinding(&program3_sequence0, 0);
   program3_sequence0_binding0_meme0 = buildMeme(&program3_sequence0_binding0,
-                                                                 "Chunky");
+                                                "Chunky");
   //
   program3_sequence1 = buildSequence(&program3, 0, "Finish Smooth", 0.6f, "C");
   program3_sequence1_binding0 = buildBinding(&program3_sequence1, 1);
   program3_sequence1_binding0_meme0 = buildMeme(&program3_sequence1_binding0,
-                                                                 "Smooth");
+                                                "Smooth");
 
   // Main program
   program15 = buildProgram(&library2, Program::Type::Main, Program::State::Published,
-                                            "Next Jam", "Db minor", 140);
+                           "Next Jam", "Db minor", 140);
   program15_voiceBass = buildVoice(&program5, Instrument::Type::Bass, "Bass");
   program15_meme0 = buildMeme(&program15, "Hindsight");
   //
   program15_sequence0 = buildSequence(&program15, 16, "Intro", 0.5f, "G minor");
   program15_sequence0_chord0 = buildChord(&program15_sequence0, 0.0f, "G minor");
   program15_sequence0_chord0_voicing = buildVoicing(&program15_sequence0_chord0,
-                                                                     &program15_voiceBass,
-                                                                     "G3, Bb3, D4");
+                                                    &program15_voiceBass,
+                                                    "G3, Bb3, D4");
   program15_sequence0_chord1 = buildChord(&program15_sequence0, 8.0f, "Ab minor");
   program15_sequence0_chord1_voicing = buildVoicing(&program15_sequence0_chord1,
-                                                                     &program15_voiceBass,
-                                                                     "Ab3, C3, Eb4");
+                                                    &program15_voiceBass,
+                                                    "Ab3, C3, Eb4");
   program15_sequence0_binding0 = buildBinding(&program15_sequence0, 0);
   program15_sequence0_binding0_meme0 = buildMeme(&program15_sequence0_binding0,
-                                                                  "Regret");
+                                                 "Regret");
   //
   program15_sequence1 = buildSequence(&program15, 32, "Outro", 0.5f, "A major");
   program15_sequence1_chord0 = buildChord(&program15_sequence1, 0.0f, "C major");
   program15_sequence1_chord0_voicing = buildVoicing(&program15_sequence0_chord0,
-                                                                     &program15_voiceBass,
-                                                                     "E3, G3, C4");
+                                                    &program15_voiceBass,
+                                                    "E3, G3, C4");
   program15_sequence1_chord1 = buildChord(&program15_sequence1, 8.0f, "Bb major");
   program15_sequence1_chord1_voicing = buildVoicing(&program15_sequence0_chord1,
-                                                                     &program15_voiceBass,
-                                                                     "F3, Bb3, D4");
+                                                    &program15_voiceBass,
+                                                    "F3, Bb3, D4");
   program15_sequence1_binding0 = buildBinding(&program15_sequence1, 1);
   program15_sequence1_binding0_meme0 = buildMeme(&program15_sequence1_binding0,
-                                                                  "Pride");
+                                                 "Pride");
   program15_sequence1_binding0_meme1 = buildMeme(&program15_sequence1_binding0,
-                                                                  "Shame");
+                                                 "Shame");
 
   // put the entities in the store
   store->put(program3);
@@ -886,7 +882,7 @@ void ContentFixtures::setupFixtureB2(ContentEntityStore *store) {
 void ContentFixtures::setupFixtureB3(ContentEntityStore *store) {
   // A basic beat
   program9 = buildProgram(&library2, Program::Type::Beat, Program::State::Published,
-                                           "Basic Beat", "C", 121);
+                          "Basic Beat", "C", 121);
   program9_meme0 = buildMeme(&program9, "Basic");
   //
   program9_voice0 = buildVoice(&program9, Instrument::Type::Drum, "Drums");
@@ -910,88 +906,88 @@ void ContentFixtures::setupFixtureB3(ContentEntityStore *store) {
   program9_sequence0 = buildSequence(&program9, 16, "Base", 0.5f, "C");
   //
   program9_sequence0_pattern0 = buildPattern(&program9_sequence0, &program9_voice0, 4,
-                                                              "Intro");
+                                             "Intro");
   program9_sequence0_pattern0_event0 = buildEvent(&program9_sequence0_pattern0,
-                                                                   &program9_voice0_track0, 0, 1, "C2",
-                                                                   1.0f);
+                                                  &program9_voice0_track0, 0, 1, "C2",
+                                                  1.0f);
   program9_sequence0_pattern0_event1 = buildEvent(&program9_sequence0_pattern0,
-                                                                   &program9_voice0_track1, 1, 1, "G5",
-                                                                   0.8f);
+                                                  &program9_voice0_track1, 1, 1, "G5",
+                                                  0.8f);
   program9_sequence0_pattern0_event2 = buildEvent(&program9_sequence0_pattern0,
-                                                                   &program9_voice0_track2, 2.5f, 1,
-                                                                   "C2", 0.6f);
+                                                  &program9_voice0_track2, 2.5f, 1,
+                                                  "C2", 0.6f);
   program9_sequence0_pattern0_event3 = buildEvent(&program9_sequence0_pattern0,
-                                                                   &program9_voice0_track3, 3, 1, "G5",
-                                                                   0.9f);
+                                                  &program9_voice0_track3, 3, 1, "G5",
+                                                  0.9f);
   //
   program9_sequence0_pattern1 = buildPattern(&program9_sequence0, &program9_voice0, 4,
-                                                              "Loop A");
+                                             "Loop A");
   program9_sequence0_pattern1_event0 = buildEvent(&program9_sequence0_pattern1,
-                                                                   &program9_voice0_track4, 0, 1, "C2",
-                                                                   1.0f);
+                                                  &program9_voice0_track4, 0, 1, "C2",
+                                                  1.0f);
   program9_sequence0_pattern1_event1 = buildEvent(&program9_sequence0_pattern1,
-                                                                   &program9_voice0_track5, 1, 1, "G5",
-                                                                   0.8f);
+                                                  &program9_voice0_track5, 1, 1, "G5",
+                                                  0.8f);
   program9_sequence0_pattern1_event2 = buildEvent(&program9_sequence0_pattern1,
-                                                                   &program9_voice0_track6, 2.5f, 1,
-                                                                   "C2", 0.6f);
+                                                  &program9_voice0_track6, 2.5f, 1,
+                                                  "C2", 0.6f);
   program9_sequence0_pattern1_event3 = buildEvent(&program9_sequence0_pattern1,
-                                                                   &program9_voice0_track7, 3, 1, "G5",
-                                                                   0.9f);
+                                                  &program9_voice0_track7, 3, 1, "G5",
+                                                  0.9f);
   //
   program9_sequence0_pattern2 = buildPattern(&program9_sequence0, &program9_voice0, 4,
-                                                              "Loop B");
+                                             "Loop B");
   program9_sequence0_pattern2_event0 = buildEvent(&program9_sequence0_pattern2,
-                                                                   &program9_voice0_track8, 0, 1, "B5",
-                                                                   0.9f);
+                                                  &program9_voice0_track8, 0, 1, "B5",
+                                                  0.9f);
   program9_sequence0_pattern2_event1 = buildEvent(&program9_sequence0_pattern2,
-                                                                   &program9_voice0_track9, 1, 1, "D2",
-                                                                   1.0f);
+                                                  &program9_voice0_track9, 1, 1, "D2",
+                                                  1.0f);
   program9_sequence0_pattern2_event2 = buildEvent(&program9_sequence0_pattern2,
-                                                                   &program9_voice0_track10, 2.5f, 1,
-                                                                   "E4", 0.7f);
+                                                  &program9_voice0_track10, 2.5f, 1,
+                                                  "E4", 0.7f);
   program9_sequence0_pattern2_event3 = buildEvent(&program9_sequence0_pattern2,
-                                                                   &program9_voice0_track11, 3, 1,
-                                                                   "C3",
-                                                                   0.5f);
+                                                  &program9_voice0_track11, 3, 1,
+                                                  "C3",
+                                                  0.5f);
   //
   program9_sequence0_pattern3 = buildPattern(&program9_sequence0, &program9_voice0, 4,
-                                                              "Outro");
+                                             "Outro");
   program9_sequence0_pattern3_event0 = buildEvent(&program9_sequence0_pattern3,
-                                                                   &program9_voice0_track12, 0, 1,
-                                                                   "C2",
-                                                                   1.0f);
+                                                  &program9_voice0_track12, 0, 1,
+                                                  "C2",
+                                                  1.0f);
   program9_sequence0_pattern3_event1 = buildEvent(&program9_sequence0_pattern3,
-                                                                   &program9_voice0_track13, 1, 1,
-                                                                   "G5",
-                                                                   0.8f);
+                                                  &program9_voice0_track13, 1, 1,
+                                                  "G5",
+                                                  0.8f);
   program9_sequence0_pattern3_event2 = buildEvent(&program9_sequence0_pattern3,
-                                                                   &program9_voice0_track14, 2.5f, 1,
-                                                                   "C2", 0.6f);
+                                                  &program9_voice0_track14, 2.5f, 1,
+                                                  "C2", 0.6f);
   program9_sequence0_pattern3_event3 = buildEvent(&program9_sequence0_pattern3,
-                                                                   &program9_voice0_track15, 3, 1,
-                                                                   "G5",
-                                                                   0.9f);
+                                                  &program9_voice0_track15, 3, 1,
+                                                  "G5",
+                                                  0.9f);
 
   // Instrument "808"
   instrument8 = buildInstrument(&library2, Instrument::Type::Drum,
-                                                 Instrument::Mode::Event, Instrument::State::Published,
-                                                 "808 Drums");
+                                Instrument::Mode::Event, Instrument::State::Published,
+                                "808 Drums");
   instrument8.volume = 0.76f;// For testing: Instrument has overall volume parameter https://github.com/xjmusic/xjmusic/issues/300
   instrument8_meme0 = buildMeme(&instrument8, "heavy");
   instrument8_audio8kick = buildAudio(&instrument8, "Kick",
-                                                       "19801735098q47895897895782138975898.wav",
-                                                       0.01f, 2.123f, 120.0f, 0.62f, "KICK", "Eb",
-                                                       1.0f);
+                                      "19801735098q47895897895782138975898.wav",
+                                      0.01f, 2.123f, 120.0f, 0.62f, "KICK", "Eb",
+                                      1.0f);
   instrument8_audio8snare = buildAudio(&instrument8, "Snare",
-                                                        "975898198017350afghjkjhaskjdfjhk.wav", 0.01f,
-                                                        1.5f, 120.0f, 0.62f, "SNARE", "Ab", 0.8f);
+                                       "975898198017350afghjkjhaskjdfjhk.wav", 0.01f,
+                                       1.5f, 120.0f, 0.62f, "SNARE", "Ab", 0.8f);
   instrument8_audio8bleep = buildAudio(&instrument8, "Bleep",
-                                                        "17350afghjkjhaskjdfjhk9758981980.wav", 0.01f,
-                                                        1.5f, 120.0f, 0.62f, "BLEEP", "Ab", 0.8f);
+                                       "17350afghjkjhaskjdfjhk9758981980.wav", 0.01f,
+                                       1.5f, 120.0f, 0.62f, "BLEEP", "Ab", 0.8f);
   instrument8_audio8toot = buildAudio(&instrument8, "Toot",
-                                                       "askjdfjhk975898198017350afghjkjh.wav", 0.01f,
-                                                       1.5f, 120.0f, 0.62f, "TOOT", "Ab", 0.8f);
+                                      "askjdfjhk975898198017350afghjkjh.wav", 0.01f,
+                                      1.5f, 120.0f, 0.62f, "TOOT", "Ab", 0.8f);
 
   // put the entities in the store
   store->put(program9);
@@ -1045,8 +1041,8 @@ void ContentFixtures::setupFixtureB3(ContentEntityStore *store) {
 void ContentFixtures::setupFixtureB4_DetailBass(ContentEntityStore *store) {
   // A basic bass pattern
   program10 = buildProgram(&library2, Program::Type::Detail,
-                                            Program::State::Published,
-                                            "Earth Bass Detail Pattern", "C", 121);
+                           Program::State::Published,
+                           "Earth Bass Detail Pattern", "C", 121);
   program10_meme0 = buildMeme(&program10, "EARTH");
   //
   program10_voice0 = buildVoice(&program10, Instrument::Type::Bass, "Dirty Bass");
@@ -1055,73 +1051,73 @@ void ContentFixtures::setupFixtureB4_DetailBass(ContentEntityStore *store) {
   program10_sequence0 = buildSequence(&program10, 16, "Simple Walk", 0.5f, "C");
   //
   program10_sequence0_pattern0 = buildPattern(&program10_sequence0, &program10_voice0,
-                                                               4, "Intro");
+                                              4, "Intro");
   program10_sequence0_pattern0_event0 = buildEvent(&program10_sequence0_pattern0,
-                                                                    &program10_voice0_track0, 0, 1,
-                                                                    "C2", 1.0f);
+                                                   &program10_voice0_track0, 0, 1,
+                                                   "C2", 1.0f);
   program10_sequence0_pattern0_event1 = buildEvent(&program10_sequence0_pattern0,
-                                                                    &program10_voice0_track0, 1, 1,
-                                                                    "G5", 0.8f);
+                                                   &program10_voice0_track0, 1, 1,
+                                                   "G5", 0.8f);
   program10_sequence0_pattern0_event2 = buildEvent(&program10_sequence0_pattern0,
-                                                                    &program10_voice0_track0, 2, 1,
-                                                                    "C2", 0.6f);
+                                                   &program10_voice0_track0, 2, 1,
+                                                   "C2", 0.6f);
   program10_sequence0_pattern0_event3 = buildEvent(&program10_sequence0_pattern0,
-                                                                    &program10_voice0_track0, 3, 1,
-                                                                    "G5", 0.9f);
+                                                   &program10_voice0_track0, 3, 1,
+                                                   "G5", 0.9f);
   //
   program10_sequence0_pattern1 = buildPattern(&program10_sequence0, &program10_voice0,
-                                                               4, "Loop A");
+                                              4, "Loop A");
   program10_sequence0_pattern1_event0 = buildEvent(&program10_sequence0_pattern1,
-                                                                    &program10_voice0_track0, 0, 1,
-                                                                    "C2", 1.0f);
+                                                   &program10_voice0_track0, 0, 1,
+                                                   "C2", 1.0f);
   program10_sequence0_pattern1_event1 = buildEvent(&program10_sequence0_pattern1,
-                                                                    &program10_voice0_track0, 1, 1,
-                                                                    "G5", 0.8f);
+                                                   &program10_voice0_track0, 1, 1,
+                                                   "G5", 0.8f);
   program10_sequence0_pattern1_event2 = buildEvent(&program10_sequence0_pattern1,
-                                                                    &program10_voice0_track0, 2, 1,
-                                                                    "C2", 0.6f);
+                                                   &program10_voice0_track0, 2, 1,
+                                                   "C2", 0.6f);
   program10_sequence0_pattern1_event3 = buildEvent(&program10_sequence0_pattern1,
-                                                                    &program10_voice0_track0, 3, 1,
-                                                                    "G5", 0.9f);
+                                                   &program10_voice0_track0, 3, 1,
+                                                   "G5", 0.9f);
   //
   program10_sequence0_pattern2 = buildPattern(&program10_sequence0, &program10_voice0,
-                                                               4, "Loop B");
+                                              4, "Loop B");
   program10_sequence0_pattern2_event0 = buildEvent(&program10_sequence0_pattern2,
-                                                                    &program10_voice0_track0, 0, 1,
-                                                                    "B5", 0.9f);
+                                                   &program10_voice0_track0, 0, 1,
+                                                   "B5", 0.9f);
   program10_sequence0_pattern2_event1 = buildEvent(&program10_sequence0_pattern2,
-                                                                    &program10_voice0_track0, 1, 1,
-                                                                    "D2", 1.0f);
+                                                   &program10_voice0_track0, 1, 1,
+                                                   "D2", 1.0f);
   program10_sequence0_pattern2_event2 = buildEvent(&program10_sequence0_pattern2,
-                                                                    &program10_voice0_track0, 2, 1,
-                                                                    "E4", 0.7f);
+                                                   &program10_voice0_track0, 2, 1,
+                                                   "E4", 0.7f);
   program10_sequence0_pattern2_event3 = buildEvent(&program10_sequence0_pattern2,
-                                                                    &program10_voice0_track0, 3, 1,
-                                                                    "C3", 0.5f);
+                                                   &program10_voice0_track0, 3, 1,
+                                                   "C3", 0.5f);
   //
   program10_sequence0_pattern3 = buildPattern(&program10_sequence0, &program10_voice0,
-                                                               4, "Outro");
+                                              4, "Outro");
   program10_sequence0_pattern3_event0 = buildEvent(&program10_sequence0_pattern3,
-                                                                    &program10_voice0_track0, 0, 1,
-                                                                    "C2", 1.0f);
+                                                   &program10_voice0_track0, 0, 1,
+                                                   "C2", 1.0f);
   program10_sequence0_pattern3_event1 = buildEvent(&program10_sequence0_pattern3,
-                                                                    &program10_voice0_track0, 1, 1,
-                                                                    "G5", 0.8f);
+                                                   &program10_voice0_track0, 1, 1,
+                                                   "G5", 0.8f);
   program10_sequence0_pattern3_event2 = buildEvent(&program10_sequence0_pattern3,
-                                                                    &program10_voice0_track0, 2, 1,
-                                                                    "C2", 0.6f);
+                                                   &program10_voice0_track0, 2, 1,
+                                                   "C2", 0.6f);
   program10_sequence0_pattern3_event3 = buildEvent(&program10_sequence0_pattern3,
-                                                                    &program10_voice0_track0, 3, 1,
-                                                                    "G5", 0.9f);
+                                                   &program10_voice0_track0, 3, 1,
+                                                   "G5", 0.9f);
 
   // Instrument "Bass"
   instrument9 = buildInstrument(&library2, Instrument::Type::Bass,
-                                                 Instrument::Mode::Event, Instrument::State::Published,
-                                                 "Bass");
+                                Instrument::Mode::Event, Instrument::State::Published,
+                                "Bass");
   instrument9_meme0 = buildMeme(&instrument9, "heavy");
   instrument9_audio8 = buildAudio(&instrument9, "bass",
-                                                   "19801735098q47895897895782138975898.wav", 0.01f,
-                                                   2.123f, 120.0f, 0.62f, "BLOOP", "Eb", 1.0f);
+                                  "19801735098q47895897895782138975898.wav", 0.01f,
+                                  2.123f, 120.0f, 0.62f, "BLOOP", "Eb", 1.0f);
 
   // put them all in the store
   store->put(program10);
@@ -1168,7 +1164,7 @@ void ContentFixtures::generateFixtures(ContentEntityStore *store, int N) {
   std::vector<std::string>
       majorMemeNames = listOfUniqueRandom(N, LoremIpsum::COLORS);
   std::vector<std::string>
-      minorMemeNames = listOfUniqueRandom(static_cast<long>(static_cast<double>(N >> 1)), LoremIpsum::VARIANTS);
+      minorMemeNames = listOfUniqueRandom(N, LoremIpsum::VARIANTS);
   std::vector<std::string>
       percussiveNames = listOfUniqueRandom(N, LoremIpsum::PERCUSSIVE_NAMES);
 
@@ -1178,9 +1174,9 @@ void ContentFixtures::generateFixtures(ContentEntityStore *store, int N) {
     std::string minorMemeName = random(minorMemeNames);
     //
     Instrument instrument = buildInstrument(&library1, Instrument::Type::Drum,
-                                                             Instrument::Mode::Event,
-                                                             Instrument::State::Published,
-                                                             majorMemeName + " Drums");
+                                            Instrument::Mode::Event,
+                                            Instrument::State::Published,
+                                            majorMemeName + " Drums");
     store->put(instrument);
     store->put(buildInstrumentMeme(&instrument, majorMemeName));
     store->put(buildInstrumentMeme(&instrument, minorMemeName));
@@ -1258,8 +1254,8 @@ void ContentFixtures::generateFixtures(ContentEntityStore *store, int N) {
     // to offset 1
     float intensityTo = random(0.3f, 0.9f);
     ProgramSequence sequence1 = buildSequence(&program, 0,
-                                                               "Finish " + majorMemeToName,
-                                                               intensityTo, keyTo);
+                                              "Finish " + majorMemeToName,
+                                              intensityTo, keyTo);
     store->put(sequence1);
     ProgramSequenceBinding binding1 = buildProgramSequenceBinding(&sequence1, 1);
     store->put(binding1);
@@ -1282,25 +1278,25 @@ void ContentFixtures::generateFixtures(ContentEntityStore *store, int N) {
     float tempo = random(80, 120);
     //
     Program program = buildProgram(&library1, Program::Type::Main,
-                                                    Program::State::Published,
-                                                    majorMemeName + ": " + StringUtils::join(sequenceNames, ", "),
-                                                    subKeys[0], tempo);
+                                   Program::State::Published,
+                                   majorMemeName + ": " + StringUtils::join(sequenceNames, ", "),
+                                   subKeys[0], tempo);
     store->put(program);
     store->put(buildProgramMeme(&program, majorMemeName));
     // sequences of program
     for (int iP = 0; iP < N; iP++) {
       int total = random(LoremIpsum::SEQUENCE_TOTALS);
       sequences[iP] = buildSequence(&program, total,
-                                                     majorMemeName + " in " + sequenceNames[iP],
-                                                     subDensities[iP], subKeys[iP]);
+                                    majorMemeName + " in " + sequenceNames[iP],
+                                    subDensities[iP], subKeys[iP]);
       store->put(sequences[iP]);
       for (int iPC = 0; iPC < N << 2; iPC++) {
         // always use first chord, then use more chords with more intensity
         if (0 == iPC || random(0, 1) < subDensities[iP]) {
           store->put(
               buildChord(&sequences[iP],
-                                          std::floor(static_cast<float>(iPC) * static_cast<float>(total) * 4 / static_cast<float>(N)),
-                                          random(LoremIpsum::MUSICAL_CHORDS)));
+                         std::floor(static_cast<float>(iPC) * static_cast<float>(total) * 4 / static_cast<float>(N)),
+                         random(LoremIpsum::MUSICAL_CHORDS)));
         }
       }
     }
@@ -1325,22 +1321,22 @@ void ContentFixtures::generateFixtures(ContentEntityStore *store, int N) {
     float intensity = random(0.4f, 0.9f);
     //
     Program program = buildProgram(&library1, Program::Type::Beat,
-                                                    Program::State::Published,
-                                                    majorMemeName + " Beat",
-                                                    key,
-                                                    tempo);
+                                   Program::State::Published,
+                                   majorMemeName + " Beat",
+                                   key,
+                                   tempo);
     store->put(program);
     trackMap.clear();
     store->put(buildProgramMeme(&program, majorMemeName));
     // voices of program
     for (int iV = 0; iV < N; iV++) {
       voices[iV] = buildVoice(&program, Instrument::Type::Drum,
-                                               majorMemeName + " " + percussiveNames[iV]);
+                              majorMemeName + " " + percussiveNames[iV]);
       store->put(voices[iV]);
     }
     ProgramSequence sequenceBase = buildSequence(&program,
-                                                                  random(LoremIpsum::SEQUENCE_TOTALS),
-                                                                  "Base", intensity, key);
+                                                 random(LoremIpsum::SEQUENCE_TOTALS),
+                                                 "Base", intensity, key);
     store->put(sequenceBase);
     // patterns of program
     for (int iP = 0; iP < N << 1; iP++) {

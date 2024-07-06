@@ -53,7 +53,7 @@ void Craft::craftNoteEventArrangements(const float tempo, const SegmentChoice *c
 
 void Craft::precomputeDeltas(
     const std::function<bool(const SegmentChoice *)> &choiceFilter,
-    ChoiceIndexProvider *setChoiceIndexProvider,
+    const ChoiceIndexProvider &setChoiceIndexProvider,
     const std::vector<std::string> &layersInCraftOrder,
     const std::set<std::string> &layerPrioritizationSearches,
     const int numLayersIncoming) {
@@ -123,7 +123,7 @@ void Craft::precomputeDeltas(
       for (const std::string &index: layersInCraftOrder)
         for (const auto &choice: fabricator->getRetrospective()->getChoices())
           if (choiceFilter(choice)) {
-            if (this->choiceIndexProvider->get(choice) == index) {
+            if (this->choiceIndexProvider.get(choice) == index) {
               deltaIns[index] = choice->deltaIn;
               deltaOuts[index] = choice->deltaOut;
             }
@@ -150,7 +150,7 @@ bool Craft::isUnlimitedOut(const SegmentChoice &choice) {
 
 std::optional<const Program *>
 Craft::chooseFreshProgram(const Program::Type programType, const std::optional<Instrument::Type> voicingType) const {
-  const auto bag = new MarbleBag();
+  auto bag = MarbleBag();
 
   // Retrieve programs bound to chain having a voice of the specified type
   std::map<UUID, const Program *> programMap;
@@ -174,29 +174,29 @@ Craft::chooseFreshProgram(const Program::Type programType, const std::optional<I
   for (const Program *program: programsDirectlyBound(candidates)) {
     memes = ProgramMeme::getNames(fabricator->getSourceMaterial()->getMemesOfProgram(program->id));
     // FUTURE consider meme isometry, but for now, just use the meme stack
-    if (iso.isAllowed(memes)) bag->add(1, program->id, 1 + iso.score(memes));
+    if (iso.isAllowed(memes)) bag.add(1, program->id, 1 + iso.score(memes));
   }
 
   // Phase 2: All Published Programs
   for (const Program *program: programsPublished(candidates)) {
     memes = ProgramMeme::getNames(fabricator->getSourceMaterial()->getMemesOfProgram(program->id));
     // FUTURE consider meme isometry, but for now, just use the meme stack
-    if (iso.isAllowed(memes)) bag->add(2, program->id, 1 + iso.score(memes));
+    if (iso.isAllowed(memes)) bag.add(2, program->id, 1 + iso.score(memes));
   }
 
   // report
   fabricator->putReport("choiceOf" + (voicingType.has_value() ? Instrument::toString(voicingType.value()) : "") +
                         Program::toString(programType) + "Program",
-                        bag->toString());
+                        bag.toString());
 
   // (4) return the top choice
-  if (bag->empty()) return std::nullopt;
-  return fabricator->getSourceMaterial()->getProgram(bag->pick());
+  if (bag.empty()) return std::nullopt;
+  return fabricator->getSourceMaterial()->getProgram(bag.pick());
 }
 
 std::optional<const Instrument *>
 Craft::chooseFreshInstrument(const Instrument::Type type, const std::set<std::string> &requireEventNames) const {
-  const auto bag = new MarbleBag();
+  auto bag = MarbleBag();
 
   // Retrieve instruments bound to chain
   std::set<const Instrument *> candidates;
@@ -213,21 +213,21 @@ Craft::chooseFreshInstrument(const Instrument::Type type, const std::set<std::st
   // Phase 1: Directly Bound Instruments
   for (const Instrument *instrument: instrumentsDirectlyBound(candidates)) {
     memes = InstrumentMeme::getNames(fabricator->getSourceMaterial()->getMemesOfInstrument(instrument->id));
-    if (iso.isAllowed(memes)) bag->add(1, instrument->id, 1 + iso.score(memes));
+    if (iso.isAllowed(memes)) bag.add(1, instrument->id, 1 + iso.score(memes));
   }
 
   // Phase 2: All Published Instruments
   for (const Instrument *instrument: instrumentsPublished(candidates)) {
     memes = InstrumentMeme::getNames(fabricator->getSourceMaterial()->getMemesOfInstrument(instrument->id));
-    if (iso.isAllowed(memes)) bag->add(2, instrument->id, 1 + iso.score(memes));
+    if (iso.isAllowed(memes)) bag.add(2, instrument->id, 1 + iso.score(memes));
   }
 
   // report
-  fabricator->putReport("choiceOf" + Instrument::toString(type) + "Instrument", bag->toString());
+  fabricator->putReport("choiceOf" + Instrument::toString(type) + "Instrument", bag.toString());
 
   // (4) return the top choice
-  if (bag->empty()) return std::nullopt;
-  return fabricator->getSourceMaterial()->getInstrument(bag->pick());
+  if (bag.empty()) return std::nullopt;
+  return fabricator->getSourceMaterial()->getInstrument(bag.pick());
 }
 
 std::optional<const InstrumentAudio *>
@@ -236,7 +236,7 @@ Craft::chooseFreshInstrumentAudio(
     const std::set<Instrument::Mode> &modes,
     const std::set<UUID> &avoidIds,
     const std::set<std::string> &preferredEvents) const {
-  const auto bag = new MarbleBag();
+  auto bag = MarbleBag();
 
   // (2) retrieve instruments bound to chain
   std::set<const InstrumentAudio *> candidates;
@@ -254,7 +254,7 @@ Craft::chooseFreshInstrumentAudio(
   for (const InstrumentAudio *audio: audiosDirectlyBound(candidates)) {
     memes = InstrumentMeme::getNames(fabricator->getSourceMaterial()->getMemesOfInstrument(audio->instrumentId));
     if (iso.isAllowed(memes)) {
-      bag->add(preferredEvents.find(audio->event) != preferredEvents.end() ? 1 : 3, audio->id, 1 + iso.score(memes));
+      bag.add(preferredEvents.find(audio->event) != preferredEvents.end() ? 1 : 3, audio->id, 1 + iso.score(memes));
     }
   }
 
@@ -262,7 +262,7 @@ Craft::chooseFreshInstrumentAudio(
   for (const InstrumentAudio *audio: audiosPublished(candidates)) {
     memes = InstrumentMeme::getNames(fabricator->getSourceMaterial()->getMemesOfInstrument(audio->instrumentId));
     if (iso.isAllowed(memes)) {
-      bag->add(preferredEvents.find(audio->event) != preferredEvents.end() ? 2 : 4, audio->id, 1 + iso.score(memes));
+      bag.add(preferredEvents.find(audio->event) != preferredEvents.end() ? 2 : 4, audio->id, 1 + iso.score(memes));
     }
   }
 
@@ -281,28 +281,28 @@ Craft::chooseFreshInstrumentAudio(
     }
     modeNames += Instrument::toString(mode);
   }
-  fabricator->putReport("choice" + typeNames + modeNames, bag->toString());
+  fabricator->putReport("choice" + typeNames + modeNames, bag.toString());
 
   // (4) return the top choice
-  if (bag->empty()) return std::nullopt;
-  return fabricator->getSourceMaterial()->getInstrumentAudio(bag->pick());
+  if (bag.empty()) return std::nullopt;
+  return fabricator->getSourceMaterial()->getInstrumentAudio(bag.pick());
 }
 
 std::optional<const InstrumentAudio *>
 Craft::selectNewChordPartInstrumentAudio(const Instrument *instrument, const Chord &chord) const {
-  const auto bag = new MarbleBag();
+  auto bag = MarbleBag();
 
   for (const auto a: fabricator->getSourceMaterial()->getAudiosOfInstrument(instrument)) {
     Chord audioChord = Chord::of(a->tones);
     if (audioChord == chord) {
-      bag->add(0, a->id);
+      bag.add(0, a->id);
     } else if (audioChord.isAcceptable(chord)) {
-      bag->add(1, a->id);
+      bag.add(1, a->id);
     }
   }
 
-  if (bag->empty()) return std::nullopt;
-  auto audio = fabricator->getSourceMaterial()->getInstrumentAudio(bag->pick());
+  if (bag.empty()) return std::nullopt;
+  auto audio = fabricator->getSourceMaterial()->getInstrumentAudio(bag.pick());
   if (!audio.has_value()) return std::nullopt;
   return {audio.value()};
 }
@@ -421,10 +421,9 @@ Craft::selectAudioIntensityLayers(std::set<const InstrumentAudio *> audios, cons
   if (sorted.empty()) return {};
 
   // Create a vector of bags, one for each layer
-  std::vector<MarbleBag *> bags(layers);
+  std::vector<MarbleBag> bags(layers);
   for (int i = 0; i < layers; i++) {
-    const auto bag = new MarbleBag();
-    bags[i] = bag;
+    bags[i] = MarbleBag();
   }
 
   // Iterate through the available audios, and add them to the bags, divided into the number of layers
@@ -432,13 +431,13 @@ Craft::selectAudioIntensityLayers(std::set<const InstrumentAudio *> audios, cons
       static_cast<float>(sorted.size()) / static_cast<float>(layers)));
   if (marblesPerLayer == 0) return {};
   for (int i = 0; i < sorted.size(); i++) {
-    bags[i / marblesPerLayer]->add(1, sorted[i]->id);
+    bags[i / marblesPerLayer].add(1, sorted[i]->id);
   }
 
   std::set<const InstrumentAudio *> result;
-  for (const auto &bag: bags) {
-    if (!bag->empty()) {
-      auto audio = fabricator->getSourceMaterial()->getInstrumentAudio(bag->pick());
+  for (auto &bag: bags) {
+    if (!bag.empty()) {
+      auto audio = fabricator->getSourceMaterial()->getInstrumentAudio(bag.pick());
       if (audio.has_value()) {
         result.emplace(audio.value());
       }
@@ -452,7 +451,7 @@ void Craft::craftNoteEvents(
     float tempo,
     const ProgramSequence *sequence,
     const std::set<const ProgramVoice *> &voices,
-    InstrumentProvider *instrumentProvider) {
+    LambdaInstrumentProvider instrumentProvider) {
   // Craft each voice into choice
   for (const auto voice: voices) {
     auto choice = SegmentChoice();
@@ -482,7 +481,7 @@ void Craft::craftNoteEvents(
       continue;
     }
 
-    auto instrument = instrumentProvider->get(voice);
+    auto instrument = instrumentProvider.get(voice);
     if (!instrument.has_value()) {
       continue;
     }
@@ -585,7 +584,7 @@ void Craft::craftEventParts(const float tempo, const Instrument *instrument, con
   if (sequence.has_value()) {
     const auto voices = fabricator->getSourceMaterial()->getVoicesOfProgram(program);
     if (voices.empty()) return;
-    InstrumentProvider *instrumentProvider = new LambdaInstrumentProvider(
+    const auto instrumentProvider = LambdaInstrumentProvider(
         [&instrument](const ProgramVoice &) -> std::optional<Instrument> {
           return {(*instrument)};
         });
@@ -594,12 +593,12 @@ void Craft::craftEventParts(const float tempo, const Instrument *instrument, con
 }
 
 int Craft::computeDeltaIn(const SegmentChoice *choice) {
-  const auto it = deltaIns.find(choiceIndexProvider->get(choice));
+  const auto it = deltaIns.find(choiceIndexProvider.get(choice));
   return it != deltaIns.end() ? it->second : SegmentChoice::DELTA_UNLIMITED;
 }
 
 int Craft::computeDeltaOut(const SegmentChoice *choice) {
-  const auto it = deltaOuts.find(choiceIndexProvider->get(choice));
+  const auto it = deltaOuts.find(choiceIndexProvider.get(choice));
   return it != deltaOuts.end() ? it->second : SegmentChoice::DELTA_UNLIMITED;
 }
 

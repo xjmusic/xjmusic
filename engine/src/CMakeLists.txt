@@ -39,7 +39,6 @@ add_library(xjmusic
         fabricator/FabricationFatalException.cpp
         fabricator/FabricationWrapper.cpp
         fabricator/Fabricator.cpp
-        fabricator/FabricatorFactory.cpp
         fabricator/MarbleBag.cpp
         fabricator/NotePicker.cpp
         fabricator/RankedNote.cpp

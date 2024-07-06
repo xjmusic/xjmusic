@@ -11,8 +11,6 @@
 #include "xjmusic/craft/Craft.h"
 #include "xjmusic/craft/MacroMainCraft.h"
 #include "xjmusic/fabricator/ChainUtils.h"
-#include "xjmusic/fabricator/FabricatorFactory.h"
-#include "xjmusic/util/CsvUtils.h"
 
 // NOLINTNEXTLINE
 using ::testing::_;
@@ -27,16 +25,14 @@ using namespace XJ;
 class MacroFromOverlappingMemeSequencesTest : public testing::Test {
 protected:
   int REPEAT_TIMES = 100;
-  MacroMainCraft *subject = nullptr;
   Program macro2a;
+  std::unique_ptr<ContentEntityStore> sourceMaterial;
+  std::unique_ptr<SegmentEntityStore> store;
+  const Segment *segment2 = nullptr;
 
   void SetUp() override {
-    auto store = new SegmentEntityStore();
+    store = std::make_unique<SegmentEntityStore>();
 
-    auto fabricatorFactory = new FabricatorFactory(store);
-
-    // Manipulate the underlying entity store; reset before each test
-    store->clear();
 
     // Mock request via HubClientFactory returns fake generated library of model content
     // Project "bananas"
@@ -79,7 +75,7 @@ protected:
     auto macro2b_sequenceA_binding = ContentFixtures::buildBinding(&macro2b_sequenceA, 0);
     auto macro2b_sequenceA_bindingMeme = ContentFixtures::buildMeme(&macro2b_sequenceA_binding, "Purple");
 
-    auto sourceMaterial = new ContentEntityStore();
+    sourceMaterial = std::make_unique<ContentEntityStore>();
     sourceMaterial->put(project1);
     sourceMaterial->put(library2);
     sourceMaterial->put(macro1);
@@ -122,7 +118,7 @@ protected:
     store->put(SegmentFixtures::buildSegmentChoice(segment1, Program::Type::Macro, &macro1_sequenceA_binding));
     store->put(SegmentFixtures::buildSegmentChoice(segment1, Program::Type::Main, &main5_sequenceA_binding));
 
-    auto segment2 = store->put(SegmentFixtures::buildSegment(
+    segment2 = store->put(SegmentFixtures::buildSegment(
         chain1,
         1,
         Segment::State::Crafting,
@@ -131,17 +127,18 @@ protected:
         0.85f,
         120.0f,
         "chains-1-segments-9f7s89d8a7892.wav"));
-
-    subject = new MacroMainCraft(fabricatorFactory->fabricate(sourceMaterial, segment2->id, std::nullopt), std::nullopt,
-                                 {});
   }
 };
 
 TEST_F(MacroFromOverlappingMemeSequencesTest, ChooseNextMacroProgram_alwaysBasedOnOverlappingMemes) {
+  const auto retrospective = SegmentRetrospective(store.get(), segment2->id);
+  auto fabricator = Fabricator(sourceMaterial.get(), store.get(), &retrospective, segment2->id, std::nullopt);
+  auto subject = MacroMainCraft(&fabricator, std::nullopt, {});
+
   // This test is repeated many times to ensure the correct function of macro choice
   // At 100 repetitions, false positive is 2^100:1 against
   for (int i = 0; i < REPEAT_TIMES; i++) {
-    const auto result = subject->chooseMacroProgram();
+    const auto result = subject.chooseMacroProgram();
     ASSERT_EQ(macro2a.id, result->id);
   }
 }

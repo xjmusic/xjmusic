@@ -193,6 +193,13 @@ namespace XJ {
     readAllSegmentChoiceArrangementPicks(const std::vector<const Segment *> &segments);
 
     /**
+     * Read all segment chords in order of position for the given segmefnt
+     * @param segmentId  for which to get chords
+     * @return         chords
+     */
+    std::vector<const SegmentChord *> readOrderedSegmentChords(int segmentId);
+
+    /**
      Get the total number of segments in the store
 
      @return number of segments

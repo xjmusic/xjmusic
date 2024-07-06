@@ -72,9 +72,8 @@ SEGMENT_STORE_CORE_METHODS(SegmentMeta, SegmentMetas, segmentMetas)
 
 
 Chain *SegmentEntityStore::put(const Chain &c) {
-  const auto cc = new Chain(c);
-  this->chain = *cc;
-  return cc;
+  this->chain = std::move(c);
+  return &this->chain.value();
 }
 
 const Segment *SegmentEntityStore::put(const Segment &segment) {
@@ -230,6 +229,16 @@ SegmentEntityStore::readAllSegmentChoiceArrangementPicks(const std::vector<const
     }
   }
   return picks;
+}
+
+std::vector<const SegmentChord *> SegmentEntityStore::readOrderedSegmentChords(const int segmentId) {
+    auto chords = readAllSegmentChords(segmentId);
+    auto sortedChords = std::vector(chords.begin(), chords.end());
+    std::sort(sortedChords.begin(), sortedChords.end(),
+              [](const SegmentChord *a, const SegmentChord *b) {
+                return a->position < b->position;
+              });
+    return sortedChords;
 }
 
 

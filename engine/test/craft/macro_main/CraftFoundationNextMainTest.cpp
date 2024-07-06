@@ -11,9 +11,7 @@
 #include "xjmusic/craft/Craft.h"
 #include "xjmusic/craft/MacroMainCraft.h"
 #include "xjmusic/fabricator/FabricationFatalException.h"
-#include "xjmusic/fabricator/FabricatorFactory.h"
 #include "xjmusic/fabricator/SegmentUtils.h"
-#include "xjmusic/util/CsvUtils.h"
 #include "xjmusic/util/ValueUtils.h"
 
 // NOLINTNEXTLINE
@@ -25,25 +23,20 @@ using namespace XJ;
 
 class CraftFoundationNextMainTest : public testing::Test {
 protected:
-  FabricatorFactory *fabricatorFactory = nullptr;
-  ContentFixtures *fake = nullptr;
-  SegmentEntityStore *store = nullptr;
-  ContentEntityStore *sourceMaterial = nullptr;
+  std::unique_ptr<ContentFixtures> fake;
+  std::unique_ptr<SegmentEntityStore> store;
+  std::unique_ptr<ContentEntityStore> sourceMaterial;
   Chain *chain1 = nullptr;
   const Segment *segment4 = nullptr;
 
   void SetUp() override {
-    store = new SegmentEntityStore();
-    fabricatorFactory = new FabricatorFactory(store);
-
-    // Manipulate the underlying entity store; reset before each test
-    store->clear();
+    store = std::make_unique<SegmentEntityStore>();
 
     // Mock request via HubClientFactory returns fake generated library of model content
-    sourceMaterial = new ContentEntityStore();
-    fake = new ContentFixtures();
-    fake->setupFixtureB1(sourceMaterial);
-    fake->setupFixtureB2(sourceMaterial);
+    sourceMaterial = std::make_unique<ContentEntityStore>();
+    fake = std::make_unique<ContentFixtures>();
+    fake->setupFixtureB1(sourceMaterial.get());
+    fake->setupFixtureB2(sourceMaterial.get());
 
     // Chain "Test Print #1" has 5 total segments
     chain1 = store->put(
@@ -85,20 +78,13 @@ protected:
     segment4 = store->put(
         SegmentFixtures::buildSegment(chain1, 3, Segment::State::Planned, "C", 8, 0.8f, 120, "chain-1-waveform-12345"));
   }
-
-  void TearDown() override {
-    delete fake;
-    delete sourceMaterial;
-    delete store;
-    delete fabricatorFactory;
-    delete chain1;
-  }
 };
 
 TEST_F(CraftFoundationNextMainTest, CraftFoundationNextMain) {
-  auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, std::nullopt);
+  const auto retrospective = SegmentRetrospective(store.get(), segment4->id);
+  auto fabricator = Fabricator(sourceMaterial.get(), store.get(), &retrospective, segment4->id, std::nullopt);
 
-  MacroMainCraft(fabricator, std::nullopt, {}).doWork();
+  MacroMainCraft(&fabricator, std::nullopt, {}).doWork();
 
   auto result = store->readSegment(segment4->id).value();
   ASSERT_EQ(Segment::Type::NextMain, result->type);
@@ -119,27 +105,9 @@ TEST_F(CraftFoundationNextMainTest, CraftFoundationNextMain) {
   // assert macro choice
   auto macroChoice = SegmentUtils::findFirstOfType(segmentChoices, Program::Type::Macro);
   ASSERT_EQ(fake->program4_sequence1_binding0.id, macroChoice.value()->programSequenceBindingId);
-  ASSERT_EQ(1, fabricator->getSequenceBindingOffsetForChoice(macroChoice.value()));
+  ASSERT_EQ(1, fabricator.getSequenceBindingOffsetForChoice(macroChoice.value()));
   // assert main choice
   auto mainChoice = SegmentUtils::findFirstOfType(segmentChoices, Program::Type::Main);
   ASSERT_EQ(fake->program15_sequence0_binding0.id, mainChoice.value()->programSequenceBindingId);
-  ASSERT_EQ(0, fabricator->getSequenceBindingOffsetForChoice(mainChoice.value()));
-}
-
-/**
-   Engineer wants a Segment to be reverted, and re-queued for Craft, in the event that such a Segment has just failed its Craft process, in order to ensure Chain fabrication fault tolerance https://github.com/xjmusic/xjmusic/issues/297
-   */
-TEST_F(CraftFoundationNextMainTest, CraftFoundationNextMain_revertsAndRequeueOnFailure) {
-  // Chain "Test Print #1" has a dangling (preceded by another planned segment) planned segment
-  const auto segment5 = store->put(SegmentFixtures::buildSegment(
-      chain1,
-      4,
-      Segment::State::Planned,
-      "C",
-      8,
-      0.8f,
-      120.0f,
-      "chain-1-waveform-12345.wav"));
-
-  ASSERT_THROW(fabricatorFactory->fabricate(sourceMaterial, segment5->id, std::nullopt), FabricationFatalException);
+  ASSERT_EQ(0, fabricator.getSequenceBindingOffsetForChoice(mainChoice.value()));
 }

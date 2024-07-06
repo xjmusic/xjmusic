@@ -11,8 +11,6 @@
 #include "xjmusic/craft/BackgroundCraft.h"
 #include "xjmusic/craft/Craft.h"
 #include "xjmusic/fabricator/ChainUtils.h"
-#include "xjmusic/fabricator/FabricatorFactory.h"
-#include "xjmusic/util/CsvUtils.h"
 
 // NOLINTNEXTLINE
 using ::testing::_;
@@ -26,22 +24,18 @@ using namespace XJ;
  */
 class CraftBackground_LayeredVoicesTest : public testing::Test {
 protected:
-  FabricatorFactory *fabricatorFactory = nullptr;
-  ContentEntityStore *sourceMaterial = nullptr;
-  ContentFixtures *fake = nullptr;
+    std::unique_ptr<ContentEntityStore> sourceMaterial;
+  std::unique_ptr<SegmentEntityStore> store;
+  std::unique_ptr<ContentFixtures> fake;
   const Segment *segment4 = nullptr;
 
   void SetUp() override {
-    const auto store = new SegmentEntityStore();
-    fabricatorFactory = new FabricatorFactory(store);
-
-    // Manipulate the underlying entity store; reset before each test
-    store->clear();
+    store = std::make_unique<SegmentEntityStore>();
 
     // Mock request via HubClientFactory returns fake generated library of model content
-    fake = new ContentFixtures();
-    sourceMaterial = new ContentEntityStore();
-    fake->setupFixtureB1(sourceMaterial, false);
+    fake = std::make_unique<ContentFixtures>();
+    sourceMaterial = std::make_unique<ContentEntityStore>();
+    fake->setupFixtureB1(sourceMaterial.get(), false);
     setupCustomFixtures();
 
 
@@ -114,11 +108,6 @@ protected:
     store->put(SegmentFixtures::buildSegmentChord(segment4, 8.0f, "D Major"));
   }
 
-  void TearDown() override {
-    delete fabricatorFactory;
-    delete sourceMaterial;
-    delete fake;
-  }
 
   /**
    Some custom fixtures for testing
@@ -144,7 +133,8 @@ protected:
 };
 
 TEST_F(CraftBackground_LayeredVoicesTest, CraftBackgroundVoiceContinue) {
-  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, std::nullopt);
+  const auto retrospective = SegmentRetrospective(store.get(), segment4->id);
+  auto fabricator = Fabricator(sourceMaterial.get(), store.get(), &retrospective, segment4->id, std::nullopt);
 
-  BackgroundCraft(fabricator).doWork();
+  BackgroundCraft(&fabricator).doWork();
 }
