@@ -10,7 +10,6 @@
 
 #include "xjmusic/craft/BeatCraft.h"
 #include "xjmusic/craft/Craft.h"
-#include "xjmusic/fabricator/FabricatorFactory.h"
 #include "xjmusic/fabricator/SegmentUtils.h"
 
 // NOLINTNEXTLINE
@@ -22,17 +21,13 @@ using namespace XJ;
 
 class CraftBeatInitialTest : public testing::Test {
 protected:
-  std::unique_ptr<FabricatorFactory> fabricatorFactory;
-  std::unique_ptr<ContentEntityStore> sourceMaterial;
+    std::unique_ptr<ContentEntityStore> sourceMaterial;
   std::unique_ptr<SegmentEntityStore> store;
   const Segment *segment6 = nullptr;
 
   void SetUp() override {
     store = std::make_unique<SegmentEntityStore>();
-    fabricatorFactory = std::make_unique<FabricatorFactory>(store.get());
 
-    // Manipulate the underlying entity store; reset before each test
-    store->clear();
 
     // Mock request via HubClientFactory returns fake generated library of model content
     const auto fake = std::make_unique<ContentFixtures>();
@@ -80,13 +75,12 @@ protected:
     store->put(SegmentFixtures::buildSegmentChord(segment6, 0.0f, "C minor"));
     store->put(SegmentFixtures::buildSegmentChord(segment6, 8.0f, "Db minor"));
   }
-
-  };
+};
 
 TEST_F(CraftBeatInitialTest, CraftBeatInitial) {
-  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial.get(), segment6->id, std::nullopt);
+  auto fabricator = Fabricator(sourceMaterial.get(), store.get(), segment6->id, std::nullopt);
 
-  BeatCraft(fabricator).doWork();
+  BeatCraft(&fabricator).doWork();
 
   // assert choice of beat-type sequence
   const auto segmentChoices =

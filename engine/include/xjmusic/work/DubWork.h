@@ -67,13 +67,6 @@ namespace XJ {
     std::set<ActiveAudio> computeActiveAudios(unsigned long long atChainMicros);
 
     /**
-     Get the chain from craft work
-
-     @return chain or empty if not yet available
-     */
-    const Chain *getChain() const;
-
-    /**
      Get the segment at the given chain micros
 
      @param atChainMicros the chain micros

@@ -350,36 +350,36 @@ int TemplateConfig::getIntensityLayers(const Instrument::Type type) {
   return 0;
 }
 
-bool TemplateConfig::operator==(const TemplateConfig &template_config) const {
-  if (this->choiceMuteProbability != template_config.choiceMuteProbability) return false;
-  if (this->deltaArcBeatLayersIncoming != template_config.deltaArcBeatLayersIncoming) return false;
-  if (this->deltaArcBeatLayersToPrioritize != template_config.deltaArcBeatLayersToPrioritize) return false;
-  if (this->deltaArcDetailLayersIncoming != template_config.deltaArcDetailLayersIncoming) return false;
-  if (this->deltaArcEnabled != template_config.deltaArcEnabled) return false;
-  if (this->detailLayerOrder != template_config.detailLayerOrder) return false;
-  if (this->dubMasterVolume != template_config.dubMasterVolume) return false;
-  if (this->eventNamesLarge != template_config.eventNamesLarge) return false;
-  if (this->eventNamesMedium != template_config.eventNamesMedium) return false;
-  if (this->eventNamesSmall != template_config.eventNamesSmall) return false;
-  if (this->instrumentTypesForAudioLengthFinalization != template_config.instrumentTypesForAudioLengthFinalization) return false;
-  if (this->instrumentTypesForInversionSeeking != template_config.instrumentTypesForInversionSeeking) return false;
-  if (this->intensityAutoCrescendoEnabled != template_config.intensityAutoCrescendoEnabled) return false;
-  if (this->intensityAutoCrescendoMaximum != template_config.intensityAutoCrescendoMaximum) return false;
-  if (this->intensityAutoCrescendoMinimum != template_config.intensityAutoCrescendoMinimum) return false;
-  if (this->intensityLayers != template_config.intensityLayers) return false;
-  if (this->intensityThreshold != template_config.intensityThreshold) return false;
-  if (this->mainProgramLengthMaxDelta != template_config.mainProgramLengthMaxDelta) return false;
-  if (this->memeTaxonomy.toString() != template_config.memeTaxonomy.toString()) return false;
-  if (this->mixerCompressAheadSeconds != template_config.mixerCompressAheadSeconds) return false;
-  if (this->mixerCompressDecaySeconds != template_config.mixerCompressDecaySeconds) return false;
-  if (this->mixerCompressRatioMax != template_config.mixerCompressRatioMax) return false;
-  if (this->mixerCompressRatioMin != template_config.mixerCompressRatioMin) return false;
-  if (this->mixerCompressToAmplitude != template_config.mixerCompressToAmplitude) return false;
-  if (this->mixerDspBufferSize != template_config.mixerDspBufferSize) return false;
-  if (this->mixerHighpassThresholdHz != template_config.mixerHighpassThresholdHz) return false;
-  if (this->mixerLowpassThresholdHz != template_config.mixerLowpassThresholdHz) return false;
-  if (this->mixerNormalizationBoostThreshold != template_config.mixerNormalizationBoostThreshold) return false;
-  if (this->mixerNormalizationCeiling != template_config.mixerNormalizationCeiling) return false;
-  if (this->stickyBunEnabled != template_config.stickyBunEnabled) return false;
+bool TemplateConfig::operator==(const TemplateConfig &other) const {
+  if (this->choiceMuteProbability != other.choiceMuteProbability) return false;
+  if (this->deltaArcBeatLayersIncoming != other.deltaArcBeatLayersIncoming) return false;
+  if (this->deltaArcBeatLayersToPrioritize != other.deltaArcBeatLayersToPrioritize) return false;
+  if (this->deltaArcDetailLayersIncoming != other.deltaArcDetailLayersIncoming) return false;
+  if (this->deltaArcEnabled != other.deltaArcEnabled) return false;
+  if (this->detailLayerOrder != other.detailLayerOrder) return false;
+  if (this->dubMasterVolume != other.dubMasterVolume) return false;
+  if (this->eventNamesLarge != other.eventNamesLarge) return false;
+  if (this->eventNamesMedium != other.eventNamesMedium) return false;
+  if (this->eventNamesSmall != other.eventNamesSmall) return false;
+  if (this->instrumentTypesForAudioLengthFinalization != other.instrumentTypesForAudioLengthFinalization) return false;
+  if (this->instrumentTypesForInversionSeeking != other.instrumentTypesForInversionSeeking) return false;
+  if (this->intensityAutoCrescendoEnabled != other.intensityAutoCrescendoEnabled) return false;
+  if (this->intensityAutoCrescendoMaximum != other.intensityAutoCrescendoMaximum) return false;
+  if (this->intensityAutoCrescendoMinimum != other.intensityAutoCrescendoMinimum) return false;
+  if (this->intensityLayers != other.intensityLayers) return false;
+  if (this->intensityThreshold != other.intensityThreshold) return false;
+  if (this->mainProgramLengthMaxDelta != other.mainProgramLengthMaxDelta) return false;
+  if (this->memeTaxonomy.toString() != other.memeTaxonomy.toString()) return false;
+  if (this->mixerCompressAheadSeconds != other.mixerCompressAheadSeconds) return false;
+  if (this->mixerCompressDecaySeconds != other.mixerCompressDecaySeconds) return false;
+  if (this->mixerCompressRatioMax != other.mixerCompressRatioMax) return false;
+  if (this->mixerCompressRatioMin != other.mixerCompressRatioMin) return false;
+  if (this->mixerCompressToAmplitude != other.mixerCompressToAmplitude) return false;
+  if (this->mixerDspBufferSize != other.mixerDspBufferSize) return false;
+  if (this->mixerHighpassThresholdHz != other.mixerHighpassThresholdHz) return false;
+  if (this->mixerLowpassThresholdHz != other.mixerLowpassThresholdHz) return false;
+  if (this->mixerNormalizationBoostThreshold != other.mixerNormalizationBoostThreshold) return false;
+  if (this->mixerNormalizationCeiling != other.mixerNormalizationCeiling) return false;
+  if (this->stickyBunEnabled != other.stickyBunEnabled) return false;
   return true;
 }

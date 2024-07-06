@@ -47,8 +47,9 @@ long ChainUtils::computeFabricatedToChainMicros(const std::vector<const Segment 
 
 Chain ChainUtils::fromTemplate(const Template *tmpl) {
   Chain chain;
+  chain.id = EntityUtils::computeUniqueId();
   chain.templateId = tmpl->id;
-  chain.templateConfig = tmpl->config;
+  chain.config = tmpl->config;
   chain.shipKey = tmpl->shipKey;
   chain.name = tmpl->name;
   return chain;

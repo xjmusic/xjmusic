@@ -10,7 +10,6 @@
 #include "../../_helper/SegmentFixtures.h"
 
 #include "xjmusic/craft/BeatCraft.h"
-#include "xjmusic/fabricator/FabricatorFactory.h"
 #include "xjmusic/fabricator/SegmentUtils.h"
 #include "xjmusic/util/CsvUtils.h"
 
@@ -23,8 +22,7 @@ using namespace XJ;
 
 class CraftBeatProgramVoiceNextMacroTest : public testing::Test {
 protected:
-  std::unique_ptr<FabricatorFactory> fabricatorFactory;
-  std::unique_ptr<ContentEntityStore> sourceMaterial;
+    std::unique_ptr<ContentEntityStore> sourceMaterial;
   std::unique_ptr<SegmentEntityStore> store;
   std::unique_ptr<ContentFixtures> fake;
   Chain *chain1 = nullptr;
@@ -34,10 +32,7 @@ protected:
 
   void SetUp() override {
     store = std::make_unique<SegmentEntityStore>();
-    fabricatorFactory = std::make_unique<FabricatorFactory>(store.get());
 
-    // Manipulate the underlying entity store; reset before each test
-    store->clear();
 
     // Mock request via HubClientFactory returns fake generated library of model content
     fake = std::make_unique<ContentFixtures>();
@@ -183,22 +178,22 @@ protected:
 
 TEST_F(CraftBeatProgramVoiceNextMacroTest, CraftBeatVoiceNextMacro) {
   insertSegments3and4(true);
-  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial.get(), segment4->id, std::nullopt);
+  auto fabricator = Fabricator(sourceMaterial.get(), store.get(), segment4->id, std::nullopt);
 
-  BeatCraft(fabricator).doWork();
+  BeatCraft(&fabricator).doWork();
 
   // assert beat choice
-  auto segmentChoices = fabricator->getChoices();
+  auto segmentChoices = fabricator.getChoices();
   auto beatChoice = findChoiceByType(segmentChoices, Program::Type::Beat);
   ASSERT_TRUE(beatChoice.has_value());
 
   // assert arrangement
-  auto arrangement = findArrangementByChoiceId(fabricator->getArrangements(), beatChoice.value()->id);
+  auto arrangement = findArrangementByChoiceId(fabricator.getArrangements(), beatChoice.value()->id);
   ASSERT_TRUE(arrangement.has_value());
 
   int pickedKick = 0;
   int pickedSnare = 0;
-  const auto picks = fabricator->getPicks();
+  const auto picks = fabricator.getPicks();
   for (const auto pick: picks) {
     if (pick->instrumentAudioId == audioKick->id)
       pickedKick++;
@@ -211,7 +206,7 @@ TEST_F(CraftBeatProgramVoiceNextMacroTest, CraftBeatVoiceNextMacro) {
 
 TEST_F(CraftBeatProgramVoiceNextMacroTest, CraftBeatVoiceNextMacro_okIfNoBeatChoice) {
   insertSegments3and4(false);
-  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial.get(), segment4->id, std::nullopt);
+  auto fabricator = Fabricator(sourceMaterial.get(), store.get(), segment4->id, std::nullopt);
 
-  BeatCraft(fabricator).doWork();
+  BeatCraft(&fabricator).doWork();
 }

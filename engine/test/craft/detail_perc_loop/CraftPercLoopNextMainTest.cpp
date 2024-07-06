@@ -10,7 +10,6 @@
 
 #include "xjmusic/craft/Craft.h"
 #include "xjmusic/craft/DetailCraft.h"
-#include "xjmusic/fabricator/FabricatorFactory.h"
 #include "xjmusic/fabricator/SegmentUtils.h"
 #include "xjmusic/util/CsvUtils.h"
 
@@ -23,8 +22,7 @@ using namespace XJ;
 
 class CraftPercLoopNextMainTest : public testing::Test {
 protected:
-  std::unique_ptr<FabricatorFactory> fabricatorFactory;
-  std::unique_ptr<ContentEntityStore> sourceMaterial;
+    std::unique_ptr<ContentEntityStore> sourceMaterial;
   std::unique_ptr<SegmentEntityStore> store;
   std::unique_ptr<ContentFixtures> fake;
   Chain *chain1 = nullptr;
@@ -32,10 +30,7 @@ protected:
 
   void SetUp() override {
     store = std::make_unique<SegmentEntityStore>();
-    fabricatorFactory = std::make_unique<FabricatorFactory>(store.get());
 
-    // Manipulate the underlying entity store; reset before each test
-    store->clear();
 
     // Mock request via HubClientFactory returns fake generated library of model content
     fake = std::make_unique<ContentFixtures>();
@@ -129,7 +124,7 @@ protected:
 
 TEST_F(CraftPercLoopNextMainTest, CraftPercLoopNextMain_okEvenWithoutPreviousSegmentPercLoopChoice) {
   insertSegments3and4();
-  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial.get(), segment4->id, std::nullopt);
+  auto fabricator = Fabricator(sourceMaterial.get(), store.get(), segment4->id, std::nullopt);
 
-  DetailCraft(fabricator).doWork();
+  DetailCraft(&fabricator).doWork();
 }

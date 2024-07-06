@@ -10,7 +10,6 @@
 
 #include "xjmusic/craft/Craft.h"
 #include "xjmusic/craft/TransitionCraft.h"
-#include "xjmusic/fabricator/FabricatorFactory.h"
 #include "xjmusic/fabricator/SegmentUtils.h"
 #include "xjmusic/util/CsvUtils.h"
 
@@ -23,17 +22,13 @@ using namespace XJ;
 
 class CraftTransitionInitialTest : public testing::Test {
 protected:
-  std::unique_ptr<FabricatorFactory> fabricatorFactory;
-  std::unique_ptr<ContentEntityStore> sourceMaterial;
+    std::unique_ptr<ContentEntityStore> sourceMaterial;
   std::unique_ptr<SegmentEntityStore> store;
   const Segment *segment6 = nullptr;
 
   void SetUp() override {
     store = std::make_unique<SegmentEntityStore>();
-    fabricatorFactory = std::make_unique<FabricatorFactory>(store.get());
 
-    // Manipulate the underlying entity store; reset before each test
-    store->clear();
 
     // Mock request via HubClientFactory returns fake generated library of model content
     const auto fake = std::make_unique<ContentFixtures>();
@@ -85,7 +80,7 @@ protected:
   };
 
 TEST_F(CraftTransitionInitialTest, CraftTransitionInitial) {
-  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial.get(), segment6->id, std::nullopt);
+  auto fabricator = Fabricator(sourceMaterial.get(), store.get(), segment6->id, std::nullopt);
 
-  TransitionCraft(fabricator).doWork();
+  TransitionCraft(&fabricator).doWork();
 }

@@ -25,24 +25,25 @@ using namespace XJ;
 class CraftTest : public YamlTest {// NOLINT(*-pro-type-member-init)
 protected:
   int TEST_REPEAT_TIMES = 20;
-  MockFabricator *mockFabricator = nullptr;
-  SegmentEntityStore *segmentEntityStore = nullptr;
+  std::unique_ptr<MockFabricator> mockFabricator;
+  std::unique_ptr<SegmentEntityStore> segmentEntityStore;
   std::unique_ptr<ContentEntityStore> sourceMaterial;
-  MockSegmentRetrospective *mockSegmentRetrospective = nullptr;
-  Craft *subject = nullptr;
+  std::unique_ptr<MockSegmentRetrospective> mockSegmentRetrospective;
+  std::unique_ptr<Craft> subject;
   const Segment *segment0 = nullptr;
   Program *program1 = nullptr;
   TemplateConfig templateConfig{};
+  const Template * template1 = nullptr;
 
   void SetUp() override {
     sourceMaterial = std::make_unique<ContentEntityStore>();
-    segmentEntitystore = std::make_unique<SegmentEntityStore>();
+    segmentEntityStore = std::make_unique<SegmentEntityStore>();
     const Project *project1 = sourceMaterial->put(ContentFixtures::buildProject("fish"));
     const Library *library1 = sourceMaterial->put(ContentFixtures::buildLibrary(project1, "sea"));
     program1 = sourceMaterial->put(
         ContentFixtures::buildProgram(library1, Program::Type::Detail, Program::State::Published, "swimming",
                                       "C", 120.0f));
-    const Template *template1 = sourceMaterial->put(
+    template1 = sourceMaterial->put(
         ContentFixtures::buildTemplate(project1, "Test Template 1", "test1"));
     // Chain "Test Print #1" is fabricating segments
     const Chain *chain1 = segmentEntityStore->put(
@@ -54,21 +55,13 @@ protected:
                                       64, 0.73f, 120.0f, "chains-1-segments-9f7s89d8a7892", true));
 
     templateConfig = template1->config;
-    mockSegmentRetrospective = new MockSegmentRetrospective(segmentEntityStore, 2);
-    mockFabricator = new MockFabricator(
-        sourceMaterial,
-        segmentEntityStore,
-        mockSegmentRetrospective,
+    mockSegmentRetrospective = std::make_unique<MockSegmentRetrospective>(segmentEntityStore.get(), 2);
+    mockFabricator = std::make_unique<MockFabricator>(
+        sourceMaterial.get(),
+        segmentEntityStore.get(),
         2,
         std::nullopt);
-    subject = new Craft(mockFabricator);
-  }
-
-  void TearDown() override {
-    delete segmentEntityStore;
-    delete mockFabricator;
-    delete mockSegmentRetrospective;
-    delete subject;
+    subject = std::make_unique<Craft>(mockFabricator.get());
   }
 
   /**
@@ -104,7 +97,7 @@ protected:
 };
 
 TEST_F(CraftTest, PrecomputeDeltas) {
-  auto choiceIndexProvider = Craft::LambdaChoiceIndexProvider(
+  const auto choiceIndexProvider = Craft::LambdaChoiceIndexProvider(
       [](const SegmentChoice &choice) -> std::string {
         return Instrument::toString(choice.instrumentType);
       });
@@ -209,8 +202,8 @@ TEST_F(CraftTest, IsUnlimitedOut) {
  https://github.com/xjmusic/xjmusic/issues/296
  */
 TEST_F(CraftTest, ChooseFreshInstrumentAudio) {
-  EXPECT_CALL(*mockFabricator, getSourceMaterial()).WillRepeatedly(Return(sourceMaterial));
-  EXPECT_CALL(*mockFabricator, getRetrospective()).WillRepeatedly(Return(mockSegmentRetrospective));
+  EXPECT_CALL(*mockFabricator, getSourceMaterial()).WillRepeatedly(Return(sourceMaterial.get()));
+  EXPECT_CALL(*mockFabricator, getRetrospective()).WillRepeatedly(Return(mockSegmentRetrospective.get()));
   EXPECT_CALL(*mockFabricator, getSegment()).WillRepeatedly(Return(segment0));
   const Project *project1 = sourceMaterial->put(ContentFixtures::buildProject("testing"));
   const Library *library1 = sourceMaterial->put(ContentFixtures::buildLibrary(project1, "leaves"));
@@ -245,8 +238,8 @@ TEST_F(CraftTest, ChooseFreshInstrumentAudio) {
  XJ Should choose the correct chord audio per Main Program chord https://github.com/xjmusic/xjmusic/issues/237
  */
 TEST_F(CraftTest, selectNewChordPartInstrumentAudio_stripSpaces) {
-  EXPECT_CALL(*mockFabricator, getSourceMaterial()).WillRepeatedly(Return(sourceMaterial));
-  EXPECT_CALL(*mockFabricator, getRetrospective()).WillRepeatedly(Return(mockSegmentRetrospective));
+  EXPECT_CALL(*mockFabricator, getSourceMaterial()).WillRepeatedly(Return(sourceMaterial.get()));
+  EXPECT_CALL(*mockFabricator, getRetrospective()).WillRepeatedly(Return(mockSegmentRetrospective.get()));
   EXPECT_CALL(*mockFabricator, getSegment()).WillRepeatedly(Return(segment0));
   selectNewChordPartInstrumentAudio(" G   major  ", "G-7", " G    major    ");
 }
@@ -257,8 +250,8 @@ TEST_F(CraftTest, selectNewChordPartInstrumentAudio_stripSpaces) {
  When the exact match is not present for an entire slash chord name, choose a chord matching the pre-slash name
  */
 TEST_F(CraftTest, selectNewChordPartInstrumentAudio_slashChordFluency) {
-  EXPECT_CALL(*mockFabricator, getSourceMaterial()).WillRepeatedly(Return(sourceMaterial));
-  EXPECT_CALL(*mockFabricator, getRetrospective()).WillRepeatedly(Return(mockSegmentRetrospective));
+  EXPECT_CALL(*mockFabricator, getSourceMaterial()).WillRepeatedly(Return(sourceMaterial.get()));
+  EXPECT_CALL(*mockFabricator, getRetrospective()).WillRepeatedly(Return(mockSegmentRetrospective.get()));
   EXPECT_CALL(*mockFabricator, getSegment()).WillRepeatedly(Return(segment0));
   selectNewChordPartInstrumentAudio("Ab/C", "Eb/G", "Ab");
   selectNewChordPartInstrumentAudio("Ab", "Eb/G", "Ab/C");
@@ -268,8 +261,8 @@ TEST_F(CraftTest, selectNewChordPartInstrumentAudio_slashChordFluency) {
  Enhanced Synonymous Chord recognition https://github.com/xjmusic/xjmusic/issues/236
  */
 TEST_F(CraftTest, selectNewChordPartInstrumentAudio_chordSynonyms) {
-  EXPECT_CALL(*mockFabricator, getSourceMaterial()).WillRepeatedly(Return(sourceMaterial));
-  EXPECT_CALL(*mockFabricator, getRetrospective()).WillRepeatedly(Return(mockSegmentRetrospective));
+  EXPECT_CALL(*mockFabricator, getSourceMaterial()).WillRepeatedly(Return(sourceMaterial.get()));
+  EXPECT_CALL(*mockFabricator, getRetrospective()).WillRepeatedly(Return(mockSegmentRetrospective.get()));
   EXPECT_CALL(*mockFabricator, getSegment()).WillRepeatedly(Return(segment0));
   selectNewChordPartInstrumentAudio("CMadd9", "Cm6", "C add9");
 }
@@ -303,8 +296,8 @@ TEST_F(CraftTest, SelectGeneralAudioIntensityLayers_ThreeLayers) {
                                             1.0f));
 
   // Mocks
-  EXPECT_CALL(*mockFabricator, getSourceMaterial()).WillRepeatedly(Return(sourceMaterial));
-  EXPECT_CALL(*mockFabricator, getRetrospective()).WillRepeatedly(Return(mockSegmentRetrospective));
+  EXPECT_CALL(*mockFabricator, getSourceMaterial()).WillRepeatedly(Return(sourceMaterial.get()));
+  EXPECT_CALL(*mockFabricator, getRetrospective()).WillRepeatedly(Return(mockSegmentRetrospective.get()));
   EXPECT_CALL(*mockFabricator, getSegment()).WillRepeatedly(Return(segment0));
   EXPECT_CALL(*mockSegmentRetrospective, getPreviousPicksForInstrument(instrument1->id)).WillOnce(Return(std::set<const SegmentChoiceArrangementPick *>{}));
 
@@ -365,8 +358,8 @@ TEST_F(CraftTest, SelectGeneralAudioIntensityLayers_ContinueSegment) {
                                                                                           instrument1audio3a->event);
 
   // Mock the methods
-  EXPECT_CALL(*mockFabricator, getSourceMaterial()).WillRepeatedly(Return(sourceMaterial));
-  EXPECT_CALL(*mockFabricator, getRetrospective()).WillRepeatedly(Return(mockSegmentRetrospective));
+  EXPECT_CALL(*mockFabricator, getSourceMaterial()).WillRepeatedly(Return(sourceMaterial.get()));
+  EXPECT_CALL(*mockFabricator, getRetrospective()).WillRepeatedly(Return(mockSegmentRetrospective.get()));
   EXPECT_CALL(*mockFabricator, getSegment()).WillRepeatedly(Return(segment0));
   EXPECT_CALL(*mockSegmentRetrospective, getPreviousPicksForInstrument(instrument1->id)).WillOnce(Return(std::set<const SegmentChoiceArrangementPick *>({&pick1, &pick2, &pick3})));
 

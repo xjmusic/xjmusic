@@ -6,7 +6,6 @@
 
 #include "xjmusic/craft/Craft.h"
 #include "xjmusic/fabricator/ChainUtils.h"
-#include "xjmusic/fabricator/FabricatorFactory.h"
 #include "xjmusic/util/CsvUtils.h"
 #include "xjmusic/util/ValueUtils.h"
 
@@ -37,10 +36,8 @@ protected:
       Instrument::Type::Stripe,
       Instrument::Type::Sticky};
   // this is how we provide content for fabrication
-  std::unique_ptr<FabricatorFactory> fabrication;
   std::unique_ptr<SegmentEntityStore> store;
   std::unique_ptr<ContentEntityStore> content;
-  std::unique_ptr<Fabricator> fabricator;
   // list of all entities to return from Hub
   // maps with specific entities that will reference each other
   std::map<Instrument::Type, Instrument> instruments;
@@ -60,10 +57,7 @@ protected:
    */
   void reset() {
     store = std::make_unique<SegmentEntityStore>();
-    fabrication = std::make_unique<FabricatorFactory>(store.get());
 
-    // Manipulate the underlying entity store; reset before each test
-    store->clear();
 
     const auto project1 = ContentFixtures::buildProject("fish");
     const Template template1 = ContentFixtures::buildTemplate(&project1, "Test Template 1", "test1");
@@ -271,25 +265,28 @@ protected:
 
   /**
    Load the assertions of picks section after a test has run
-   Load the instrument section of the test YAML file, for one type of Instrument@param data YAML file wrapper
+   Load the instrument section of the test YAML file, for one type of Instrument
+   @param fabricator Fabricator to use
+   @param data YAML file wrapper
    */
-  void loadAndPerformAssertions(YAML::Node data) const {
+  void loadAndPerformAssertions(Fabricator *fabricator, YAML::Node data) const {
     const YAML::Node obj = data["assertPicks"];
     if (!obj) return;
-    for (const auto type: INSTRUMENT_TYPES_TO_TEST) loadAndPerformAssertions(obj, type);
+    for (const auto type: INSTRUMENT_TYPES_TO_TEST) loadAndPerformAssertions(fabricator, obj, type);
   }
 
   /**
    * Load the assertions of picks section after a test has run
+   * @param fabricator Fabricator to use
    * @param data  YAML file wrapper
    * @param type  type of instrument to read
    */
-  void loadAndPerformAssertions(YAML::Node data, Instrument::Type type) const {
+  static void loadAndPerformAssertions(Fabricator *fabricator, YAML::Node data, Instrument::Type type) {
     auto objs = data[StringUtils::toLowerCase(Instrument::toString(type))];
     if (!objs) return;
 
     std::vector<const SegmentChoiceArrangementPick *> actualPicks;
-    for (const auto &pick: fabricator->getPicks())
+    for (auto &pick: fabricator->getPicks())
       actualPicks.emplace_back(pick);
     std::sort(actualPicks.begin(), actualPicks.end(), [](const auto *a, const auto *b) {
       return a->startAtSegmentMicros < b->startAtSegmentMicros;
@@ -364,17 +361,17 @@ protected:
         loadSegment(data);
 
         // Fabricate: Craft Arrangements for Choices
-        fabricator = fabrication->fabricate(content, segment->id, std::nullopt);
+        auto fabricator = Fabricator(content.get(), store.get(), segment->id, std::nullopt);
         for (const StickyBun &bun: stickyBuns) {
-          fabricator->putStickyBun(bun);
+          fabricator.putStickyBun(bun);
         }
-        fabricator->put(SegmentFixtures::buildSegmentChoice(segment, &mainProgram1), false);
-        auto subject = Craft(fabricator);
+        fabricator.put(SegmentFixtures::buildSegmentChoice(segment, &mainProgram1), false);
+        auto subject = Craft(&fabricator);
         for (const auto &[instrumentType, choice]: segmentChoices)
           subject.craftNoteEventArrangements(static_cast<float>(TEMPO), choice, false);
 
         // assert picks
-        loadAndPerformAssertions(data);
+        loadAndPerformAssertions(&fabricator, data);
 
       } catch (const FabricationException &e) {
         failures.emplace("[" + filename + "] Exception: " + e.what());

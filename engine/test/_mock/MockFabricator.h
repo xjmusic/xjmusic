@@ -15,13 +15,11 @@ namespace XJ {
     MockFabricator(
         ContentEntityStore *contentEntityStore,
         SegmentEntityStore *segmentEntityStore,
-        SegmentRetrospective *segmentRetrospective,
         const int segmentId,
         const std::optional<Segment::Type> overrideSegmentType) : Fabricator(contentEntityStore,
-                                                                       segmentEntityStore,
-                                                                       segmentRetrospective,
-                                                                       segmentId,
-                                                                       overrideSegmentType) {}
+                                                                             segmentEntityStore,
+                                                                             segmentId,
+                                                                             overrideSegmentType) {}
 
     MOCK_METHOD(SegmentRetrospective *, getRetrospective, (), (override));
     MOCK_METHOD(ContentEntityStore *, getSourceMaterial, (), (override));

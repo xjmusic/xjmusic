@@ -9,7 +9,6 @@
 
 #include "xjmusic/craft/BackgroundCraft.h"
 #include "xjmusic/craft/Craft.h"
-#include "xjmusic/fabricator/FabricatorFactory.h"
 #include "xjmusic/fabricator/SegmentUtils.h"
 
 // NOLINTNEXTLINE
@@ -21,8 +20,7 @@ using namespace XJ;
 
 class CraftBackgroundContinueTest : public testing::Test {
 protected:
-  std::unique_ptr<FabricatorFactory> fabricatorFactory;
-  std::unique_ptr<ContentEntityStore> sourceMaterial;
+    std::unique_ptr<ContentEntityStore> sourceMaterial;
   std::unique_ptr<SegmentEntityStore> store;
   std::unique_ptr<ContentFixtures> fake;
   Chain *chain1 = nullptr;
@@ -30,10 +28,7 @@ protected:
 
   void SetUp() override {
     store = std::make_unique<SegmentEntityStore>();
-    fabricatorFactory = std::make_unique<FabricatorFactory>(store.get());
 
-    // Manipulate the underlying entity store; reset before each test
-    store->clear();
 
     // Mock request via HubClientFactory returns fake generated library of model content
     fake = std::make_unique<ContentFixtures>();
@@ -146,15 +141,15 @@ protected:
 
 TEST_F(CraftBackgroundContinueTest, craftBackgroundContinue) {
   insertSegments3and4(false);
-  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial.get(), segment4->id, std::nullopt);
+  auto fabricator = Fabricator(sourceMaterial.get(), store.get(), segment4->id, std::nullopt);
 
-  BackgroundCraft(fabricator).doWork();
+  BackgroundCraft(&fabricator).doWork();
 }
 
 
 TEST_F(CraftBackgroundContinueTest, craftBackgroundContinue_okEvenWithoutPreviousSegmentBackgroundChoice) {
   insertSegments3and4(true);
-  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial.get(), segment4->id, std::nullopt);
+  auto fabricator = Fabricator(sourceMaterial.get(), store.get(), segment4->id, std::nullopt);
 
-  BackgroundCraft(fabricator).doWork();
+  BackgroundCraft(&fabricator).doWork();
 }

@@ -98,10 +98,10 @@ namespace XJ {
 
     /**
      * Compare two TemplateConfigs for equality
-     * @param template_config  The TemplateConfig to compare
+     * @param other  The TemplateConfig to compare
      * @return  true if equal
      */
-    bool operator==(const TemplateConfig & template_config) const;
+    bool operator==(const TemplateConfig & other) const;
   };
 
 }// namespace XJ

@@ -11,8 +11,6 @@
 #include "xjmusic/craft/Craft.h"
 #include "xjmusic/craft/MacroMainCraft.h"
 #include "xjmusic/fabricator/ChainUtils.h"
-#include "xjmusic/fabricator/FabricatorFactory.h"
-#include "xjmusic/util/CsvUtils.h"
 
 // NOLINTNEXTLINE
 using ::testing::_;
@@ -35,10 +33,6 @@ TEST(CraftSegmentPatternMemeTest, CraftSegment) {
     spdlog::info("ATTEMPT NUMBER {}", i);
 
     const auto store = std::make_unique<SegmentEntityStore>();
-    const auto fabricatorFactory = std::make_unique<FabricatorFactory>(store.get());
-
-    // Manipulate the underlying entity store; reset before each test
-    store->clear();
 
     // Mock request via HubClientFactory returns fake generated library of model content
     const auto fake = std::make_unique<ContentFixtures>();
@@ -70,7 +64,9 @@ TEST(CraftSegmentPatternMemeTest, CraftSegment) {
     const auto segment = store->put(
         SegmentFixtures::buildSegment(chain, 2, Segment::State::Planned, "C", 8, 0.8f, 120, "chain-1-waveform-12345"));
 
-    MacroMainCraft(fabricatorFactory->fabricate(sourceMaterial.get(), segment->id, std::nullopt), std::nullopt, {}).doWork();
+    auto fabricator = Fabricator(sourceMaterial.get(), store.get(), segment->id, std::nullopt);
+
+    MacroMainCraft(&fabricator, std::nullopt, {}).doWork();
 
     const auto result = store->readSegment(segment->id).value();
     ASSERT_EQ(Segment::Type::NextMacro, result->type);

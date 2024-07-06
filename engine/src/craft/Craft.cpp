@@ -451,7 +451,7 @@ void Craft::craftNoteEvents(
     float tempo,
     const ProgramSequence *sequence,
     const std::set<const ProgramVoice *> &voices,
-    InstrumentProvider *instrumentProvider) {
+    LambdaInstrumentProvider instrumentProvider) {
   // Craft each voice into choice
   for (const auto voice: voices) {
     auto choice = SegmentChoice();
@@ -481,7 +481,7 @@ void Craft::craftNoteEvents(
       continue;
     }
 
-    auto instrument = instrumentProvider->get(voice);
+    auto instrument = instrumentProvider.get(voice);
     if (!instrument.has_value()) {
       continue;
     }
@@ -584,7 +584,7 @@ void Craft::craftEventParts(const float tempo, const Instrument *instrument, con
   if (sequence.has_value()) {
     const auto voices = fabricator->getSourceMaterial()->getVoicesOfProgram(program);
     if (voices.empty()) return;
-    InstrumentProvider *instrumentProvider = new LambdaInstrumentProvider(
+    const auto instrumentProvider = LambdaInstrumentProvider(
         [&instrument](const ProgramVoice &) -> std::optional<Instrument> {
           return {(*instrument)};
         });

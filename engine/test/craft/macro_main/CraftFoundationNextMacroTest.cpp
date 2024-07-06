@@ -10,9 +10,7 @@
 
 #include "xjmusic/craft/Craft.h"
 #include "xjmusic/craft/MacroMainCraft.h"
-#include "xjmusic/fabricator/FabricatorFactory.h"
 #include "xjmusic/fabricator/SegmentUtils.h"
-#include "xjmusic/util/CsvUtils.h"
 #include "xjmusic/util/ValueUtils.h"
 
 // NOLINTNEXTLINE
@@ -32,10 +30,6 @@ static int TEST_REPEAT_ITERATIONS = 14;
 TEST(CraftFoundationNextMacroTest, CraftFoundationNextMacro) {
   for (int i = 0; i < TEST_REPEAT_ITERATIONS; i++) {
     auto store = std::make_unique<SegmentEntityStore>();
-    auto fabricatorFactory = std::make_unique<FabricatorFactory>(store.get());
-
-    // Manipulate the underlying entity store; reset before each test
-    store->clear();
 
     // Mock request via HubClientFactory returns fake generated library of model content
     auto fake = std::make_unique<ContentFixtures>();
@@ -83,9 +77,9 @@ TEST(CraftFoundationNextMacroTest, CraftFoundationNextMacro) {
     auto segment4 = store->put(
         SegmentFixtures::buildSegment(chain1, 3, Segment::State::Planned, "C", 8, 0.8f, 120, "chain-1-waveform-12345"));
 
-    auto fabricator = fabricatorFactory->fabricate(sourceMaterial.get(), segment4->id, std::nullopt);
+    auto fabricator = Fabricator(sourceMaterial.get(), store.get(), segment4->id, std::nullopt);
 
-    MacroMainCraft(fabricator, std::nullopt, {}).doWork();
+    MacroMainCraft(&fabricator, std::nullopt, {}).doWork();
 
     auto result = store->readSegment(segment4->id).value();
     ASSERT_EQ(Segment::Type::NextMacro, result->type);
@@ -107,10 +101,10 @@ TEST(CraftFoundationNextMacroTest, CraftFoundationNextMacro) {
     // assert macro choice
     auto macroChoice = SegmentUtils::findFirstOfType(segmentChoices, Program::Type::Macro);
     ASSERT_EQ(fake->program3_sequence0_binding0.id, macroChoice.value()->programSequenceBindingId);
-    ASSERT_EQ(0, fabricator->getSequenceBindingOffsetForChoice(macroChoice.value()));
+    ASSERT_EQ(0, fabricator.getSequenceBindingOffsetForChoice(macroChoice.value()));
     // assert main choice
     auto mainChoice = SegmentUtils::findFirstOfType(segmentChoices, Program::Type::Main);
     ASSERT_EQ(fake->program15_sequence0_binding0.id, mainChoice.value()->programSequenceBindingId);
-    ASSERT_EQ(0, fabricator->getSequenceBindingOffsetForChoice(mainChoice.value()));
+    ASSERT_EQ(0, fabricator.getSequenceBindingOffsetForChoice(mainChoice.value()));
   }
 }

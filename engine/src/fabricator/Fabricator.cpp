@@ -24,12 +24,11 @@ const std::string Fabricator::UNKNOWN_KEY = "unknown";
 Fabricator::Fabricator(
     ContentEntityStore *contentEntityStore,
     SegmentEntityStore *segmentEntityStore,
-    SegmentRetrospective *segmentRetrospective,
     int segmentId,
     std::optional<Segment::Type> overrideSegmentType) : sourceMaterial(contentEntityStore),
                                                         store(segmentEntityStore),
-                                                        retrospective(segmentRetrospective),
-                                                        segmentId(segmentId) {
+                                                        segmentId(segmentId),
+                                                        retrospective(SegmentRetrospective(segmentEntityStore, segmentId)) {
 
   // keep elapsed time based on system nano time
   startAtSystemNanoTime = std::chrono::high_resolution_clock::now();
@@ -40,12 +39,11 @@ Fabricator::Fabricator(
     throw FabricationFatalException("No chain found");
 
   chain = chainOpt.value();
-  templateConfig = TemplateConfig(chain->templateConfig);
   templateBindings = sourceMaterial->getTemplateBindings();
   boundProgramIds = ChainUtils::targetIdsOfType(templateBindings, TemplateBinding::Type::Program);
   boundInstrumentIds = ChainUtils::targetIdsOfType(templateBindings, TemplateBinding::Type::Instrument);
   spdlog::debug("[segId={}] Chain {} configured with {} and bound to {} ",
-                segmentId, chain->id, templateConfig.toString(), TemplateBinding::toPrettyCsv(templateBindings));
+                segmentId, chain->id, chain->config.toString(), TemplateBinding::toPrettyCsv(templateBindings));
 
   // digest previous instrument audio
   preferredAudios = computePreferredInstrumentAudio();
@@ -128,7 +126,7 @@ Chain *Fabricator::getChain() {
 
 
 TemplateConfig Fabricator::getTemplateConfig() {
-  return templateConfig;
+  return chain->config;
 }
 
 
@@ -179,21 +177,20 @@ std::optional<const SegmentChoice *> Fabricator::getCurrentBeatChoice() {
 
 
 std::set<Instrument::Type> Fabricator::getDistinctChordVoicingTypes() {
-  if (distinctChordVoicingTypes == nullptr) {
+  if (distinctChordVoicingTypes.empty()) {
     const auto mainChoice = getCurrentMainChoice();
     if (!mainChoice.has_value()) return std::set<Instrument::Type>{};
     const auto voicings = sourceMaterial->getSequenceChordVoicingsOfProgram(mainChoice.value()->programId);
-    distinctChordVoicingTypes = new std::set<Instrument::Type>();
     for (const auto voicing: voicings) {
       try {
-        distinctChordVoicingTypes->insert(getProgramVoiceType(voicing));
+        distinctChordVoicingTypes.emplace(getProgramVoiceType(voicing));
       } catch (FabricationException &e) {
         spdlog::warn("[seg-{}] Failed to get distinct chord voicing type! {}", segmentId, e.what());
       }
     }
   }
 
-  return *distinctChordVoicingTypes;
+  return distinctChordVoicingTypes;
 }
 
 
@@ -207,7 +204,7 @@ long Fabricator::getElapsedMicros() {
 std::optional<const SegmentChoice *> Fabricator::getChoiceIfContinued(const ProgramVoice *voice) {
   if (getSegment()->type != Segment::Type::Continue) return std::nullopt;
 
-  auto choices = retrospective->getChoices();
+  auto choices = retrospective.getChoices();
   auto it = std::find_if(choices.begin(), choices.end(), [&](const SegmentChoice *choice) {
     const auto candidateVoice = sourceMaterial->getProgramVoice(choice->programVoiceId);
     return candidateVoice.has_value() && candidateVoice.value()->name == voice->name &&
@@ -226,7 +223,7 @@ std::optional<const SegmentChoice *> Fabricator::getChoiceIfContinued(const Prog
 std::optional<const SegmentChoice *> Fabricator::getChoiceIfContinued(const Instrument::Type instrumentType) {
   if (getSegment()->type != Segment::Type::Continue) return std::nullopt;
 
-  auto choices = retrospective->getChoices();
+  auto choices = retrospective.getChoices();
   const auto it = std::find_if(choices.begin(), choices.end(), [&](const SegmentChoice *choice) {
     return choice->instrumentType == instrumentType;
   });
@@ -245,7 +242,7 @@ std::optional<const SegmentChoice *>
 Fabricator::getChoiceIfContinued(const Instrument::Type instrumentType, const Instrument::Mode instrumentMode) {
   if (getSegment()->type != Segment::Type::Continue) return std::nullopt;
 
-  auto choices = retrospective->getChoices();
+  auto choices = retrospective.getChoices();
   const auto it = std::find_if(choices.begin(), choices.end(), [&](const SegmentChoice *choice) {
     return choice->instrumentType == instrumentType && choice->instrumentMode == instrumentMode;
   });
@@ -265,7 +262,7 @@ std::set<const SegmentChoice *> Fabricator::getChoicesIfContinued(const Program:
 
   std::set<const SegmentChoice *> filteredChoices;
 
-  for (auto choice: retrospective->getChoices())
+  for (auto choice: retrospective.getChoices())
     if (choice->programType == programType)
       filteredChoices.emplace(choice);
 
@@ -305,13 +302,13 @@ std::optional<const ProgramSequence *> Fabricator::getProgramSequence(const Segm
 
 std::optional<const SegmentChoice *> Fabricator::getMacroChoiceOfPreviousSegment() {
   if (!macroChoiceOfPreviousSegment.has_value())
-    macroChoiceOfPreviousSegment = retrospective->getPreviousChoiceOfType(Program::Type::Macro);
+    macroChoiceOfPreviousSegment = retrospective.getPreviousChoiceOfType(Program::Type::Macro);
   return macroChoiceOfPreviousSegment;
 }
 
 std::optional<const SegmentChoice *> Fabricator::getPreviousMainChoice() {
   if (!mainChoiceOfPreviousSegment.has_value())
-    mainChoiceOfPreviousSegment = retrospective->getPreviousChoiceOfType(Program::Type::Main);
+    mainChoiceOfPreviousSegment = retrospective.getPreviousChoiceOfType(Program::Type::Main);
   return mainChoiceOfPreviousSegment;
 }
 
@@ -372,12 +369,12 @@ MemeIsometry Fabricator::getMemeIsometryOfNextSequenceInPreviousMacro() {
     }
   }
 
-  return MemeIsometry::of(templateConfig.memeTaxonomy, memes);
+  return MemeIsometry::of(chain->config.memeTaxonomy, memes);
 }
 
 
 MemeIsometry Fabricator::getMemeIsometryOfSegment() {
-  return MemeIsometry::of(templateConfig.memeTaxonomy, SegmentMeme::getNames(getSegmentMemes()));
+  return MemeIsometry::of(chain->config.memeTaxonomy, SegmentMeme::getNames(getSegmentMemes()));
 }
 
 
@@ -642,7 +639,7 @@ void Fabricator::putStickyBun(StickyBun bun) {
 
 
 std::optional<const StickyBun> Fabricator::getStickyBun(const UUID &eventId) {
-  if (!templateConfig.stickyBunEnabled) return std::nullopt;
+  if (!chain->config.stickyBunEnabled) return std::nullopt;
 
   const auto currentMeta = getSegmentMeta(StickyBun::computeMetaKey(eventId));
   if (currentMeta.has_value()) {
@@ -655,7 +652,7 @@ std::optional<const StickyBun> Fabricator::getStickyBun(const UUID &eventId) {
     }
   }
 
-  const auto previousMeta = retrospective->getPreviousMeta(StickyBun::computeMetaKey(eventId));
+  const auto previousMeta = retrospective.getPreviousMeta(StickyBun::computeMetaKey(eventId));
   if (previousMeta.has_value()) {
     try {
       const StickyBun bun = StickyBun::deserializeFrom(previousMeta.value()->value);
@@ -872,7 +869,7 @@ bool Fabricator::isInitialSegment() {
 
 
 std::optional<const SegmentChoice *> Fabricator::put(const SegmentChoice entity, const bool force) {
-  const auto memeStack = MemeStack::from(templateConfig.memeTaxonomy, SegmentMeme::getNames(getSegmentMemes()));
+  const auto memeStack = MemeStack::from(chain->config.memeTaxonomy, SegmentMeme::getNames(getSegmentMemes()));
 
   // For a SegmentChoice, add memes from program, program sequence binding, and instrument if present
   if (!isValidChoiceAndMemesHaveBeenAdded(entity, memeStack, force))
@@ -903,7 +900,7 @@ const SegmentChordVoicing *Fabricator::put(const SegmentChordVoicing entity) {
 
 
 std::optional<const SegmentMeme *> Fabricator::put(const SegmentMeme entity, const bool force) {
-  const auto memeStack = MemeStack::from(templateConfig.memeTaxonomy, SegmentMeme::getNames(getSegmentMemes()));
+  const auto memeStack = MemeStack::from(chain->config.memeTaxonomy, SegmentMeme::getNames(getSegmentMemes()));
 
   // Unless forced, don't put a duplicate of an existing meme
   if (!isValidMemeAddition(entity, memeStack, force))
@@ -953,8 +950,8 @@ const Segment *Fabricator::updateSegment(Segment segment) {
 }
 
 
-SegmentRetrospective *Fabricator::getRetrospective() {
-  return retrospective;
+const SegmentRetrospective *Fabricator::getRetrospective() {
+  return &retrospective;
 }
 
 
@@ -985,7 +982,7 @@ int Fabricator::getSecondMacroSequenceBindingOffset(const Program *macroProgram)
 
 
 MemeTaxonomy Fabricator::getMemeTaxonomy() const {
-  return templateConfig.memeTaxonomy;
+  return chain->config.memeTaxonomy;
 }
 
 
@@ -1096,7 +1093,7 @@ Segment::Type Fabricator::computeType() {
 
 
 int Fabricator::getPreviousSegmentDelta() const {
-  const auto previousSegment = retrospective->getPreviousSegment();
+  const auto previousSegment = retrospective.getPreviousSegment();
   return previousSegment.has_value() ? previousSegment.value()->delta : 0;
 }
 
@@ -1104,7 +1101,7 @@ int Fabricator::getPreviousSegmentDelta() const {
 std::map<std::string, const InstrumentAudio *> Fabricator::computePreferredInstrumentAudio() {
   std::map<std::string, const InstrumentAudio *> audios = {};
 
-  const auto picks = retrospective->getPicks();
+  const auto picks = retrospective.getPicks();
   for (const auto &pick: picks) {
     auto audioOpt = sourceMaterial->getInstrumentAudio(pick->instrumentAudioId);
     if (audioOpt.has_value()) {

@@ -10,7 +10,6 @@
 
 #include "xjmusic/craft/Craft.h"
 #include "xjmusic/craft/TransitionCraft.h"
-#include "xjmusic/fabricator/FabricatorFactory.h"
 #include "xjmusic/fabricator/SegmentUtils.h"
 #include "xjmusic/util/CsvUtils.h"
 
@@ -23,8 +22,7 @@ using namespace XJ;
 
 class CraftTransitionProgramVoiceContinueTest : public testing::Test {
 protected:
-  std::unique_ptr<FabricatorFactory> fabricatorFactory;
-  std::unique_ptr<ContentEntityStore> sourceMaterial;
+    std::unique_ptr<ContentEntityStore> sourceMaterial;
   std::unique_ptr<SegmentEntityStore> store;
   std::unique_ptr<ContentFixtures> fake;
   const Segment *segment4 = nullptr;
@@ -34,10 +32,7 @@ protected:
 
   void SetUp() override {
     store = std::make_unique<SegmentEntityStore>();
-    fabricatorFactory = std::make_unique<FabricatorFactory>(store.get());
 
-    // Manipulate the underlying entity store; reset before each test
-    store->clear();
 
     // Mock request via HubClientFactory returns fake generated library of model content
     fake = std::make_unique<ContentFixtures>();
@@ -158,7 +153,7 @@ protected:
 
 TEST_F(CraftTransitionProgramVoiceContinueTest, CraftTransitionVoiceContinue_okIfNoTransitionChoice) {
   insertSegments3and4();
-  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial.get(), segment4->id, std::nullopt);
+  auto fabricator = Fabricator(sourceMaterial.get(), store.get(), segment4->id, std::nullopt);
 
-  TransitionCraft(fabricator).doWork();
+  TransitionCraft(&fabricator).doWork();
 }

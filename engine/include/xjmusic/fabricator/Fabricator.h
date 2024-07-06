@@ -48,10 +48,10 @@ namespace XJ {
   class Fabricator {
   public:
     virtual ~Fabricator() = default;
+
     /**
      * Construct new fabricator
      * @param segmentEntityStore            to use for segment entities
-     * @param segmentRetrospective          to look back on previous segmefnt entities
      * @param contentEntityStore  contentEntityStore from which to fabricate
      * @param segmentId  current segment to fabricate
      * @param overrideSegmentType  override segment type
@@ -59,7 +59,6 @@ namespace XJ {
     explicit Fabricator(
         ContentEntityStore *contentEntityStore,
         SegmentEntityStore *segmentEntityStore,
-        SegmentRetrospective *segmentRetrospective,
         int segmentId,
         std::optional<Segment::Type> overrideSegmentType);
 
@@ -798,7 +797,7 @@ namespace XJ {
 
      @return retrospective
      */
-    virtual SegmentRetrospective *getRetrospective();
+    virtual const SegmentRetrospective *getRetrospective();
 
     /**
      Get the ingested source material for fabrication
@@ -887,7 +886,6 @@ namespace XJ {
     static const std::string NAME_SEPARATOR;
     static const std::string UNKNOWN_KEY;
     Chain* chain;
-    TemplateConfig templateConfig;
     std::set<const TemplateBinding *> templateBindings;
     ContentEntityStore *sourceMaterial;
     std::map<double, std::optional<SegmentChord *>> chordAtPosition;
@@ -903,11 +901,11 @@ namespace XJ {
     std::map<UUID, std::vector<const ProgramSequenceChord *>> completeChordsForProgramSequence;
     std::map<UUID, std::vector<const SegmentChoiceArrangementPick*>> picksForChoice;
     SegmentEntityStore *store;
-    SegmentRetrospective *retrospective;
+    int segmentId;
+    const SegmentRetrospective retrospective;
     std::set<UUID> boundInstrumentIds;
     std::set<UUID> boundProgramIds;
     std::chrono::high_resolution_clock::time_point startAtSystemNanoTime;
-    int segmentId;
     std::optional<Segment::Type> type;
 
     std::optional<const SegmentChoice*> macroChoiceOfPreviousSegment;
@@ -915,7 +913,7 @@ namespace XJ {
 
     double microsPerBeat{};
 
-    std::set<Instrument::Type> *distinctChordVoicingTypes{};
+    std::set<Instrument::Type> distinctChordVoicingTypes;
 
     /**
      * Get the segment meta for a given key

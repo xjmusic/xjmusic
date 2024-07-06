@@ -364,7 +364,7 @@ namespace XJ {
         float tempo,
         const ProgramSequence *sequence,
         const std::set<const ProgramVoice *> &voices,
-        InstrumentProvider *instrumentProvider);
+        LambdaInstrumentProvider instrumentProvider);
 
     /**
      Chord instrument mode

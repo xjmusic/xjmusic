@@ -56,10 +56,6 @@ bool DubWork::isFinished() {
   return !running;
 }
 
-const Chain *DubWork::getChain() const {
-  return craftWork->getChain();
-}
-
 std::optional<const Segment *> DubWork::getSegmentAtChainMicros(long atChainMicros) const {
   return craftWork->getSegmentAtChainMicros(atChainMicros);
 }

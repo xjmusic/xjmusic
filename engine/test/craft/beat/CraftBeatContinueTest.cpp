@@ -10,7 +10,6 @@
 
 #include "xjmusic/craft/BeatCraft.h"
 #include "xjmusic/craft/Craft.h"
-#include "xjmusic/fabricator/FabricatorFactory.h"
 #include "xjmusic/fabricator/SegmentUtils.h"
 #include "xjmusic/util/CsvUtils.h"
 
@@ -23,8 +22,7 @@ using namespace XJ;
 
 class CraftBeatContinueTest : public testing::Test {
 protected:
-  std::unique_ptr<FabricatorFactory> fabricatorFactory;
-  std::unique_ptr<ContentEntityStore> sourceMaterial;
+    std::unique_ptr<ContentEntityStore> sourceMaterial;
   std::unique_ptr<SegmentEntityStore> store;
   std::unique_ptr<ContentFixtures> fake;
   Chain *chain1 = nullptr;
@@ -32,10 +30,7 @@ protected:
 
   void SetUp() override {
     store = std::make_unique<SegmentEntityStore>();
-    fabricatorFactory = std::make_unique<FabricatorFactory>(store.get());
 
-    // Manipulate the underlying entity store; reset before each test
-    store->clear();
 
     // Mock request via HubClientFactory returns fake generated library of model content
     fake = std::make_unique<ContentFixtures>();
@@ -145,9 +140,9 @@ protected:
 
 TEST_F(CraftBeatContinueTest, CraftBeatContinue) {
   insertSegments3and4(false);
-  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial.get(), segment4->id, std::nullopt);
+  auto fabricator = Fabricator(sourceMaterial.get(), store.get(), segment4->id, std::nullopt);
 
-  BeatCraft(fabricator).doWork();
+  BeatCraft(&fabricator).doWork();
   // assert choice of beat-type sequence
   const auto segmentChoices = store->readAllSegmentChoices(segment4->id);
   ASSERT_EQ(SegmentUtils::findFirstOfType(segmentChoices, Program::Type::Beat).has_value(), true);
@@ -155,8 +150,8 @@ TEST_F(CraftBeatContinueTest, CraftBeatContinue) {
 
 TEST_F(CraftBeatContinueTest, CraftBeatContinue_okEvenWithoutPreviousSegmentBeatChoice) {
   insertSegments3and4(true);
-  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial.get(), segment4->id, std::nullopt);
-  BeatCraft(fabricator).doWork();
+  auto fabricator = Fabricator(sourceMaterial.get(), store.get(), segment4->id, std::nullopt);
+  BeatCraft(&fabricator).doWork();
 
   // assert choice of beat-type sequence
   const auto segmentChoices = store->readAllSegmentChoices(segment4->id);

@@ -10,8 +10,6 @@
 
 #include "xjmusic/craft/Craft.h"
 #include "xjmusic/craft/DetailCraft.h"
-#include "xjmusic/fabricator/FabricatorFactory.h"
-#include "xjmusic/util/CsvUtils.h"
 
 // NOLINTNEXTLINE
 using ::testing::_;
@@ -22,8 +20,7 @@ using namespace XJ;
 
 class CraftDetailProgramVoiceInitialTest : public testing::Test {
 protected:
-  std::unique_ptr<FabricatorFactory> fabricatorFactory;
-  std::unique_ptr<ContentEntityStore> sourceMaterial;
+    std::unique_ptr<ContentEntityStore> sourceMaterial;
   std::unique_ptr<SegmentEntityStore> store;
   std::unique_ptr<ContentFixtures> fake;
   Chain *chain2 = nullptr;
@@ -31,10 +28,7 @@ protected:
 
   void SetUp() override {
     store = std::make_unique<SegmentEntityStore>();
-    fabricatorFactory = std::make_unique<FabricatorFactory>(store.get());
 
-    // Manipulate the underlying entity store; reset before each test
-    store->clear();
 
     // force known detail selection by destroying program 35
     // Mock request via HubClientFactory returns fake generated library of model content
@@ -42,7 +36,7 @@ protected:
     sourceMaterial = std::make_unique<ContentEntityStore>();
     fake->setupFixtureB1(sourceMaterial.get(), false);
     fake->setupFixtureB3(sourceMaterial.get());
-    fake->setupFixtureB4_DetailBass(sourceMaterial);
+    fake->setupFixtureB4_DetailBass(sourceMaterial.get());
 
     // Chain "Print #2" has 1 initial segment in crafting state - Foundation is complete
     chain2 = store->put(SegmentFixtures::buildChain(
@@ -52,10 +46,6 @@ protected:
         Chain::State::Fabricate));
   }
 
-  void TearDown() override {
-
-                delete chain2;
-  }
 
   /**
    Insert fixture segment 6, including the detail choice only if specified
@@ -121,14 +111,14 @@ protected:
 TEST_F(CraftDetailProgramVoiceInitialTest, CraftDetailVoiceInitial) {
   insertSegments();
 
-  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial.get(), segment1->id, std::nullopt);
+  auto fabricator = Fabricator(sourceMaterial.get(), store.get(), segment1->id, std::nullopt);
 
-  DetailCraft(fabricator).doWork();
+  DetailCraft(&fabricator).doWork();
 
-  ASSERT_FALSE(fabricator->getChoices().empty());
+  ASSERT_FALSE(fabricator.getChoices().empty());
 
   int pickedBloop = 0;
-  const auto picks = fabricator->getPicks();
+  const auto picks = fabricator.getPicks();
   for (const auto pick: picks) {
     if (pick->instrumentAudioId == fake->instrument9_audio8.id)
       pickedBloop++;
@@ -138,7 +128,7 @@ TEST_F(CraftDetailProgramVoiceInitialTest, CraftDetailVoiceInitial) {
 
 TEST_F(CraftDetailProgramVoiceInitialTest, CraftDetailVoiceInitial_okWhenNoDetailChoice) {
   insertSegments();
-  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial.get(), segment1->id, std::nullopt);
+  auto fabricator = Fabricator(sourceMaterial.get(), store.get(), segment1->id, std::nullopt);
 
-  DetailCraft(fabricator).doWork();
+  DetailCraft(&fabricator).doWork();
 }

@@ -367,6 +367,25 @@ TEST_F(SegmentEntityStoreTest, ReadAllSegmentChoiceArrangementPicks) {
   ASSERT_EQ(5, result.size());
 }
 
+TEST_F(SegmentEntityStoreTest, ReadOrderedSegmentChords) {
+  auto chord1 = SegmentFixtures::buildSegmentChord(segment1, 0.0f, "D Major");
+  auto chord2 = SegmentFixtures::buildSegmentChord(segment1, 8.0f, "A minor");
+  auto chord3 = SegmentFixtures::buildSegmentChord(segment1, 16.0f, "G Major");
+  subject->put(chord1);
+  subject->put(chord2);
+  subject->put(chord3);
+
+  const auto result = subject->readOrderedSegmentChords(segment1->id);
+
+  ASSERT_EQ(3, result.size());
+  ASSERT_EQ(0.0f, result.at(0)->position);
+  ASSERT_EQ("D Major", result.at(0)->name);
+  ASSERT_EQ(8.0f, result.at(1)->position);
+  ASSERT_EQ("A minor", result.at(1)->name);
+  ASSERT_EQ(16.0f, result.at(2)->position);
+  ASSERT_EQ("G Major", result.at(2)->name);
+}
+
 /**
  List of Segments returned should not be more than a dozen or so https://github.com/xjmusic/xjmusic/issues/302
  */

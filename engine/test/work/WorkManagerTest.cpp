@@ -9,7 +9,6 @@
 #include "../_helper/ContentFixtures.h"
 
 #include "xjmusic/craft/Craft.h"
-#include "xjmusic/fabricator/FabricatorFactory.h"
 #include "xjmusic/fabricator/SegmentUtils.h"
 #include "xjmusic/work/WorkManager.h"
 
@@ -29,8 +28,8 @@ protected:
   int GENERATED_FIXTURE_COMPLEXITY = 3;
   long long startTime = EntityUtils::currentTimeMillis();
   std::unique_ptr<SegmentEntityStore> store;
-  ContentEntityStore *content = nullptr;
-  WorkManager *work = nullptr;
+  std::unique_ptr<ContentEntityStore> content;
+  std::unique_ptr<WorkManager> subject;
   std::unique_ptr<ContentFixtures> fake;
 
   void SetUp() override {
@@ -38,27 +37,18 @@ protected:
     fake = std::make_unique<ContentFixtures>();
     fake->project1 = ContentFixtures::buildProject("fish");
     fake->library1 = ContentFixtures::buildLibrary(&fake->project1, "test");
-    fake->generateFixtures(content, GENERATED_FIXTURE_COMPLEXITY);
+    fake->generateFixtures(content.get(), GENERATED_FIXTURE_COMPLEXITY);
 
+    // Manipulate the underlying entity store; reset before each test
+    store = std::make_unique<SegmentEntityStore>();
+
+    // subject
+    auto settings = WorkSettings();
     Template tmpl = **content->getTemplates().begin();
     tmpl.shipKey = "complex_library_test";
     tmpl.config = TemplateConfig("outputEncoding=\"PCM_SIGNED\"\noutputContainer = \"WAV\"\ndeltaArcEnabled = false\n");
     content->put(tmpl);
-
-    // Manipulate the underlying entity store; reset before each test
-    store = std::make_unique<SegmentEntityStore>();
-    const auto fabricatorFactory = std::make_unique<FabricatorFactory>(store.get());
-
-    // work
-    work = new WorkManager(fabricatorFactory.get(), store);
-    auto settings = WorkSettings();
-    settings.inputTemplate = tmpl;
-    work->start(content, settings);
-  }
-
-  void TearDown() override {
-            delete content;
-    delete work;
+    subject = std::make_unique<WorkManager>(store.get(), content.get(), settings);
   }
 
   /**
@@ -85,9 +75,10 @@ protected:
 };
 
 TEST_F(WorkManagerTest, HasSegmentsDubbedPastMinimumOffset) {
+  subject->start();
   unsigned long long atChainMicros = 0;
   while (!hasSegmentsDubbedPastMinimumOffset() && isWithinTimeLimit()) {
-    work->runCycle(atChainMicros);
+    subject->runCycle(atChainMicros);
     spdlog::info("Ran cycle at {}", atChainMicros);
     atChainMicros += MICROS_PER_CYCLE;
   }

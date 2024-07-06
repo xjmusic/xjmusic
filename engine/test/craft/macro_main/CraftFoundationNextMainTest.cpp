@@ -11,9 +11,7 @@
 #include "xjmusic/craft/Craft.h"
 #include "xjmusic/craft/MacroMainCraft.h"
 #include "xjmusic/fabricator/FabricationFatalException.h"
-#include "xjmusic/fabricator/FabricatorFactory.h"
 #include "xjmusic/fabricator/SegmentUtils.h"
-#include "xjmusic/util/CsvUtils.h"
 #include "xjmusic/util/ValueUtils.h"
 
 // NOLINTNEXTLINE
@@ -25,8 +23,7 @@ using namespace XJ;
 
 class CraftFoundationNextMainTest : public testing::Test {
 protected:
-  std::unique_ptr<FabricatorFactory> fabricatorFactory;
-  std::unique_ptr<ContentFixtures> fake;
+    std::unique_ptr<ContentFixtures> fake;
   std::unique_ptr<SegmentEntityStore> store;
   std::unique_ptr<ContentEntityStore> sourceMaterial;
   Chain *chain1 = nullptr;
@@ -34,10 +31,7 @@ protected:
 
   void SetUp() override {
     store = std::make_unique<SegmentEntityStore>();
-    fabricatorFactory = std::make_unique<FabricatorFactory>(store.get());
 
-    // Manipulate the underlying entity store; reset before each test
-    store->clear();
 
     // Mock request via HubClientFactory returns fake generated library of model content
     sourceMaterial = std::make_unique<ContentEntityStore>();
@@ -89,9 +83,9 @@ protected:
   };
 
 TEST_F(CraftFoundationNextMainTest, CraftFoundationNextMain) {
-  auto fabricator = fabricatorFactory->fabricate(sourceMaterial.get(), segment4->id, std::nullopt);
+  auto fabricator = Fabricator(sourceMaterial.get(), store.get(), segment4->id, std::nullopt);
 
-  MacroMainCraft(fabricator, std::nullopt, {}).doWork();
+  MacroMainCraft(&fabricator, std::nullopt, {}).doWork();
 
   auto result = store->readSegment(segment4->id).value();
   ASSERT_EQ(Segment::Type::NextMain, result->type);
@@ -112,11 +106,11 @@ TEST_F(CraftFoundationNextMainTest, CraftFoundationNextMain) {
   // assert macro choice
   auto macroChoice = SegmentUtils::findFirstOfType(segmentChoices, Program::Type::Macro);
   ASSERT_EQ(fake->program4_sequence1_binding0.id, macroChoice.value()->programSequenceBindingId);
-  ASSERT_EQ(1, fabricator->getSequenceBindingOffsetForChoice(macroChoice.value()));
+  ASSERT_EQ(1, fabricator.getSequenceBindingOffsetForChoice(macroChoice.value()));
   // assert main choice
   auto mainChoice = SegmentUtils::findFirstOfType(segmentChoices, Program::Type::Main);
   ASSERT_EQ(fake->program15_sequence0_binding0.id, mainChoice.value()->programSequenceBindingId);
-  ASSERT_EQ(0, fabricator->getSequenceBindingOffsetForChoice(mainChoice.value()));
+  ASSERT_EQ(0, fabricator.getSequenceBindingOffsetForChoice(mainChoice.value()));
 }
 
 /**
@@ -134,5 +128,5 @@ TEST_F(CraftFoundationNextMainTest, CraftFoundationNextMain_revertsAndRequeueOnF
       120.0f,
       "chain-1-waveform-12345.wav"));
 
-  ASSERT_THROW(fabricatorFactory->fabricate(sourceMaterial.get(), segment5->id, std::nullopt), FabricationFatalException);
+  ASSERT_THROW(Fabricator(sourceMaterial.get(), store.get(), segment5->id, std::nullopt), FabricationFatalException);
 }

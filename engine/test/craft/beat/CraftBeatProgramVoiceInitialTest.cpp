@@ -10,9 +10,7 @@
 
 #include "xjmusic/craft/BeatCraft.h"
 #include "xjmusic/craft/Craft.h"
-#include "xjmusic/fabricator/FabricatorFactory.h"
 #include "xjmusic/fabricator/SegmentUtils.h"
-#include "xjmusic/util/CsvUtils.h"
 
 // NOLINTNEXTLINE
 using ::testing::_;
@@ -23,8 +21,7 @@ using namespace XJ;
 
 class CraftBeatProgramVoiceInitialTest : public testing::Test {
 protected:
-  std::unique_ptr<FabricatorFactory> fabricatorFactory;
-  std::unique_ptr<ContentEntityStore> sourceMaterial;
+    std::unique_ptr<ContentEntityStore> sourceMaterial;
   std::unique_ptr<SegmentEntityStore> store;
   std::unique_ptr<ContentFixtures> fake;
   Chain *chain2 = nullptr;
@@ -32,10 +29,7 @@ protected:
 
   void SetUp() override {
     store = std::make_unique<SegmentEntityStore>();
-    fabricatorFactory = std::make_unique<FabricatorFactory>(store.get());
 
-    // Manipulate the underlying entity store; reset before each test
-    store->clear();
 
     // force known beat selection by destroying program 35
     // Mock request via HubClientFactory returns fake generated library of model content
@@ -53,10 +47,6 @@ protected:
         &tmpl));
   }
 
-  void TearDown() override {
-
-                delete chain2;
-  }
 
   /**
    Insert fixture segment 6, including the beat choice only if specified
@@ -96,9 +86,9 @@ protected:
 TEST_F(CraftBeatProgramVoiceInitialTest, CraftBeatVoiceInitial) {
   insertSegment();
 
-  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial.get(), segment0->id, std::nullopt);
+  auto fabricator = Fabricator(sourceMaterial.get(), store.get(), segment0->id, std::nullopt);
 
-  BeatCraft(fabricator).doWork();
+  BeatCraft(&fabricator).doWork();
 
   const auto result = store->readSegment(segment0->id).value();
   ASSERT_FALSE(store->readAllSegmentChoices(result->id).empty());
@@ -106,7 +96,7 @@ TEST_F(CraftBeatProgramVoiceInitialTest, CraftBeatVoiceInitial) {
 
 TEST_F(CraftBeatProgramVoiceInitialTest, CraftBeatVoiceInitial_okWhenNoBeatChoice) {
   insertSegment();
-  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial.get(), segment0->id, std::nullopt);
+  auto fabricator = Fabricator(sourceMaterial.get(), store.get(), segment0->id, std::nullopt);
 
-  BeatCraft(fabricator).doWork();
+  BeatCraft(&fabricator).doWork();
 }

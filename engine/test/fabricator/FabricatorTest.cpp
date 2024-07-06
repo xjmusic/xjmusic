@@ -1,18 +1,20 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-#include <gtest/gtest.h>
 #include <gmock/gmock.h>
+#include <gtest/gtest.h>
 #include <vector>
 
 #include "xjmusic/fabricator/ChainUtils.h"
-#include "xjmusic/fabricator/FabricatorFactory.h"
+#include "xjmusic/fabricator/Fabricator.h"
 #include "xjmusic/util/ValueUtils.h"
 
 #include "../_helper/ContentFixtures.h"
 #include "../_helper/SegmentFixtures.h"
 #include "../_mock/MockSegmentRetrospective.h"
 
+
 namespace XJ {
+  class Fabricator;
   class ContentFixtures;
 }
 // NOLINTNEXTLINE
@@ -22,13 +24,13 @@ using testing::ReturnRef;
 
 using namespace XJ;
 
-class FabricatorTest : public testing::Test { // NOLINT(*-pro-type-member-init)
+class FabricatorTest : public testing::Test {// NOLINT(*-pro-type-member-init)
 protected:
   int SEQUENCE_TOTAL_BEATS = 64;
   std::unique_ptr<ContentEntityStore> sourceMaterial;
   std::unique_ptr<SegmentEntityStore> store;
   MockSegmentRetrospective *mockRetrospective = nullptr;
-  Fabricator *subject = nullptr;
+  Fabricator * subject = nullptr;
   std::unique_ptr<ContentFixtures> fake;
   const Segment *segment = nullptr;
 
@@ -58,14 +60,14 @@ protected:
         0.6f,
         240.0f,
         "seg123"));
-    mockRetrospective = new MockSegmentRetrospective(store, 2);
-    subject = new Fabricator(sourceMaterial, store, mockRetrospective, 2, std::nullopt);
+    mockRetrospective = new MockSegmentRetrospective(store.get(), 2);
+    subject = new Fabricator(sourceMaterial.get(), store.get(), 2, std::nullopt);
   }
 
   void TearDown() override {
-        delete mockRetrospective;
+    delete mockRetrospective;
     delete subject;
-          }
+  }
 
   static bool setContains(const std::set<std::string> &items, const char *string) {
     return std::any_of(items.begin(), items.end(), [string](const std::string &item) {
@@ -121,7 +123,7 @@ TEST_F(FabricatorTest, GetDistinctChordVoicingTypes) {
   sourceMaterial->put(ContentFixtures::buildVoicing(
       &fake->program5_sequence0_chord0, &fake->program5_voiceStripe, "F5"));
   sourceMaterial->put(ContentFixtures::buildVoicing(
-      &fake->program5_sequence0_chord0, &fake->program5_voicePad, "(None)")); // No voicing notes- doesn't count!
+      &fake->program5_sequence0_chord0, &fake->program5_voicePad, "(None)"));// No voicing notes- doesn't count!
 
   // Create a chain
   store->put(SegmentFixtures::buildChain(
@@ -197,8 +199,7 @@ TEST_F(FabricatorTest, GetMemeIsometryOfNextSequenceInPreviousMacro) {
       SegmentFixtures::buildSegment(chain, 2, Segment::State::Crafting, "G major", 8, 0.6f, 240.0f, "seg123"));
 
   // Set up the mock Retrospective to return the previous choices
-  EXPECT_CALL(*mockRetrospective, getPreviousChoiceOfType(Program::Type::Macro)).WillOnce(
-      Return(std::optional(previousMacroChoice)));
+  EXPECT_CALL(*mockRetrospective, getPreviousChoiceOfType(Program::Type::Macro)).WillOnce(Return(std::optional(previousMacroChoice)));
 
   // Get the result
   auto result = subject->getMemeIsometryOfNextSequenceInPreviousMacro();
@@ -402,11 +403,13 @@ TEST_F(FabricatorTest, PutAddsMemesForChoice) {
   subject->put(
       SegmentFixtures::buildSegmentChoice(segment, SegmentChoice::DELTA_UNLIMITED, SegmentChoice::DELTA_UNLIMITED,
                                           &fake->program9,
-                                          &fake->program9_voice0, &fake->instrument8), false);
+                                          &fake->program9_voice0, &fake->instrument8),
+      false);
   subject->put(
       SegmentFixtures::buildSegmentChoice(segment, SegmentChoice::DELTA_UNLIMITED, SegmentChoice::DELTA_UNLIMITED,
                                           &fake->program4,
-                                          &fake->program4_sequence1_binding0), false);
+                                          &fake->program4_sequence1_binding0),
+      false);
 
   // Get the result
   const auto resultMemes = store->readAllSegmentMemes(segment->id);

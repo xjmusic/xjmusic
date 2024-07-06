@@ -265,6 +265,13 @@ bool ConfigSingleValue::getBool() const {
   throw ConfigException("Value is not a bool");
 }
 
+bool ConfigSingleValue::operator==(const ConfigSingleValue &other) const {
+  return value == other.value;
+}
+
+bool ConfigSingleValue::operator!=(const ConfigSingleValue &other) const {
+  return !(*this == other);
+}
 
 ConfigSingleValue::ConfigSingleValue(const std::variant<std::string, int, float, bool> &value) : value(value) {}
 
@@ -343,6 +350,23 @@ std::string ConfigParser::format(const std::set<std::string> &values) {
   return "[" + StringUtils::join(quotedValues, ",") + "]";
 }
 
+bool ConfigParser::operator==(const ConfigParser &other) const {
+  if (config.size() != other.config.size()) return false;
+  for (const auto &[key, val]: config) {
+    if (other.config.find(key) == other.config.end()) return false;
+    if (val != other.config.at(key)) return false;
+  }
+  return true;
+}
+
+
+void ConfigParser::operator=(const ConfigParser &other) {
+  config.clear();
+  for (const auto &[key, val]: other.config) {
+    config.emplace(key, val);
+  }
+}
+
 
 unsigned long ConfigObjectValue::size() const {
   return data.size();
@@ -388,6 +412,18 @@ ConfigObjectValue::asMapOfStringsOrListsOfStrings() const {
   return map;
 }
 
+bool ConfigObjectValue::operator==(const ConfigObjectValue &other) const {
+  if (data.size() != other.data.size()) return false;
+  for (const auto &[key, val]: data) {
+    if (other.data.find(key) == other.data.end()) return false;
+    if (val != other.data.at(key)) return false;
+  }
+  return true;
+}
+bool ConfigObjectValue::operator!=(const ConfigObjectValue &other) const {
+  return !(*this == other);
+}
+
 
 unsigned long ConfigListValue::size() const {
   return data.size();
@@ -408,6 +444,17 @@ void ConfigListValue::add(const std::variant<ConfigSingleValue, ConfigObjectValu
   data.emplace_back(value);
 }
 
+bool ConfigListValue::operator==(const ConfigListValue &other) const {
+  if (data.size() != other.data.size()) return false;
+  for (unsigned long i = 0; i < data.size(); i++) {
+    if (data.at(i) != other.data.at(i)) return false;
+  }
+  return true;
+}
+
+bool ConfigListValue::operator!=(const ConfigListValue &other) const {
+  return !(*this == other);
+}
 
 std::vector<std::string> ConfigListValue::asListOfStrings() const {
   std::vector<std::string> values;

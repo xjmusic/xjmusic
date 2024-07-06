@@ -10,7 +10,6 @@
 
 #include "xjmusic/craft/BeatCraft.h"
 #include "xjmusic/fabricator/ChainUtils.h"
-#include "xjmusic/fabricator/FabricatorFactory.h"
 #include "xjmusic/util/CsvUtils.h"
 
 // NOLINTNEXTLINE
@@ -22,8 +21,7 @@ using namespace XJ;
 
 class CraftBeat_LayeredVoicesTest : public testing::Test {
 protected:
-  std::unique_ptr<FabricatorFactory> fabricatorFactory;
-  std::unique_ptr<ContentEntityStore> sourceMaterial;
+    std::unique_ptr<ContentEntityStore> sourceMaterial;
   std::unique_ptr<SegmentEntityStore> store;
   std::unique_ptr<ContentFixtures> fake;
   Program *program42 = nullptr;
@@ -34,10 +32,7 @@ protected:
 
   void SetUp() override {
     store = std::make_unique<SegmentEntityStore>();
-    fabricatorFactory = std::make_unique<FabricatorFactory>(store.get());
 
-    // Manipulate the underlying entity store; reset before each test
-    store->clear();
 
     // Mock request via HubClientFactory returns fake generated library of model content
     fake = std::make_unique<ContentFixtures>();
@@ -112,12 +107,6 @@ protected:
     store->put(SegmentFixtures::buildSegmentChord(segment4, 8.0f, "D Major"));
   }
 
-  void TearDown() override {
-
-                delete program42;
-    delete audioHihat;
-          }
-
   /**
    Some custom fixtures for testing
 
@@ -170,9 +159,9 @@ protected:
 };
 
 TEST_F(CraftBeat_LayeredVoicesTest, CraftBeatVoiceContinue) {
-  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial.get(), segment4->id, std::nullopt);
+  auto fabricator = Fabricator(sourceMaterial.get(), store.get(), segment4->id, std::nullopt);
 
-  BeatCraft(fabricator).doWork();
+  BeatCraft(&fabricator).doWork();
 
   const auto result = store->readSegment(segment4->id).value();
   ASSERT_FALSE(store->readAllSegmentChoices(result->id).empty());
@@ -180,7 +169,7 @@ TEST_F(CraftBeat_LayeredVoicesTest, CraftBeatVoiceContinue) {
   int pickedKick = 0;
   int pickedSnare = 0;
   int pickedHihat = 0;
-  const auto picks = fabricator->getPicks();
+  const auto picks = fabricator.getPicks();
   for (const auto pick: picks) {
     if (pick->instrumentAudioId == audioKick->id)
       pickedKick++;

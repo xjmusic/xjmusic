@@ -7,7 +7,7 @@
 using namespace XJ;
 
 
-TEST(HoconLiteTest, ParseConfig) {
+TEST(ConfigParserTest, ParseConfig) {
   std::string input = R"(
             arrayOfMapsWithArrayOfStringValues = [
                 {
@@ -89,7 +89,7 @@ TEST(HoconLiteTest, ParseConfig) {
   ASSERT_EQ("FALL", secondMapMemes.at(3).getString());
 }
 
-TEST(HoconLiteTest, ParseConfigWithDefaults) {
+TEST(ConfigParserTest, ParseConfigWithDefaults) {
   const std::string defaults = R"(
             quotedStringValue = "Hello, World!"
             stringValue = Apples
@@ -110,13 +110,145 @@ TEST(HoconLiteTest, ParseConfigWithDefaults) {
   ASSERT_EQ(false, subject.getSingleValue("booleanValue").getBool());
 }
 
-TEST(HoconLiteTest, FormatBoolValue) {
+TEST(ConfigParserTest, FormatBoolValue) {
   ASSERT_EQ("true", ConfigParser::format(true));
   ASSERT_EQ("false", ConfigParser::format(false));
 }
 
-TEST(HoconLiteTest, FormatQuotedListValue) {
+TEST(ConfigParserTest, FormatQuotedListValue) {
   const std::vector<std::string> values = {"Apples", "Bananas", "Oranges"};
 
   ASSERT_EQ("[\"Apples\",\"Bananas\",\"Oranges\"]", ConfigParser::format(values));
+}
+
+TEST(ConfigParserTest, FormatStringValue) {
+  ASSERT_EQ("\"Hello, World!\"", ConfigParser::format("Hello, World!"));
+}
+
+TEST(ConfigParserTest, FormatFloatValue) {
+  ASSERT_EQ("2.64872", ConfigParser::format(2.64872f));
+}
+
+TEST(ConfigParserTest, FormatIntValue) {
+  ASSERT_EQ("12", ConfigParser::format(12));
+}
+
+TEST(ConfigParserTest, EqualityOperator) {
+  const auto subject = ConfigParser(R"(
+            booleanValue = false
+            floatValue = 2.64872
+            mapOfIntValues = {
+                Apples = 3
+                Bananas = 12
+                Oranges = 43
+              }
+            quotedStringValue = "Hello, World!"
+            stringListValue = ["Apples","Bananas","Oranges"]
+    )");
+
+  ASSERT_TRUE(subject == ConfigParser(R"(
+            booleanValue = false
+            floatValue = 2.64872
+            mapOfIntValues = {
+                Apples = 3
+                Bananas = 12
+                Oranges = 43
+              }
+            quotedStringValue = "Hello, World!"
+            stringListValue = ["Apples","Bananas","Oranges"]
+    )"));
+  ASSERT_FALSE(subject == ConfigParser(R"(
+            booleanValue = true
+            floatValue = 2.64872
+            mapOfIntValues = {
+                Apples = 3
+                Bananas = 12
+                Oranges = 43
+              }
+            quotedStringValue = "Hello, World!"
+            stringListValue = ["Apples","Bananas","Oranges"]
+    )"));
+  ASSERT_FALSE(subject == ConfigParser(R"(
+            booleanValue = false
+            floatValue = 2.65872
+            mapOfIntValues = {
+                Apples = 3
+                Bananas = 12
+                Oranges = 43
+              }
+            quotedStringValue = "Hello, World!"
+            stringListValue = ["Apples","Bananas","Oranges"]
+    )"));
+  ASSERT_FALSE(subject == ConfigParser(R"(
+            booleanValue = false
+            floatValue = 2.64872
+            mapOfIntValues = {
+                Apples = 6
+                Bananas = 12
+                Oranges = 43
+              }
+            quotedStringValue = "Hello, World!"
+            stringListValue = ["Apples","Bananas","Oranges"]
+    )"));
+  ASSERT_FALSE(subject == ConfigParser(R"(
+            booleanValue = false
+            floatValue = 2.64872
+            mapOfIntValues = {
+                Apples = 3
+                Oranges = 43
+              }
+            quotedStringValue = "Hello, World!"
+            stringListValue = ["Apples","Bananas","Oranges"]
+    )"));
+  ASSERT_FALSE(subject == ConfigParser(R"(
+            booleanValue = false
+            floatValue = 2.64872
+            mapOfIntValues = {
+                Apples = 3
+                Bananas = 12
+                Oranges = 43
+              }
+            quotedStringValue = "Hello, World!!!"
+            stringListValue = ["Apples","Bananas","Oranges"]
+    )"));
+  ASSERT_FALSE(subject == ConfigParser(R"(
+            booleanValue = false
+            floatValue = 2.64872
+            mapOfIntValues = {
+                Apples = 3
+                Bananas = 12
+                Oranges = 43
+              }
+            quotedStringValue = "Hello, World!"
+            stringListValue = ["Apples","Oranges"]
+    )"));
+  ASSERT_FALSE(subject == ConfigParser(R"(
+            booleanValue = false
+            floatValue = 2.64872
+            mapOfIntValues = {
+                Apples = 3
+                Bananas = 12
+                Oranges = 43
+              }
+            quotedStringValue = "Hello, World!"
+            stringListValue = ["Apples","Bananas","Mangos"]
+    )"));
+}
+
+TEST(ConfigParserTest, SetToOperator) {
+  const auto subject = ConfigParser(R"(
+            booleanValue = false
+            floatValue = 2.64872
+            mapOfIntValues = {
+                Apples = 3
+                Bananas = 12
+                Oranges = 43
+              }
+            quotedStringValue = "Hello, World!"
+            stringListValue = ["Apples","Bananas","Oranges"]
+    )");
+
+  const auto other = subject;
+
+  ASSERT_EQ(subject, other);
 }

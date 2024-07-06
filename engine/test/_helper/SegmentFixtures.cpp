@@ -22,7 +22,7 @@ Chain SegmentFixtures::buildChain(
   chain.templateId = tmpl->id;
   chain.name = "Test Chain";
   chain.type = Chain::Type::Production;
-  chain.templateConfig = tmpl->config;
+  chain.config = tmpl->config;
   chain.state = state;
   return chain;
 }
@@ -55,7 +55,7 @@ Chain SegmentFixtures::buildChain(
   chain.name = std::move(name);
   chain.type = type;
   chain.state = state;
-  chain.templateConfig = TemplateConfig("outputEncoding=\"PCM_SIGNED\"\noutputContainer = \"WAV\"\ndeltaArcEnabled = false\n");
+  chain.config = TemplateConfig("outputEncoding=\"PCM_SIGNED\"\noutputContainer = \"WAV\"\ndeltaArcEnabled = false\n");
   chain.shipKey = shipKey;
   return chain;
 }
