@@ -111,7 +111,8 @@ protected:
 TEST_F(CraftDetailProgramVoiceInitialTest, CraftDetailVoiceInitial) {
   insertSegments();
 
-  auto fabricator = Fabricator(sourceMaterial.get(), store.get(), segment1->id, std::nullopt);
+  const auto retrospective = SegmentRetrospective(store.get(), segment1->id);
+  auto fabricator = Fabricator(sourceMaterial.get(), store.get(), &retrospective, segment1->id, std::nullopt);
 
   DetailCraft(&fabricator).doWork();
 
@@ -128,7 +129,8 @@ TEST_F(CraftDetailProgramVoiceInitialTest, CraftDetailVoiceInitial) {
 
 TEST_F(CraftDetailProgramVoiceInitialTest, CraftDetailVoiceInitial_okWhenNoDetailChoice) {
   insertSegments();
-  auto fabricator = Fabricator(sourceMaterial.get(), store.get(), segment1->id, std::nullopt);
+  const auto retrospective = SegmentRetrospective(store.get(), segment1->id);
+  auto fabricator = Fabricator(sourceMaterial.get(), store.get(), &retrospective, segment1->id, std::nullopt);
 
   DetailCraft(&fabricator).doWork();
 }

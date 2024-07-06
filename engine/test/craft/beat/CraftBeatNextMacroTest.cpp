@@ -139,7 +139,8 @@ protected:
 
 TEST_F(CraftBeatNextMacroTest, CraftBeatNextMacro) {
   insertSegments3and4(true);
-  auto fabricator = Fabricator(sourceMaterial.get(), store.get(), segment4->id, std::nullopt);
+  const auto retrospective = SegmentRetrospective(store.get(), segment4->id);
+  auto fabricator = Fabricator(sourceMaterial.get(), store.get(), &retrospective, segment4->id, std::nullopt);
 
   BeatCraft(&fabricator).doWork();
 
@@ -151,7 +152,8 @@ TEST_F(CraftBeatNextMacroTest, CraftBeatNextMacro) {
 
 TEST_F(CraftBeatNextMacroTest, CraftBeatNextMacro_okEvenWithoutPreviousSegmentBeatChoice) {
   insertSegments3and4(false);
-  auto fabricator = Fabricator(sourceMaterial.get(), store.get(), segment4->id, std::nullopt);
+  const auto retrospective = SegmentRetrospective(store.get(), segment4->id);
+  auto fabricator = Fabricator(sourceMaterial.get(), store.get(), &retrospective, segment4->id, std::nullopt);
 
   BeatCraft(&fabricator).doWork();
 

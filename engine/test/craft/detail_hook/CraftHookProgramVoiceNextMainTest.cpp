@@ -170,7 +170,8 @@ protected:
 
 TEST_F(CraftHookProgramVoiceNextMainTest, CraftHookVoiceNextMain) {
   insertSegments3and4();
-  auto fabricator = Fabricator(sourceMaterial.get(), store.get(), segment4->id, std::nullopt);
+  const auto retrospective = SegmentRetrospective(store.get(), segment4->id);
+  auto fabricator = Fabricator(sourceMaterial.get(), store.get(), &retrospective, segment4->id, std::nullopt);
 
   DetailCraft(&fabricator).doWork();
 }

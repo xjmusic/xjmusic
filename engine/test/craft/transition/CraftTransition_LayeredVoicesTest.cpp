@@ -132,7 +132,8 @@ protected:
   };
 
 TEST_F(CraftTransition_LayeredVoicesTest, craftTransitionVoiceContinue) {
-  auto fabricator = Fabricator(sourceMaterial.get(), store.get(), segment4->id, std::nullopt);
+  const auto retrospective = SegmentRetrospective(store.get(), segment4->id);
+  auto fabricator = Fabricator(sourceMaterial.get(), store.get(), &retrospective, segment4->id, std::nullopt);
 
   TransitionCraft(&fabricator).doWork();
 }

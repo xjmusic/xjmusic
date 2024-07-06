@@ -86,7 +86,8 @@ protected:
 TEST_F(CraftBeatProgramVoiceInitialTest, CraftBeatVoiceInitial) {
   insertSegment();
 
-  auto fabricator = Fabricator(sourceMaterial.get(), store.get(), segment0->id, std::nullopt);
+  const auto retrospective = SegmentRetrospective(store.get(), segment0->id);
+  auto fabricator = Fabricator(sourceMaterial.get(), store.get(), &retrospective, segment0->id, std::nullopt);
 
   BeatCraft(&fabricator).doWork();
 
@@ -96,7 +97,8 @@ TEST_F(CraftBeatProgramVoiceInitialTest, CraftBeatVoiceInitial) {
 
 TEST_F(CraftBeatProgramVoiceInitialTest, CraftBeatVoiceInitial_okWhenNoBeatChoice) {
   insertSegment();
-  auto fabricator = Fabricator(sourceMaterial.get(), store.get(), segment0->id, std::nullopt);
+  const auto retrospective = SegmentRetrospective(store.get(), segment0->id);
+  auto fabricator = Fabricator(sourceMaterial.get(), store.get(), &retrospective, segment0->id, std::nullopt);
 
   BeatCraft(&fabricator).doWork();
 }

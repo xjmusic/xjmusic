@@ -20,15 +20,15 @@ const std::string Fabricator::NAME_SEPARATOR = "-";
 
 const std::string Fabricator::UNKNOWN_KEY = "unknown";
 
-
 Fabricator::Fabricator(
     ContentEntityStore *contentEntityStore,
     SegmentEntityStore *segmentEntityStore,
+    const SegmentRetrospective *segmentRetrospective,
     int segmentId,
     std::optional<Segment::Type> overrideSegmentType) : sourceMaterial(contentEntityStore),
                                                         store(segmentEntityStore),
                                                         segmentId(segmentId),
-                                                        retrospective(SegmentRetrospective(segmentEntityStore, segmentId)) {
+                                                        retrospective(segmentRetrospective) {
 
   // keep elapsed time based on system nano time
   startAtSystemNanoTime = std::chrono::high_resolution_clock::now();
@@ -204,7 +204,7 @@ long Fabricator::getElapsedMicros() {
 std::optional<const SegmentChoice *> Fabricator::getChoiceIfContinued(const ProgramVoice *voice) {
   if (getSegment()->type != Segment::Type::Continue) return std::nullopt;
 
-  auto choices = retrospective.getChoices();
+  auto choices = retrospective->getChoices();
   auto it = std::find_if(choices.begin(), choices.end(), [&](const SegmentChoice *choice) {
     const auto candidateVoice = sourceMaterial->getProgramVoice(choice->programVoiceId);
     return candidateVoice.has_value() && candidateVoice.value()->name == voice->name &&
@@ -223,7 +223,7 @@ std::optional<const SegmentChoice *> Fabricator::getChoiceIfContinued(const Prog
 std::optional<const SegmentChoice *> Fabricator::getChoiceIfContinued(const Instrument::Type instrumentType) {
   if (getSegment()->type != Segment::Type::Continue) return std::nullopt;
 
-  auto choices = retrospective.getChoices();
+  auto choices = retrospective->getChoices();
   const auto it = std::find_if(choices.begin(), choices.end(), [&](const SegmentChoice *choice) {
     return choice->instrumentType == instrumentType;
   });
@@ -242,7 +242,7 @@ std::optional<const SegmentChoice *>
 Fabricator::getChoiceIfContinued(const Instrument::Type instrumentType, const Instrument::Mode instrumentMode) {
   if (getSegment()->type != Segment::Type::Continue) return std::nullopt;
 
-  auto choices = retrospective.getChoices();
+  auto choices = retrospective->getChoices();
   const auto it = std::find_if(choices.begin(), choices.end(), [&](const SegmentChoice *choice) {
     return choice->instrumentType == instrumentType && choice->instrumentMode == instrumentMode;
   });
@@ -262,7 +262,7 @@ std::set<const SegmentChoice *> Fabricator::getChoicesIfContinued(const Program:
 
   std::set<const SegmentChoice *> filteredChoices;
 
-  for (auto choice: retrospective.getChoices())
+  for (auto choice: retrospective->getChoices())
     if (choice->programType == programType)
       filteredChoices.emplace(choice);
 
@@ -302,13 +302,13 @@ std::optional<const ProgramSequence *> Fabricator::getProgramSequence(const Segm
 
 std::optional<const SegmentChoice *> Fabricator::getMacroChoiceOfPreviousSegment() {
   if (!macroChoiceOfPreviousSegment.has_value())
-    macroChoiceOfPreviousSegment = retrospective.getPreviousChoiceOfType(Program::Type::Macro);
+    macroChoiceOfPreviousSegment = retrospective->getPreviousChoiceOfType(Program::Type::Macro);
   return macroChoiceOfPreviousSegment;
 }
 
 std::optional<const SegmentChoice *> Fabricator::getPreviousMainChoice() {
   if (!mainChoiceOfPreviousSegment.has_value())
-    mainChoiceOfPreviousSegment = retrospective.getPreviousChoiceOfType(Program::Type::Main);
+    mainChoiceOfPreviousSegment = retrospective->getPreviousChoiceOfType(Program::Type::Main);
   return mainChoiceOfPreviousSegment;
 }
 
@@ -652,7 +652,7 @@ std::optional<const StickyBun> Fabricator::getStickyBun(const UUID &eventId) {
     }
   }
 
-  const auto previousMeta = retrospective.getPreviousMeta(StickyBun::computeMetaKey(eventId));
+  const auto previousMeta = retrospective->getPreviousMeta(StickyBun::computeMetaKey(eventId));
   if (previousMeta.has_value()) {
     try {
       const StickyBun bun = StickyBun::deserializeFrom(previousMeta.value()->value);
@@ -951,7 +951,7 @@ const Segment *Fabricator::updateSegment(Segment segment) {
 
 
 const SegmentRetrospective *Fabricator::getRetrospective() {
-  return &retrospective;
+  return retrospective;
 }
 
 
@@ -1093,7 +1093,7 @@ Segment::Type Fabricator::computeType() {
 
 
 int Fabricator::getPreviousSegmentDelta() const {
-  const auto previousSegment = retrospective.getPreviousSegment();
+  const auto previousSegment = retrospective->getPreviousSegment();
   return previousSegment.has_value() ? previousSegment.value()->delta : 0;
 }
 
@@ -1101,7 +1101,7 @@ int Fabricator::getPreviousSegmentDelta() const {
 std::map<std::string, const InstrumentAudio *> Fabricator::computePreferredInstrumentAudio() {
   std::map<std::string, const InstrumentAudio *> audios = {};
 
-  const auto picks = retrospective.getPicks();
+  const auto picks = retrospective->getPicks();
   for (const auto &pick: picks) {
     auto audioOpt = sourceMaterial->getInstrumentAudio(pick->instrumentAudioId);
     if (audioOpt.has_value()) {

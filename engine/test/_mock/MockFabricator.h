@@ -15,9 +15,11 @@ namespace XJ {
     MockFabricator(
         ContentEntityStore *contentEntityStore,
         SegmentEntityStore *segmentEntityStore,
+        const SegmentRetrospective *segmentRetrospective,
         const int segmentId,
         const std::optional<Segment::Type> overrideSegmentType) : Fabricator(contentEntityStore,
                                                                              segmentEntityStore,
+                                                                             segmentRetrospective,
                                                                              segmentId,
                                                                              overrideSegmentType) {}
 

@@ -140,7 +140,8 @@ protected:
 
 TEST_F(CraftBeatContinueTest, CraftBeatContinue) {
   insertSegments3and4(false);
-  auto fabricator = Fabricator(sourceMaterial.get(), store.get(), segment4->id, std::nullopt);
+  const auto retrospective = SegmentRetrospective(store.get(), segment4->id);
+  auto fabricator = Fabricator(sourceMaterial.get(), store.get(), &retrospective, segment4->id, std::nullopt);
 
   BeatCraft(&fabricator).doWork();
   // assert choice of beat-type sequence
@@ -150,7 +151,8 @@ TEST_F(CraftBeatContinueTest, CraftBeatContinue) {
 
 TEST_F(CraftBeatContinueTest, CraftBeatContinue_okEvenWithoutPreviousSegmentBeatChoice) {
   insertSegments3and4(true);
-  auto fabricator = Fabricator(sourceMaterial.get(), store.get(), segment4->id, std::nullopt);
+  const auto retrospective = SegmentRetrospective(store.get(), segment4->id);
+  auto fabricator = Fabricator(sourceMaterial.get(), store.get(), &retrospective, segment4->id, std::nullopt);
   BeatCraft(&fabricator).doWork();
 
   // assert choice of beat-type sequence

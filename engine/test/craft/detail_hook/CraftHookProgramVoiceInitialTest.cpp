@@ -78,15 +78,16 @@ protected:
 
 TEST_F(CraftHookProgramVoiceInitialTest, CraftHookVoiceInitial) {
   insertSegment();
-
-  auto fabricator = Fabricator(sourceMaterial.get(), store.get(), segment0->id, std::nullopt);
+  const auto retrospective = SegmentRetrospective(store.get(), segment0->id);
+  auto fabricator = Fabricator(sourceMaterial.get(), store.get(), &retrospective, segment0->id, std::nullopt);
 
   DetailCraft(&fabricator).doWork();
 }
 
 TEST_F(CraftHookProgramVoiceInitialTest, CraftHookVoiceInitial_okWhenNoHookChoice) {
   insertSegment();
-  auto fabricator = Fabricator(sourceMaterial.get(), store.get(), segment0->id, std::nullopt);
+  const auto retrospective = SegmentRetrospective(store.get(), segment0->id);
+  auto fabricator = Fabricator(sourceMaterial.get(), store.get(), &retrospective, segment0->id, std::nullopt);
 
   DetailCraft(&fabricator).doWork();
 }

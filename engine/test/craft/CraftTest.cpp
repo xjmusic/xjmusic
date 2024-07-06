@@ -59,6 +59,7 @@ protected:
     mockFabricator = std::make_unique<MockFabricator>(
         sourceMaterial.get(),
         segmentEntityStore.get(),
+        mockSegmentRetrospective.get(),
         2,
         std::nullopt);
     subject = std::make_unique<Craft>(mockFabricator.get());

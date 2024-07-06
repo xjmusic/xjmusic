@@ -79,7 +79,8 @@ protected:
 };
 
 TEST_F(CraftBackgroundInitialTest, CraftBackgroundInitial) {
-  auto fabricator = Fabricator(sourceMaterial.get(), store.get(), segment6->id, std::nullopt);
+  const auto retrospective = SegmentRetrospective(store.get(), segment6->id);
+  auto fabricator = Fabricator(sourceMaterial.get(), store.get(), &retrospective, segment6->id, std::nullopt);
 
   BackgroundCraft(&fabricator).doWork();
 }

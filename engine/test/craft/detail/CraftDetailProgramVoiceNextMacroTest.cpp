@@ -11,7 +11,6 @@
 #include "xjmusic/craft/Craft.h"
 #include "xjmusic/craft/DetailCraft.h"
 #include "xjmusic/fabricator/SegmentUtils.h"
-#include "xjmusic/util/CsvUtils.h"
 #include "xjmusic/util/ValueUtils.h"
 
 // NOLINTNEXTLINE
@@ -158,17 +157,18 @@ protected:
 
 TEST_F(CraftDetailProgramVoiceNextMacroTest, CraftDetailVoiceNextMacro) {
   insertSegments3and4(true);
-  auto fabricator = Fabricator(sourceMaterial.get(), store.get(), segment4->id, std::nullopt);
+  const auto retrospective = SegmentRetrospective(store.get(), segment4->id);
+  auto fabricator = Fabricator(sourceMaterial.get(), store.get(), &retrospective, segment4->id, std::nullopt);
 
   DetailCraft(&fabricator).doWork();
 
   // assert detail choice
-  auto segmentChoices = fabricator.getChoices();
-  auto detailChoice = findChoiceByType(segmentChoices, Program::Type::Detail);
+  const auto segmentChoices = fabricator.getChoices();
+  const auto detailChoice = findChoiceByType(segmentChoices, Program::Type::Detail);
   ASSERT_TRUE(detailChoice.has_value());
 
   // assert arrangement
-  auto arrangement = findArrangementByChoiceId(fabricator.getArrangements(), detailChoice.value()->id);
+  const auto arrangement = findArrangementByChoiceId(fabricator.getArrangements(), detailChoice.value()->id);
   ASSERT_TRUE(arrangement.has_value());
 
   int pickedBloop = 0;
@@ -182,7 +182,8 @@ TEST_F(CraftDetailProgramVoiceNextMacroTest, CraftDetailVoiceNextMacro) {
 
 TEST_F(CraftDetailProgramVoiceNextMacroTest, CraftDetailVoiceNextMacro_okIfNoDetailChoice) {
   insertSegments3and4(false);
-  auto fabricator = Fabricator(sourceMaterial.get(), store.get(), segment4->id, std::nullopt);
+  const auto retrospective = SegmentRetrospective(store.get(), segment4->id);
+  auto fabricator = Fabricator(sourceMaterial.get(), store.get(), &retrospective, segment4->id, std::nullopt);
 
   DetailCraft(&fabricator).doWork();
 }

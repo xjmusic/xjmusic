@@ -83,7 +83,8 @@ protected:
   };
 
 TEST_F(CraftFoundationNextMainTest, CraftFoundationNextMain) {
-  auto fabricator = Fabricator(sourceMaterial.get(), store.get(), segment4->id, std::nullopt);
+  const auto retrospective = SegmentRetrospective(store.get(), segment4->id);
+  auto fabricator = Fabricator(sourceMaterial.get(), store.get(), &retrospective, segment4->id, std::nullopt);
 
   MacroMainCraft(&fabricator, std::nullopt, {}).doWork();
 
@@ -127,6 +128,7 @@ TEST_F(CraftFoundationNextMainTest, CraftFoundationNextMain_revertsAndRequeueOnF
       0.8f,
       120.0f,
       "chain-1-waveform-12345.wav"));
+  const auto retrospective = SegmentRetrospective(store.get(), segment5->id);
 
-  ASSERT_THROW(Fabricator(sourceMaterial.get(), store.get(), segment5->id, std::nullopt), FabricationFatalException);
+  ASSERT_THROW(Fabricator(sourceMaterial.get(), store.get(), &retrospective, segment5->id, std::nullopt), FabricationFatalException);
 }

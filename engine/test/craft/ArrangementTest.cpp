@@ -361,7 +361,8 @@ protected:
         loadSegment(data);
 
         // Fabricate: Craft Arrangements for Choices
-        auto fabricator = Fabricator(content.get(), store.get(), segment->id, std::nullopt);
+        auto retrospective = SegmentRetrospective(store.get(), segment->id);
+        auto fabricator = Fabricator(content.get(), store.get(), &retrospective, segment->id, std::nullopt);
         for (const StickyBun &bun: stickyBuns) {
           fabricator.putStickyBun(bun);
         }

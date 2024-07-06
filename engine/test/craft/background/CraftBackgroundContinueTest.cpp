@@ -20,7 +20,7 @@ using namespace XJ;
 
 class CraftBackgroundContinueTest : public testing::Test {
 protected:
-    std::unique_ptr<ContentEntityStore> sourceMaterial;
+  std::unique_ptr<ContentEntityStore> sourceMaterial;
   std::unique_ptr<SegmentEntityStore> store;
   std::unique_ptr<ContentFixtures> fake;
   Chain *chain1 = nullptr;
@@ -141,7 +141,8 @@ protected:
 
 TEST_F(CraftBackgroundContinueTest, craftBackgroundContinue) {
   insertSegments3and4(false);
-  auto fabricator = Fabricator(sourceMaterial.get(), store.get(), segment4->id, std::nullopt);
+  const auto retrospective = SegmentRetrospective(store.get(), segment4->id);
+  auto fabricator = Fabricator(sourceMaterial.get(), store.get(), &retrospective, segment4->id, std::nullopt);
 
   BackgroundCraft(&fabricator).doWork();
 }
@@ -149,7 +150,8 @@ TEST_F(CraftBackgroundContinueTest, craftBackgroundContinue) {
 
 TEST_F(CraftBackgroundContinueTest, craftBackgroundContinue_okEvenWithoutPreviousSegmentBackgroundChoice) {
   insertSegments3and4(true);
-  auto fabricator = Fabricator(sourceMaterial.get(), store.get(), segment4->id, std::nullopt);
+  const auto retrospective = SegmentRetrospective(store.get(), segment4->id);
+  auto fabricator = Fabricator(sourceMaterial.get(), store.get(), &retrospective, segment4->id, std::nullopt);
 
   BackgroundCraft(&fabricator).doWork();
 }

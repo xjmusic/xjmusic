@@ -50,8 +50,9 @@ namespace XJ {
     virtual ~Fabricator() = default;
 
     /**
-     * Construct new fabricator
+     * Construct new fabricator with the given segment retrospective
      * @param segmentEntityStore            to use for segment entities
+     * @param segmentRetrospective         to use for segment retrospective
      * @param contentEntityStore  contentEntityStore from which to fabricate
      * @param segmentId  current segment to fabricate
      * @param overrideSegmentType  override segment type
@@ -59,6 +60,7 @@ namespace XJ {
     explicit Fabricator(
         ContentEntityStore *contentEntityStore,
         SegmentEntityStore *segmentEntityStore,
+        const SegmentRetrospective *segmentRetrospective,
         int segmentId,
         std::optional<Segment::Type> overrideSegmentType);
 
@@ -715,7 +717,7 @@ namespace XJ {
      @return Chord successfully put
      @ on failure
      */
-    virtual const SegmentChord* put(SegmentChord entity);
+    virtual const SegmentChord *put(SegmentChord entity);
 
     /**
      Put a SegmentChordVoicing in the store
@@ -724,7 +726,7 @@ namespace XJ {
      @return ChordVoicing successfully put
      @ on failure
      */
-    virtual const SegmentChordVoicing* put(SegmentChordVoicing entity);
+    virtual const SegmentChordVoicing *put(SegmentChordVoicing entity);
 
     /**
      Put a SegmentMeme in the store
@@ -752,7 +754,7 @@ namespace XJ {
      @return Meta successfully put
      @ on failure
      */
-    virtual const SegmentMeta* put(SegmentMeta entity);
+    virtual const SegmentMeta *put(SegmentMeta entity);
 
     /**
      Set the preferred audio for a key
@@ -885,7 +887,7 @@ namespace XJ {
     static const std::string KEY_VOICE_TRACK_TEMPLATE;
     static const std::string NAME_SEPARATOR;
     static const std::string UNKNOWN_KEY;
-    Chain* chain;
+    Chain *chain;
     std::set<const TemplateBinding *> templateBindings;
     ContentEntityStore *sourceMaterial;
     std::map<double, std::optional<SegmentChord *>> chordAtPosition;
@@ -899,17 +901,17 @@ namespace XJ {
     std::map<std::string, NoteRange> rangeForChoice;
     std::map<std::string, std::optional<Note>> rootNotesByVoicingAndChord;
     std::map<UUID, std::vector<const ProgramSequenceChord *>> completeChordsForProgramSequence;
-    std::map<UUID, std::vector<const SegmentChoiceArrangementPick*>> picksForChoice;
+    std::map<UUID, std::vector<const SegmentChoiceArrangementPick *>> picksForChoice;
     SegmentEntityStore *store;
     int segmentId;
-    const SegmentRetrospective retrospective;
+    const SegmentRetrospective * retrospective;
     std::set<UUID> boundInstrumentIds;
     std::set<UUID> boundProgramIds;
     std::chrono::high_resolution_clock::time_point startAtSystemNanoTime;
     std::optional<Segment::Type> type;
 
-    std::optional<const SegmentChoice*> macroChoiceOfPreviousSegment;
-    std::optional<const SegmentChoice*> mainChoiceOfPreviousSegment;
+    std::optional<const SegmentChoice *> macroChoiceOfPreviousSegment;
+    std::optional<const SegmentChoice *> mainChoiceOfPreviousSegment;
 
     double microsPerBeat{};
 

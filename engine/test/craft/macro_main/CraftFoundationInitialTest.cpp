@@ -54,7 +54,8 @@ protected:
 };
 
 TEST_F(CraftFoundationInitialTest, CraftFoundationInitial) {
-  auto fabricator = Fabricator(sourceMaterial.get(), store.get(), segment6->id, std::nullopt);
+  const auto retrospective = SegmentRetrospective(store.get(), segment6->id);
+  auto fabricator = Fabricator(sourceMaterial.get(), store.get(), &retrospective, segment6->id, std::nullopt);
 
   MacroMainCraft(&fabricator, std::nullopt, {}).doWork();
 

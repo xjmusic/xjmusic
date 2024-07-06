@@ -11,7 +11,6 @@
 #include "xjmusic/craft/Craft.h"
 #include "xjmusic/craft/DetailCraft.h"
 #include "xjmusic/fabricator/SegmentUtils.h"
-#include "xjmusic/util/CsvUtils.h"
 
 // NOLINTNEXTLINE
 using ::testing::_;
@@ -172,7 +171,8 @@ protected:
 
 TEST_F(CraftPercLoopProgramVoiceNextMainTest, craftPercLoopVoiceNextMain) {
   insertSegments3and4();
-  auto fabricator = Fabricator(sourceMaterial.get(), store.get(), segment4->id, std::nullopt);
+  const auto retrospective = SegmentRetrospective(store.get(), segment4->id);
+  auto fabricator = Fabricator(sourceMaterial.get(), store.get(), &retrospective, segment4->id, std::nullopt);
 
   DetailCraft(&fabricator).doWork();
 }

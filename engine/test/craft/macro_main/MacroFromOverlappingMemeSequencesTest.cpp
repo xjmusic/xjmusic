@@ -131,7 +131,8 @@ protected:
 };
 
 TEST_F(MacroFromOverlappingMemeSequencesTest, ChooseNextMacroProgram_alwaysBasedOnOverlappingMemes) {
-  auto fabricator = Fabricator(sourceMaterial.get(), store.get(), segment2->id, std::nullopt);
+  const auto retrospective = SegmentRetrospective(store.get(), segment2->id);
+  auto fabricator = Fabricator(sourceMaterial.get(), store.get(), &retrospective, segment2->id, std::nullopt);
   const auto subject = new MacroMainCraft(&fabricator, std::nullopt, {});
 
   // This test is repeated many times to ensure the correct function of macro choice

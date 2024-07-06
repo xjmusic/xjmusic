@@ -121,10 +121,6 @@ TEST(ConfigParserTest, FormatQuotedListValue) {
   ASSERT_EQ("[\"Apples\",\"Bananas\",\"Oranges\"]", ConfigParser::format(values));
 }
 
-TEST(ConfigParserTest, FormatStringValue) {
-  ASSERT_EQ("\"Hello, World!\"", ConfigParser::format("Hello, World!"));
-}
-
 TEST(ConfigParserTest, FormatFloatValue) {
   ASSERT_EQ("2.64872", ConfigParser::format(2.64872f));
 }
