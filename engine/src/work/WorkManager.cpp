@@ -72,7 +72,7 @@ std::set<ActiveAudio> WorkManager::runCycle(const unsigned long long atChainMicr
   return this->runDubCycle(atChainMicros);
 }
 
-WorkState WorkManager::getWorkState() const {
+WorkState WorkManager::getState() const {
   return state;
 }
 
@@ -165,6 +165,7 @@ std::string WorkManager::toString(const WorkState state) {
   }
   return "Unknown";
 }
+
 void WorkManager::updateState(const WorkState fabricationState) {
   state = fabricationState;
   spdlog::debug("Did update work state to {}", toString(state));

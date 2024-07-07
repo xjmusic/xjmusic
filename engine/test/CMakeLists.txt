@@ -3,6 +3,7 @@ include(FetchContent)
 
 # Tests need to be added as executables first
 add_executable(xjmusic_test
+        XJEngineTest.cpp
         _helper/ContentFixtures.cpp
         _helper/LoremIpsum.cpp
         _helper/SegmentFixtures.cpp
