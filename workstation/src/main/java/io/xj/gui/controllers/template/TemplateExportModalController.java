@@ -3,6 +3,7 @@
 package io.xj.gui.controllers.template;
 
 import io.xj.gui.ProjectModalController;
+import io.xj.gui.WorkstationFxApplication;
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
@@ -101,6 +102,18 @@ public class TemplateExportModalController extends ProjectModalController {
     // Audio output format selection
     selectAudioFormat.getItems().setAll(audioFormatOptions);
     selectAudioFormat.getSelectionModel().select(0);
+
+    String WorkDirectory = WorkstationFxApplication.GameWorkDirectory;
+
+    if(StringUtils.isNotNullOrEmpty(WorkDirectory))
+    {
+      buttonSelectDirectory.setVisible(false);
+
+      fieldPathPrefix.setEditable(false);
+      fieldPathPrefix.setText(WorkDirectory);
+
+      selectAudioFormat.setDisable(true);
+    }
   }
 
   @Override
@@ -120,6 +133,7 @@ public class TemplateExportModalController extends ProjectModalController {
    */
   public void launchModal(Template template) {
     this.template.set(template);
+
     createAndShowModal(String.format("Export %s", template.getName()), null);
   }
 

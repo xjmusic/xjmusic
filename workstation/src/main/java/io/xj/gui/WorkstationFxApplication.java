@@ -26,7 +26,7 @@ public class WorkstationFxApplication extends Application {
   @Nullable
   ConfigurableApplicationContext ac;
 
-  String GameWorkDirectory;
+  public static String GameWorkDirectory;
 
   @Override
   public void start(Stage primaryStage) {
@@ -47,7 +47,7 @@ public class WorkstationFxApplication extends Application {
     if(paramsList.size() > 0)
     {
       GameWorkDirectory = paramsList.get(0);
-      LOG.error("Work in folder: " + GameWorkDirectory);
+      LOG.error("XJ Workstation work as a part of the Unreal Plugin " + GameWorkDirectory);
     }
   }
 
