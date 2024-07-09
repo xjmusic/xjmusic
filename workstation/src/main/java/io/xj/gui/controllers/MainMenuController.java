@@ -19,6 +19,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
@@ -106,6 +107,9 @@ public class MainMenuController extends ProjectController {
   RadioMenuItem menuViewModeTemplates;
   @FXML
   RadioMenuItem menuViewModeFabrication;
+
+  @FXML
+  Button buttonCompile;
 
   @FXML
   ToggleGroup buttonViewModeToggleGroup;

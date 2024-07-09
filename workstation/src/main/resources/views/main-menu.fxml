@@ -18,6 +18,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Button?>
 <AnchorPane
         fx:id="container"
         fx:controller="io.xj.gui.controllers.MainMenuController"
@@ -25,6 +26,25 @@
         xmlns="http://javafx.com/javafx/20.0.1"
         xmlns:fx="http://javafx.com/fxml/1"
         styleClass="main-menu">
+
+    <StackPane
+            AnchorPane.leftAnchor="0"
+            AnchorPane.topAnchor="0"
+            AnchorPane.bottomAnchor="0"
+            AnchorPane.rightAnchor="0">
+        <HBox alignment="CENTER">
+            <Button text="COMPILE" fx:id="buttonCompile">
+                <graphic>
+                    <ImageView fitWidth="18" fitHeight="18">
+                        <Image url="@/icons/compile.png"/>
+                    </ImageView>
+                </graphic>
+                <tooltip>
+                    <Tooltip text="Compile Content"/>
+                </tooltip>
+            </Button>
+        </HBox>
+    </StackPane>
 
     <MenuBar VBox.vgrow="NEVER">
 
