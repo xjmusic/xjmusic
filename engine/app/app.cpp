@@ -2,9 +2,10 @@
 
 #include <iostream>
 
-#include "xjmusic/xjmusic.h"
+#include "xjmusic/Engine.h"
 
 int main() {
-  std::cout << hello() << std::endl;
+  // TODO engine testing application
+  std::cout << "Test Engine" << std::endl;
   return 0;
 }
