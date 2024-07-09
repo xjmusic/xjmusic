@@ -28,8 +28,10 @@ public:
 
 	void RunXjOneCycleTick();
 
-	void RetriveProjectsInfo();
+	FString RetriveProjectsInfo();
 
+
+	USoundWave* GetSoundWaveFromFile(const FString& filePath);
 private:
 
 	int MARATHON_NUMBER_OF_SEGMENTS = 50;
@@ -48,6 +50,8 @@ private:
 	unsigned long long atChainMicros = 0;
 
 	TArray<FString> ImportedAudioFiles;
+
+	TArray<FSoftObjectPath> AudioFilesReferences;
 
 	bool isWithinTimeLimit() const
 	{

@@ -2,8 +2,14 @@
 
 
 #include "XjMusicInstanceSubsystem.h"
+#include "Kismet/GameplayStatics.h"
 #include <Settings/XJMusicDefaultSettings.h>
-
+#include <Sound/SoundBase.h>
+#include <Sound/SoundWave.h>
+#include <Engine/StreamableManager.h>
+#include <Engine/AssetManager.h>
+#include <Engine/ObjectLibrary.h>
+#include <Misc/FileHelper.h>
 
 void UXjMusicInstanceSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
@@ -58,24 +64,71 @@ void UXjMusicInstanceSubsystem::RunXjOneCycleTick()
 	//ensure(hasSegmentsDubbedPastMinimumOffset());
 }
 
-void UXjMusicInstanceSubsystem::RetriveProjectsInfo()
+FString UXjMusicInstanceSubsystem::RetriveProjectsInfo()
 {
-	IFileManager& FileManager = IFileManager::Get();
-
 	TArray<FString> WavFiles;
 
 	UXJMusicDefaultSettings* XjSettings = GetMutableDefault<UXJMusicDefaultSettings>();
 	if (!XjSettings)
 	{
-		return;
+		return {};
 	}
 
-	FileManager.FindFilesRecursive(WavFiles, *XjSettings->GetFullWorkPath(), TEXT("*.wav"), true, false);
+	FString WorkPath = XjSettings->GetFullWorkPath();
 
-	ImportedAudioFiles = WavFiles;
+	IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();
 
-	for (const FString& FilePath : WavFiles)
+	if (!PlatformFile.DirectoryExists(*WorkPath))
 	{
-		UE_LOG(LogTemp, Log, TEXT("Found .wav file: %s"), *FilePath);
+		return {};
 	}
+
+	TArray<FString> FileNames;
+	PlatformFile.FindFilesRecursively(FileNames, *WorkPath, TEXT(".wav"));
+
+	FStreamableManager& StreamableManager = UAssetManager::GetStreamableManager();
+
+	return FileNames[0];
+}
+
+USoundWave* UXjMusicInstanceSubsystem::GetSoundWaveFromFile(const FString& filePath)
+{
+	USoundWave* sw = NewObject<USoundWave>(USoundWave::StaticClass());
+
+	if (!sw)
+		return nullptr;
+
+	TArray < uint8 > rawFile;
+
+	FFileHelper::LoadFileToArray(rawFile, filePath.GetCharArray().GetData());
+	FWaveModInfo WaveInfo;
+
+	if (WaveInfo.ReadWaveInfo(rawFile.GetData(), rawFile.Num()))
+	{
+		sw->InvalidateCompressedData();
+
+		sw->RawData.Lock(LOCK_READ_WRITE);
+		void* LockedData = sw->RawData.Realloc(rawFile.Num());
+		FMemory::Memcpy(LockedData, rawFile.GetData(), rawFile.Num());
+		sw->RawData.Unlock();
+
+		int32 DurationDiv = *WaveInfo.pChannels * *WaveInfo.pBitsPerSample * *WaveInfo.pSamplesPerSec;
+		if (DurationDiv)
+		{
+			sw->Duration = *WaveInfo.pWaveDataSize * 8.0f / DurationDiv;
+		}
+		else
+		{
+			sw->Duration = 0.0f;
+		}
+		sw->SetSampleRate(*WaveInfo.pSamplesPerSec);
+		sw->NumChannels = *WaveInfo.pChannels;
+		sw->RawPCMDataSize = WaveInfo.SampleDataSize;
+		sw->SoundGroup = ESoundGroup::SOUNDGROUP_Default;
+	}
+	else {
+		return nullptr;
+	}
+
+	return sw;
 }

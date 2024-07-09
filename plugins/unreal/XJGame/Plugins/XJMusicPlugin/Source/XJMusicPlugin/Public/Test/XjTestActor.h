@@ -14,6 +14,9 @@ class XJMUSICPLUGIN_API AXjTestActor : public AActor
 public:	
 	AXjTestActor();
 
+	UPROPERTY(EditAnywhere)
+	USoundBase* TestAudio;
+
 protected:
 	virtual void BeginPlay() override;
 

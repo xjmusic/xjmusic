@@ -3,6 +3,9 @@
 
 #include "Test/XjTestActor.h"
 #include "XjMusicInstanceSubsystem.h"
+#include <Kismet/GameplayStatics.h>
+#include <Sound/SoundBase.h>
+#include <Sound/SoundWave.h>
 
 AXjTestActor::AXjTestActor()
 {
@@ -13,8 +16,15 @@ void AXjTestActor::BeginPlay()
 {
 	Super::BeginPlay();
 
-	GetGameInstance()->GetSubsystem<UXjMusicInstanceSubsystem>()->RetriveProjectsInfo();
-	
+	UXjMusicInstanceSubsystem* SB = GetGameInstance()->GetSubsystem<UXjMusicInstanceSubsystem>();
+
+	FString Path = SB->RetriveProjectsInfo();
+
+	USoundWave* SW = SB->GetSoundWaveFromFile(Path);
+	if (SW)
+	{
+		UGameplayStatics::PlaySound2D(GetWorld(), SW);
+	}
 }
 
 void AXjTestActor::Tick(float DeltaTime)
