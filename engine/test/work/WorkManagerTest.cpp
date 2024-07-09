@@ -9,7 +9,6 @@
 #include "../_helper/ContentFixtures.h"
 
 #include "xjmusic/craft/Craft.h"
-#include "xjmusic/fabricator/FabricatorFactory.h"
 #include "xjmusic/fabricator/SegmentUtils.h"
 #include "xjmusic/work/WorkManager.h"
 
@@ -28,39 +27,28 @@ protected:
   long long MILLIS_PER_SECOND = 1000;
   int GENERATED_FIXTURE_COMPLEXITY = 3;
   long long startTime = EntityUtils::currentTimeMillis();
-  SegmentEntityStore *store = nullptr;
-  ContentEntityStore *content = nullptr;
-  WorkManager *work = nullptr;
-  ContentFixtures *fake = nullptr;
+  std::unique_ptr<SegmentEntityStore> store;
+  std::unique_ptr<ContentEntityStore> content;
+  std::unique_ptr<WorkManager> subject;
+  std::unique_ptr<ContentFixtures> fake;
 
   void SetUp() override {
-    content = new ContentEntityStore();
-    fake = new ContentFixtures();
+    content = std::make_unique<ContentEntityStore>();
+    fake = std::make_unique<ContentFixtures>();
     fake->project1 = ContentFixtures::buildProject("fish");
     fake->library1 = ContentFixtures::buildLibrary(&fake->project1, "test");
-    fake->generateFixtures(content, GENERATED_FIXTURE_COMPLEXITY);
-
-    Template tmpl = **content->getTemplates().begin();
-    tmpl.shipKey = "complex_library_test";
-    tmpl.config = "outputEncoding=\"PCM_SIGNED\"\noutputContainer = \"WAV\"\ndeltaArcEnabled = false\n";
-    content->put(tmpl);
+    fake->generateFixtures(content.get(), GENERATED_FIXTURE_COMPLEXITY);
 
     // Manipulate the underlying entity store; reset before each test
-    store = new SegmentEntityStore();
-    const auto fabricatorFactory = new FabricatorFactory(store);
+    store = std::make_unique<SegmentEntityStore>();
 
-    // work
-    work = new WorkManager(fabricatorFactory, store);
+    // subject
     auto settings = WorkSettings();
-    settings.inputTemplate = tmpl;
-    work->start(content, settings);
-  }
-
-  void TearDown() override {
-    delete store;
-    delete fake;
-    delete content;
-    delete work;
+    Template tmpl = **content->getTemplates().begin();
+    tmpl.shipKey = "complex_library_test";
+    tmpl.config = TemplateConfig("outputEncoding=\"PCM_SIGNED\"\noutputContainer = \"WAV\"\ndeltaArcEnabled = false\n");
+    content->put(tmpl);
+    subject = std::make_unique<WorkManager>(store.get(), content.get(), settings);
   }
 
   /**
@@ -87,9 +75,10 @@ protected:
 };
 
 TEST_F(WorkManagerTest, HasSegmentsDubbedPastMinimumOffset) {
+  subject->start();
   unsigned long long atChainMicros = 0;
   while (!hasSegmentsDubbedPastMinimumOffset() && isWithinTimeLimit()) {
-    work->runCycle(atChainMicros);
+    subject->runCycle(atChainMicros);
     spdlog::info("Ran cycle at {}", atChainMicros);
     atChainMicros += MICROS_PER_CYCLE;
   }

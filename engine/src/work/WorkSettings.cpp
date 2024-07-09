@@ -4,7 +4,6 @@
 
 std::string WorkSettings::toString() const {
   return "WorkSettings: controlMode: " + Fabricator::toString(controlMode) +
-         ", inputTemplate: " + inputTemplate.name +
          ", craftAheadSeconds: " + std::to_string(craftAheadSeconds) +
          ", dubAheadSeconds: " + std::to_string(dubAheadSeconds) +
          ", persistenceWindowSeconds: " + std::to_string(persistenceWindowSeconds);

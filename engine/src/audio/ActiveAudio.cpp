@@ -8,10 +8,10 @@ ActiveAudio::ActiveAudio(
     const SegmentChoiceArrangementPick* pick,
     const Instrument *instrument,
     const InstrumentAudio* audio,
-    unsigned long long startAtChainMicros,
-    std::optional<unsigned long long> stopAtChainMicros,
-    float fromIntensityAmplitude,
-    float toIntensityAmplitude) {
+    const unsigned long long startAtChainMicros,
+    const std::optional<unsigned long long> stopAtChainMicros,
+    const float fromIntensityAmplitude,
+    const float toIntensityAmplitude) {
   this->pick = pick;
   this->audio = audio;
   this->startAtChainMicros = startAtChainMicros;
@@ -21,18 +21,17 @@ ActiveAudio::ActiveAudio(
   // computed
   this->fromAmplitude = fromIntensityAmplitude * pick->amplitude * instrument->volume * audio->volume;
   this->toAmplitude = toIntensityAmplitude * pick->amplitude * instrument->volume * audio->volume;
-  this->instrumentConfig = InstrumentConfig(instrument);
 }
 
-UUID ActiveAudio::getId() {
+UUID ActiveAudio::getId() const {
   return pick->id;
 }
 
-const SegmentChoiceArrangementPick * ActiveAudio::getPick() {
+const SegmentChoiceArrangementPick * ActiveAudio::getPick() const {
   return pick;
 }
 
-const Instrument * ActiveAudio::getInstrument() {
+const Instrument * ActiveAudio::getInstrument() const {
   return instrument;
 }
 
@@ -44,12 +43,12 @@ std::optional<unsigned long long> ActiveAudio::getStopAtChainMicros() const {
   return stopAtChainMicros;
 }
 
-const InstrumentAudio * ActiveAudio::getAudio() {
+const InstrumentAudio * ActiveAudio::getAudio() const {
   return audio;
 }
 
 int ActiveAudio::getReleaseMillis() const {
-  return instrumentConfig.releaseMillis;
+  return instrument->config.releaseMillis;
 }
 
 float ActiveAudio::getAmplitude(const float ap) const {

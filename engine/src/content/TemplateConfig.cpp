@@ -99,9 +99,6 @@ const std::string TemplateConfig::DEFAULT = R"(
 TemplateConfig::TemplateConfig() : TemplateConfig(DEFAULT) {}
 
 
-TemplateConfig::TemplateConfig(const Template *input) : TemplateConfig(input->config) {}
-
-
 std::map<Instrument::Type, int> parseInstrumentTypeIntMap(ConfigObjectValue objectValue) {
   std::map<Instrument::Type, int> resultMap;
   for (const auto &[key, val]: objectValue.asMapOfSingleOrList()) {
@@ -353,3 +350,36 @@ int TemplateConfig::getIntensityLayers(const Instrument::Type type) {
   return 0;
 }
 
+bool TemplateConfig::operator==(const TemplateConfig &other) const {
+  if (this->choiceMuteProbability != other.choiceMuteProbability) return false;
+  if (this->deltaArcBeatLayersIncoming != other.deltaArcBeatLayersIncoming) return false;
+  if (this->deltaArcBeatLayersToPrioritize != other.deltaArcBeatLayersToPrioritize) return false;
+  if (this->deltaArcDetailLayersIncoming != other.deltaArcDetailLayersIncoming) return false;
+  if (this->deltaArcEnabled != other.deltaArcEnabled) return false;
+  if (this->detailLayerOrder != other.detailLayerOrder) return false;
+  if (this->dubMasterVolume != other.dubMasterVolume) return false;
+  if (this->eventNamesLarge != other.eventNamesLarge) return false;
+  if (this->eventNamesMedium != other.eventNamesMedium) return false;
+  if (this->eventNamesSmall != other.eventNamesSmall) return false;
+  if (this->instrumentTypesForAudioLengthFinalization != other.instrumentTypesForAudioLengthFinalization) return false;
+  if (this->instrumentTypesForInversionSeeking != other.instrumentTypesForInversionSeeking) return false;
+  if (this->intensityAutoCrescendoEnabled != other.intensityAutoCrescendoEnabled) return false;
+  if (this->intensityAutoCrescendoMaximum != other.intensityAutoCrescendoMaximum) return false;
+  if (this->intensityAutoCrescendoMinimum != other.intensityAutoCrescendoMinimum) return false;
+  if (this->intensityLayers != other.intensityLayers) return false;
+  if (this->intensityThreshold != other.intensityThreshold) return false;
+  if (this->mainProgramLengthMaxDelta != other.mainProgramLengthMaxDelta) return false;
+  if (this->memeTaxonomy.toString() != other.memeTaxonomy.toString()) return false;
+  if (this->mixerCompressAheadSeconds != other.mixerCompressAheadSeconds) return false;
+  if (this->mixerCompressDecaySeconds != other.mixerCompressDecaySeconds) return false;
+  if (this->mixerCompressRatioMax != other.mixerCompressRatioMax) return false;
+  if (this->mixerCompressRatioMin != other.mixerCompressRatioMin) return false;
+  if (this->mixerCompressToAmplitude != other.mixerCompressToAmplitude) return false;
+  if (this->mixerDspBufferSize != other.mixerDspBufferSize) return false;
+  if (this->mixerHighpassThresholdHz != other.mixerHighpassThresholdHz) return false;
+  if (this->mixerLowpassThresholdHz != other.mixerLowpassThresholdHz) return false;
+  if (this->mixerNormalizationBoostThreshold != other.mixerNormalizationBoostThreshold) return false;
+  if (this->mixerNormalizationCeiling != other.mixerNormalizationCeiling) return false;
+  if (this->stickyBunEnabled != other.stickyBunEnabled) return false;
+  return true;
+}

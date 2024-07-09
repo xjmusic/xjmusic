@@ -10,7 +10,6 @@
 #include "../../_helper/SegmentFixtures.h"
 
 #include "xjmusic/craft/BeatCraft.h"
-#include "xjmusic/fabricator/FabricatorFactory.h"
 #include "xjmusic/fabricator/SegmentUtils.h"
 #include "xjmusic/util/CsvUtils.h"
 
@@ -23,27 +22,23 @@ using namespace XJ;
 
 class CraftBeatProgramVoiceNextMacroTest : public testing::Test {
 protected:
-  FabricatorFactory *fabricatorFactory = nullptr;
-  ContentEntityStore *sourceMaterial = nullptr;
-  SegmentEntityStore *store = nullptr;
-  ContentFixtures *fake = nullptr;
+    std::unique_ptr<ContentEntityStore> sourceMaterial;
+  std::unique_ptr<SegmentEntityStore> store;
+  std::unique_ptr<ContentFixtures> fake;
   Chain *chain1 = nullptr;
   const Segment *segment4 = nullptr;
   InstrumentAudio *audioKick = nullptr;
   InstrumentAudio *audioSnare = nullptr;
 
   void SetUp() override {
-    store = new SegmentEntityStore();
-    fabricatorFactory = new FabricatorFactory(store);
+    store = std::make_unique<SegmentEntityStore>();
 
-    // Manipulate the underlying entity store; reset before each test
-    store->clear();
 
     // Mock request via HubClientFactory returns fake generated library of model content
-    fake = new ContentFixtures();
-    sourceMaterial = new ContentEntityStore();
-    fake->setupFixtureB1(sourceMaterial);
-    fake->setupFixtureB2(sourceMaterial);
+    fake = std::make_unique<ContentFixtures>();
+    sourceMaterial = std::make_unique<ContentEntityStore>();
+    fake->setupFixtureB1(sourceMaterial.get());
+    fake->setupFixtureB2(sourceMaterial.get());
     setupCustomFixtures();
 
     // Chain "Test Print #1" has 5 total segments
@@ -76,15 +71,6 @@ protected:
         true));
   }
 
-  void TearDown() override {
-    delete fabricatorFactory;
-    delete sourceMaterial;
-    delete store;
-    delete fake;
-    delete chain1;
-    delete audioKick;
-    delete audioSnare;
-  }
 
   /**
    Some custom fixtures for testing
@@ -192,22 +178,23 @@ protected:
 
 TEST_F(CraftBeatProgramVoiceNextMacroTest, CraftBeatVoiceNextMacro) {
   insertSegments3and4(true);
-  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, std::nullopt);
+  const auto retrospective = SegmentRetrospective(store.get(), segment4->id);
+  auto fabricator = Fabricator(sourceMaterial.get(), store.get(), &retrospective, segment4->id, std::nullopt);
 
-  BeatCraft(fabricator).doWork();
+  BeatCraft(&fabricator).doWork();
 
   // assert beat choice
-  auto segmentChoices = fabricator->getChoices();
+  auto segmentChoices = fabricator.getChoices();
   auto beatChoice = findChoiceByType(segmentChoices, Program::Type::Beat);
   ASSERT_TRUE(beatChoice.has_value());
 
   // assert arrangement
-  auto arrangement = findArrangementByChoiceId(fabricator->getArrangements(), beatChoice.value()->id);
+  auto arrangement = findArrangementByChoiceId(fabricator.getArrangements(), beatChoice.value()->id);
   ASSERT_TRUE(arrangement.has_value());
 
   int pickedKick = 0;
   int pickedSnare = 0;
-  const auto picks = fabricator->getPicks();
+  const auto picks = fabricator.getPicks();
   for (const auto pick: picks) {
     if (pick->instrumentAudioId == audioKick->id)
       pickedKick++;
@@ -220,7 +207,8 @@ TEST_F(CraftBeatProgramVoiceNextMacroTest, CraftBeatVoiceNextMacro) {
 
 TEST_F(CraftBeatProgramVoiceNextMacroTest, CraftBeatVoiceNextMacro_okIfNoBeatChoice) {
   insertSegments3and4(false);
-  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment4->id, std::nullopt);
+  const auto retrospective = SegmentRetrospective(store.get(), segment4->id);
+  auto fabricator = Fabricator(sourceMaterial.get(), store.get(), &retrospective, segment4->id, std::nullopt);
 
-  BeatCraft(fabricator).doWork();
+  BeatCraft(&fabricator).doWork();
 }

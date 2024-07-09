@@ -7,6 +7,8 @@
 
 #include "xjmusic/util/EntityUtils.h"
 
+#include <xjmusic/content/TemplateConfig.h>
+
 namespace XJ {
 
   class Chain {
@@ -31,7 +33,7 @@ namespace XJ {
     Type type{};
     State state{};
     std::string shipKey{};
-    std::string templateConfig{};
+    TemplateConfig config{};
     std::string name{};
     long long updatedAt{EntityUtils::currentTimeMillis()};
 
@@ -40,28 +42,28 @@ namespace XJ {
      * @param value  The string to parse
      * @return      The Chain Type enum value
      */
-    static Chain::Type parseType(const std::string &value);
+    static Type parseType(const std::string &value);
 
     /**
      * Parse the Chain State enum value from a string
      * @param value  The string to parse
      * @return      The Chain State enum value
      */
-    static Chain::State parseState(const std::string &value);
+    static State parseState(const std::string &value);
 
     /**
      * Convert an Chain Type enum value to a string
      * @param type  The Chain Type enum value
      * @return      The string representation of the Chain Type
      */
-    static std::string toString(const Chain::Type &type);
+    static std::string toString(const Type &type);
 
     /**
      * Convert an Chain State enum value to a string
      * @param state  The Chain State enum value
      * @return      The string representation of the Chain State
      */
-    static std::string toString(const Chain::State &state);
+    static std::string toString(const State &state);
 
     /**
      * Assert equality with another Chain

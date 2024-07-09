@@ -6,7 +6,6 @@
 
 #include "xjmusic/craft/Craft.h"
 #include "xjmusic/fabricator/ChainUtils.h"
-#include "xjmusic/fabricator/FabricatorFactory.h"
 #include "xjmusic/util/CsvUtils.h"
 #include "xjmusic/util/ValueUtils.h"
 
@@ -37,10 +36,8 @@ protected:
       Instrument::Type::Stripe,
       Instrument::Type::Sticky};
   // this is how we provide content for fabrication
-  FabricatorFactory *fabrication{};
-  SegmentEntityStore *store{};
-  ContentEntityStore *content{};
-  Fabricator *fabricator{};
+  std::unique_ptr<SegmentEntityStore> store;
+  std::unique_ptr<ContentEntityStore> content;
   // list of all entities to return from Hub
   // maps with specific entities that will reference each other
   std::map<Instrument::Type, Instrument> instruments;
@@ -59,11 +56,8 @@ protected:
    Reset the resources before each repetition of each test
    */
   void reset() {
-    store = new SegmentEntityStore();
-    fabrication = new FabricatorFactory(store);
+    store = std::make_unique<SegmentEntityStore>();
 
-    // Manipulate the underlying entity store; reset before each test
-    store->clear();
 
     const auto project1 = ContentFixtures::buildProject("fish");
     const Template template1 = ContentFixtures::buildTemplate(&project1, "Test Template 1", "test1");
@@ -74,7 +68,7 @@ protected:
     chain = store->put(SegmentFixtures::buildChain(&template1));
 
     // prepare content
-    content = new ContentEntityStore();
+    content = std::make_unique<ContentEntityStore>();
     content->put(template1);
     content->put(library1);
     content->put(mainProgram1);
@@ -117,8 +111,8 @@ protected:
       if (!notesObj.IsScalar()) return;
       const auto notesString = notesObj.as<std::string>();
       for (const auto &item: ContentFixtures::buildInstrumentWithAudios(
-          &instrument,
-          notesString)) {
+               &instrument,
+               notesString)) {
         // check if item is Instrument or InstrumentAudio
         if (std::holds_alternative<Instrument>(item)) {
           content->put(std::get<Instrument>(item));
@@ -248,7 +242,8 @@ protected:
         YAML::Node vObj = cObj["voicings"];
         for (const auto &[instrumentType, instrument]: instruments) {
           if (auto notes = getStr(vObj,
-                                  StringUtils::toLowerCase(Instrument::toString(instrument.type))); notes.has_value())
+                                  StringUtils::toLowerCase(Instrument::toString(instrument.type)));
+              notes.has_value())
             store->put(SegmentFixtures::buildSegmentChordVoicing(chord, instrument.type, notes.value()));
         }
       }
@@ -270,25 +265,28 @@ protected:
 
   /**
    Load the assertions of picks section after a test has run
-   Load the instrument section of the test YAML file, for one type of Instrument@param data YAML file wrapper
+   Load the instrument section of the test YAML file, for one type of Instrument
+   @param fabricator Fabricator to use
+   @param data YAML file wrapper
    */
-  void loadAndPerformAssertions(YAML::Node data) const {
+  void loadAndPerformAssertions(Fabricator *fabricator, YAML::Node data) const {
     const YAML::Node obj = data["assertPicks"];
     if (!obj) return;
-    for (const auto type: INSTRUMENT_TYPES_TO_TEST) loadAndPerformAssertions(obj, type);
+    for (const auto type: INSTRUMENT_TYPES_TO_TEST) loadAndPerformAssertions(fabricator, obj, type);
   }
 
   /**
    * Load the assertions of picks section after a test has run
+   * @param fabricator Fabricator to use
    * @param data  YAML file wrapper
    * @param type  type of instrument to read
    */
-  void loadAndPerformAssertions(YAML::Node data, Instrument::Type type) const {
+  static void loadAndPerformAssertions(Fabricator *fabricator, YAML::Node data, Instrument::Type type) {
     auto objs = data[StringUtils::toLowerCase(Instrument::toString(type))];
     if (!objs) return;
 
     std::vector<const SegmentChoiceArrangementPick *> actualPicks;
-    for (const auto &pick: fabricator->getPicks())
+    for (auto &pick: fabricator->getPicks())
       actualPicks.emplace_back(pick);
     std::sort(actualPicks.begin(), actualPicks.end(), [](const auto *a, const auto *b) {
       return a->startAtSegmentMicros < b->startAtSegmentMicros;
@@ -323,7 +321,7 @@ protected:
 
       if (count.has_value())
         ASSERT_EQ(count.value(), actualNoteStrings.size())
-                      << "Count " + std::to_string(count.value()) + " " + assertionName;
+            << "Count " + std::to_string(count.value()) + " " + assertionName;
 
       if (notes.has_value()) {
         std::vector<std::string> expectedNoteStrings = CsvUtils::split(notes.value());
@@ -363,17 +361,18 @@ protected:
         loadSegment(data);
 
         // Fabricate: Craft Arrangements for Choices
-        fabricator = fabrication->fabricate(content, segment->id, std::nullopt);
+        auto retrospective = SegmentRetrospective(store.get(), segment->id);
+        auto fabricator = Fabricator(content.get(), store.get(), &retrospective, segment->id, std::nullopt);
         for (const StickyBun &bun: stickyBuns) {
-          fabricator->putStickyBun(bun);
+          fabricator.putStickyBun(bun);
         }
-        fabricator->put(SegmentFixtures::buildSegmentChoice(segment, &mainProgram1), false);
-        auto *subject = new Craft(fabricator);
+        fabricator.put(SegmentFixtures::buildSegmentChoice(segment, &mainProgram1), false);
+        auto subject = Craft(&fabricator);
         for (const auto &[instrumentType, choice]: segmentChoices)
-          subject->craftNoteEventArrangements(static_cast<float>(TEMPO), choice, false);
+          subject.craftNoteEventArrangements(static_cast<float>(TEMPO), choice, false);
 
         // assert picks
-        loadAndPerformAssertions(data);
+        loadAndPerformAssertions(&fabricator, data);
 
       } catch (const FabricationException &e) {
         failures.emplace("[" + filename + "] Exception: " + e.what());

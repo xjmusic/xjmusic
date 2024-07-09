@@ -10,9 +10,7 @@
 
 #include "xjmusic/craft/Craft.h"
 #include "xjmusic/craft/MacroMainCraft.h"
-#include "xjmusic/fabricator/FabricatorFactory.h"
 #include "xjmusic/fabricator/SegmentUtils.h"
-#include "xjmusic/util/CsvUtils.h"
 #include "xjmusic/util/ValueUtils.h"
 
 // NOLINTNEXTLINE
@@ -24,20 +22,18 @@ using namespace XJ;
 
 class CraftFoundationInitialTest : public testing::Test {
 protected:
-  FabricatorFactory *fabricatorFactory = nullptr;
-  ContentEntityStore *sourceMaterial = nullptr;
-  SegmentEntityStore *store = nullptr;
-  ContentFixtures *fake = nullptr;
+    std::unique_ptr<ContentEntityStore> sourceMaterial;
+  std::unique_ptr<SegmentEntityStore> store;
+  std::unique_ptr<ContentFixtures> fake;
   const Segment *segment6 = nullptr;
 
   void SetUp() override {
-    store = new SegmentEntityStore();
-    fabricatorFactory = new FabricatorFactory(store);
+    store = std::make_unique<SegmentEntityStore>();
 
     // Mock request via HubClientFactory returns fake generated library of model content
-    fake = new ContentFixtures();
-    sourceMaterial = new ContentEntityStore();
-    fake->setupFixtureB1(sourceMaterial);
+    fake = std::make_unique<ContentFixtures>();
+    sourceMaterial = std::make_unique<ContentEntityStore>();
+    fake->setupFixtureB1(sourceMaterial.get());
 
     // Chain "Print #2" has 1 initial planned segment
     const auto chain2 = store->put(SegmentFixtures::buildChain(
@@ -55,19 +51,13 @@ protected:
         120.0f,
         "chain-1-waveform-12345.wav"));
   }
-
-  void TearDown() override {
-    delete fake;
-    delete sourceMaterial;
-    delete store;
-    delete fabricatorFactory;
-  }
 };
 
 TEST_F(CraftFoundationInitialTest, CraftFoundationInitial) {
-  auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment6->id, std::nullopt);
+  const auto retrospective = SegmentRetrospective(store.get(), segment6->id);
+  auto fabricator = Fabricator(sourceMaterial.get(), store.get(), &retrospective, segment6->id, std::nullopt);
 
-  MacroMainCraft(fabricator, std::nullopt, {}).doWork();
+  MacroMainCraft(&fabricator, std::nullopt, {}).doWork();
 
   auto result = store->readSegment(segment6->id).value();
   ASSERT_EQ(segment6->id, result->id);
@@ -90,9 +80,9 @@ TEST_F(CraftFoundationInitialTest, CraftFoundationInitial) {
   auto macroChoice = SegmentUtils::findFirstOfType(segmentChoices, Program::Type::Macro);
   ASSERT_TRUE(macroChoice.has_value());
   ASSERT_EQ(fake->program4_sequence0_binding0.id, macroChoice.value()->programSequenceBindingId);
-  ASSERT_EQ(0, fabricator->getSequenceBindingOffsetForChoice(macroChoice.value()));
+  ASSERT_EQ(0, fabricator.getSequenceBindingOffsetForChoice(macroChoice.value()));
   auto mainChoice = SegmentUtils::findFirstOfType(segmentChoices, Program::Type::Main);
   ASSERT_TRUE(mainChoice.has_value());
   ASSERT_EQ(fake->program5_sequence0_binding0.id, mainChoice.value()->programSequenceBindingId);
-  ASSERT_EQ(0, fabricator->getSequenceBindingOffsetForChoice(mainChoice.value()));
+  ASSERT_EQ(0, fabricator.getSequenceBindingOffsetForChoice(mainChoice.value()));
 }

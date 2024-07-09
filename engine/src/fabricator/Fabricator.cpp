@@ -20,16 +20,15 @@ const std::string Fabricator::NAME_SEPARATOR = "-";
 
 const std::string Fabricator::UNKNOWN_KEY = "unknown";
 
-
 Fabricator::Fabricator(
     ContentEntityStore *contentEntityStore,
     SegmentEntityStore *segmentEntityStore,
-    SegmentRetrospective *segmentRetrospective,
+    const SegmentRetrospective *segmentRetrospective,
     int segmentId,
     std::optional<Segment::Type> overrideSegmentType) : sourceMaterial(contentEntityStore),
                                                         store(segmentEntityStore),
-                                                        retrospective(segmentRetrospective),
-                                                        segmentId(segmentId) {
+                                                        segmentId(segmentId),
+                                                        retrospective(segmentRetrospective) {
 
   // keep elapsed time based on system nano time
   startAtSystemNanoTime = std::chrono::high_resolution_clock::now();
@@ -40,12 +39,11 @@ Fabricator::Fabricator(
     throw FabricationFatalException("No chain found");
 
   chain = chainOpt.value();
-  templateConfig = TemplateConfig(chain->templateConfig);
   templateBindings = sourceMaterial->getTemplateBindings();
   boundProgramIds = ChainUtils::targetIdsOfType(templateBindings, TemplateBinding::Type::Program);
   boundInstrumentIds = ChainUtils::targetIdsOfType(templateBindings, TemplateBinding::Type::Instrument);
   spdlog::debug("[segId={}] Chain {} configured with {} and bound to {} ",
-                segmentId, chain->id, templateConfig.toString(), TemplateBinding::toPrettyCsv(templateBindings));
+                segmentId, chain->id, chain->config.toString(), TemplateBinding::toPrettyCsv(templateBindings));
 
   // digest previous instrument audio
   preferredAudios = computePreferredInstrumentAudio();
@@ -128,7 +126,7 @@ Chain *Fabricator::getChain() {
 
 
 TemplateConfig Fabricator::getTemplateConfig() {
-  return templateConfig;
+  return chain->config;
 }
 
 
@@ -179,21 +177,20 @@ std::optional<const SegmentChoice *> Fabricator::getCurrentBeatChoice() {
 
 
 std::set<Instrument::Type> Fabricator::getDistinctChordVoicingTypes() {
-  if (distinctChordVoicingTypes == nullptr) {
+  if (distinctChordVoicingTypes.empty()) {
     const auto mainChoice = getCurrentMainChoice();
     if (!mainChoice.has_value()) return std::set<Instrument::Type>{};
     const auto voicings = sourceMaterial->getSequenceChordVoicingsOfProgram(mainChoice.value()->programId);
-    distinctChordVoicingTypes = new std::set<Instrument::Type>();
     for (const auto voicing: voicings) {
       try {
-        distinctChordVoicingTypes->insert(getProgramVoiceType(voicing));
+        distinctChordVoicingTypes.emplace(getProgramVoiceType(voicing));
       } catch (FabricationException &e) {
         spdlog::warn("[seg-{}] Failed to get distinct chord voicing type! {}", segmentId, e.what());
       }
     }
   }
 
-  return *distinctChordVoicingTypes;
+  return distinctChordVoicingTypes;
 }
 
 
@@ -201,12 +198,6 @@ long Fabricator::getElapsedMicros() {
   const auto now = std::chrono::high_resolution_clock::now();
   const auto elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(now - startAtSystemNanoTime);
   return elapsed.count() / ValueUtils::NANOS_PER_MICRO;// NOLINT(*-narrowing-conversions)
-}
-
-
-InstrumentConfig Fabricator::getInstrumentConfig(const Instrument *instrument) {
-  auto [it, inserted] = instrumentConfigs.emplace(instrument->id, InstrumentConfig(*instrument));
-  return it->second;
 }
 
 
@@ -242,7 +233,7 @@ std::optional<const SegmentChoice *> Fabricator::getChoiceIfContinued(const Inst
   }
 
   spdlog::debug("[seg-{}] Could not get previous choice for instrumentType={}", segmentId,
-               Instrument::toString(instrumentType));
+                Instrument::toString(instrumentType));
   return std::nullopt;
 }
 
@@ -261,7 +252,7 @@ Fabricator::getChoiceIfContinued(const Instrument::Type instrumentType, const In
   }
 
   spdlog::debug("[seg-{}] Could not get previous choice for instrumentType={}", segmentId,
-               Instrument::toString(instrumentType));
+                Instrument::toString(instrumentType));
   return std::nullopt;
 }
 
@@ -271,13 +262,13 @@ std::set<const SegmentChoice *> Fabricator::getChoicesIfContinued(const Program:
 
   std::set<const SegmentChoice *> filteredChoices;
 
-  for (auto choice : retrospective->getChoices())
+  for (auto choice: retrospective->getChoices())
     if (choice->programType == programType)
       filteredChoices.emplace(choice);
 
   if (filteredChoices.empty()) {
     spdlog::debug("[seg-{}] Could not get previous choice for programType={}", segmentId,
-                 Program::toString(programType));
+                  Program::toString(programType));
   }
 
   return filteredChoices;
@@ -333,7 +324,7 @@ ProgramConfig Fabricator::getCurrentMainProgramConfig() {
     throw FabricationException("Failed to retrieve current main program config!");
   }
 
-  return ProgramConfig(program.value());
+  return program.value()->config;
 }
 
 
@@ -362,8 +353,8 @@ MemeIsometry Fabricator::getMemeIsometryOfNextSequenceInPreviousMacro() {
     return MemeIsometry::none();
 
   const auto nextSequenceBinding = sourceMaterial->getBindingsAtOffsetOfProgram(previousMacroChoice.value()->programId,
-                                                                          previousSequenceBinding.value()->offset + 1,
-                                                                          true);
+                                                                                previousSequenceBinding.value()->offset + 1,
+                                                                                true);
 
   std::set<std::string> memes;
   const auto programMemes = sourceMaterial->getMemesOfProgram(previousMacroChoice.value()->programId);
@@ -378,12 +369,12 @@ MemeIsometry Fabricator::getMemeIsometryOfNextSequenceInPreviousMacro() {
     }
   }
 
-  return MemeIsometry::of(templateConfig.memeTaxonomy, memes);
+  return MemeIsometry::of(chain->config.memeTaxonomy, memes);
 }
 
 
 MemeIsometry Fabricator::getMemeIsometryOfSegment() {
-  return MemeIsometry::of(templateConfig.memeTaxonomy, SegmentMeme::getNames(getSegmentMemes()));
+  return MemeIsometry::of(chain->config.memeTaxonomy, SegmentMeme::getNames(getSegmentMemes()));
 }
 
 
@@ -455,11 +446,6 @@ std::optional<const InstrumentAudio *> Fabricator::getPreferredAudio(const std::
 
 std::optional<const Program *> Fabricator::getProgram(const SegmentChoice *choice) {
   return sourceMaterial->getProgram(choice->programId);
-}
-
-
-ProgramConfig Fabricator::getProgramConfig(const Program *program) {
-  return {program};
 }
 
 
@@ -582,7 +568,7 @@ NoteRange Fabricator::getProgramVoicingNoteRange(const Instrument::Type instrume
 
 
 std::optional<const ProgramSequence *> Fabricator::getRandomlySelectedSequence(const Program *program) {
-  std::vector<const ProgramSequence*> sequences;
+  std::vector<const ProgramSequence *> sequences;
   for (const auto sequence: sourceMaterial->getProgramSequences()) {
     if (sequence->programId == program->id) {
       sequences.emplace_back(sequence);
@@ -653,7 +639,7 @@ void Fabricator::putStickyBun(StickyBun bun) {
 
 
 std::optional<const StickyBun> Fabricator::getStickyBun(const UUID &eventId) {
-  if (!templateConfig.stickyBunEnabled) return std::nullopt;
+  if (!chain->config.stickyBunEnabled) return std::nullopt;
 
   const auto currentMeta = getSegmentMeta(StickyBun::computeMetaKey(eventId));
   if (currentMeta.has_value()) {
@@ -853,17 +839,17 @@ bool Fabricator::isDirectlyBound(const Program *program) {
 
 bool Fabricator::isOneShot(const Instrument *instrument, const std::string &trackName) {
   return isOneShot(instrument) &&
-         !getInstrumentConfig(instrument).oneShotObserveLengthOfEventsContains(trackName);
+         !instrument->config.oneShotObserveLengthOfEventsContains(trackName);
 }
 
 
 bool Fabricator::isOneShot(const Instrument *instrument) {
-  return getInstrumentConfig(instrument).isOneShot;
+  return instrument->config.isOneShot;
 }
 
 
 bool Fabricator::isOneShotCutoffEnabled(const Instrument *instrument) {
-  return getInstrumentConfig(instrument).isOneShotCutoffEnabled;
+  return instrument->config.isOneShotCutoffEnabled;
 }
 
 
@@ -883,53 +869,53 @@ bool Fabricator::isInitialSegment() {
 
 
 std::optional<const SegmentChoice *> Fabricator::put(const SegmentChoice entity, const bool force) {
-  const auto memeStack = MemeStack::from(templateConfig.memeTaxonomy, SegmentMeme::getNames(getSegmentMemes()));
+  const auto memeStack = MemeStack::from(chain->config.memeTaxonomy, SegmentMeme::getNames(getSegmentMemes()));
 
   // For a SegmentChoice, add memes from program, program sequence binding, and instrument if present
   if (!isValidChoiceAndMemesHaveBeenAdded(entity, memeStack, force))
     return std::nullopt;
 
-   return {store->put(entity)};
+  return {store->put(entity)};
 }
 
 
-const SegmentChoiceArrangement* Fabricator::put(const SegmentChoiceArrangement entity) {
+const SegmentChoiceArrangement *Fabricator::put(const SegmentChoiceArrangement entity) {
   return store->put(entity);
 }
 
 
-const SegmentChoiceArrangementPick* Fabricator::put(const SegmentChoiceArrangementPick entity) {
+const SegmentChoiceArrangementPick *Fabricator::put(const SegmentChoiceArrangementPick entity) {
   return store->put(entity);
 }
 
 
-const SegmentChord* Fabricator::put(const SegmentChord entity) {
+const SegmentChord *Fabricator::put(const SegmentChord entity) {
   return store->put(entity);
 }
 
 
-const SegmentChordVoicing* Fabricator::put(const SegmentChordVoicing entity) {
+const SegmentChordVoicing *Fabricator::put(const SegmentChordVoicing entity) {
   return store->put(entity);
 }
 
 
-std::optional<const SegmentMeme  *> Fabricator::put(const SegmentMeme entity, const bool force) {
-  const auto memeStack = MemeStack::from(templateConfig.memeTaxonomy, SegmentMeme::getNames(getSegmentMemes()));
+std::optional<const SegmentMeme *> Fabricator::put(const SegmentMeme entity, const bool force) {
+  const auto memeStack = MemeStack::from(chain->config.memeTaxonomy, SegmentMeme::getNames(getSegmentMemes()));
 
   // Unless forced, don't put a duplicate of an existing meme
   if (!isValidMemeAddition(entity, memeStack, force))
     return std::nullopt;
 
- return store->put(entity);
-}
-
-
-const SegmentMessage * Fabricator::put(const SegmentMessage entity) {
   return store->put(entity);
 }
 
 
-const SegmentMeta * Fabricator::put(const SegmentMeta entity) {
+const SegmentMessage *Fabricator::put(const SegmentMessage entity) {
+  return store->put(entity);
+}
+
+
+const SegmentMeta *Fabricator::put(const SegmentMeta entity) {
   return store->put(entity);
 }
 
@@ -964,7 +950,7 @@ const Segment *Fabricator::updateSegment(Segment segment) {
 }
 
 
-SegmentRetrospective *Fabricator::getRetrospective() {
+const SegmentRetrospective *Fabricator::getRetrospective() {
   return retrospective;
 }
 
@@ -996,7 +982,7 @@ int Fabricator::getSecondMacroSequenceBindingOffset(const Program *macroProgram)
 
 
 MemeTaxonomy Fabricator::getMemeTaxonomy() const {
-  return templateConfig.memeTaxonomy;
+  return chain->config.memeTaxonomy;
 }
 
 

@@ -10,7 +10,6 @@
 
 #include "xjmusic/craft/BackgroundCraft.h"
 #include "xjmusic/craft/Craft.h"
-#include "xjmusic/fabricator/FabricatorFactory.h"
 #include "xjmusic/util/CsvUtils.h"
 
 // NOLINTNEXTLINE
@@ -22,24 +21,20 @@ using namespace XJ;
 
 class CraftBackgroundInitialTest : public testing::Test {
 protected:
-  FabricatorFactory *fabricatorFactory = nullptr;
-  ContentEntityStore *sourceMaterial = nullptr;
-  SegmentEntityStore *store = nullptr;
+    std::unique_ptr<ContentEntityStore> sourceMaterial;
+  std::unique_ptr<SegmentEntityStore> store;
   const Segment *segment6 = nullptr;
 
   void SetUp() override {
-    store = new SegmentEntityStore();
-    fabricatorFactory = new FabricatorFactory(store);
+    store = std::make_unique<SegmentEntityStore>();
 
-    // Manipulate the underlying entity store; reset before each test
-    store->clear();
 
     // Mock request via HubClientFactory returns fake generated library of model content
-    const auto fake = new ContentFixtures();
-    sourceMaterial = new ContentEntityStore();
-    fake->setupFixtureB1(sourceMaterial);
-    fake->setupFixtureB2(sourceMaterial);
-    fake->setupFixtureB3(sourceMaterial);
+    const auto fake = std::make_unique<ContentFixtures>();
+    sourceMaterial = std::make_unique<ContentEntityStore>();
+    fake->setupFixtureB1(sourceMaterial.get());
+    fake->setupFixtureB2(sourceMaterial.get());
+    fake->setupFixtureB3(sourceMaterial.get());
 
 
     // Chain "Print #2" has 1 initial segment in crafting state - Foundation is complete
@@ -81,16 +76,11 @@ protected:
     store->put(SegmentFixtures::buildSegmentChord(segment6, 0.0f, "C minor"));
     store->put(SegmentFixtures::buildSegmentChord(segment6, 8.0f, "Db minor"));
   }
-
-  void TearDown() override {
-    delete fabricatorFactory;
-    delete sourceMaterial;
-    delete store;
-  }
 };
 
 TEST_F(CraftBackgroundInitialTest, CraftBackgroundInitial) {
-  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment6->id, std::nullopt);
+  const auto retrospective = SegmentRetrospective(store.get(), segment6->id);
+  auto fabricator = Fabricator(sourceMaterial.get(), store.get(), &retrospective, segment6->id, std::nullopt);
 
-  BackgroundCraft(fabricator).doWork();
+  BackgroundCraft(&fabricator).doWork();
 }

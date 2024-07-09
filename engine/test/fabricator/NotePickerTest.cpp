@@ -22,7 +22,7 @@ protected:
   int REPEAT_EACH_TEST_TIMES = 7;
   std::string TEST_PATH_PREFIX = "_data/picking/";
   TemplateConfig templateConfig;
-  NotePicker* subject{};
+  std::unique_ptr<NotePicker> subject;
 
   /**
    Load the specified test YAML file and run it repeatedly.
@@ -72,7 +72,7 @@ protected:
       voicingNotes.insert(Note::of(noteStr));
     }
 
-    subject = new NotePicker(range, voicingNotes, templateConfig.instrumentTypesForInversionSeekingContains(Instrument::parseType(instrumentType)));
+    subject = std::make_unique<NotePicker>(range, voicingNotes, templateConfig.instrumentTypesForInversionSeekingContains(Instrument::parseType(instrumentType)));
 
     std::vector<Note> eventNotes;
     const std::string eventNotesCsv = getStr(obj, "eventNotes").value_or("");

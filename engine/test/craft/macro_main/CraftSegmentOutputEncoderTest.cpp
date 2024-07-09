@@ -11,8 +11,6 @@
 #include "xjmusic/craft/Craft.h"
 #include "xjmusic/craft/MacroMainCraft.h"
 #include "xjmusic/fabricator/ChainUtils.h"
-#include "xjmusic/fabricator/FabricatorFactory.h"
-#include "xjmusic/util/CsvUtils.h"
 
 // NOLINTNEXTLINE
 using ::testing::_;
@@ -23,22 +21,18 @@ using namespace XJ;
 
 class CraftSegmentOutputEncoderTest : public testing::Test {
 protected:
-  FabricatorFactory *fabricatorFactory = nullptr;
-  SegmentEntityStore *store = nullptr;
-  ContentEntityStore *sourceMaterial = nullptr;
+  std::unique_ptr<SegmentEntityStore> store;
+  std::unique_ptr<ContentEntityStore> sourceMaterial;
   const Segment *segment6 = nullptr;
 
   void SetUp() override {
-    store = new SegmentEntityStore();
-    fabricatorFactory = new FabricatorFactory(store);
+    store = std::make_unique<SegmentEntityStore>();
 
-    // Manipulate the underlying entity store; reset before each test
-    store->clear();
 
     // Mock request via HubClientFactory returns fake generated library of model content
-    const auto fake = new ContentFixtures();
-    sourceMaterial = new ContentEntityStore();
-    fake->setupFixtureB1(sourceMaterial);
+    const auto fake = std::make_unique<ContentFixtures>();
+    sourceMaterial = std::make_unique<ContentEntityStore>();
+    fake->setupFixtureB1(sourceMaterial.get());
 
     // Chain "Print #2" has 1 initial planned segment
     const auto chain2 = store->put(SegmentFixtures::buildChain(
@@ -56,18 +50,13 @@ protected:
         120.0f,
         "chain-1-waveform-12345.wav"));
   }
-
-  void TearDown() override {
-    delete sourceMaterial;
-    delete fabricatorFactory;
-    delete store;
-  }
 };
 
 TEST_F(CraftSegmentOutputEncoderTest, CraftFoundationInitial) {
-  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment6->id, std::nullopt);
+  const auto retrospective = SegmentRetrospective(store.get(), segment6->id);
+  auto fabricator = Fabricator(sourceMaterial.get(), store.get(), &retrospective, segment6->id, std::nullopt);
 
-  MacroMainCraft(fabricator, std::nullopt, {}).doWork();
+  MacroMainCraft(&fabricator, std::nullopt, {}).doWork();
 
   const auto result = store->readSegment(segment6->id).value();
   ASSERT_EQ(segment6->id, result->id);

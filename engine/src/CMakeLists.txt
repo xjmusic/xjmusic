@@ -39,7 +39,6 @@ add_library(xjmusic
         fabricator/FabricationFatalException.cpp
         fabricator/FabricationWrapper.cpp
         fabricator/Fabricator.cpp
-        fabricator/FabricatorFactory.cpp
         fabricator/MarbleBag.cpp
         fabricator/NotePicker.cpp
         fabricator/RankedNote.cpp
@@ -86,7 +85,6 @@ add_library(xjmusic
         work/DubWork.cpp
         work/WorkManager.cpp
         work/WorkSettings.cpp
-        xjmusic.cpp
 )
 
 # We need this directory, and users of our library will need it too
@@ -104,6 +102,8 @@ target_link_libraries(xjmusic PRIVATE spdlog::spdlog)
 FetchContent_Declare(json URL https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz)
 FetchContent_MakeAvailable(json)
 target_link_libraries(xjmusic PRIVATE nlohmann_json::nlohmann_json)
+get_target_property(JSON_INCLUDE_DIR nlohmann_json::nlohmann_json INTERFACE_INCLUDE_DIRECTORIES)
+target_include_directories(xjmusic PUBLIC ${JSON_INCLUDE_DIR})
 
 # IDEs should put the headers in a nice place
 source_group(

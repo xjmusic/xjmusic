@@ -17,7 +17,7 @@ using namespace XJ;
 
 class SegmentEntityStoreTest : public testing::Test {
 protected:
-  ContentFixtures *fake = nullptr;
+  std::unique_ptr<ContentFixtures> fake;
   SegmentEntityStore *subject = nullptr;
   Chain fakeChain;
   Chain *chain3 = nullptr;
@@ -30,7 +30,7 @@ protected:
   Template template1;
 
   void SetUp() override {
-    fake = new ContentFixtures();
+    fake = std::make_unique<ContentFixtures>();
     // Instantiate the test subject and put the payload
     subject = new SegmentEntityStore();
 
@@ -365,6 +365,25 @@ TEST_F(SegmentEntityStoreTest, ReadAllSegmentChoiceArrangementPicks) {
   const auto result = subject->readAllSegmentChoiceArrangementPicks(input);
 
   ASSERT_EQ(5, result.size());
+}
+
+TEST_F(SegmentEntityStoreTest, ReadOrderedSegmentChords) {
+  auto chord1 = SegmentFixtures::buildSegmentChord(segment1, 0.0f, "D Major");
+  auto chord2 = SegmentFixtures::buildSegmentChord(segment1, 8.0f, "A minor");
+  auto chord3 = SegmentFixtures::buildSegmentChord(segment1, 16.0f, "G Major");
+  subject->put(chord1);
+  subject->put(chord2);
+  subject->put(chord3);
+
+  const auto result = subject->readOrderedSegmentChords(segment1->id);
+
+  ASSERT_EQ(3, result.size());
+  ASSERT_EQ(0.0f, result.at(0)->position);
+  ASSERT_EQ("D Major", result.at(0)->name);
+  ASSERT_EQ(8.0f, result.at(1)->position);
+  ASSERT_EQ("A minor", result.at(1)->name);
+  ASSERT_EQ(16.0f, result.at(2)->position);
+  ASSERT_EQ("G Major", result.at(2)->name);
 }
 
 /**

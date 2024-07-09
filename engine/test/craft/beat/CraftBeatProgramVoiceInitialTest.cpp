@@ -10,9 +10,7 @@
 
 #include "xjmusic/craft/BeatCraft.h"
 #include "xjmusic/craft/Craft.h"
-#include "xjmusic/fabricator/FabricatorFactory.h"
 #include "xjmusic/fabricator/SegmentUtils.h"
-#include "xjmusic/util/CsvUtils.h"
 
 // NOLINTNEXTLINE
 using ::testing::_;
@@ -23,26 +21,22 @@ using namespace XJ;
 
 class CraftBeatProgramVoiceInitialTest : public testing::Test {
 protected:
-  FabricatorFactory *fabricatorFactory = nullptr;
-  ContentEntityStore *sourceMaterial = nullptr;
-  SegmentEntityStore *store = nullptr;
-  ContentFixtures *fake = nullptr;
+    std::unique_ptr<ContentEntityStore> sourceMaterial;
+  std::unique_ptr<SegmentEntityStore> store;
+  std::unique_ptr<ContentFixtures> fake;
   Chain *chain2 = nullptr;
   const Segment *segment0 = nullptr;
 
   void SetUp() override {
-    store = new SegmentEntityStore();
-    fabricatorFactory = new FabricatorFactory(store);
+    store = std::make_unique<SegmentEntityStore>();
 
-    // Manipulate the underlying entity store; reset before each test
-    store->clear();
 
     // force known beat selection by destroying program 35
     // Mock request via HubClientFactory returns fake generated library of model content
-    fake = new ContentFixtures();
-    sourceMaterial = new ContentEntityStore();
-    fake->setupFixtureB1(sourceMaterial, false);
-    fake->setupFixtureB3(sourceMaterial);
+    fake = std::make_unique<ContentFixtures>();
+    sourceMaterial = std::make_unique<ContentEntityStore>();
+    fake->setupFixtureB1(sourceMaterial.get(), false);
+    fake->setupFixtureB3(sourceMaterial.get());
 
     // Chain "Print #2" has 1 initial segment in crafting state - Foundation is complete
     const auto tmpl = ContentFixtures::buildTemplate(&fake->project1, "Tests");
@@ -53,13 +47,6 @@ protected:
         &tmpl));
   }
 
-  void TearDown() override {
-    delete fabricatorFactory;
-    delete sourceMaterial;
-    delete store;
-    delete fake;
-    delete chain2;
-  }
 
   /**
    Insert fixture segment 6, including the beat choice only if specified
@@ -99,9 +86,10 @@ protected:
 TEST_F(CraftBeatProgramVoiceInitialTest, CraftBeatVoiceInitial) {
   insertSegment();
 
-  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment0->id, std::nullopt);
+  const auto retrospective = SegmentRetrospective(store.get(), segment0->id);
+  auto fabricator = Fabricator(sourceMaterial.get(), store.get(), &retrospective, segment0->id, std::nullopt);
 
-  BeatCraft(fabricator).doWork();
+  BeatCraft(&fabricator).doWork();
 
   const auto result = store->readSegment(segment0->id).value();
   ASSERT_FALSE(store->readAllSegmentChoices(result->id).empty());
@@ -109,7 +97,8 @@ TEST_F(CraftBeatProgramVoiceInitialTest, CraftBeatVoiceInitial) {
 
 TEST_F(CraftBeatProgramVoiceInitialTest, CraftBeatVoiceInitial_okWhenNoBeatChoice) {
   insertSegment();
-  const auto fabricator = fabricatorFactory->fabricate(sourceMaterial, segment0->id, std::nullopt);
+  const auto retrospective = SegmentRetrospective(store.get(), segment0->id);
+  auto fabricator = Fabricator(sourceMaterial.get(), store.get(), &retrospective, segment0->id, std::nullopt);
 
-  BeatCraft(fabricator).doWork();
+  BeatCraft(&fabricator).doWork();
 }

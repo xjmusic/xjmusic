@@ -6,8 +6,8 @@
 #include <fstream>
 #include <map>
 #include <optional>
-#include <vector>
 #include <set>
+#include <vector>
 
 #include "Instrument.h"
 #include "InstrumentAudio.h"
@@ -30,11 +30,11 @@
 
 using namespace XJ;
 
-#define CONTENT_STORE_CORE_HEADERS(ENTITY, ENTITIES)                     \
-  std::optional<const ENTITY *> get##ENTITY(const UUID &id);             \
-  std::set<const ENTITY *> get##ENTITIES();                              \
-  ContentEntityStore set##ENTITIES(const std::set<ENTITY> &entities);    \
-  ENTITY* put(const ENTITY &entity);                                     \
+#define CONTENT_STORE_CORE_HEADERS(ENTITY, ENTITIES)                  \
+  std::optional<const ENTITY *> get##ENTITY(const UUID &id);          \
+  std::set<const ENTITY *> get##ENTITIES();                           \
+  ContentEntityStore set##ENTITIES(const std::set<ENTITY> &entities); \
+  ENTITY *put(const ENTITY &entity);
 
 namespace XJ {
 
@@ -94,6 +94,7 @@ namespace XJ {
     CONTENT_STORE_CORE_HEADERS(Template, Templates)
 
     CONTENT_STORE_CORE_HEADERS(TemplateBinding, TemplateBindings)
+
 
     /** Default constructor */
     explicit ContentEntityStore();
@@ -599,6 +600,19 @@ namespace XJ {
     std::set<const ProgramVoice *> getVoicesOfProgram(const UUID &programId) const;
 
     /**
+     * Get a template by an "identifier" which is first the name, then the ship key, then the id
+     * @param identifier for which to get template
+     * @return template if found
+     */
+    std::optional<const Template *> getTemplateByIdentifier(const std::optional<std::string>::value_type &identifier);
+
+    /**
+      * Get the first template from the content
+      * @return  the template if any exist in the content
+      */
+     std::optional<const Template *> getFirstTemplate();
+
+    /**
      * Get a new ContentEntityStore object for a specific template
      * - Only include entities bound to the template
      * - Only include entities in a published state (for entities with a state)
@@ -609,6 +623,16 @@ namespace XJ {
      * Clear the content store
      */
     void clear();
+
+    /**
+    * Put all the content from another ContentEntityStore
+    */
+    void put(const ContentEntityStore *other);
+
+    /**
+     * Virtual destructor
+     */
+    ~ContentEntityStore();
   };
 
 }// namespace XJ

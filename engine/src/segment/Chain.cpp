@@ -55,7 +55,7 @@ bool Chain::equals(const Chain &chain) const {
          type == chain.type &&
          state == chain.state &&
          shipKey == chain.shipKey &&
-         templateConfig == chain.templateConfig &&
+         config == chain.config &&
          name == chain.name;
 }
 
@@ -66,7 +66,7 @@ unsigned long long Chain::hashCode() const {
          std::hash<int>{}(type) ^
          std::hash<int>{}(state) ^
          std::hash<std::string>{}(shipKey) ^
-         std::hash<std::string>{}(templateConfig) ^
+         std::hash<std::string>{}(config.toString()) ^
          std::hash<std::string>{}(name);
 }
 

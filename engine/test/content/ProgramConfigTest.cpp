@@ -3,17 +3,9 @@
 #include "xjmusic/content/ProgramConfig.h"
 #include "xjmusic/util/StringUtils.h"
 #include <gtest/gtest.h>
+#include <xjmusic/content/Program.h>
 
 using namespace XJ;
-
-TEST(ProgramConfigTest, SetFromProgram) {
-  Program program;
-  program.config = "doPatternRestartOnChord = true";
-
-  const ProgramConfig subject(program);
-
-  ASSERT_TRUE(subject.doPatternRestartOnChord);
-}
 
 TEST(ProgramConfigTest, SetFromDefaults) {
   const ProgramConfig subject;

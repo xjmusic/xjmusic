@@ -6,8 +6,6 @@
 
 #include "xjmusic/util/ConfigParser.h"
 
-#include "Program.h"
-
 namespace XJ {
 
   class ProgramConfig : public ConfigParser {
@@ -16,8 +14,6 @@ namespace XJ {
 
   public:
     explicit ProgramConfig();
-
-    explicit ProgramConfig(const Program &source);
 
     explicit ProgramConfig(const std::string &input);
 
@@ -36,7 +32,6 @@ namespace XJ {
      */
     [[nodiscard]] static std::string getDefaultString();
 
-    ProgramConfig(const Program *pProgram);
   };
 
 }// namespace XJ

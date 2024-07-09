@@ -7,24 +7,6 @@
 
 using namespace XJ;
 
-TEST(InstrumentConfigTest, SetFromInstrument) {
-  Instrument instrument;
-  instrument.config = "isMultiphonic = true";
-
-  const InstrumentConfig subject(instrument);
-
-  ASSERT_TRUE(subject.isMultiphonic);
-}
-
-TEST(InstrumentConfigTest, SetFromInstrument_isAudioSelectionPersistent_false) {
-  Instrument instrument;
-  instrument.config = "isAudioSelectionPersistent = false";
-
-  const InstrumentConfig subject(instrument);
-
-  ASSERT_FALSE(subject.isAudioSelectionPersistent);
-}
-
 TEST(InstrumentConfigTest, SetFromDefaults) {
   const InstrumentConfig subject;
 

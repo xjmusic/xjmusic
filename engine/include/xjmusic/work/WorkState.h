@@ -9,8 +9,6 @@ namespace XJ {
 
   enum WorkState {
     Standby,
-    Starting,
-    Initializing,
     Active,
     Done,
     Cancelled,
