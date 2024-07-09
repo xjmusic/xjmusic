@@ -110,7 +110,6 @@ namespace XJ {
    * That would tell XJ about the existence of a meme category called City with values `CHICAGO`, `DENVER`, and `PHILADELPHIA`. And these would function as exclusion like numeric memes, e.g. after content having `CHICAGO` is chosen, we can choose nothing with `DENVER` or `PHILADELPHIA`.
    */
   class MemeTaxonomy {
-  private:
     std::set<MemeCategory> categories;
     static char CATEGORY_SEPARATOR;
 
@@ -175,6 +174,7 @@ namespace XJ {
      * @return       True if the list is allowed
      */
     [[nodiscard]] bool isAllowed(std::set<std::string> memes) const;
+
   };
 
 }// namespace XJ

@@ -8,7 +8,11 @@
 #include <chrono>
 #include <iomanip>
 
+#include <nlohmann/json.hpp>
+
 #include "xjmusic/music/Note.h"
+
+using json = nlohmann::json;
 
 namespace XJ {
 
@@ -63,9 +67,64 @@ namespace XJ {
     }
 
     /**
-       * Generate a random UUID
-       */
+     * XJ legacy application used UUIDs because networked data was a possibility.
+     * But since the domain of this application is now entirely local, we do not require globally-unique randomness.
+     * Instead, we use a simple counter, which provides guaranteed locally unique identifiers
+     * <p>
+     * In the future, all entity IDs should be simple integers-- but that's a massive refactoring job
+     * See: https://github.com/xjmusic/xjmusic/issues/400
+     * <p>
+     * @return locally unique identifier
+     */
     static std::string computeUniqueId();
+
+    /**
+     * Set a required field on an entity from a JSON object
+     * @param json  to source
+     * @param key  to set
+     * @param value  to set
+     */
+    static void setRequired(const json &json, const std::string &key, UUID &value);
+
+    /**
+     * Set an optional string field on an entity from a JSON object, if the value is not null
+     * @param json  to source
+     * @param key  to set
+     * @param value  to set
+     */
+    static void setIfNotNull(const json &json, const std::string &key, std::string &value);
+
+    /**
+     * Set an optional float on an entity from a JSON object, if the value is not null
+     * @param json  to source
+     * @param key  to set
+     * @param value  to set
+     */
+    static void setIfNotNull(const json &json, const std::string &key, float &value);
+
+    /**
+     * Set an optional boolean field on an entity from a JSON object, if the value is not null
+     * @param json  to source
+     * @param key  to set
+     * @param value  to set
+     */
+    static void setIfNotNull(const json &json, const std::string &key, bool &value);
+
+    /**
+     * Set an optional integer field on an entity from a JSON object, if the value is not null
+     * @param json  to source
+     * @param key  to set
+     * @param value  to set
+     */
+    static void setIfNotNull(const json &json, const std::string &key, int &value);
+
+    /**
+     * Set an optional long integer field on an entity from a JSON object, if the value is not null
+     * @param json  to source
+     * @param key  to set
+     * @param value  to set
+     */
+    static void setIfNotNull(const json &json, const std::string &key, long long &value);
   };
 
 }// namespace XJ

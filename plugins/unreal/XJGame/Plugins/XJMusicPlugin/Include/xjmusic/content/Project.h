@@ -1,7 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-#ifndef PROJECT_H
-#define PROJECT_H
+#ifndef XJMUSIC_PROJECT_H
+#define XJMUSIC_PROJECT_H
 
 #include <string>
 
@@ -21,6 +21,19 @@ namespace XJ {
     long long updatedAt{EntityUtils::currentTimeMillis()};
   };
 
+  /**
+   * Parse a Project from a JSON object
+   * @param json  input
+   * @param entity  output
+   */
+  inline void from_json(const json &json, Project &entity) {
+    EntityUtils::setRequired(json, "id", entity.id);
+    EntityUtils::setIfNotNull(json, "name", entity.name);
+    EntityUtils::setIfNotNull(json, "platformVersion", entity.platformVersion);
+    EntityUtils::setIfNotNull(json, "isDeleted", entity.isDeleted);
+    EntityUtils::setIfNotNull(json, "updatedAt", entity.updatedAt);
+  }
+
 }// namespace XJ
 
-#endif//PROJECT_H
+#endif//XJMUSIC_PROJECT_H

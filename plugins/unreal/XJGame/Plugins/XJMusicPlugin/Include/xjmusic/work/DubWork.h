@@ -24,7 +24,7 @@ namespace XJ {
  */
   class DubWork final {
     int BITS_PER_BYTE = 8;
-    bool running = *new bool(true);
+    bool running = true;
     CraftWork *craftWork;
     TemplateConfig templateConfig;
     unsigned long dubAheadMicros = 0;
@@ -65,13 +65,6 @@ namespace XJ {
     Ensure mixer has continuity of its processes/effects, e.g. the compressor levels at the last frame of the last chunk are carried over to the first frame of the next chunk
     */
     std::set<ActiveAudio> computeActiveAudios(unsigned long long atChainMicros);
-
-    /**
-     Get the chain from craft work
-
-     @return chain or empty if not yet available
-     */
-    const Chain *getChain() const;
 
     /**
      Get the segment at the given chain micros
