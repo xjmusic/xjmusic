@@ -64,14 +64,14 @@ void UXjMusicInstanceSubsystem::RunXjOneCycleTick()
 	//ensure(hasSegmentsDubbedPastMinimumOffset());
 }
 
-FString UXjMusicInstanceSubsystem::RetriveProjectsInfo()
+void UXjMusicInstanceSubsystem::RetriveProjectsInfo()
 {
 	TArray<FString> WavFiles;
 
 	UXJMusicDefaultSettings* XjSettings = GetMutableDefault<UXJMusicDefaultSettings>();
 	if (!XjSettings)
 	{
-		return {};
+		return;
 	}
 
 	FString WorkPath = XjSettings->GetFullWorkPath();
@@ -80,55 +80,41 @@ FString UXjMusicInstanceSubsystem::RetriveProjectsInfo()
 
 	if (!PlatformFile.DirectoryExists(*WorkPath))
 	{
-		return {};
+		return;
 	}
-
-	TArray<FString> FileNames;
-	PlatformFile.FindFilesRecursively(FileNames, *WorkPath, TEXT(".wav"));
-
-	FStreamableManager& StreamableManager = UAssetManager::GetStreamableManager();
-
-	return FileNames[0];
 }
 
 USoundWave* UXjMusicInstanceSubsystem::GetSoundWaveFromFile(const FString& filePath)
 {
-	USoundWave* sw = NewObject<USoundWave>(USoundWave::StaticClass());
-
-	if (!sw)
-		return nullptr;
-
-	TArray < uint8 > rawFile;
-
-	FFileHelper::LoadFileToArray(rawFile, filePath.GetCharArray().GetData());
-	FWaveModInfo WaveInfo;
-
-	if (WaveInfo.ReadWaveInfo(rawFile.GetData(), rawFile.Num()))
+	USoundWave* SoundWave = NewObject<USoundWave>(USoundWave::StaticClass());
+	if (!SoundWave)
 	{
-		sw->InvalidateCompressedData();
-
-		sw->RawData.Lock(LOCK_READ_WRITE);
-		void* LockedData = sw->RawData.Realloc(rawFile.Num());
-		FMemory::Memcpy(LockedData, rawFile.GetData(), rawFile.Num());
-		sw->RawData.Unlock();
-
-		int32 DurationDiv = *WaveInfo.pChannels * *WaveInfo.pBitsPerSample * *WaveInfo.pSamplesPerSec;
-		if (DurationDiv)
-		{
-			sw->Duration = *WaveInfo.pWaveDataSize * 8.0f / DurationDiv;
-		}
-		else
-		{
-			sw->Duration = 0.0f;
-		}
-		sw->SetSampleRate(*WaveInfo.pSamplesPerSec);
-		sw->NumChannels = *WaveInfo.pChannels;
-		sw->RawPCMDataSize = WaveInfo.SampleDataSize;
-		sw->SoundGroup = ESoundGroup::SOUNDGROUP_Default;
-	}
-	else {
+		UE_LOG(LogTemp, Error, TEXT("Failed to create USoundWave object"));
 		return nullptr;
 	}
 
-	return sw;
+	TArray<uint8> RawFile;
+	if (!FFileHelper::LoadFileToArray(RawFile, *filePath))
+	{
+		return nullptr;
+	}
+
+	SoundWave->SoundGroup = ESoundGroup::SOUNDGROUP_Default;
+	SoundWave->NumChannels = 2; 
+
+	SoundWave->RawData.Lock(LOCK_READ_WRITE);
+
+	void* LockedData = SoundWave->RawData.Realloc(RawFile.Num());
+	if (LockedData)
+	{
+		FMemory::Memcpy(LockedData, RawFile.GetData(), RawFile.Num());
+	}
+
+	SoundWave->RawData.Unlock();
+
+	SoundWave->RawData.SetBulkDataFlags(BULKDATA_ForceInlinePayload);
+	SoundWave->InvalidateCompressedData();
+	SoundWave->bNeedsThumbnailGeneration = true;
+
+	return SoundWave;
 }

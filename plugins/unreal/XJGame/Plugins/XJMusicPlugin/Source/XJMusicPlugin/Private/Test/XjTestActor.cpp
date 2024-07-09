@@ -16,14 +16,10 @@ void AXjTestActor::BeginPlay()
 {
 	Super::BeginPlay();
 
-	UXjMusicInstanceSubsystem* SB = GetGameInstance()->GetSubsystem<UXjMusicInstanceSubsystem>();
-
-	FString Path = SB->RetriveProjectsInfo();
-
-	USoundWave* SW = SB->GetSoundWaveFromFile(Path);
-	if (SW)
+	UXjMusicInstanceSubsystem* XjSubsystem = GetGameInstance()->GetSubsystem<UXjMusicInstanceSubsystem>();
+	if (XjSubsystem)
 	{
-		UGameplayStatics::PlaySound2D(GetWorld(), SW);
+		XjSubsystem->RetriveProjectsInfo();
 	}
 }
 

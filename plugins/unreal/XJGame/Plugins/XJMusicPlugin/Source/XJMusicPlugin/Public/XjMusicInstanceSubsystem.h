@@ -28,12 +28,12 @@ public:
 
 	void RunXjOneCycleTick();
 
-	FString RetriveProjectsInfo();
+	void RetriveProjectsInfo();
 
 
 	USoundWave* GetSoundWaveFromFile(const FString& filePath);
 private:
-
+	
 	int MARATHON_NUMBER_OF_SEGMENTS = 50;
 	long MICROS_PER_CYCLE = 1000000;
 	long long MAXIMUM_TEST_WAIT_SECONDS = 10 * MARATHON_NUMBER_OF_SEGMENTS;
