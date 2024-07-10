@@ -12,7 +12,24 @@ class XJMUSICPLUGIN_API UXjMusicInstanceSubsystem : public UGameInstanceSubsyste
 	GENERATED_BODY()
 	
 public:
-	void RetriveProjectsInfo();
+	void RetriveProjectsContent();
 
-	USoundWave* GetSoundWaveFromFile(const FString& filePath);
+	USoundWave* GetSoundWaveByName(const FString& AudioName);
+
+	void TestPlayAllSounds();
+
+private:
+	UFUNCTION()
+	void OnTestTimerCallback();
+
+private:
+	const FString AudioExtension = ".wav";
+
+	TMap<FString, FString> AudioPathsByNameLookup;
+
+	class UAudioComponent* AudioComponent = nullptr;
+
+	FTimerHandle TestTimerHandle;
+
+	int TestAudioCounter = 0;
 };

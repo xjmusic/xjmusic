@@ -10,8 +10,11 @@
 #include <Engine/AssetManager.h>
 #include <Engine/ObjectLibrary.h>
 #include <Misc/FileHelper.h>
+#include <Components/AudioComponent.h>
 
-void UXjMusicInstanceSubsystem::RetriveProjectsInfo()
+#include "TimerManager.h"
+
+void UXjMusicInstanceSubsystem::RetriveProjectsContent()
 {
 	TArray<FString> WavFiles;
 
@@ -29,10 +32,27 @@ void UXjMusicInstanceSubsystem::RetriveProjectsInfo()
 	{
 		return;
 	}
+
+	TArray<FString> FoundAudioFilesPaths;
+
+	PlatformFile.FindFilesRecursively(FoundAudioFilesPaths, *WorkPath, *AudioExtension);
+
+	for (const FString& Path : FoundAudioFilesPaths)
+	{
+		FString Name = FPaths::GetBaseFilename(Path);
+		AudioPathsByNameLookup.Add(Name, Path);
+	}
 }
 
-USoundWave* UXjMusicInstanceSubsystem::GetSoundWaveFromFile(const FString& filePath)
+USoundWave* UXjMusicInstanceSubsystem::GetSoundWaveByName(const FString& AudioName)
 {
+	if (!AudioPathsByNameLookup.Contains(AudioName))
+	{
+		return nullptr;
+	}
+
+	FString FilePath = AudioPathsByNameLookup[AudioName];
+
 	USoundWave* SoundWave = NewObject<USoundWave>(USoundWave::StaticClass());
 	if (!SoundWave)
 	{
@@ -41,7 +61,7 @@ USoundWave* UXjMusicInstanceSubsystem::GetSoundWaveFromFile(const FString& fileP
 	}
 
 	TArray<uint8> RawFile;
-	if (!FFileHelper::LoadFileToArray(RawFile, *filePath))
+	if (!FFileHelper::LoadFileToArray(RawFile, *FilePath))
 	{
 		return nullptr;
 	}
@@ -61,7 +81,38 @@ USoundWave* UXjMusicInstanceSubsystem::GetSoundWaveFromFile(const FString& fileP
 
 	SoundWave->RawData.SetBulkDataFlags(BULKDATA_ForceInlinePayload);
 	SoundWave->InvalidateCompressedData();
-	SoundWave->bNeedsThumbnailGeneration = true;
+	//SoundWave->bNeedsThumbnailGeneration = true;
 
 	return SoundWave;
+}
+
+void UXjMusicInstanceSubsystem::TestPlayAllSounds()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, "Audio test started");
+
+	TestAudioCounter = 0;
+	GetWorld()->GetTimerManager().SetTimer(TestTimerHandle, this, &UXjMusicInstanceSubsystem::OnTestTimerCallback,5.0f, true);
+
+	AudioComponent = 
+}
+
+void UXjMusicInstanceSubsystem::OnTestTimerCallback()
+{
+	if (TestAudioCounter >= AudioPathsByNameLookup.Num())
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, "Audio test finished");
+		return;
+	}
+
+	TArray<FString> Names;
+	AudioPathsByNameLookup.GetKeys(Names);
+
+	if (USoundWave* Sound = GetSoundWaveByName(Names[TestAudioCounter]))
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, FString::Printf(TEXT("Played audio %d/%d"), TestAudioCounter, AudioPathsByNameLookup.Num()));
+
+		//Play sound	
+	}
+
+	TestAudioCounter++;
 }
