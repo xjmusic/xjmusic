@@ -1,5 +1,7 @@
 package io.xj.gui.services;
 
+import io.xj.gui.project.ProjectState;
+import io.xj.gui.types.AudioFileContainer;
 import io.xj.model.HubContent;
 import io.xj.model.enums.ContentBindingType;
 import io.xj.model.enums.ProgramType;
@@ -17,12 +19,12 @@ import io.xj.model.pojos.ProgramVoice;
 import io.xj.model.pojos.ProgramVoiceTrack;
 import io.xj.model.pojos.Project;
 import io.xj.model.pojos.Template;
-import io.xj.gui.project.ProjectState;
 import jakarta.annotation.Nullable;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.Property;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableListValue;
 import javafx.beans.value.ObservableObjectValue;
@@ -84,6 +86,19 @@ public interface ProjectService {
     @Nullable Integer conversionChannels
   );
 
+
+  /**
+   Workstation has a "Compile" button to prepare assets for the Unreal Plugin
+   https://github.com/xjmusic/xjmusic/issues/421
+   - Press the Compile button to compile the current XJ project for use in another tool, i.e. the Unreal Engine via the XJ plugin.
+   - Create a `build` folder inside the current XJ project folder, if it doesn't already exist.
+   - Resample all referenced audio to unique file names and save these names as the `waveformKey` in out output project content (this is how the current template export process works)
+   - Export the project content as a single file named after the project the .json extension, i.e. my-project-name.json
+   - Delete dereferenced audio files in the build folder
+   - Compile button has state-based appearance
+   */
+  void compile();
+
   /**
    Save the project
    */
@@ -111,6 +126,27 @@ public interface ProjectService {
    @return Export path prefix
    */
   StringProperty exportPathPrefixProperty();
+
+
+  /**
+   @return Output channels
+   */
+  StringProperty outputChannelsProperty();
+
+  /**
+   @return Output frame rate
+   */
+  StringProperty outputFrameRateProperty();
+
+  /**
+   @return Output container
+   */
+  Property<AudioFileContainer> outputContainerProperty();
+
+  /**
+   Reset compilation settings to defaults
+   */
+  void resetCompilationSettingsToDefaults();
 
   /**
    @return observable progress property

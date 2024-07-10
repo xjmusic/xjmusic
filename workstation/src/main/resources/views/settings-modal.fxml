@@ -24,9 +24,9 @@
       </fx:define>
       <ToggleButton mnemonicParsing="false" HBox.hgrow="ALWAYS" text="General" fx:id="navGeneral"
                     toggleGroup="$navToggleGroup" maxWidth="Infinity" selected="true"/>
-      <ToggleButton mnemonicParsing="false" HBox.hgrow="ALWAYS" text="Fabrication" fx:id="navFabrication"
-                    toggleGroup="$navToggleGroup" maxWidth="Infinity"/> 
-      <ToggleButton mnemonicParsing="false" HBox.hgrow="ALWAYS" text="Compilation" fx:id="navCompilation"
+      <ToggleButton mnemonicParsing="false" HBox.hgrow="ALWAYS" text="Build" fx:id="navCompilation"
+                    toggleGroup="$navToggleGroup" maxWidth="Infinity"/>
+      <ToggleButton mnemonicParsing="false" HBox.hgrow="ALWAYS" text="Preview" fx:id="navFabrication"
                     toggleGroup="$navToggleGroup" maxWidth="Infinity"/>
     </VBox>
 

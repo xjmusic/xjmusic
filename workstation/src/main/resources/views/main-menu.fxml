@@ -34,7 +34,7 @@
             AnchorPane.bottomAnchor="0"
             AnchorPane.rightAnchor="0">
         <HBox alignment="CENTER">
-            <Button text="COMPILE" fx:id="buttonCompile" onAction="#handleCompile">
+            <Button text="BUILD" fx:id="buttonCompile" onAction="#handleCompile">
                 <graphic>
                     <ImageView fitWidth="18" fitHeight="18">
                         <Image url="@/icons/compile.png"/>
@@ -100,13 +100,6 @@
             </MenuItem>
         </Menu>
 
-        <Menu fx:id="menuFabrication" text="Fabrication" mnemonicParsing="false">
-            <MenuItem fx:id="itemFabricationMainAction" onAction="#handleFabricationMainAction" text="Start"
-                      mnemonicParsing="false"/>
-            <CheckMenuItem fx:id="checkboxFabricationFollow" text="Follow" mnemonicParsing="false"/>
-            <SeparatorMenuItem mnemonicParsing="false"/>
-        </Menu>
-
         <Menu text="View" mnemonicParsing="false">
             <fx:define>
                 <ToggleGroup fx:id="menuViewModeToggleGroup"/>
@@ -169,6 +162,13 @@
             </Menu>
         </Menu>
 
+        <Menu fx:id="menuFabrication" text="Preview" mnemonicParsing="false">
+            <MenuItem fx:id="itemFabricationMainAction" onAction="#handleFabricationMainAction" text="Start"
+                      mnemonicParsing="false"/>
+            <CheckMenuItem fx:id="checkboxFabricationFollow" text="Follow" mnemonicParsing="false"/>
+            <SeparatorMenuItem mnemonicParsing="false"/>
+        </Menu>
+
         <Menu text="Help" mnemonicParsing="false">
             <MenuItem onAction="#handleAbout" text="About" mnemonicParsing="false"/>
             <SeparatorMenuItem mnemonicParsing="false"/>
@@ -212,7 +212,7 @@
                     <Tooltip text="View &amp; Edit Templates"/>
                 </tooltip>
             </ToggleButton>
-            <ToggleButton text="FABRICATION" fx:id="buttonViewModeFabrication" toggleGroup="$buttonViewModeToggleGroup">
+            <ToggleButton text="PREVIEW" fx:id="buttonViewModeFabrication" toggleGroup="$buttonViewModeToggleGroup">
                 <graphic>
                     <ImageView fitWidth="18" fitHeight="18">
                         <Image url="@/icons/conveyor-arm.png"/>

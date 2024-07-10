@@ -2,7 +2,12 @@
 
 package io.xj.gui.services.impl;
 
-import io.xj.gui.services.CompilationService;
+import io.xj.engine.fabricator.ControlMode;
+import io.xj.engine.util.FormatUtils;
+import io.xj.engine.work.FabricationManager;
+import io.xj.engine.work.FabricationSettings;
+import io.xj.engine.work.FabricationState;
+import io.xj.gui.project.ProjectState;
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.ProjectService;
 import io.xj.model.ProgramConfig;
@@ -15,10 +20,6 @@ import io.xj.model.pojos.Program;
 import io.xj.model.pojos.ProgramSequence;
 import io.xj.model.pojos.ProgramSequenceBinding;
 import io.xj.model.pojos.ProgramVoice;
-import io.xj.model.pojos.Template;
-import io.xj.model.util.StringUtils;
-import io.xj.model.util.ValueException;
-import io.xj.engine.fabricator.ControlMode;
 import io.xj.model.pojos.Segment;
 import io.xj.model.pojos.SegmentChoice;
 import io.xj.model.pojos.SegmentChoiceArrangement;
@@ -27,11 +28,9 @@ import io.xj.model.pojos.SegmentChord;
 import io.xj.model.pojos.SegmentMeme;
 import io.xj.model.pojos.SegmentMessage;
 import io.xj.model.pojos.SegmentMeta;
-import io.xj.gui.project.ProjectState;
-import io.xj.engine.util.FormatUtils;
-import io.xj.engine.work.FabricationManager;
-import io.xj.engine.work.FabricationSettings;
-import io.xj.engine.work.FabricationState;
+import io.xj.model.pojos.Template;
+import io.xj.model.util.StringUtils;
+import io.xj.model.util.ValueException;
 import jakarta.annotation.Nullable;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -82,7 +81,6 @@ public class FabricationServiceImpl implements FabricationService {
   private final ControlMode defaultControlMode;
   private final ProjectService projectService;
   private final FabricationManager fabricationManager;
-  private final CompilationService compilationService;
   private final Map<Integer, Integer> segmentBarBeats = new ConcurrentHashMap<>();
   private final DoubleProperty progress = new SimpleDoubleProperty(0.0);
   private final StringProperty progressLabel = new SimpleStringProperty();
@@ -133,8 +131,7 @@ public class FabricationServiceImpl implements FabricationService {
     @Value("${fabrication.defaultMacroMode}") String defaultMacroMode,
     @Value("${fabrication.baseIntensity}") double defaultIntensityOverride,
     ProjectService projectService,
-    FabricationManager fabricationManager,
-    CompilationService compilationService
+    FabricationManager fabricationManager
   ) {
     this.defaultCraftAheadSeconds = defaultCraftAheadSeconds;
     this.defaultDubAheadSeconds = defaultDubAheadSeconds;
@@ -144,7 +141,6 @@ public class FabricationServiceImpl implements FabricationService {
     this.defaultIntensityOverride = defaultIntensityOverride;
     this.projectService = projectService;
     this.fabricationManager = fabricationManager;
-    this.compilationService = compilationService;
 
     projectService.stateProperty().addListener((o, ov, value) -> {
       if (value == ProjectState.Ready) {
@@ -207,8 +203,8 @@ public class FabricationServiceImpl implements FabricationService {
         .setMixerLengthSeconds(parseIntegerValue(mixerLengthSeconds.get(), "fabrication setting for Mixer Length Seconds"))
         .setMacroMode(controlMode.get())
         .setInputTemplate(inputTemplate.get())
-        .setOutputChannels(parseIntegerValue(compilationService.outputChannelsProperty().get(), "fabrication setting for Output Channels"))
-        .setOutputFrameRate(parseIntegerValue(compilationService.outputFrameRateProperty().get(), "fabrication setting for Output Frame Rate"));
+        .setOutputChannels(parseIntegerValue(projectService.outputChannelsProperty().get(), "fabrication setting for Output Channels"))
+        .setOutputFrameRate(parseIntegerValue(projectService.outputFrameRateProperty().get(), "fabrication setting for Output Frame Rate"));
       LOG.debug("Did instantiate work configuration");
 
       // Get the content for this template

@@ -4,6 +4,7 @@ import io.xj.gui.services.ProjectDescriptor;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.VersionService;
+import io.xj.gui.types.AudioFileContainer;
 import io.xj.model.HubContent;
 import io.xj.model.entity.EntityUtils;
 import io.xj.model.enums.ContentBindingType;
@@ -40,6 +41,7 @@ import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.Property;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleListProperty;
@@ -74,6 +76,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -86,6 +89,9 @@ public class ProjectServiceImpl implements ProjectService {
   private static final Logger LOG = LoggerFactory.getLogger(ProjectServiceImpl.class);
   private static final String defaultBasePathPrefix = System.getProperty("user.home") + File.separator + "Documents";
   private static final String defaultExportPathPrefix = System.getProperty("user.home") + File.separator + "Documents";
+  private final int defaultOutputChannels;
+  private final int defaultOutputFrameRate;
+  private final AudioFileContainer defaultOutputContainer;
   private static final double ERROR_DIALOG_WIDTH = 800.0;
   private static final double ERROR_DIALOG_HEIGHT = 600.0;
   private static final Collection<ProjectState> PROJECT_LOADING_STATES = Set.of(
@@ -105,6 +111,9 @@ public class ProjectServiceImpl implements ProjectService {
   private final StringProperty progressLabel = new SimpleStringProperty();
   private final BooleanProperty isModified = new SimpleBooleanProperty(false);
   private final BooleanProperty isDemoProject = new SimpleBooleanProperty(false);
+  private final StringProperty outputFrameRate = new SimpleStringProperty();
+  private final StringProperty outputChannels = new SimpleStringProperty();
+  private final ObjectProperty<AudioFileContainer> outputContainer = new SimpleObjectProperty<>();
   private final ObjectProperty<ProjectState> state = new SimpleObjectProperty<>(ProjectState.Standby);
   private final ObservableStringValue stateText = Bindings.createStringBinding(
     () -> switch (state.get()) {
@@ -139,12 +148,18 @@ public class ProjectServiceImpl implements ProjectService {
   public ProjectServiceImpl(
     @Value("${demo.baseUrl}") String demoBaseUrl,
     @Value("${view.recentProjectsMax}") int maxRecentProjects,
+    @Value("${compilation.defaultOutputChannels}") int defaultOutputChannels,
+    @Value("${compilation.defaultOutputFrameRate}") int defaultOutputFrameRate,
+    @Value("${compilation.defaultOutputContainer}") String defaultOutputContainer,
     ThemeService themeService,
     ProjectManager projectManager,
     VersionService versionService
   ) {
     this.demoBaseUrl = demoBaseUrl;
     this.maxRecentProjects = maxRecentProjects;
+    this.defaultOutputChannels = defaultOutputChannels;
+    this.defaultOutputFrameRate = defaultOutputFrameRate;
+    this.defaultOutputContainer = AudioFileContainer.valueOf(defaultOutputContainer.toUpperCase(Locale.ROOT));
     this.themeService = themeService;
     this.projectManager = projectManager;
     this.versionService = versionService;
@@ -292,6 +307,11 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   @Override
+  public void compile() {
+    // TODO implement
+  }
+
+  @Override
   public void saveProject(@Nullable Runnable onComplete) {
     LOG.info("Will save project");
     executeInBackground("Save Project", () -> {
@@ -326,6 +346,27 @@ public class ProjectServiceImpl implements ProjectService {
   @Override
   public StringProperty exportPathPrefixProperty() {
     return exportPathPrefix;
+  }
+
+  @Override
+  public StringProperty outputChannelsProperty() {
+    return outputChannels;
+  }
+
+  @Override
+  public StringProperty outputFrameRateProperty() {
+    return outputFrameRate;
+  }
+
+  @Override
+  public Property<AudioFileContainer> outputContainerProperty() {
+    return outputContainer;
+  }
+
+  @Override
+  public void resetCompilationSettingsToDefaults() {
+    outputChannels.set(String.valueOf(defaultOutputChannels));
+    outputFrameRate.set(String.valueOf(defaultOutputFrameRate));
   }
 
   @Override
@@ -1083,6 +1124,9 @@ public class ProjectServiceImpl implements ProjectService {
   private void attachPreferenceListeners() {
     projectsPathPrefix.addListener((o, ov, value) -> prefs.put("basePathPrefix", value));
     exportPathPrefix.addListener((o, ov, value) -> prefs.put("exportPathPrefix", value));
+    outputChannels.addListener((o, ov, value) -> prefs.put("outputChannels", value));
+    outputFrameRate.addListener((o, ov, value) -> prefs.put("outputFrameRate", value));
+    outputContainer.addListener((o, ov, value) -> prefs.put("outputContainer", value.toString()));
     recentProjects.addListener((o, ov, value) -> {
       try {
         prefs.put("recentProjects", jsonProvider.getMapper().writeValueAsString(value));
@@ -1102,6 +1146,15 @@ public class ProjectServiceImpl implements ProjectService {
       recentProjects.setAll(jsonProvider.getMapper().readValue(prefs.get("recentProjects", "[]"), ProjectDescriptor[].class));
     } catch (Exception e) {
       LOG.warn("Failed to deserialize recent projects! {}\n{}", e, StringUtils.formatStackTrace(e));
+    }
+    outputChannels.set(prefs.get("outputChannels", Integer.toString(defaultOutputChannels)));
+    outputFrameRate.set(prefs.get("outputFrameRate", Double.toString(defaultOutputFrameRate)));
+
+    try {
+      outputContainer.set(AudioFileContainer.valueOf(prefs.get("outputContainer", defaultOutputContainer.toString()).toUpperCase(Locale.ROOT)));
+    } catch (Exception e) {
+      LOG.error("Failed to set control mode from preferences", e);
+      outputContainer.set(defaultOutputContainer);
     }
   }
 

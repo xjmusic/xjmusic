@@ -2,8 +2,8 @@
 
 package io.xj.gui.controllers;
 
+import io.xj.engine.fabricator.ControlMode;
 import io.xj.gui.ProjectModalController;
-import io.xj.gui.services.CompilationService;
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
@@ -12,7 +12,6 @@ import io.xj.gui.types.AudioFileContainer;
 import io.xj.gui.utils.ProjectUtils;
 import io.xj.gui.utils.UiUtils;
 import io.xj.model.util.LocalFileUtils;
-import io.xj.engine.fabricator.ControlMode;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -33,7 +32,6 @@ import java.util.Objects;
 public class SettingsModalController extends ProjectModalController {
   private static final String WINDOW_NAME = "Settings";
   private final FabricationService fabricationService;
-  private final CompilationService compilationService;
 
   @FXML
   VBox generalSettingsContainer;
@@ -108,11 +106,9 @@ public class SettingsModalController extends ProjectModalController {
     ThemeService themeService,
     FabricationService fabricationService,
     UIStateService uiStateService,
-    ProjectService projectService,
-    CompilationService compilationService) {
+    ProjectService projectService) {
     super(fxml, ac, themeService, uiStateService, projectService);
     this.fabricationService = fabricationService;
-    this.compilationService = compilationService;
   }
 
   @Override
@@ -128,10 +124,10 @@ public class SettingsModalController extends ProjectModalController {
 
     compilationSettingsContainer.visibleProperty().bind(navCompilation.selectedProperty());
     compilationSettingsContainer.managedProperty().bind(navCompilation.selectedProperty());
-    choiceOutputContainer.valueProperty().bindBidirectional(compilationService.outputContainerProperty());
+    choiceOutputContainer.valueProperty().bindBidirectional(projectService.outputContainerProperty());
     choiceOutputContainer.setItems(FXCollections.observableArrayList(AudioFileContainer.values()));
-    fieldOutputFrameRate.textProperty().bindBidirectional(compilationService.outputFrameRateProperty());
-    fieldOutputChannels.textProperty().bindBidirectional(compilationService.outputChannelsProperty());
+    fieldOutputFrameRate.textProperty().bindBidirectional(projectService.outputFrameRateProperty());
+    fieldOutputChannels.textProperty().bindBidirectional(projectService.outputChannelsProperty());
 
     generalSettingsContainer.visibleProperty().bind(navGeneral.selectedProperty());
     generalSettingsContainer.managedProperty().bind(navGeneral.selectedProperty());
@@ -160,7 +156,7 @@ public class SettingsModalController extends ProjectModalController {
 
   @FXML
   void handleResetCompilationSettings() {
-    compilationService.resetSettingsToDefaults();
+    projectService.resetCompilationSettingsToDefaults();
   }
 
   @FXML

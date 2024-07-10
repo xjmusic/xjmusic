@@ -2,20 +2,20 @@
 
 package io.xj.gui.services;
 
+import io.xj.engine.fabricator.ControlMode;
+import io.xj.engine.fabricator.SegmentEntityStore;
+import io.xj.engine.work.FabricationManager;
+import io.xj.gui.project.ProjectState;
 import io.xj.gui.services.impl.FabricationServiceImpl;
 import io.xj.model.HubContent;
-import io.xj.model.enums.ProgramType;
-import io.xj.model.pojos.Project;
-import io.xj.model.pojos.Template;
-import io.xj.engine.fabricator.ControlMode;
-import io.xj.model.pojos.Chain;
 import io.xj.model.enums.ChainState;
 import io.xj.model.enums.ChainType;
-import io.xj.model.pojos.Segment;
+import io.xj.model.enums.ProgramType;
 import io.xj.model.enums.SegmentState;
-import io.xj.engine.fabricator.SegmentEntityStore;
-import io.xj.gui.project.ProjectState;
-import io.xj.engine.work.FabricationManager;
+import io.xj.model.pojos.Chain;
+import io.xj.model.pojos.Project;
+import io.xj.model.pojos.Segment;
+import io.xj.model.pojos.Template;
 import javafx.beans.property.SimpleObjectProperty;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -55,9 +55,6 @@ class FabricationServiceImplTest {
   ProjectService projectService;
 
   @Mock
-  CompilationService compilationService;
-
-  @Mock
   private FabricationManager fabricationManager;
 
   FabricationServiceImpl subject;
@@ -69,23 +66,22 @@ class FabricationServiceImplTest {
     Project project = buildProject();
     Template template = buildTemplate(project, "Test Template");
     chain = buildChain(
-        project,
-        "Test",
-        ChainType.PRODUCTION,
-        ChainState.FABRICATE,
-        template
+      project,
+      "Test",
+      ChainType.PRODUCTION,
+      ChainState.FABRICATE,
+      template
     );
     when(projectService.stateProperty()).thenReturn(new SimpleObjectProperty<>(ProjectState.Standby));
     subject = new FabricationServiceImpl(
-        defaultCraftAheadSeconds,
-        defaultDubAheadSeconds,
-        defaultMixerLengthSeconds,
-        defaultTimelineSegmentViewLimit,
-        defaultMacroMode,
-        defaultIntensityOverride,
-        projectService,
-        fabricationManager,
-        compilationService
+      defaultCraftAheadSeconds,
+      defaultDubAheadSeconds,
+      defaultMixerLengthSeconds,
+      defaultTimelineSegmentViewLimit,
+      defaultMacroMode,
+      defaultIntensityOverride,
+      projectService,
+      fabricationManager
     );
   }
 
@@ -121,14 +117,14 @@ class FabricationServiceImplTest {
 
   private Segment prepareStore(int barBeats) {
     var segment = buildSegment(
-        chain,
-        offset.getAndIncrement(),
-        SegmentState.PLANNED,
-        "C",
-        8,
-        0.8f,
-        120.0f,
-        "chain-segment-0.wav");
+      chain,
+      offset.getAndIncrement(),
+      SegmentState.PLANNED,
+      "C",
+      8,
+      0.8f,
+      120.0f,
+      "chain-segment-0.wav");
     var program = buildMainProgramWithBarBeats(barBeats);
     var sourceMaterial = new HubContent(List.of(program));
     var choice = buildSegmentChoice(segment, program);

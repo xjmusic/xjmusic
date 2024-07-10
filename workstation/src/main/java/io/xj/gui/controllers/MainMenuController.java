@@ -4,7 +4,6 @@ package io.xj.gui.controllers;
 
 import io.xj.gui.ProjectController;
 import io.xj.gui.WorkstationFxApplication;
-import io.xj.gui.services.CompilationService;
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.ProjectDescriptor;
 import io.xj.gui.services.ProjectService;
@@ -54,7 +53,6 @@ public class MainMenuController extends ProjectController {
   private final ProjectCreationModalController projectCreationModalController;
   private final SettingsModalController settingsModalController;
   private final MainAboutModalController mainAboutModalController;
-  private final CompilationService compilationService;
 
   @FXML
   AnchorPane container;
@@ -138,7 +136,6 @@ public class MainMenuController extends ProjectController {
     MainAboutModalController mainAboutModalController,
     ProjectCreationModalController projectCreationModalController,
     ProjectService projectService,
-    CompilationService compilationService,
     UIStateService uiStateService
   ) {
     super(fxml, ac, themeService, uiStateService, projectService);
@@ -147,7 +144,6 @@ public class MainMenuController extends ProjectController {
     this.projectCreationModalController = projectCreationModalController;
     this.supportService = supportService;
     this.mainAboutModalController = mainAboutModalController;
-    this.compilationService = compilationService;
   }
 
   @Override
@@ -298,7 +294,7 @@ public class MainMenuController extends ProjectController {
   @FXML
   void handleCompile()
   {
-    compilationService.compile();
+    projectService.compile();
   }
 
   @FXML
