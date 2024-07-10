@@ -4,6 +4,7 @@ package io.xj.gui.controllers;
 
 import io.xj.gui.ProjectController;
 import io.xj.gui.WorkstationFxApplication;
+import io.xj.gui.services.CompilationService;
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.ProjectDescriptor;
 import io.xj.gui.services.ProjectService;
@@ -53,6 +54,7 @@ public class MainMenuController extends ProjectController {
   private final ProjectCreationModalController projectCreationModalController;
   private final SettingsModalController settingsModalController;
   private final MainAboutModalController mainAboutModalController;
+  private final CompilationService compilationService;
 
   @FXML
   AnchorPane container;
@@ -110,6 +112,8 @@ public class MainMenuController extends ProjectController {
 
   @FXML
   Button buttonCompile;
+  @FXML
+  Button buttonCompileSettings;
 
   @FXML
   ToggleGroup buttonViewModeToggleGroup;
@@ -134,6 +138,7 @@ public class MainMenuController extends ProjectController {
     MainAboutModalController mainAboutModalController,
     ProjectCreationModalController projectCreationModalController,
     ProjectService projectService,
+    CompilationService compilationService,
     UIStateService uiStateService
   ) {
     super(fxml, ac, themeService, uiStateService, projectService);
@@ -142,6 +147,7 @@ public class MainMenuController extends ProjectController {
     this.projectCreationModalController = projectCreationModalController;
     this.supportService = supportService;
     this.mainAboutModalController = mainAboutModalController;
+    this.compilationService = compilationService;
   }
 
   @Override
@@ -171,6 +177,9 @@ public class MainMenuController extends ProjectController {
 
     projectService.recentProjectsProperty().addListener((ChangeListener<? super ObservableList<ProjectDescriptor>>) (o, ov, value) -> updateRecentProjectsMenu());
     updateRecentProjectsMenu();
+
+    buttonCompile.disableProperty().bind(projectService.isStateReadyProperty().not());
+    buttonCompileSettings.disableProperty().bind(projectService.isStateReadyProperty().not());
 
     setupViewModeToggle(menuViewModeToggleGroup, menuViewModeContent, menuViewModeTemplates, menuViewModeFabrication);
     menuViewModeContent.disableProperty().bind(projectService.isStateReadyProperty().not());
@@ -285,6 +294,19 @@ public class MainMenuController extends ProjectController {
   void handleSetLogLevel(ActionEvent ignored) {
     uiStateService.logLevelProperty().set(((RadioMenuItem) logLevelToggleGroup.getSelectedToggle()).getText());
   }
+
+  @FXML
+  void handleCompile()
+  {
+    compilationService.compile();
+  }
+
+  @FXML
+  void handleCompileSettings()
+  {
+    settingsModalController.launchModalWithCompilationSettings();
+  }
+
 
   /**
    Set up the view mode toggle.

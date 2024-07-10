@@ -3,10 +3,12 @@
 package io.xj.gui.controllers;
 
 import io.xj.gui.ProjectModalController;
+import io.xj.gui.services.CompilationService;
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
+import io.xj.gui.types.AudioFileContainer;
 import io.xj.gui.utils.ProjectUtils;
 import io.xj.gui.utils.UiUtils;
 import io.xj.model.util.LocalFileUtils;
@@ -31,12 +33,19 @@ import java.util.Objects;
 public class SettingsModalController extends ProjectModalController {
   private static final String WINDOW_NAME = "Settings";
   private final FabricationService fabricationService;
+  private final CompilationService compilationService;
 
   @FXML
   VBox generalSettingsContainer;
 
   @FXML
   VBox fabricationSettingsContainer;
+
+  @FXML
+  VBox compilationSettingsContainer;
+
+  @FXML
+  ChoiceBox<AudioFileContainer> choiceOutputContainer;
 
   @FXML
   ChoiceBox<ControlMode> choiceControlMode;
@@ -49,6 +58,9 @@ public class SettingsModalController extends ProjectModalController {
 
   @FXML
   ToggleButton navFabrication;
+
+  @FXML
+  ToggleButton navCompilation;
 
   @FXML
   TextField fieldCraftAheadSeconds;
@@ -72,7 +84,10 @@ public class SettingsModalController extends ProjectModalController {
   Button buttonClose;
 
   @FXML
-  Button buttonReset;
+  Button buttonResetFabricationSettings;
+
+  @FXML
+  Button buttonResetCompilationSettings;
 
   @FXML
   TextField fieldProjectsPathPrefix;
@@ -93,10 +108,11 @@ public class SettingsModalController extends ProjectModalController {
     ThemeService themeService,
     FabricationService fabricationService,
     UIStateService uiStateService,
-    ProjectService projectService
-  ) {
+    ProjectService projectService,
+    CompilationService compilationService) {
     super(fxml, ac, themeService, uiStateService, projectService);
     this.fabricationService = fabricationService;
+    this.compilationService = compilationService;
   }
 
   @Override
@@ -108,9 +124,14 @@ public class SettingsModalController extends ProjectModalController {
     fieldCraftAheadSeconds.textProperty().bindBidirectional(fabricationService.craftAheadSecondsProperty());
     fieldDubAheadSeconds.textProperty().bindBidirectional(fabricationService.dubAheadSecondsProperty());
     fieldMixerLengthSeconds.textProperty().bindBidirectional(fabricationService.mixerLengthSecondsProperty());
-    fieldOutputFrameRate.textProperty().bindBidirectional(fabricationService.outputFrameRateProperty());
-    fieldOutputChannels.textProperty().bindBidirectional(fabricationService.outputChannelsProperty());
     fieldTimelineSegmentViewLimit.textProperty().bindBidirectional(fabricationService.timelineSegmentViewLimitProperty());
+
+    compilationSettingsContainer.visibleProperty().bind(navCompilation.selectedProperty());
+    compilationSettingsContainer.managedProperty().bind(navCompilation.selectedProperty());
+    choiceOutputContainer.valueProperty().bindBidirectional(compilationService.outputContainerProperty());
+    choiceOutputContainer.setItems(FXCollections.observableArrayList(AudioFileContainer.values()));
+    fieldOutputFrameRate.textProperty().bindBidirectional(compilationService.outputFrameRateProperty());
+    fieldOutputChannels.textProperty().bindBidirectional(compilationService.outputChannelsProperty());
 
     generalSettingsContainer.visibleProperty().bind(navGeneral.selectedProperty());
     generalSettingsContainer.managedProperty().bind(navGeneral.selectedProperty());
@@ -135,6 +156,11 @@ public class SettingsModalController extends ProjectModalController {
   @FXML
   void handleResetFabricationSettings() {
     fabricationService.resetSettingsToDefaults();
+  }
+
+  @FXML
+  void handleResetCompilationSettings() {
+    compilationService.resetSettingsToDefaults();
   }
 
   @FXML
@@ -167,5 +193,12 @@ public class SettingsModalController extends ProjectModalController {
    */
   public void launchModalWithFabricationSettings() {
     createAndShowModal(WINDOW_NAME, () -> navFabrication.setSelected(true));
+  }
+
+  /**
+   Launches the settings modal with the compilation settings tab selected.
+   */
+  public void launchModalWithCompilationSettings() {
+    createAndShowModal(WINDOW_NAME, () -> navCompilation.setSelected(true));
   }
 }

@@ -55,6 +55,9 @@ class FabricationServiceImplTest {
   ProjectService projectService;
 
   @Mock
+  CompilationService compilationService;
+
+  @Mock
   private FabricationManager fabricationManager;
 
   FabricationServiceImpl subject;
@@ -78,12 +81,11 @@ class FabricationServiceImplTest {
         defaultDubAheadSeconds,
         defaultMixerLengthSeconds,
         defaultTimelineSegmentViewLimit,
-        defaultOutputChannels,
-        defaultOutputFrameRate,
         defaultMacroMode,
         defaultIntensityOverride,
         projectService,
-        fabricationManager
+        fabricationManager,
+        compilationService
     );
   }
 

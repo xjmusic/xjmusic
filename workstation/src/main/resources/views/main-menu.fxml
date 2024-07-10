@@ -19,6 +19,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.shape.SVGPath?>
 <AnchorPane
         fx:id="container"
         fx:controller="io.xj.gui.controllers.MainMenuController"
@@ -33,7 +34,7 @@
             AnchorPane.bottomAnchor="0"
             AnchorPane.rightAnchor="0">
         <HBox alignment="CENTER">
-            <Button text="COMPILE" fx:id="buttonCompile">
+            <Button text="COMPILE" fx:id="buttonCompile" onAction="#handleCompile">
                 <graphic>
                     <ImageView fitWidth="18" fitHeight="18">
                         <Image url="@/icons/compile.png"/>
@@ -42,6 +43,11 @@
                 <tooltip>
                     <Tooltip text="Compile Content"/>
                 </tooltip>
+            </Button>
+            <Button fx:id="buttonCompileSettings" onAction="#handleCompileSettings">
+                <graphic>
+                    <SVGPath styleClass="icon" content="M3 6h12v2h-12zM3 11h12v2h-12zM3 16h12v2h-12z"/>
+                </graphic>
             </Button>
         </HBox>
     </StackPane>
