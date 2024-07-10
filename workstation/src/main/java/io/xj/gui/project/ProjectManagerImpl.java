@@ -477,7 +477,6 @@ public class ProjectManagerImpl implements ProjectManager {
       LOG.error("Failed to build project! {}\n{}", e, StringUtils.formatStackTrace(e));
       updateState(ProjectState.Ready);
       updateBuildState(ProjectBuildState.Failed);
-      // TODO: handle build failed state
       return false;
     }
 
