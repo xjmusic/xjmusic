@@ -2,6 +2,12 @@
 
 package io.xj.gui.services.impl;
 
+import io.xj.engine.fabricator.ControlMode;
+import io.xj.engine.util.FormatUtils;
+import io.xj.engine.work.FabricationManager;
+import io.xj.engine.work.FabricationSettings;
+import io.xj.engine.work.FabricationState;
+import io.xj.gui.project.ProjectState;
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.ProjectService;
 import io.xj.model.ProgramConfig;
@@ -14,10 +20,6 @@ import io.xj.model.pojos.Program;
 import io.xj.model.pojos.ProgramSequence;
 import io.xj.model.pojos.ProgramSequenceBinding;
 import io.xj.model.pojos.ProgramVoice;
-import io.xj.model.pojos.Template;
-import io.xj.model.util.StringUtils;
-import io.xj.model.util.ValueException;
-import io.xj.engine.fabricator.ControlMode;
 import io.xj.model.pojos.Segment;
 import io.xj.model.pojos.SegmentChoice;
 import io.xj.model.pojos.SegmentChoiceArrangement;
@@ -26,11 +28,9 @@ import io.xj.model.pojos.SegmentChord;
 import io.xj.model.pojos.SegmentMeme;
 import io.xj.model.pojos.SegmentMessage;
 import io.xj.model.pojos.SegmentMeta;
-import io.xj.gui.project.ProjectState;
-import io.xj.engine.util.FormatUtils;
-import io.xj.engine.work.FabricationManager;
-import io.xj.engine.work.FabricationSettings;
-import io.xj.engine.work.FabricationState;
+import io.xj.model.pojos.Template;
+import io.xj.model.util.StringUtils;
+import io.xj.model.util.ValueException;
 import jakarta.annotation.Nullable;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -78,8 +78,6 @@ public class FabricationServiceImpl implements FabricationService {
   private final int defaultCraftAheadSeconds;
   private final int defaultDubAheadSeconds;
   private final int defaultMixerLengthSeconds;
-  private final int defaultOutputChannels;
-  private final int defaultOutputFrameRate;
   private final ControlMode defaultControlMode;
   private final ProjectService projectService;
   private final FabricationManager fabricationManager;
@@ -112,8 +110,6 @@ public class FabricationServiceImpl implements FabricationService {
   private final StringProperty craftAheadSeconds = new SimpleStringProperty();
   private final StringProperty dubAheadSeconds = new SimpleStringProperty();
   private final StringProperty mixerLengthSeconds = new SimpleStringProperty();
-  private final StringProperty outputFrameRate = new SimpleStringProperty();
-  private final StringProperty outputChannels = new SimpleStringProperty();
   private final StringProperty timelineSegmentViewLimit = new SimpleStringProperty();
   private final BooleanProperty followPlayback = new SimpleBooleanProperty(true);
   private final ObservableSet<String> overrideMemes = FXCollections.observableSet();
@@ -132,8 +128,6 @@ public class FabricationServiceImpl implements FabricationService {
     @Value("${fabrication.defaultDubAheadSeconds}") int defaultDubAheadSeconds,
     @Value("${fabrication.defaultMixerLengthSeconds}") int defaultMixerLengthSeconds,
     @Value("${view.timelineMaxSegments}") int defaultTimelineSegmentViewLimit,
-    @Value("${fabrication.defaultOutputChannels}") int defaultOutputChannels,
-    @Value("${fabrication.defaultOutputFrameRate}") int defaultOutputFrameRate,
     @Value("${fabrication.defaultMacroMode}") String defaultMacroMode,
     @Value("${fabrication.baseIntensity}") double defaultIntensityOverride,
     ProjectService projectService,
@@ -143,8 +137,6 @@ public class FabricationServiceImpl implements FabricationService {
     this.defaultDubAheadSeconds = defaultDubAheadSeconds;
     this.defaultMixerLengthSeconds = defaultMixerLengthSeconds;
     this.defaultControlMode = ControlMode.valueOf(defaultMacroMode.toUpperCase(Locale.ROOT));
-    this.defaultOutputChannels = defaultOutputChannels;
-    this.defaultOutputFrameRate = defaultOutputFrameRate;
     this.defaultTimelineSegmentViewLimit = defaultTimelineSegmentViewLimit;
     this.defaultIntensityOverride = defaultIntensityOverride;
     this.projectService = projectService;
@@ -211,8 +203,8 @@ public class FabricationServiceImpl implements FabricationService {
         .setMixerLengthSeconds(parseIntegerValue(mixerLengthSeconds.get(), "fabrication setting for Mixer Length Seconds"))
         .setMacroMode(controlMode.get())
         .setInputTemplate(inputTemplate.get())
-        .setOutputChannels(parseIntegerValue(outputChannels.get(), "fabrication setting for Output Channels"))
-        .setOutputFrameRate(parseIntegerValue(outputFrameRate.get(), "fabrication setting for Output Frame Rate"));
+        .setOutputChannels(parseIntegerValue(projectService.outputChannelsProperty().get(), "fabrication setting for Output Channels"))
+        .setOutputFrameRate(parseIntegerValue(projectService.outputFrameRateProperty().get(), "fabrication setting for Output Frame Rate"));
       LOG.debug("Did instantiate work configuration");
 
       // Get the content for this template
@@ -295,8 +287,6 @@ public class FabricationServiceImpl implements FabricationService {
     dubAheadSeconds.set(String.valueOf(defaultDubAheadSeconds));
     mixerLengthSeconds.set(String.valueOf(defaultMixerLengthSeconds));
     controlMode.set(defaultControlMode);
-    outputChannels.set(String.valueOf(defaultOutputChannels));
-    outputFrameRate.set(String.valueOf(defaultOutputFrameRate));
   }
 
   @Override
@@ -355,16 +345,6 @@ public class FabricationServiceImpl implements FabricationService {
   @Override
   public StringProperty mixerLengthSecondsProperty() {
     return mixerLengthSeconds;
-  }
-
-  @Override
-  public StringProperty outputChannelsProperty() {
-    return outputChannels;
-  }
-
-  @Override
-  public StringProperty outputFrameRateProperty() {
-    return outputFrameRate;
   }
 
   @Override
@@ -566,8 +546,6 @@ public class FabricationServiceImpl implements FabricationService {
     dubAheadSeconds.addListener((o, ov, value) -> prefs.put("dubAheadSeconds", value));
     mixerLengthSeconds.addListener((o, ov, value) -> prefs.put("mixerLengthSeconds", value));
     controlMode.addListener((o, ov, value) -> prefs.put("macroMode", Objects.nonNull(value) ? value.name() : ""));
-    outputChannels.addListener((o, ov, value) -> prefs.put("outputChannels", value));
-    outputFrameRate.addListener((o, ov, value) -> prefs.put("outputFrameRate", value));
     timelineSegmentViewLimit.addListener((o, ov, value) -> prefs.put("timelineSegmentViewLimit", value));
   }
 
@@ -578,8 +556,6 @@ public class FabricationServiceImpl implements FabricationService {
     craftAheadSeconds.set(prefs.get("craftAheadSeconds", Integer.toString(defaultCraftAheadSeconds)));
     dubAheadSeconds.set(prefs.get("dubAheadSeconds", Integer.toString(defaultDubAheadSeconds)));
     mixerLengthSeconds.set(prefs.get("mixerLengthSeconds", Integer.toString(defaultMixerLengthSeconds)));
-    outputChannels.set(prefs.get("outputChannels", Integer.toString(defaultOutputChannels)));
-    outputFrameRate.set(prefs.get("outputFrameRate", Double.toString(defaultOutputFrameRate)));
     timelineSegmentViewLimit.set(prefs.get("timelineSegmentViewLimit", Integer.toString(defaultTimelineSegmentViewLimit)));
 
     try {

@@ -18,6 +18,8 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.shape.SVGPath?>
 <AnchorPane
         fx:id="container"
         fx:controller="io.xj.gui.controllers.MainMenuController"
@@ -25,6 +27,30 @@
         xmlns="http://javafx.com/javafx/20.0.1"
         xmlns:fx="http://javafx.com/fxml/1"
         styleClass="main-menu">
+
+    <StackPane
+            AnchorPane.leftAnchor="0"
+            AnchorPane.topAnchor="0"
+            AnchorPane.bottomAnchor="0"
+            AnchorPane.rightAnchor="0">
+        <HBox alignment="CENTER">
+            <Button text="BUILD" fx:id="buttonBuild" onAction="#handleBuild">
+                <graphic>
+                    <ImageView fitWidth="18" fitHeight="18">
+                        <Image url="@/icons/build.png"/>
+                    </ImageView>
+                </graphic>
+                <tooltip>
+                    <Tooltip text="Build Content"/>
+                </tooltip>
+            </Button>
+            <Button fx:id="buttonBuildSettings" onAction="#handleBuildSettings">
+                <graphic>
+                    <SVGPath styleClass="icon" content="M3 6h12v2h-12zM3 11h12v2h-12zM3 16h12v2h-12z"/>
+                </graphic>
+            </Button>
+        </HBox>
+    </StackPane>
 
     <MenuBar VBox.vgrow="NEVER">
 
@@ -72,13 +98,6 @@
                     <KeyCodeCombination shortcut="DOWN" code="Q" control="UP" meta="UP" shift="UP" alt="UP"/>
                 </accelerator>
             </MenuItem>
-        </Menu>
-
-        <Menu fx:id="menuFabrication" text="Fabrication" mnemonicParsing="false">
-            <MenuItem fx:id="itemFabricationMainAction" onAction="#handleFabricationMainAction" text="Start"
-                      mnemonicParsing="false"/>
-            <CheckMenuItem fx:id="checkboxFabricationFollow" text="Follow" mnemonicParsing="false"/>
-            <SeparatorMenuItem mnemonicParsing="false"/>
         </Menu>
 
         <Menu text="View" mnemonicParsing="false">
@@ -143,6 +162,13 @@
             </Menu>
         </Menu>
 
+        <Menu fx:id="menuFabrication" text="Preview" mnemonicParsing="false">
+            <MenuItem fx:id="itemFabricationMainAction" onAction="#handleFabricationMainAction" text="Start"
+                      mnemonicParsing="false"/>
+            <CheckMenuItem fx:id="checkboxFabricationFollow" text="Follow" mnemonicParsing="false"/>
+            <SeparatorMenuItem mnemonicParsing="false"/>
+        </Menu>
+
         <Menu text="Help" mnemonicParsing="false">
             <MenuItem onAction="#handleAbout" text="About" mnemonicParsing="false"/>
             <SeparatorMenuItem mnemonicParsing="false"/>
@@ -186,7 +212,7 @@
                     <Tooltip text="View &amp; Edit Templates"/>
                 </tooltip>
             </ToggleButton>
-            <ToggleButton text="FABRICATION" fx:id="buttonViewModeFabrication" toggleGroup="$buttonViewModeToggleGroup">
+            <ToggleButton text="PREVIEW" fx:id="buttonViewModeFabrication" toggleGroup="$buttonViewModeToggleGroup">
                 <graphic>
                     <ImageView fitWidth="18" fitHeight="18">
                         <Image url="@/icons/conveyor-arm.png"/>

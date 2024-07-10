@@ -2,15 +2,16 @@
 
 package io.xj.gui.controllers;
 
+import io.xj.engine.fabricator.ControlMode;
 import io.xj.gui.ProjectModalController;
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
+import io.xj.gui.types.AudioFileContainer;
 import io.xj.gui.utils.ProjectUtils;
 import io.xj.gui.utils.UiUtils;
 import io.xj.model.util.LocalFileUtils;
-import io.xj.engine.fabricator.ControlMode;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -39,6 +40,15 @@ public class SettingsModalController extends ProjectModalController {
   VBox fabricationSettingsContainer;
 
   @FXML
+  VBox buildSettingsContainer;
+
+  @FXML
+  ChoiceBox<AudioFileContainer> choiceOutputContainer;
+
+  @FXML
+  ChoiceBox<String> choiceOutputSampleBits;
+
+  @FXML
   ChoiceBox<ControlMode> choiceControlMode;
 
   @FXML
@@ -49,6 +59,9 @@ public class SettingsModalController extends ProjectModalController {
 
   @FXML
   ToggleButton navFabrication;
+
+  @FXML
+  ToggleButton navBuild;
 
   @FXML
   TextField fieldCraftAheadSeconds;
@@ -72,7 +85,10 @@ public class SettingsModalController extends ProjectModalController {
   Button buttonClose;
 
   @FXML
-  Button buttonReset;
+  Button buttonResetFabricationSettings;
+
+  @FXML
+  Button buttonResetBuildSettings;
 
   @FXML
   TextField fieldProjectsPathPrefix;
@@ -93,8 +109,7 @@ public class SettingsModalController extends ProjectModalController {
     ThemeService themeService,
     FabricationService fabricationService,
     UIStateService uiStateService,
-    ProjectService projectService
-  ) {
+    ProjectService projectService) {
     super(fxml, ac, themeService, uiStateService, projectService);
     this.fabricationService = fabricationService;
   }
@@ -108,9 +123,22 @@ public class SettingsModalController extends ProjectModalController {
     fieldCraftAheadSeconds.textProperty().bindBidirectional(fabricationService.craftAheadSecondsProperty());
     fieldDubAheadSeconds.textProperty().bindBidirectional(fabricationService.dubAheadSecondsProperty());
     fieldMixerLengthSeconds.textProperty().bindBidirectional(fabricationService.mixerLengthSecondsProperty());
-    fieldOutputFrameRate.textProperty().bindBidirectional(fabricationService.outputFrameRateProperty());
-    fieldOutputChannels.textProperty().bindBidirectional(fabricationService.outputChannelsProperty());
     fieldTimelineSegmentViewLimit.textProperty().bindBidirectional(fabricationService.timelineSegmentViewLimitProperty());
+
+    buildSettingsContainer.visibleProperty().bind(navBuild.selectedProperty());
+    buildSettingsContainer.managedProperty().bind(navBuild.selectedProperty());
+    fieldOutputFrameRate.textProperty().bindBidirectional(projectService.outputFrameRateProperty());
+    fieldOutputChannels.textProperty().bindBidirectional(projectService.outputChannelsProperty());
+    // For now, choice of container is restricted to WAV. In the future we will use other containers, for example
+    // Workstation & Unreal Plugin can build & utilize OGG audio files https://github.com/xjmusic/xjmusic/issues/423
+    choiceOutputContainer.setDisable(true);
+    choiceOutputContainer.setItems(FXCollections.observableArrayList(AudioFileContainer.values()));
+    choiceOutputContainer.valueProperty().bindBidirectional(projectService.outputContainerProperty());
+    // For now, output is restricted to 16-bit audio.
+    choiceOutputSampleBits.setDisable(true);
+    choiceOutputSampleBits.setItems(FXCollections.observableArrayList("8","16","24","32"));
+    choiceOutputSampleBits.valueProperty().bindBidirectional(projectService.outputSampleBitsProperty());
+
 
     generalSettingsContainer.visibleProperty().bind(navGeneral.selectedProperty());
     generalSettingsContainer.managedProperty().bind(navGeneral.selectedProperty());
@@ -135,6 +163,11 @@ public class SettingsModalController extends ProjectModalController {
   @FXML
   void handleResetFabricationSettings() {
     fabricationService.resetSettingsToDefaults();
+  }
+
+  @FXML
+  void handleResetBuildSettings() {
+    projectService.resetBuildSettingsToDefaults();
   }
 
   @FXML
@@ -167,5 +200,12 @@ public class SettingsModalController extends ProjectModalController {
    */
   public void launchModalWithFabricationSettings() {
     createAndShowModal(WINDOW_NAME, () -> navFabrication.setSelected(true));
+  }
+
+  /**
+   Launches the settings modal with the build settings tab selected.
+   */
+  public void launchModalWithBuildSettings() {
+    createAndShowModal(WINDOW_NAME, () -> navBuild.setSelected(true));
   }
 }
