@@ -1,6 +1,7 @@
 package io.xj.gui.services.impl;
 
 import io.xj.engine.util.FormatUtils;
+import io.xj.gui.project.ProjectBuildState;
 import io.xj.gui.project.ProjectManager;
 import io.xj.gui.project.ProjectState;
 import io.xj.gui.services.ProjectDescriptor;
@@ -118,6 +119,7 @@ public class ProjectServiceImpl implements ProjectService {
   private final ObjectProperty<AudioFileContainer> outputContainer = new SimpleObjectProperty<>();
   private final StringProperty outputSampleBits = new SimpleStringProperty();
   private final ObjectProperty<ProjectState> state = new SimpleObjectProperty<>(ProjectState.Standby);
+  private final ObjectProperty<ProjectBuildState> buildState = new SimpleObjectProperty<>(ProjectBuildState.Standby);
   private final ObservableStringValue stateText = Bindings.createStringBinding(
     () -> switch (state.get()) {
       case Standby -> "Standby";
@@ -175,6 +177,7 @@ public class ProjectServiceImpl implements ProjectService {
     projectManager.setOnProgressLabel((label) -> Platform.runLater(() -> this.progressLabel.set(label)));
     projectManager.setOnProgress((progress) -> Platform.runLater(() -> this.progress.set(progress)));
     projectManager.setOnStateChange((state) -> Platform.runLater(() -> this.state.set(state)));
+    projectManager.setOnBuildStateChange((buildState) -> Platform.runLater(() -> this.buildState.set(buildState)));
 
     currentProject = Bindings.createObjectBinding(() -> {
       if (Objects.equals(state.get(), ProjectState.Ready)) {
@@ -204,7 +207,7 @@ public class ProjectServiceImpl implements ProjectService {
       didUpdate(Library.class, false);
       didUpdate(Program.class, false);
       didUpdate(Instrument.class, false);
-      isModified.set(false);
+      resetProjectModificationStates(true);
       state.set(ProjectState.Standby);
       if (Objects.nonNull(afterClose)) Platform.runLater(afterClose);
     });
@@ -215,13 +218,13 @@ public class ProjectServiceImpl implements ProjectService {
     closeProject(() -> executeInBackground("Open Project", () -> {
       if (projectManager.openProjectFromLocalFile(projectFilePath)) {
         projectManager.getProject().ifPresent(project -> {
-          isModified.set(false);
+          resetProjectModificationStates(true);
           addToRecentProjects(project, projectManager.getProjectFilename(), projectManager.getPathToProjectFile());
           Platform.runLater(() -> {
             if (Objects.isNull(project.getPlatformVersion()) || ValueUtils.compareMonotonicVersion(project.getPlatformVersion(), versionService.getVersion()) < 0) {
               var migrate = showConfirmationDialog("Legacy Project Version", "Project created with previous workstation version", "The project was created with a previous version of the software. It's necessary to migrate and save the project before using it. Do you want to continue?");
               if (migrate) {
-                saveProject(() -> isModified.set(false));
+                saveProject(() -> resetProjectModificationStates(true));
               } else {
                 closeProject(null);
               }
@@ -244,7 +247,7 @@ public class ProjectServiceImpl implements ProjectService {
         executeInBackground("Create Project", () -> {
           if (projectManager.createProject(parentPathPrefix, projectName, versionService.getVersion())) {
             projectManager.getProject().ifPresent(project -> {
-              isModified.set(false);
+              resetProjectModificationStates(true);
               addToRecentProjects(project, projectManager.getProjectFilename(), projectManager.getPathToProjectFile());
             });
           }
@@ -265,7 +268,7 @@ public class ProjectServiceImpl implements ProjectService {
               versionService.getVersion()
             )) {
               projectManager.getProject().ifPresent(project -> {
-                isModified.set(false);
+                resetProjectModificationStates(true);
                 addToRecentProjects(project, projectManager.getProjectFilename(), projectManager.getPathToProjectFile());
               });
             } else {
@@ -336,7 +339,7 @@ public class ProjectServiceImpl implements ProjectService {
     executeInBackground("Save Project", () -> {
       projectManager.saveProject(versionService.getVersion());
       Platform.runLater(() -> {
-        isModified.set(false);
+        resetProjectModificationStates(false);
         if (Objects.nonNull(onComplete)) Platform.runLater(onComplete);
       });
     });
@@ -348,7 +351,7 @@ public class ProjectServiceImpl implements ProjectService {
     executeInBackground("Save As New Project", () -> {
       projectManager.saveAsProject(parentPathPrefix, projectName, versionService.getVersion());
       addToRecentProjects(projectManager.getProject().orElse(null), projectName + ".xj", projectManager.getPathToProjectFile());
-      Platform.runLater(() -> isModified.set(false));
+      Platform.runLater(() -> resetProjectModificationStates(false));
     });
   }
 
@@ -401,6 +404,11 @@ public class ProjectServiceImpl implements ProjectService {
   @Override
   public ObjectProperty<ProjectState> stateProperty() {
     return state;
+  }
+
+  @Override
+  public ObjectProperty<ProjectBuildState> buildStateProperty() {
+    return buildState;
   }
 
   @Override
@@ -538,6 +546,7 @@ public class ProjectServiceImpl implements ProjectService {
   @Override
   public <N> void didUpdate(Class<N> type, boolean modified) {
     if (modified) isModified.set(true);
+    buildState.set(ProjectBuildState.Dirty);
 
     if (projectUpdateListeners.containsKey(type))
       projectUpdateListeners.get(type).forEach(Runnable::run);
@@ -1203,6 +1212,15 @@ public class ProjectServiceImpl implements ProjectService {
    */
   private void removeFromRecentProjects(String projectFilePath) {
     this.recentProjects.get().removeIf(existing -> Objects.equals(existing.projectFilePath(), projectFilePath));
+  }
+
+  /**
+   Reset the project modification states.
+   */
+  private void resetProjectModificationStates(boolean resetBuild) {
+    isModified.set(false);
+    if (resetBuild)
+      buildState.set(ProjectBuildState.Standby);
   }
 
 }

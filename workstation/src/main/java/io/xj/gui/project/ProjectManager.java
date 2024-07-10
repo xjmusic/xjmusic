@@ -249,6 +249,13 @@ public interface ProjectManager {
   void setOnStateChange(@Nullable Consumer<ProjectState> onStateChange);
 
   /**
+   Set the callback to be invoked when the project buildState changes
+
+   @param onBuildStateChange the callback
+   */
+  void setOnBuildStateChange(@Nullable Consumer<ProjectBuildState> onBuildStateChange);
+
+  /**
    Create a new template
 
    @param name of the template

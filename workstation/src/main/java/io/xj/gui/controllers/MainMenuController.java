@@ -2,6 +2,7 @@
 
 package io.xj.gui.controllers;
 
+import io.xj.engine.work.FabricationState;
 import io.xj.gui.ProjectController;
 import io.xj.gui.WorkstationFxApplication;
 import io.xj.gui.services.FabricationService;
@@ -13,7 +14,6 @@ import io.xj.gui.services.UIStateService;
 import io.xj.gui.types.Route;
 import io.xj.gui.utils.ProjectUtils;
 import io.xj.gui.utils.UiUtils;
-import io.xj.engine.work.FabricationState;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.ObservableList;
@@ -27,8 +27,12 @@ import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.Tooltip;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.AnchorPane;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.Resource;
@@ -44,6 +48,7 @@ import static io.xj.gui.services.UIStateService.PENDING_PSEUDO_CLASS;
 
 @Service
 public class MainMenuController extends ProjectController {
+  static final Logger LOG = LoggerFactory.getLogger(MainMenuController.class);
   private final static String DEBUG = "DEBUG";
   private final static String INFO = "INFO";
   private final static String WARN = "WARN";
@@ -176,6 +181,15 @@ public class MainMenuController extends ProjectController {
 
     buttonBuild.disableProperty().bind(projectService.isStateReadyProperty().not());
     buttonBuildSettings.disableProperty().bind(projectService.isStateReadyProperty().not());
+    projectService.buildStateProperty().addListener((o, ov, value) -> {
+      switch (value) {
+        case Standby -> setupButtonBuild("icons/build.png", "Build the project");
+        case Dirty -> setupButtonBuild("icons/build-yellow.png", "Project modified. Build to apply changes");
+        case Clean -> setupButtonBuild("icons/build-green.png", "Build is up-to-date.");
+        case Building -> setupButtonBuild("icons/build-rgb.png", "Building the project");
+        case Failed -> setupButtonBuild("icons/build-red.png", "Build failed. Click to retry.");
+      }
+    });
 
     setupViewModeToggle(menuViewModeToggleGroup, menuViewModeContent, menuViewModeTemplates, menuViewModeFabrication);
     menuViewModeContent.disableProperty().bind(projectService.isStateReadyProperty().not());
@@ -292,14 +306,12 @@ public class MainMenuController extends ProjectController {
   }
 
   @FXML
-  void handleBuild()
-  {
+  void handleBuild() {
     projectService.buildProject();
   }
 
   @FXML
-  void handleBuildSettings()
-  {
+  void handleBuildSettings() {
     settingsModalController.launchModalWithBuildSettings();
   }
 
@@ -396,5 +408,23 @@ public class MainMenuController extends ProjectController {
    */
   private KeyCombination computeFabricationFollowButtonAccelerator() {
     return KeyCombination.valueOf("SHORTCUT+ALT+" + (System.getProperty("os.name").toLowerCase().contains("mac") ? "B" : "SPACE"));
+  }
+
+  /**
+   Set up the build button.
+
+   @param imageSource the image URL
+   @param tooltipText the tooltip text
+   */
+  private void setupButtonBuild(String imageSource, String tooltipText) {
+    try {
+      buttonBuild.setTooltip(new Tooltip(tooltipText));
+      var image = new ImageView(imageSource);
+      image.setFitWidth(16);
+      image.setFitHeight(16);
+      buttonBuild.setGraphic(image);
+    } catch (Exception e) {
+      LOG.error("Failed to setup build button with image source \"{}\"", imageSource, e);
+    }
   }
 }

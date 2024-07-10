@@ -112,6 +112,9 @@ public class ProjectManagerImpl implements ProjectManager {
   @Nullable
   private Consumer<ProjectState> onStateChange;
 
+  @Nullable
+  private Consumer<ProjectBuildState> onBuildStateChange;
+
   /**
    Private constructor
    */
@@ -395,6 +398,7 @@ public class ProjectManagerImpl implements ProjectManager {
       int builtInstruments = 0;
       Collection<UUID> audioFileNotFoundIds = new HashSet<>();
       updateState(ProjectState.BuildingProject);
+      updateBuildState(ProjectBuildState.Building);
 
       // Get subset of content just for this template -- actually copying all entities
       var builtContent = new HubContent(entityFactory.copyAll(content.get().getAll()));
@@ -410,6 +414,7 @@ public class ProjectManagerImpl implements ProjectManager {
           .toList()) {
           if (!Objects.equals(state.get(), ProjectState.BuildingProject)) {
             // Workstation canceling preloading should cease resampling audio files https://github.com/xjmusic/xjmusic/issues/278
+            updateBuildState(ProjectBuildState.Failed);
             return false;
           }
 
@@ -465,11 +470,13 @@ public class ProjectManagerImpl implements ProjectManager {
       updateProgress(1.0);
       updateProgressLabel(String.format("Built %d audios for %d instruments", builtAudios, builtInstruments));
       updateState(ProjectState.Ready);
+      updateBuildState(ProjectBuildState.Clean);
       return true;
 
     } catch (Exception e) {
       LOG.error("Failed to build project! {}\n{}", e, StringUtils.formatStackTrace(e));
       updateState(ProjectState.Ready);
+      updateBuildState(ProjectBuildState.Failed);
       // TODO: handle build failed state
       return false;
     }
@@ -660,6 +667,11 @@ public class ProjectManagerImpl implements ProjectManager {
   @Override
   public void setOnStateChange(@Nullable Consumer<ProjectState> onStateChange) {
     this.onStateChange = onStateChange;
+  }
+
+  @Override
+  public void setOnBuildStateChange(@Nullable Consumer<ProjectBuildState> onBuildStateChange) {
+    this.onBuildStateChange = onBuildStateChange;
   }
 
   @Override
@@ -1561,6 +1573,16 @@ public class ProjectManagerImpl implements ProjectManager {
     this.state.set(state);
     if (Objects.nonNull(onStateChange))
       onStateChange.accept(state);
+  }
+
+  /**
+   Update the buildState and send the updated buildState to the buildState callback
+
+   @param buildState new value
+   */
+  private void updateBuildState(ProjectBuildState buildState) {
+    if (Objects.nonNull(onBuildStateChange))
+      onBuildStateChange.accept(buildState);
   }
 
   /**

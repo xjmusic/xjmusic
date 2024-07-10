@@ -1,5 +1,6 @@
 package io.xj.gui.services;
 
+import io.xj.gui.project.ProjectBuildState;
 import io.xj.gui.project.ProjectState;
 import io.xj.gui.types.AudioFileContainer;
 import io.xj.model.HubContent;
@@ -162,6 +163,13 @@ public interface ProjectService {
    @return observable state property
    */
   ObjectProperty<ProjectState> stateProperty();
+
+  /**
+   Observable property of the project build state
+
+   @return observable property
+   */
+  ObjectProperty<ProjectBuildState> buildStateProperty();
 
   /**
    @return observable state text property
