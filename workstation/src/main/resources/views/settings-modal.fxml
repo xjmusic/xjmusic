@@ -111,6 +111,12 @@
           <ChoiceBox fx:id="choiceOutputContainer" prefHeight="25.0" prefWidth="120"/>
         </HBox>
         <HBox alignment="CENTER_LEFT" spacing="5.0">
+          <Label minWidth="200" maxWidth="200" alignment="CENTER_RIGHT"
+                 contentDisplay="TEXT_ONLY"
+                 text="Output Sample Bits" textAlignment="RIGHT"/>
+          <ChoiceBox fx:id="choiceOutputSampleBits" prefHeight="25.0" prefWidth="120"/>
+        </HBox>
+        <HBox alignment="CENTER_LEFT" spacing="5.0">
           <Label minWidth="200" maxWidth="200" alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY"
                  text="Output Frame Rate"
                  textAlignment="RIGHT"/>

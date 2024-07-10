@@ -144,6 +144,11 @@ public interface ProjectService {
   Property<AudioFileContainer> outputContainerProperty();
 
   /**
+   @return Output Sample Bits
+   */
+  StringProperty outputSampleBitsProperty();
+
+  /**
    Reset compilation settings to defaults
    */
   void resetBuildSettingsToDefaults();

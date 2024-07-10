@@ -1,5 +1,8 @@
 package io.xj.gui.services.impl;
 
+import io.xj.engine.util.FormatUtils;
+import io.xj.gui.project.ProjectManager;
+import io.xj.gui.project.ProjectState;
 import io.xj.gui.services.ProjectDescriptor;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
@@ -31,9 +34,6 @@ import io.xj.model.pojos.Template;
 import io.xj.model.pojos.TemplateBinding;
 import io.xj.model.util.StringUtils;
 import io.xj.model.util.ValueUtils;
-import io.xj.gui.project.ProjectManager;
-import io.xj.gui.project.ProjectState;
-import io.xj.engine.util.FormatUtils;
 import jakarta.annotation.Nullable;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -84,8 +84,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.prefs.Preferences;
 
-import static io.xj.engine.mixer.FixedSampleBits.FIXED_SAMPLE_BITS;
-
 @Service
 public class ProjectServiceImpl implements ProjectService {
   private static final Logger LOG = LoggerFactory.getLogger(ProjectServiceImpl.class);
@@ -94,6 +92,7 @@ public class ProjectServiceImpl implements ProjectService {
   private final int defaultOutputChannels;
   private final int defaultOutputFrameRate;
   private final AudioFileContainer defaultOutputContainer;
+  private final String defaultOutputSampleBits;
   private static final double ERROR_DIALOG_WIDTH = 800.0;
   private static final double ERROR_DIALOG_HEIGHT = 600.0;
   private static final Collection<ProjectState> PROJECT_LOADING_STATES = Set.of(
@@ -117,6 +116,7 @@ public class ProjectServiceImpl implements ProjectService {
   private final StringProperty outputFrameRate = new SimpleStringProperty();
   private final StringProperty outputChannels = new SimpleStringProperty();
   private final ObjectProperty<AudioFileContainer> outputContainer = new SimpleObjectProperty<>();
+  private final StringProperty outputSampleBits = new SimpleStringProperty();
   private final ObjectProperty<ProjectState> state = new SimpleObjectProperty<>(ProjectState.Standby);
   private final ObservableStringValue stateText = Bindings.createStringBinding(
     () -> switch (state.get()) {
@@ -154,6 +154,7 @@ public class ProjectServiceImpl implements ProjectService {
     @Value("${build.defaultOutputChannels}") int defaultOutputChannels,
     @Value("${build.defaultOutputFrameRate}") int defaultOutputFrameRate,
     @Value("${build.defaultOutputContainer}") String defaultOutputContainer,
+    @Value("${build.defaultOutputSampleBits}") String defaultOutputSampleBits,
     ThemeService themeService,
     ProjectManager projectManager,
     VersionService versionService
@@ -163,6 +164,7 @@ public class ProjectServiceImpl implements ProjectService {
     this.defaultOutputChannels = defaultOutputChannels;
     this.defaultOutputFrameRate = defaultOutputFrameRate;
     this.defaultOutputContainer = AudioFileContainer.valueOf(defaultOutputContainer.toUpperCase(Locale.ROOT));
+    this.defaultOutputSampleBits = defaultOutputSampleBits;
     this.themeService = themeService;
     this.projectManager = projectManager;
     this.versionService = versionService;
@@ -303,7 +305,7 @@ public class ProjectServiceImpl implements ProjectService {
             Platform.runLater(this::cancelProjectLoading);
           }
         } catch (Exception e) {
-          LOG.warn("Failed to duplicate project! {}\n{}", e, StringUtils.formatStackTrace(e));
+          LOG.warn("Failed to export template! {}\n{}", e, StringUtils.formatStackTrace(e));
           Platform.runLater(this::cancelProjectLoading);
         }
       });
@@ -316,7 +318,7 @@ public class ProjectServiceImpl implements ProjectService {
         if (!projectManager.buildProject(
           outputContainer.get(),
           (int) Float.parseFloat(outputFrameRate.get()),
-          FIXED_SAMPLE_BITS,
+          Integer.parseInt(outputSampleBits.get()),
           Integer.parseInt(outputChannels.get())
         )) {
           Platform.runLater(this::cancelProjectLoading);
@@ -381,6 +383,11 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   @Override
+  public StringProperty outputSampleBitsProperty() {
+    return outputSampleBits;
+  }
+
+  @Override
   public void resetBuildSettingsToDefaults() {
     outputChannels.set(String.valueOf(defaultOutputChannels));
     outputFrameRate.set(String.valueOf(defaultOutputFrameRate));
@@ -438,7 +445,7 @@ public class ProjectServiceImpl implements ProjectService {
       try {
         deleteContent(entity.getClass(), id);
       } catch (Exception e2) {
-        LOG.error("Could not delete {}[{}]! {}\n{}", entity.getClass().getSimpleName(), id, e2, StringUtils.formatStackTrace(e2));
+        LOG.error("Could not delete content {}[{}]! {}\n{}", entity.getClass().getSimpleName(), id, e2, StringUtils.formatStackTrace(e2));
       }
     } catch (Exception e) {
       LOG.error("Could not delete {}! {}\n{}", entity.getClass().getSimpleName(), e, StringUtils.formatStackTrace(e));
@@ -452,7 +459,7 @@ public class ProjectServiceImpl implements ProjectService {
       didUpdate(type, true);
       LOG.info("Deleted {}[{}]", type.getSimpleName(), id);
     } catch (Exception e) {
-      LOG.error("Could not delete {}[{}]! {}\n{}", type.getSimpleName(), id, e, StringUtils.formatStackTrace(e));
+      LOG.error("Could not delete content having type and id {}[{}]! {}\n{}", type.getSimpleName(), id, e, StringUtils.formatStackTrace(e));
     }
   }
 
@@ -1144,6 +1151,7 @@ public class ProjectServiceImpl implements ProjectService {
     outputChannels.addListener((o, ov, value) -> prefs.put("outputChannels", value));
     outputFrameRate.addListener((o, ov, value) -> prefs.put("outputFrameRate", value));
     outputContainer.addListener((o, ov, value) -> prefs.put("outputContainer", value.toString()));
+    outputSampleBits.addListener((o, ov, value) -> prefs.put("outputSampleBits", value));
     recentProjects.addListener((o, ov, value) -> {
       try {
         prefs.put("recentProjects", jsonProvider.getMapper().writeValueAsString(value));
@@ -1166,6 +1174,7 @@ public class ProjectServiceImpl implements ProjectService {
     }
     outputChannels.set(prefs.get("outputChannels", Integer.toString(defaultOutputChannels)));
     outputFrameRate.set(prefs.get("outputFrameRate", Double.toString(defaultOutputFrameRate)));
+    outputSampleBits.set(prefs.get("outputSampleBits", defaultOutputSampleBits));
 
     try {
       outputContainer.set(AudioFileContainer.valueOf(prefs.get("outputContainer", defaultOutputContainer.toString()).toUpperCase(Locale.ROOT)));

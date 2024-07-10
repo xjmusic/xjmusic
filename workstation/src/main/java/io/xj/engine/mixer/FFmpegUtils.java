@@ -2,6 +2,7 @@
 
 package io.xj.engine.mixer;
 
+import io.xj.model.util.StringUtils;
 import org.bytedeco.ffmpeg.global.avcodec;
 import org.bytedeco.ffmpeg.global.avutil;
 import org.bytedeco.javacv.FFmpegFrameGrabber;
@@ -52,10 +53,10 @@ public interface FFmpegUtils {
         LOG.info("Did resample audio to {} ({}Hz {}-bit {}-channel)", outputAudioFilePath, output.getSampleRate(), targetSampleBits, targetChannels);
 
       } catch (IOException e) {
-        throw new RuntimeException(String.format("Unable to resample audio file: %s", inputAudioFilePath));
+        throw new RuntimeException(String.format("Unable to resample audio file: %s because %s\n%s", inputAudioFilePath, e.getMessage(), StringUtils.formatStackTrace(e)));
       }
     } catch (IOException e) {
-      throw new RuntimeException(String.format("Unable to resample audio file: %s", inputAudioFilePath));
+      throw new RuntimeException(String.format("Unable to resample audio file: %s because %s\n%s", inputAudioFilePath, e.getMessage(), StringUtils.formatStackTrace(e)));
     }
   }
 

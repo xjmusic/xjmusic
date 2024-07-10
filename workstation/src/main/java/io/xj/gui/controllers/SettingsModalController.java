@@ -46,6 +46,9 @@ public class SettingsModalController extends ProjectModalController {
   ChoiceBox<AudioFileContainer> choiceOutputContainer;
 
   @FXML
+  ChoiceBox<String> choiceOutputSampleBits;
+
+  @FXML
   ChoiceBox<ControlMode> choiceControlMode;
 
   @FXML
@@ -124,10 +127,18 @@ public class SettingsModalController extends ProjectModalController {
 
     buildSettingsContainer.visibleProperty().bind(navBuild.selectedProperty());
     buildSettingsContainer.managedProperty().bind(navBuild.selectedProperty());
-    choiceOutputContainer.valueProperty().bindBidirectional(projectService.outputContainerProperty());
-    choiceOutputContainer.setItems(FXCollections.observableArrayList(AudioFileContainer.values()));
     fieldOutputFrameRate.textProperty().bindBidirectional(projectService.outputFrameRateProperty());
     fieldOutputChannels.textProperty().bindBidirectional(projectService.outputChannelsProperty());
+    // For now, choice of container is restricted to WAV. In the future we will use other containers, for example
+    // Workstation & Unreal Plugin can build & utilize OGG audio files https://github.com/xjmusic/xjmusic/issues/423
+    choiceOutputContainer.setDisable(true);
+    choiceOutputContainer.setItems(FXCollections.observableArrayList(AudioFileContainer.values()));
+    choiceOutputContainer.valueProperty().bindBidirectional(projectService.outputContainerProperty());
+    // For now, output is restricted to 16-bit audio.
+    choiceOutputSampleBits.setDisable(true);
+    choiceOutputSampleBits.setItems(FXCollections.observableArrayList("8","16","24","32"));
+    choiceOutputSampleBits.valueProperty().bindBidirectional(projectService.outputSampleBitsProperty());
+
 
     generalSettingsContainer.visibleProperty().bind(navGeneral.selectedProperty());
     generalSettingsContainer.managedProperty().bind(navGeneral.selectedProperty());
