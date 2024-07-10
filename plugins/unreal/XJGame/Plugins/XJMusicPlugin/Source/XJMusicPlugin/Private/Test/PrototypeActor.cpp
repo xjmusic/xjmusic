@@ -3,6 +3,7 @@
 
 #include "Test/PrototypeActor.h"
 #include <optional>
+#include <set>
 
 APrototypeActor::APrototypeActor()
 {
@@ -14,7 +15,18 @@ void APrototypeActor::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//engine = new Engine(std::string("D:/vgm/vgm.xj"), Fabricator::ControlMode::Taxonomy, std::nullopt, std::nullopt, std::nullopt);
+	std::string Path("D:\\vgm\\vgm.xj");
+
+	engine = new Engine(Path, Fabricator::ControlMode::Taxonomy, std::nullopt, std::nullopt, std::nullopt);
+	if (engine)
+	{
+		std::set<const Template*> Templates =  engine->getProjectContent()->getTemplates();
+		for (const Template* Info : Templates)
+		{
+			FString Name = Info->name.c_str();
+			UE_LOG(LogTemp, Warning, TEXT("Loaded template: %s"), *Name);
+		}
+	}
 }
 
 void APrototypeActor::BeginDestroy()

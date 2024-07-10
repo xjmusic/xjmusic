@@ -33,8 +33,16 @@ public class XJMusicPlugin : ModuleRules
 			}
 		);
 
-        PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "../../Lib/xjmusic.lib"));
-		PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "../../Lib/spdlog.lib"));
+		if (Target.Configuration == UnrealTargetConfiguration.Development)
+		{
+			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "../../Lib/xjmusic.lib"));
+			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "../../Lib/spdlog.lib"));
+		}
+		else
+		{
+			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "../../Lib/debug/xjmusic.lib"));
+			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "../../Lib/debug/spdlogd.lib"));
+        }
 
         PublicIncludePaths.Add(Path.Combine(ModuleDirectory, "../../Include/"));
     }

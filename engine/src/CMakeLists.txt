@@ -85,6 +85,7 @@ add_library(xjmusic
         work/DubWork.cpp
         work/WorkManager.cpp
         work/WorkSettings.cpp
+	Engine.cpp
 )
 
 # We need this directory, and users of our library will need it too
