@@ -6,6 +6,7 @@ import io.xj.engine.hub_client.HubClientException;
 import io.xj.engine.hub_client.HubClientFactory;
 import io.xj.engine.mixer.FFmpegUtils;
 import io.xj.engine.util.FormatUtils;
+import io.xj.gui.types.AudioFileContainer;
 import io.xj.model.HubContent;
 import io.xj.model.InstrumentConfig;
 import io.xj.model.ProgramConfig;
@@ -56,6 +57,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -372,6 +374,110 @@ public class ProjectManagerImpl implements ProjectManager {
       project.set(null);
       return false;
     }
+  }
+
+  @Override
+  public boolean buildProject(
+    AudioFileContainer outputContainer,
+    int outputFrameRate,
+    int outputSampleBits,
+    int outputChannels) {
+    Path buildFolderPath = Paths.get(projectPathPrefix.get(), "build");
+    String buildFolderPathPrefix = buildFolderPath + File.separator;
+    var buildName = StringUtils.toLowerHyphenatedSlug(projectName.get());
+    LOG.info("Building project {} to {}", buildName, buildFolderPath);
+    try {
+      LOG.info("Will create build folder at {}", buildFolderPath);
+      Files.createDirectories(buildFolderPath);
+      LOG.info("Did create build folder at {}", buildFolderPath);
+
+      LOG.info("Will build template");
+      updateProgress(0.0);
+      int builtAudios = 0;
+      int builtInstruments = 0;
+      Collection<UUID> audioFileNotFoundIds = new HashSet<>();
+      updateState(ProjectState.BuildingProject);
+
+      // Get subset of content just for this template
+      var buildContent = new HubContent(content.get().getAll());
+      cleanupOrphans(buildContent);
+
+      // Build all audio files
+      var instruments = buildContent.getInstruments();
+      var audios = buildContent.getInstrumentAudios();
+      for (Instrument instrument : instruments) {
+        for (InstrumentAudio audio : audios.stream()
+          .filter(a -> Objects.equals(a.getInstrumentId(), instrument.getId()))
+          .sorted(Comparator.comparing(InstrumentAudio::getName))
+          .toList()) {
+          if (!Objects.equals(state.get(), ProjectState.BuildingProject)) {
+            // Workstation canceling preloading should cease resampling audio files https://github.com/xjmusic/xjmusic/issues/278
+            project.set(null);
+            return false;
+          }
+
+          // Build audio file
+          // If source audio file not found, add to audioFileNotFoundIds
+          var sourcePath = getPathToInstrumentAudio(instrument, audio.getWaveformKey(), null);
+          var sourceSize = getFileSizeIfExistsOnDisk(sourcePath);
+          if (sourceSize.isPresent()) {
+            var extension = outputContainer.toString().toLowerCase(Locale.ROOT); // todo if this doesn't work, go back to: ProjectPathUtils.getExtension(File.separator + audio.getWaveformKey());
+            var waveformKey = audio.getId().toString() + "." + extension;
+            audio.setWaveformKey(waveformKey);
+            buildContent.put(audio);
+            var destinationPath = buildFolderPathPrefix + waveformKey;
+
+            try {
+              Path destination = Paths.get(destinationPath);
+              Files.deleteIfExists(destination);
+                FFmpegUtils.resampleAudio(
+                  sourcePath,
+                  destinationPath,
+                  outputFrameRate,
+                  outputSampleBits,
+                  outputChannels
+                );
+
+            } catch (IOException e) {
+              System.err.println("Failed to copy file: " + e.getMessage());
+            }
+
+          } else {
+            LOG.warn("File not found for audio \"{}\" of instrument \"{}\" in library \"{}\" at {}", audio.getName(), instrument.getName(), buildContent.getLibrary(instrument.getLibraryId()).map(Library::getName).orElse("Unknown"), sourcePath);
+            audioFileNotFoundIds.add(audio.getId());
+          }
+
+          updateProgress((float) builtAudios / audios.size());
+          updateProgressLabel(String.format("Built %d/%d audios for %d/%d instruments", builtAudios, audios.size(), builtInstruments, instruments.size()));
+          builtAudios++;
+        }
+      }
+
+      if (!audioFileNotFoundIds.isEmpty()) {
+        LOG.error("File not found for {} audios; will remove these audio records from built template. See logs for exact file names.", audioFileNotFoundIds.size());
+        for (UUID audioId : audioFileNotFoundIds) {
+          buildContent.delete(InstrumentAudio.class, audioId);
+        }
+      }
+
+      var jsonPath = buildFolderPathPrefix + buildName + ".json";
+      LOG.info("Will save template content \"{}\" to {}", buildName, jsonPath);
+      var json = jsonProvider.getMapper().writeValueAsString(buildContent);
+      Files.writeString(Path.of(jsonPath), json);
+      LOG.info("Did write {} bytes of content to {}", json.length(), jsonPath);
+
+      updateProgress(1.0);
+      updateProgressLabel(String.format("Built %d audios for %d instruments", builtAudios, builtInstruments));
+      updateState(ProjectState.Ready);
+      return true;
+
+    } catch (Exception e) {
+      LOG.error("Failed to build project! {}\n{}", e, StringUtils.formatStackTrace(e));
+      updateState(ProjectState.Ready);
+      // TODO: handle build failed state
+      return false;
+    }
+
   }
 
   @Override

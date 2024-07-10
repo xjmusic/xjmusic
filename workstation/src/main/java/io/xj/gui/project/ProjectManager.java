@@ -1,5 +1,6 @@
 package io.xj.gui.project;
 
+import io.xj.gui.types.AudioFileContainer;
 import io.xj.model.HubContent;
 import io.xj.model.pojos.Instrument;
 import io.xj.model.pojos.InstrumentAudio;
@@ -67,6 +68,29 @@ public interface ProjectManager {
     @Nullable Integer conversionFrameRate,
     @Nullable Integer conversionSampleBits,
     @Nullable Integer conversionChannels
+  );
+
+  /**
+   Workstation has a "Compile" button to prepare assets for the Unreal Plugin
+   https://github.com/xjmusic/xjmusic/issues/421
+   - Press the Compile button to compile the current XJ project for use in another tool, i.e. the Unreal Engine via the XJ plugin.
+   - Create a `build` folder inside the current XJ project folder, if it doesn't already exist.
+   - Resample all referenced audio to unique file names and save these names as the `waveformKey` in out output project content (this is how the current template export process works)
+   - Export the project content as a single file named after the project the .json extension, i.e. my-project-name.json
+   - Delete dereferenced audio files in the build folder
+   - Compile button has state-based appearance
+
+   @param outputContainer  the output container
+   @param outputFrameRate  target Frame Rate for conversion
+   @param outputSampleBits target Sample Bits for conversion
+   @param outputChannels   target Channels for conversion
+   @return true if successful
+   */
+  boolean buildProject(
+    AudioFileContainer outputContainer,
+    int outputFrameRate,
+    int outputSampleBits,
+    int outputChannels
   );
 
   /**

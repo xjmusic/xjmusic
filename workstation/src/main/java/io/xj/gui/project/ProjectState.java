@@ -10,6 +10,7 @@ public enum ProjectState {
   LoadedAudio,
   Ready,
   ExportingTemplate,
+  BuildingProject,
   Saving,
   Cancelled,
   Failed,

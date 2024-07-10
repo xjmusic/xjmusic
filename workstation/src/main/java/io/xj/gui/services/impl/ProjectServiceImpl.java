@@ -84,6 +84,8 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.prefs.Preferences;
 
+import static io.xj.engine.mixer.FixedSampleBits.FIXED_SAMPLE_BITS;
+
 @Service
 public class ProjectServiceImpl implements ProjectService {
   private static final Logger LOG = LoggerFactory.getLogger(ProjectServiceImpl.class);
@@ -99,7 +101,8 @@ public class ProjectServiceImpl implements ProjectService {
     ProjectState.LoadedContent,
     ProjectState.LoadingAudio,
     ProjectState.LoadedAudio,
-    ProjectState.ExportingTemplate
+    ProjectState.ExportingTemplate,
+    ProjectState.BuildingProject
   );
   private final Map<Class<? extends Serializable>, Set<Runnable>> projectUpdateListeners = new HashMap<>();
   private final Preferences prefs = Preferences.userNodeForPackage(ProjectServiceImpl.class);
@@ -122,7 +125,7 @@ public class ProjectServiceImpl implements ProjectService {
       case CreatedFolder -> "Created Folder";
       case LoadingContent -> "Loading Content";
       case LoadedContent -> "Loaded Content";
-      case LoadingAudio, ExportingTemplate -> progressLabel.get();
+      case LoadingAudio, ExportingTemplate, BuildingProject -> progressLabel.get();
       case LoadedAudio -> "Loaded Audio";
       case Ready -> "Ready";
       case Saving -> "Saving";
@@ -308,7 +311,21 @@ public class ProjectServiceImpl implements ProjectService {
 
   @Override
   public void buildProject() {
-    // TODO implement
+    executeInBackground("Build Project", () -> {
+      try {
+        if (!projectManager.buildProject(
+          outputContainer.get(),
+          (int) Float.parseFloat(outputFrameRate.get()),
+          FIXED_SAMPLE_BITS,
+          Integer.parseInt(outputChannels.get())
+        )) {
+          Platform.runLater(this::cancelProjectLoading);
+        }
+      } catch (Exception e) {
+        LOG.warn("Failed to build project! {}\n{}", e, StringUtils.formatStackTrace(e));
+        Platform.runLater(this::cancelProjectLoading);
+      }
+    });
   }
 
   @Override
