@@ -112,6 +112,7 @@ public class TemplateExportModalController extends ProjectModalController {
       fieldPathPrefix.setEditable(false);
       fieldPathPrefix.setText(WorkDirectory);
 
+      selectAudioFormat.getSelectionModel().select(1);
       selectAudioFormat.setDisable(true);
     }
   }
