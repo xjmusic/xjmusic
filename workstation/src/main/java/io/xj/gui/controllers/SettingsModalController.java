@@ -40,7 +40,7 @@ public class SettingsModalController extends ProjectModalController {
   VBox fabricationSettingsContainer;
 
   @FXML
-  VBox compilationSettingsContainer;
+  VBox buildSettingsContainer;
 
   @FXML
   ChoiceBox<AudioFileContainer> choiceOutputContainer;
@@ -58,7 +58,7 @@ public class SettingsModalController extends ProjectModalController {
   ToggleButton navFabrication;
 
   @FXML
-  ToggleButton navCompilation;
+  ToggleButton navBuild;
 
   @FXML
   TextField fieldCraftAheadSeconds;
@@ -85,7 +85,7 @@ public class SettingsModalController extends ProjectModalController {
   Button buttonResetFabricationSettings;
 
   @FXML
-  Button buttonResetCompilationSettings;
+  Button buttonResetBuildSettings;
 
   @FXML
   TextField fieldProjectsPathPrefix;
@@ -122,8 +122,8 @@ public class SettingsModalController extends ProjectModalController {
     fieldMixerLengthSeconds.textProperty().bindBidirectional(fabricationService.mixerLengthSecondsProperty());
     fieldTimelineSegmentViewLimit.textProperty().bindBidirectional(fabricationService.timelineSegmentViewLimitProperty());
 
-    compilationSettingsContainer.visibleProperty().bind(navCompilation.selectedProperty());
-    compilationSettingsContainer.managedProperty().bind(navCompilation.selectedProperty());
+    buildSettingsContainer.visibleProperty().bind(navBuild.selectedProperty());
+    buildSettingsContainer.managedProperty().bind(navBuild.selectedProperty());
     choiceOutputContainer.valueProperty().bindBidirectional(projectService.outputContainerProperty());
     choiceOutputContainer.setItems(FXCollections.observableArrayList(AudioFileContainer.values()));
     fieldOutputFrameRate.textProperty().bindBidirectional(projectService.outputFrameRateProperty());
@@ -155,8 +155,8 @@ public class SettingsModalController extends ProjectModalController {
   }
 
   @FXML
-  void handleResetCompilationSettings() {
-    projectService.resetCompilationSettingsToDefaults();
+  void handleResetBuildSettings() {
+    projectService.resetBuildSettingsToDefaults();
   }
 
   @FXML
@@ -192,9 +192,9 @@ public class SettingsModalController extends ProjectModalController {
   }
 
   /**
-   Launches the settings modal with the compilation settings tab selected.
+   Launches the settings modal with the build settings tab selected.
    */
-  public void launchModalWithCompilationSettings() {
-    createAndShowModal(WINDOW_NAME, () -> navCompilation.setSelected(true));
+  public void launchModalWithBuildSettings() {
+    createAndShowModal(WINDOW_NAME, () -> navBuild.setSelected(true));
   }
 }

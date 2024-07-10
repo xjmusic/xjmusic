@@ -24,7 +24,7 @@
       </fx:define>
       <ToggleButton mnemonicParsing="false" HBox.hgrow="ALWAYS" text="General" fx:id="navGeneral"
                     toggleGroup="$navToggleGroup" maxWidth="Infinity" selected="true"/>
-      <ToggleButton mnemonicParsing="false" HBox.hgrow="ALWAYS" text="Build" fx:id="navCompilation"
+      <ToggleButton mnemonicParsing="false" HBox.hgrow="ALWAYS" text="Build" fx:id="navBuild"
                     toggleGroup="$navToggleGroup" maxWidth="Infinity"/>
       <ToggleButton mnemonicParsing="false" HBox.hgrow="ALWAYS" text="Preview" fx:id="navFabrication"
                     toggleGroup="$navToggleGroup" maxWidth="Infinity"/>
@@ -102,8 +102,8 @@
       </VBox>
 
 
-      <!-- Compilation Settings -->
-      <VBox spacing="10" fx:id="compilationSettingsContainer">
+      <!-- Build Settings -->
+      <VBox spacing="10" fx:id="buildSettingsContainer">
         <HBox alignment="CENTER_LEFT" spacing="5.0">
           <Label minWidth="200" maxWidth="200" alignment="CENTER_RIGHT"
                  contentDisplay="TEXT_ONLY"
@@ -124,7 +124,7 @@
         </HBox>
         <HBox alignment="CENTER_LEFT">
           <Pane minWidth="200" maxWidth="200"/>
-          <Button fx:id="buttonResetCompilationSettings" onAction="#handleResetCompilationSettings"
+          <Button fx:id="buttonResetBuildSettings" onAction="#handleResetBuildSettings"
                   styleClass="button"
                   text="Reset to Defaults"/>
         </HBox>

@@ -109,9 +109,9 @@ public class MainMenuController extends ProjectController {
   RadioMenuItem menuViewModeFabrication;
 
   @FXML
-  Button buttonCompile;
+  Button buttonBuild;
   @FXML
-  Button buttonCompileSettings;
+  Button buttonBuildSettings;
 
   @FXML
   ToggleGroup buttonViewModeToggleGroup;
@@ -174,8 +174,8 @@ public class MainMenuController extends ProjectController {
     projectService.recentProjectsProperty().addListener((ChangeListener<? super ObservableList<ProjectDescriptor>>) (o, ov, value) -> updateRecentProjectsMenu());
     updateRecentProjectsMenu();
 
-    buttonCompile.disableProperty().bind(projectService.isStateReadyProperty().not());
-    buttonCompileSettings.disableProperty().bind(projectService.isStateReadyProperty().not());
+    buttonBuild.disableProperty().bind(projectService.isStateReadyProperty().not());
+    buttonBuildSettings.disableProperty().bind(projectService.isStateReadyProperty().not());
 
     setupViewModeToggle(menuViewModeToggleGroup, menuViewModeContent, menuViewModeTemplates, menuViewModeFabrication);
     menuViewModeContent.disableProperty().bind(projectService.isStateReadyProperty().not());
@@ -292,15 +292,15 @@ public class MainMenuController extends ProjectController {
   }
 
   @FXML
-  void handleCompile()
+  void handleBuild()
   {
-    projectService.compile();
+    projectService.buildProject();
   }
 
   @FXML
-  void handleCompileSettings()
+  void handleBuildSettings()
   {
-    settingsModalController.launchModalWithCompilationSettings();
+    settingsModalController.launchModalWithBuildSettings();
   }
 
 

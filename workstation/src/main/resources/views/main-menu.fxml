@@ -34,17 +34,17 @@
             AnchorPane.bottomAnchor="0"
             AnchorPane.rightAnchor="0">
         <HBox alignment="CENTER">
-            <Button text="BUILD" fx:id="buttonCompile" onAction="#handleCompile">
+            <Button text="BUILD" fx:id="buttonBuild" onAction="#handleBuild">
                 <graphic>
                     <ImageView fitWidth="18" fitHeight="18">
-                        <Image url="@/icons/compile.png"/>
+                        <Image url="@/icons/build.png"/>
                     </ImageView>
                 </graphic>
                 <tooltip>
-                    <Tooltip text="Compile Content"/>
+                    <Tooltip text="Build Content"/>
                 </tooltip>
             </Button>
-            <Button fx:id="buttonCompileSettings" onAction="#handleCompileSettings">
+            <Button fx:id="buttonBuildSettings" onAction="#handleBuildSettings">
                 <graphic>
                     <SVGPath styleClass="icon" content="M3 6h12v2h-12zM3 11h12v2h-12zM3 16h12v2h-12z"/>
                 </graphic>

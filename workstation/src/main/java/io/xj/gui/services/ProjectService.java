@@ -97,7 +97,7 @@ public interface ProjectService {
    - Delete dereferenced audio files in the build folder
    - Compile button has state-based appearance
    */
-  void compile();
+  void buildProject();
 
   /**
    Save the project
@@ -146,7 +146,7 @@ public interface ProjectService {
   /**
    Reset compilation settings to defaults
    */
-  void resetCompilationSettingsToDefaults();
+  void resetBuildSettingsToDefaults();
 
   /**
    @return observable progress property

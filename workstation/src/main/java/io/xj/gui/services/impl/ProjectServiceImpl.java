@@ -148,9 +148,9 @@ public class ProjectServiceImpl implements ProjectService {
   public ProjectServiceImpl(
     @Value("${demo.baseUrl}") String demoBaseUrl,
     @Value("${view.recentProjectsMax}") int maxRecentProjects,
-    @Value("${compilation.defaultOutputChannels}") int defaultOutputChannels,
-    @Value("${compilation.defaultOutputFrameRate}") int defaultOutputFrameRate,
-    @Value("${compilation.defaultOutputContainer}") String defaultOutputContainer,
+    @Value("${build.defaultOutputChannels}") int defaultOutputChannels,
+    @Value("${build.defaultOutputFrameRate}") int defaultOutputFrameRate,
+    @Value("${build.defaultOutputContainer}") String defaultOutputContainer,
     ThemeService themeService,
     ProjectManager projectManager,
     VersionService versionService
@@ -307,7 +307,7 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   @Override
-  public void compile() {
+  public void buildProject() {
     // TODO implement
   }
 
@@ -364,7 +364,7 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   @Override
-  public void resetCompilationSettingsToDefaults() {
+  public void resetBuildSettingsToDefaults() {
     outputChannels.set(String.valueOf(defaultOutputChannels));
     outputFrameRate.set(String.valueOf(defaultOutputFrameRate));
   }
