@@ -36,7 +36,7 @@
         <HBox alignment="CENTER">
             <Button text="BUILD" fx:id="buttonBuild" onAction="#handleBuild">
                 <graphic>
-                    <ImageView fitWidth="18" fitHeight="18">
+                    <ImageView fx:id="buttonBuildImageView" fitWidth="18" fitHeight="18">
                         <Image url="@/icons/build.png"/>
                     </ImageView>
                 </graphic>
