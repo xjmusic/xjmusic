@@ -418,7 +418,7 @@ public class ProjectManagerImpl implements ProjectManager {
           var sourcePath = getPathToInstrumentAudio(instrument, audio.getWaveformKey(), null);
           var sourceSize = getFileSizeIfExistsOnDisk(sourcePath);
           if (sourceSize.isPresent()) {
-            var extension = outputContainer.toString().toLowerCase(Locale.ROOT); // todo if this doesn't work, go back to: ProjectPathUtils.getExtension(File.separator + audio.getWaveformKey());
+            var extension = outputContainer.toString().toLowerCase(Locale.ROOT);
             var waveformKey = audio.getId().toString() + "." + extension;
             var destinationPath = buildFolderPathPrefix + waveformKey;
             builtContent.update(InstrumentAudio.class, audio.getId(), "waveformKey", destinationPath);
