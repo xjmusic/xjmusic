@@ -289,9 +289,9 @@ public class ProjectServiceImpl implements ProjectService {
     String parentPathPrefix,
     String exportName,
     Boolean conversion,
-    @Nullable Integer conversionFrameRate,
-    @Nullable Integer conversionSampleBits,
-    @Nullable Integer conversionChannels
+    int conversionFrameRate,
+    int conversionSampleBits,
+    int conversionChannels
   ) {
     if (promptToSkipOverwriteIfExists(parentPathPrefix, exportName, "Template Export"))
       executeInBackground("Export Template", () -> {
