@@ -1,6 +1,5 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-
 #include <set>
 
 #include <gmock/gmock.h>
@@ -8,9 +7,12 @@
 
 #include "./_helper/ContentFixtures.h"
 
+#include "xjmusic/Engine.h"
 #include "xjmusic/craft/Craft.h"
 #include "xjmusic/fabricator/SegmentUtils.h"
 #include "xjmusic/work/WorkManager.h"
+
+static std::string ENGINE_TEST_PROJECT_PATH = "_data/test_project/TestProject.xj";
 
 // NOLINTNEXTLINE
 using ::testing::_;
@@ -27,28 +29,21 @@ protected:
   long long MILLIS_PER_SECOND = 1000;
   int GENERATED_FIXTURE_COMPLEXITY = 3;
   long long startTime = EntityUtils::currentTimeMillis();
-  std::unique_ptr<SegmentEntityStore> store;
-  std::unique_ptr<ContentEntityStore> content;
-  std::unique_ptr<WorkManager> subject;
-  std::unique_ptr<ContentFixtures> fake;
+  Engine *subject = nullptr;
 
   void SetUp() override {
-    content = std::make_unique<ContentEntityStore>();
-    fake = std::make_unique<ContentFixtures>();
-    fake->project1 = ContentFixtures::buildProject("fish");
-    fake->library1 = ContentFixtures::buildLibrary(&fake->project1, "test");
-    fake->generateFixtures(content.get(), GENERATED_FIXTURE_COMPLEXITY);
-
-    // Manipulate the underlying entity store; reset before each test
-    store = std::make_unique<SegmentEntityStore>();
-
     // subject
-    auto settings = WorkSettings();
-    Template tmpl = **content->getTemplates().begin();
-    tmpl.shipKey = "complex_library_test";
-    tmpl.config = TemplateConfig("outputEncoding=\"PCM_SIGNED\"\noutputContainer = \"WAV\"\ndeltaArcEnabled = false\n");
-    content->put(tmpl);
-    subject = std::make_unique<WorkManager>(store.get(), content.get(), settings);
+    auto [controlMode, craftAheadSeconds, dubAheadSeconds, persistenceWindowSeconds] = WorkSettings();
+    subject = new Engine(
+        ENGINE_TEST_PROJECT_PATH,
+        controlMode,
+        craftAheadSeconds,
+        dubAheadSeconds,
+        persistenceWindowSeconds);
+  }
+
+  void TearDown() override {
+    delete subject;
   }
 
   /**
@@ -69,16 +64,20 @@ protected:
    @return true if it has at least N segments
    */
   [[nodiscard]] bool hasSegmentsDubbedPastMinimumOffset() const {
-    const auto segment = SegmentUtils::getLastCrafted(store->readAllSegments());
+    const auto segment = SegmentUtils::getLastCrafted(subject->getSegmentStore()->readAllSegments());
     return segment.has_value() && segment.value()->id >= MARATHON_NUMBER_OF_SEGMENTS;
   }
 };
 
 TEST_F(XJEngineTest, HasSegmentsDubbedPastMinimumOffset) {
-  subject->start();
+  const auto tmpl = subject->getProjectContent()->getFirstTemplate();
+  ASSERT_TRUE(tmpl.has_value());
+
+  subject->start(tmpl.value()->id);
   unsigned long long atChainMicros = 0;
   while (!hasSegmentsDubbedPastMinimumOffset() && isWithinTimeLimit()) {
-    subject->runCycle(atChainMicros);
+    auto audios = subject->runCycle(atChainMicros);
+    ASSERT_FALSE(audios.empty());
     spdlog::info("Ran cycle at {}", atChainMicros);
     atChainMicros += MICROS_PER_CYCLE;
   }

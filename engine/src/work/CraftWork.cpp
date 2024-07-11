@@ -27,13 +27,15 @@ CraftWork::CraftWork(
   craftAheadMicros = craftAheadSeconds * ValueUtils::MICROS_PER_SECOND;
   persistenceWindowMicros = persistenceWindowSeconds * ValueUtils::MICROS_PER_SECOND;
   this->content = content;
+}
 
+void CraftWork::start() {
   // Create chain from template
-  if (content->getTemplates().empty())
+  if (content->getTemplates().empty()) {
     throw std::runtime_error("Cannot initialize CraftWork without Templates");
+  }
   const auto tmpl = *content->getTemplates().begin();
   store->put(ChainUtils::fromTemplate(tmpl));
-
   running = true;
 }
 
@@ -328,7 +330,7 @@ void CraftWork::doFabricationWork(
   auto fabricator = Fabricator(content, store, &retrospective, inputSegment->id, overrideSegmentType);
 
   spdlog::debug("[segId={}] will do craft work", inputSegment->id);
-  const Segment * updatedSegment = updateSegmentState(&fabricator, inputSegment, Segment::State::Planned, Segment::State::Crafting);
+  const Segment *updatedSegment = updateSegmentState(&fabricator, inputSegment, Segment::State::Planned, Segment::State::Crafting);
   MacroMainCraft(&fabricator, overrideMacroProgram, overrideMemes).doWork();
 
   BeatCraft(&fabricator).doWork();
@@ -348,7 +350,7 @@ void CraftWork::doSegmentCleanup(const long shippedToChainMicros) const {
 }
 
 Segment CraftWork::buildSegmentInitial() const {
-   auto segment = Segment();
+  auto segment = Segment();
   segment.id = 0;
   segment.chainId = store->readChain().value()->id;
   segment.beginAtChainMicros = 0L;
@@ -362,7 +364,7 @@ Segment CraftWork::buildSegmentFollowing(const Segment *last) const {
   if (!last->durationMicros.has_value()) {
     throw std::runtime_error("Last segment has no duration, cannot fabricate next segment");
   }
-   auto segment = Segment();
+  auto segment = Segment();
   segment.id = last->id + 1;
   segment.chainId = store->readChain().value()->id;
   segment.beginAtChainMicros = last->beginAtChainMicros + last->durationMicros.value();
@@ -395,7 +397,7 @@ std::set<const SegmentChoice *> CraftWork::getChoices(const Segment *segment) co
 
 std::set<const SegmentChoiceArrangement *> CraftWork::getArrangements(const SegmentChoice *choice) const {
   std::set<const SegmentChoiceArrangement *> results;
-  for (auto arrangement : store->readAllSegmentChoiceArrangements( choice->segmentId))
+  for (auto arrangement: store->readAllSegmentChoiceArrangements(choice->segmentId))
     if (arrangement->segmentChoiceId == choice->id)
       results.emplace(arrangement);
   return results;
@@ -403,10 +405,8 @@ std::set<const SegmentChoiceArrangement *> CraftWork::getArrangements(const Segm
 
 std::set<const SegmentChoiceArrangementPick *> CraftWork::getPicks(const SegmentChoiceArrangement *arrangement) const {
   std::set<const SegmentChoiceArrangementPick *> results;
-  for (auto pick : store->readAllSegmentChoiceArrangementPicks( arrangement->segmentId))
+  for (auto pick: store->readAllSegmentChoiceArrangementPicks(arrangement->segmentId))
     if (pick->segmentChoiceArrangementId == arrangement->id)
       results.emplace(pick);
   return results;
 }
-
-

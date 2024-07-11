@@ -16,6 +16,7 @@ namespace XJ {
     std::unique_ptr<ContentEntityStore> templateContent;
     std::unique_ptr<WorkManager> work;
     std::string pathToProjectFile;
+    std::filesystem::path pathToBuildDirectory;
 
   public:
     /**

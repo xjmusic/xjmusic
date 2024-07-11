@@ -20,7 +20,9 @@ WorkManager::WorkManager(
   this->content = content;
   this->config = config;
   spdlog::debug("Did set work configuration: {}", config.toString());
+}
 
+void WorkManager::start() {
   // If memes/macro already engaged at fabrication start (which is always true in a manual control mode),
   // the first segment should be governed by that selection https://github.com/xjmusic/xjmusic/issues/201
   switch (config.controlMode) {
@@ -52,15 +54,15 @@ WorkManager::WorkManager(
   } catch (std::exception &e) {
     spdlog::error("Failed to get meme taxonomy from template config: {}", e.what());
   }
-}
 
-void WorkManager::start() {
   // get system milliseconds UTC now
   startedAtMillis = std::chrono::duration_cast<std::chrono::milliseconds>(
                         std::chrono::system_clock::now().time_since_epoch())
                         .count();
   isAudioLoaded = false;
   updateState(Active);
+  craftWork.start();
+  dubWork.start();
 }
 
 void WorkManager::finish(const bool cancelled) {
