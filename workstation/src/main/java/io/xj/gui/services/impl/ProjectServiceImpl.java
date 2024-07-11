@@ -1,9 +1,14 @@
 package io.xj.gui.services.impl;
 
+import io.xj.engine.util.FormatUtils;
+import io.xj.gui.project.ProjectBuildState;
+import io.xj.gui.project.ProjectManager;
+import io.xj.gui.project.ProjectState;
 import io.xj.gui.services.ProjectDescriptor;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.VersionService;
+import io.xj.gui.types.AudioFileContainer;
 import io.xj.model.HubContent;
 import io.xj.model.entity.EntityUtils;
 import io.xj.model.enums.ContentBindingType;
@@ -30,9 +35,6 @@ import io.xj.model.pojos.Template;
 import io.xj.model.pojos.TemplateBinding;
 import io.xj.model.util.StringUtils;
 import io.xj.model.util.ValueUtils;
-import io.xj.gui.project.ProjectManager;
-import io.xj.gui.project.ProjectState;
-import io.xj.engine.util.FormatUtils;
 import jakarta.annotation.Nullable;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -40,6 +42,7 @@ import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.Property;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleListProperty;
@@ -74,6 +77,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -86,6 +90,10 @@ public class ProjectServiceImpl implements ProjectService {
   private static final Logger LOG = LoggerFactory.getLogger(ProjectServiceImpl.class);
   private static final String defaultBasePathPrefix = System.getProperty("user.home") + File.separator + "Documents";
   private static final String defaultExportPathPrefix = System.getProperty("user.home") + File.separator + "Documents";
+  private final int defaultOutputChannels;
+  private final int defaultOutputFrameRate;
+  private final AudioFileContainer defaultOutputContainer;
+  private final String defaultOutputSampleBits;
   private static final double ERROR_DIALOG_WIDTH = 800.0;
   private static final double ERROR_DIALOG_HEIGHT = 600.0;
   private static final Collection<ProjectState> PROJECT_LOADING_STATES = Set.of(
@@ -93,7 +101,8 @@ public class ProjectServiceImpl implements ProjectService {
     ProjectState.LoadedContent,
     ProjectState.LoadingAudio,
     ProjectState.LoadedAudio,
-    ProjectState.ExportingTemplate
+    ProjectState.ExportingTemplate,
+    ProjectState.BuildingProject
   );
   private final Map<Class<? extends Serializable>, Set<Runnable>> projectUpdateListeners = new HashMap<>();
   private final Preferences prefs = Preferences.userNodeForPackage(ProjectServiceImpl.class);
@@ -105,7 +114,12 @@ public class ProjectServiceImpl implements ProjectService {
   private final StringProperty progressLabel = new SimpleStringProperty();
   private final BooleanProperty isModified = new SimpleBooleanProperty(false);
   private final BooleanProperty isDemoProject = new SimpleBooleanProperty(false);
+  private final StringProperty outputFrameRate = new SimpleStringProperty();
+  private final StringProperty outputChannels = new SimpleStringProperty();
+  private final ObjectProperty<AudioFileContainer> outputContainer = new SimpleObjectProperty<>();
+  private final StringProperty outputSampleBits = new SimpleStringProperty();
   private final ObjectProperty<ProjectState> state = new SimpleObjectProperty<>(ProjectState.Standby);
+  private final ObjectProperty<ProjectBuildState> buildState = new SimpleObjectProperty<>(ProjectBuildState.Standby);
   private final ObservableStringValue stateText = Bindings.createStringBinding(
     () -> switch (state.get()) {
       case Standby -> "Standby";
@@ -113,7 +127,7 @@ public class ProjectServiceImpl implements ProjectService {
       case CreatedFolder -> "Created Folder";
       case LoadingContent -> "Loading Content";
       case LoadedContent -> "Loaded Content";
-      case LoadingAudio, ExportingTemplate -> progressLabel.get();
+      case LoadingAudio, ExportingTemplate, BuildingProject -> progressLabel.get();
       case LoadedAudio -> "Loaded Audio";
       case Ready -> "Ready";
       case Saving -> "Saving";
@@ -139,12 +153,20 @@ public class ProjectServiceImpl implements ProjectService {
   public ProjectServiceImpl(
     @Value("${demo.baseUrl}") String demoBaseUrl,
     @Value("${view.recentProjectsMax}") int maxRecentProjects,
+    @Value("${build.defaultOutputChannels}") int defaultOutputChannels,
+    @Value("${build.defaultOutputFrameRate}") int defaultOutputFrameRate,
+    @Value("${build.defaultOutputContainer}") String defaultOutputContainer,
+    @Value("${build.defaultOutputSampleBits}") String defaultOutputSampleBits,
     ThemeService themeService,
     ProjectManager projectManager,
     VersionService versionService
   ) {
     this.demoBaseUrl = demoBaseUrl;
     this.maxRecentProjects = maxRecentProjects;
+    this.defaultOutputChannels = defaultOutputChannels;
+    this.defaultOutputFrameRate = defaultOutputFrameRate;
+    this.defaultOutputContainer = AudioFileContainer.valueOf(defaultOutputContainer.toUpperCase(Locale.ROOT));
+    this.defaultOutputSampleBits = defaultOutputSampleBits;
     this.themeService = themeService;
     this.projectManager = projectManager;
     this.versionService = versionService;
@@ -155,6 +177,7 @@ public class ProjectServiceImpl implements ProjectService {
     projectManager.setOnProgressLabel((label) -> Platform.runLater(() -> this.progressLabel.set(label)));
     projectManager.setOnProgress((progress) -> Platform.runLater(() -> this.progress.set(progress)));
     projectManager.setOnStateChange((state) -> Platform.runLater(() -> this.state.set(state)));
+    projectManager.setOnBuildStateChange((buildState) -> Platform.runLater(() -> this.buildState.set(buildState)));
 
     currentProject = Bindings.createObjectBinding(() -> {
       if (Objects.equals(state.get(), ProjectState.Ready)) {
@@ -184,7 +207,7 @@ public class ProjectServiceImpl implements ProjectService {
       didUpdate(Library.class, false);
       didUpdate(Program.class, false);
       didUpdate(Instrument.class, false);
-      isModified.set(false);
+      resetProjectModificationStates(true);
       state.set(ProjectState.Standby);
       if (Objects.nonNull(afterClose)) Platform.runLater(afterClose);
     });
@@ -195,13 +218,13 @@ public class ProjectServiceImpl implements ProjectService {
     closeProject(() -> executeInBackground("Open Project", () -> {
       if (projectManager.openProjectFromLocalFile(projectFilePath)) {
         projectManager.getProject().ifPresent(project -> {
-          isModified.set(false);
+          resetProjectModificationStates(true);
           addToRecentProjects(project, projectManager.getProjectFilename(), projectManager.getPathToProjectFile());
           Platform.runLater(() -> {
             if (Objects.isNull(project.getPlatformVersion()) || ValueUtils.compareMonotonicVersion(project.getPlatformVersion(), versionService.getVersion()) < 0) {
               var migrate = showConfirmationDialog("Legacy Project Version", "Project created with previous workstation version", "The project was created with a previous version of the software. It's necessary to migrate and save the project before using it. Do you want to continue?");
               if (migrate) {
-                saveProject(() -> isModified.set(false));
+                saveProject(() -> resetProjectModificationStates(true));
               } else {
                 closeProject(null);
               }
@@ -224,7 +247,7 @@ public class ProjectServiceImpl implements ProjectService {
         executeInBackground("Create Project", () -> {
           if (projectManager.createProject(parentPathPrefix, projectName, versionService.getVersion())) {
             projectManager.getProject().ifPresent(project -> {
-              isModified.set(false);
+              resetProjectModificationStates(true);
               addToRecentProjects(project, projectManager.getProjectFilename(), projectManager.getPathToProjectFile());
             });
           }
@@ -245,7 +268,7 @@ public class ProjectServiceImpl implements ProjectService {
               versionService.getVersion()
             )) {
               projectManager.getProject().ifPresent(project -> {
-                isModified.set(false);
+                resetProjectModificationStates(true);
                 addToRecentProjects(project, projectManager.getProjectFilename(), projectManager.getPathToProjectFile());
               });
             } else {
@@ -285,10 +308,29 @@ public class ProjectServiceImpl implements ProjectService {
             Platform.runLater(this::cancelProjectLoading);
           }
         } catch (Exception e) {
-          LOG.warn("Failed to duplicate project! {}\n{}", e, StringUtils.formatStackTrace(e));
+          LOG.warn("Failed to export template! {}\n{}", e, StringUtils.formatStackTrace(e));
           Platform.runLater(this::cancelProjectLoading);
         }
       });
+  }
+
+  @Override
+  public void buildProject() {
+    executeInBackground("Build Project", () -> {
+      try {
+        if (!projectManager.buildProject(
+          outputContainer.get(),
+          (int) Float.parseFloat(outputFrameRate.get()),
+          Integer.parseInt(outputSampleBits.get()),
+          Integer.parseInt(outputChannels.get())
+        )) {
+          Platform.runLater(this::cancelProjectLoading);
+        }
+      } catch (Exception e) {
+        LOG.warn("Failed to build project! {}\n{}", e, StringUtils.formatStackTrace(e));
+        Platform.runLater(this::cancelProjectLoading);
+      }
+    });
   }
 
   @Override
@@ -297,7 +339,7 @@ public class ProjectServiceImpl implements ProjectService {
     executeInBackground("Save Project", () -> {
       projectManager.saveProject(versionService.getVersion());
       Platform.runLater(() -> {
-        isModified.set(false);
+        resetProjectModificationStates(false);
         if (Objects.nonNull(onComplete)) Platform.runLater(onComplete);
       });
     });
@@ -309,7 +351,7 @@ public class ProjectServiceImpl implements ProjectService {
     executeInBackground("Save As New Project", () -> {
       projectManager.saveAsProject(parentPathPrefix, projectName, versionService.getVersion());
       addToRecentProjects(projectManager.getProject().orElse(null), projectName + ".xj", projectManager.getPathToProjectFile());
-      Platform.runLater(() -> isModified.set(false));
+      Platform.runLater(() -> resetProjectModificationStates(false));
     });
   }
 
@@ -329,6 +371,32 @@ public class ProjectServiceImpl implements ProjectService {
   }
 
   @Override
+  public StringProperty outputChannelsProperty() {
+    return outputChannels;
+  }
+
+  @Override
+  public StringProperty outputFrameRateProperty() {
+    return outputFrameRate;
+  }
+
+  @Override
+  public Property<AudioFileContainer> outputContainerProperty() {
+    return outputContainer;
+  }
+
+  @Override
+  public StringProperty outputSampleBitsProperty() {
+    return outputSampleBits;
+  }
+
+  @Override
+  public void resetBuildSettingsToDefaults() {
+    outputChannels.set(String.valueOf(defaultOutputChannels));
+    outputFrameRate.set(String.valueOf(defaultOutputFrameRate));
+  }
+
+  @Override
   public DoubleProperty progressProperty() {
     return progress;
   }
@@ -336,6 +404,11 @@ public class ProjectServiceImpl implements ProjectService {
   @Override
   public ObjectProperty<ProjectState> stateProperty() {
     return state;
+  }
+
+  @Override
+  public ObjectProperty<ProjectBuildState> buildStateProperty() {
+    return buildState;
   }
 
   @Override
@@ -380,7 +453,7 @@ public class ProjectServiceImpl implements ProjectService {
       try {
         deleteContent(entity.getClass(), id);
       } catch (Exception e2) {
-        LOG.error("Could not delete {}[{}]! {}\n{}", entity.getClass().getSimpleName(), id, e2, StringUtils.formatStackTrace(e2));
+        LOG.error("Could not delete content {}[{}]! {}\n{}", entity.getClass().getSimpleName(), id, e2, StringUtils.formatStackTrace(e2));
       }
     } catch (Exception e) {
       LOG.error("Could not delete {}! {}\n{}", entity.getClass().getSimpleName(), e, StringUtils.formatStackTrace(e));
@@ -394,7 +467,7 @@ public class ProjectServiceImpl implements ProjectService {
       didUpdate(type, true);
       LOG.info("Deleted {}[{}]", type.getSimpleName(), id);
     } catch (Exception e) {
-      LOG.error("Could not delete {}[{}]! {}\n{}", type.getSimpleName(), id, e, StringUtils.formatStackTrace(e));
+      LOG.error("Could not delete content having type and id {}[{}]! {}\n{}", type.getSimpleName(), id, e, StringUtils.formatStackTrace(e));
     }
   }
 
@@ -473,6 +546,7 @@ public class ProjectServiceImpl implements ProjectService {
   @Override
   public <N> void didUpdate(Class<N> type, boolean modified) {
     if (modified) isModified.set(true);
+    buildState.set(ProjectBuildState.Dirty);
 
     if (projectUpdateListeners.containsKey(type))
       projectUpdateListeners.get(type).forEach(Runnable::run);
@@ -1083,6 +1157,10 @@ public class ProjectServiceImpl implements ProjectService {
   private void attachPreferenceListeners() {
     projectsPathPrefix.addListener((o, ov, value) -> prefs.put("basePathPrefix", value));
     exportPathPrefix.addListener((o, ov, value) -> prefs.put("exportPathPrefix", value));
+    outputChannels.addListener((o, ov, value) -> prefs.put("outputChannels", value));
+    outputFrameRate.addListener((o, ov, value) -> prefs.put("outputFrameRate", value));
+    outputContainer.addListener((o, ov, value) -> prefs.put("outputContainer", value.toString()));
+    outputSampleBits.addListener((o, ov, value) -> prefs.put("outputSampleBits", value));
     recentProjects.addListener((o, ov, value) -> {
       try {
         prefs.put("recentProjects", jsonProvider.getMapper().writeValueAsString(value));
@@ -1102,6 +1180,16 @@ public class ProjectServiceImpl implements ProjectService {
       recentProjects.setAll(jsonProvider.getMapper().readValue(prefs.get("recentProjects", "[]"), ProjectDescriptor[].class));
     } catch (Exception e) {
       LOG.warn("Failed to deserialize recent projects! {}\n{}", e, StringUtils.formatStackTrace(e));
+    }
+    outputChannels.set(prefs.get("outputChannels", Integer.toString(defaultOutputChannels)));
+    outputFrameRate.set(prefs.get("outputFrameRate", Double.toString(defaultOutputFrameRate)));
+    outputSampleBits.set(prefs.get("outputSampleBits", defaultOutputSampleBits));
+
+    try {
+      outputContainer.set(AudioFileContainer.valueOf(prefs.get("outputContainer", defaultOutputContainer.toString()).toUpperCase(Locale.ROOT)));
+    } catch (Exception e) {
+      LOG.error("Failed to set control mode from preferences", e);
+      outputContainer.set(defaultOutputContainer);
     }
   }
 
@@ -1124,6 +1212,15 @@ public class ProjectServiceImpl implements ProjectService {
    */
   private void removeFromRecentProjects(String projectFilePath) {
     this.recentProjects.get().removeIf(existing -> Objects.equals(existing.projectFilePath(), projectFilePath));
+  }
+
+  /**
+   Reset the project modification states.
+   */
+  private void resetProjectModificationStates(boolean resetBuild) {
+    isModified.set(false);
+    if (resetBuild)
+      buildState.set(ProjectBuildState.Standby);
   }
 
 }

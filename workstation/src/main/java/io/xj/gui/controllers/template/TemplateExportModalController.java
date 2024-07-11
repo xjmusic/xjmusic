@@ -3,7 +3,6 @@
 package io.xj.gui.controllers.template;
 
 import io.xj.gui.ProjectModalController;
-import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
@@ -41,7 +40,6 @@ public class TemplateExportModalController extends ProjectModalController {
     "Original Source",
     "Converted for Mixing"
   ));
-  private final FabricationService fabricationService;
 
   @FXML
   ComboBox<String> selectAudioFormat;
@@ -69,11 +67,9 @@ public class TemplateExportModalController extends ProjectModalController {
     ConfigurableApplicationContext ac,
     UIStateService uiStateService,
     ProjectService projectService,
-    FabricationService fabricationService,
     ThemeService themeService
   ) {
     super(fxml, ac, themeService, uiStateService, projectService);
-    this.fabricationService = fabricationService;
   }
 
   @Override
@@ -137,9 +133,9 @@ public class TemplateExportModalController extends ProjectModalController {
   void handlePressOK() {
     var projectName = StringUtils.toLowerScored(templateExportName.getText());
     Boolean conversion = Objects.equals(selectAudioFormat.getValue(), audioFormatOptions.get(1));
-    @Nullable Integer conversionFrameRate = conversion ? Integer.valueOf(fabricationService.outputFrameRateProperty().getValue()) : null;
+    @Nullable Integer conversionFrameRate = conversion ? Integer.valueOf(projectService.outputFrameRateProperty().getValue()) : null;
     @Nullable Integer conversionSampleBits = conversion ? FIXED_SAMPLE_BITS : null;
-    @Nullable Integer conversionChannel = conversion ? Integer.valueOf(fabricationService.outputChannelsProperty().getValue()) : null;
+    @Nullable Integer conversionChannel = conversion ? Integer.valueOf(projectService.outputChannelsProperty().getValue()) : null;
     projectService.exportTemplate(
       template.get(),
       fieldPathPrefix.getText(),
