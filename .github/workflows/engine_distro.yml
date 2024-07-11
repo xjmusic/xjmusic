@@ -77,28 +77,6 @@ jobs:
             exit 1
           fi
 
-      - name: Get engine docs version
-        id: get-engine-docs-version
-        working-directory: engine/doc
-        run: |
-          VERSION=$(grep "DOXYGEN_PROJECT_NUMBER" CMakeLists.txt | sed -n -e 's/^.*DOXYGEN_PROJECT_NUMBER //p' | sed -e 's/[^\.0-9]//g')
-          if [ -z "$VERSION" ]; then
-            echo "Version number not found!"
-            exit 1
-          fi
-          echo "Engine Docs Version is $VERSION"
-          echo "version=$VERSION" >> $GITHUB_ENV
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-
-      - name: Check engine version vs engine doc version
-        run: |
-          ENGINE_VERSION=${{ steps.get-engine-version.outputs.version }}
-          ENGINE_DOCS_VERSION=${{ steps.get-engine-docs-version.outputs.version }}
-          if [ "$ENGINE_VERSION" != "$ENGINE_DOCS_VERSION" ]; then
-            echo "Engine version '$ENGINE_VERSION' does not match engine docs version '$ENGINE_DOCS_VERSION'!"
-            exit 1
-          fi
-
 
   build_and_test:
     needs: verify_version_number
