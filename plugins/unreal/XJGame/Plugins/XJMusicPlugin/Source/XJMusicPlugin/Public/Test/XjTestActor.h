@@ -26,6 +26,11 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio")
+	UAudioComponent* AudioComponent;
+
 public:	
 	virtual void Tick(float DeltaTime) override;
+
+	void PlayTestSound(USoundBase* Sound);
 };

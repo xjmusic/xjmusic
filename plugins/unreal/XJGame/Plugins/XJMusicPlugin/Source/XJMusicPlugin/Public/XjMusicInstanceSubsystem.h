@@ -16,7 +16,7 @@ public:
 
 	USoundWave* GetSoundWaveByName(const FString& AudioName);
 
-	void TestPlayAllSounds();
+	void TestPlayAllSounds(AActor* AudioActor);
 
 private:
 	UFUNCTION()
@@ -27,9 +27,9 @@ private:
 
 	TMap<FString, FString> AudioPathsByNameLookup;
 
-	class UAudioComponent* AudioComponent = nullptr;
-
 	FTimerHandle TestTimerHandle;
 
 	int TestAudioCounter = 0;
+
+	class AXjTestActor* XjTestActor;
 };

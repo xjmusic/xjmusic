@@ -10,7 +10,8 @@
 #include <Engine/AssetManager.h>
 #include <Engine/ObjectLibrary.h>
 #include <Misc/FileHelper.h>
-#include <Components/AudioComponent.h>
+
+#include "Test/XjTestActor.h"
 
 #include "TimerManager.h"
 
@@ -86,14 +87,15 @@ USoundWave* UXjMusicInstanceSubsystem::GetSoundWaveByName(const FString& AudioNa
 	return SoundWave;
 }
 
-void UXjMusicInstanceSubsystem::TestPlayAllSounds()
+void UXjMusicInstanceSubsystem::TestPlayAllSounds(AActor* AudioActor)
 {
 	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, "Audio test started");
 
+	XjTestActor = Cast<AXjTestActor>(AudioActor);
+	
+
 	TestAudioCounter = 0;
 	GetWorld()->GetTimerManager().SetTimer(TestTimerHandle, this, &UXjMusicInstanceSubsystem::OnTestTimerCallback,5.0f, true);
-
-	AudioComponent = 
 }
 
 void UXjMusicInstanceSubsystem::OnTestTimerCallback()
@@ -109,9 +111,12 @@ void UXjMusicInstanceSubsystem::OnTestTimerCallback()
 
 	if (USoundWave* Sound = GetSoundWaveByName(Names[TestAudioCounter]))
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, FString::Printf(TEXT("Played audio %d/%d"), TestAudioCounter, AudioPathsByNameLookup.Num()));
-
-		//Play sound	
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, FString::Printf(TEXT("Played audio %d/%d"), TestAudioCounter + 1, AudioPathsByNameLookup.Num()));
+	
+		if (XjTestActor)
+		{
+			XjTestActor->PlayTestSound(Sound);
+		}
 	}
 
 	TestAudioCounter++;
