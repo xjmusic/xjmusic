@@ -421,7 +421,7 @@ public class ProjectManagerImpl implements ProjectManager {
             var extension = outputContainer.toString().toLowerCase(Locale.ROOT);
             var waveformKey = audio.getId().toString() + "." + extension;
             var destinationPath = buildFolderPathPrefix + waveformKey;
-            builtContent.update(InstrumentAudio.class, audio.getId(), "waveformKey", destinationPath);
+            builtContent.update(InstrumentAudio.class, audio.getId(), "waveformKey", waveformKey);
             resampleAudioIfNeeded(sourcePath, destinationPath, outputFrameRate, outputSampleBits, outputChannels);
 
           } else {
