@@ -49,7 +49,3 @@ Gradle task provided by the Spring Boot Gradle plugin. It runs the application i
 We recommend starting by ignoring the craft package (very esoteric) and focusing on the dub package (lots of
 straightforward algorithms for mixing audio)
 
-
-
-
-
