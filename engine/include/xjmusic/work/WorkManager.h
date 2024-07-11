@@ -68,7 +68,7 @@ namespace XJ {
     /**
      @return the current work state
      */
-    WorkState getWorkState() const;
+    WorkState getState() const;
 
     /**
      Go to the given macro program right away

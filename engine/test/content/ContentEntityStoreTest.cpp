@@ -59,9 +59,9 @@ protected:
     library1 = ContentFixtures::buildLibrary(&project1, "test");
 
     // Templates: enhanced preview chain creation for artists in Lab UI https://www.pivotaltracker.com/story/show/178457569
-    template1 = ContentFixtures::buildTemplate(&project1, "test1", EntityUtils::computeUniqueId());
+    template1 = ContentFixtures::buildTemplate(&project1, "test1", "test_ship_key_a");
     template1_binding = ContentFixtures::buildTemplateBinding(&template1, &library1);
-    template2 = ContentFixtures::buildTemplate(&project1, "test2", EntityUtils::computeUniqueId());
+    template2 = ContentFixtures::buildTemplate(&project1, "test2", "test_ship_key_b");
 
     // Instrument 1
     instrument1 = ContentFixtures::buildInstrument(&library1, Instrument::Type::Drum, Instrument::Mode::Event,
@@ -149,27 +149,27 @@ TEST_F(ContentStoreTest, FromJsonFile) {
   ASSERT_TRUE(file.is_open());
 
   // Deserialize a content store from a JSON file stream
-  subject = ContentEntityStore(file);
+  auto result = ContentEntityStore(file);
 
   // Assert the correct count of entities in the content store
-  ASSERT_EQ(2, subject.getInstruments().size());
-  ASSERT_EQ(2, subject.getInstrumentAudios().size());
-  ASSERT_EQ(2, subject.getInstrumentMemes().size());
-  ASSERT_EQ(1, subject.getLibraries().size());
-  ASSERT_EQ(2, subject.getPrograms().size());
-  ASSERT_EQ(2, subject.getProgramMemes().size());
-  ASSERT_EQ(2, subject.getProgramSequences().size());
-  ASSERT_EQ(2, subject.getProgramSequenceBindings().size());
-  ASSERT_EQ(2, subject.getProgramSequenceBindingMemes().size());
-  ASSERT_EQ(2, subject.getProgramSequenceChords().size());
-  ASSERT_EQ(2, subject.getProgramSequenceChordVoicings().size());
-  ASSERT_EQ(2, subject.getProgramSequencePatterns().size());
-  ASSERT_EQ(2, subject.getProgramSequencePatternEvents().size());
-  ASSERT_EQ(2, subject.getProgramVoices().size());
-  ASSERT_EQ(2, subject.getProgramVoiceTracks().size());
-  ASSERT_EQ(1, subject.getProjects().size());
-  ASSERT_EQ(2, subject.getTemplates().size());
-  ASSERT_EQ(3, subject.getTemplateBindings().size());
+  ASSERT_EQ(2, result.getInstruments().size());
+  ASSERT_EQ(2, result.getInstrumentAudios().size());
+  ASSERT_EQ(2, result.getInstrumentMemes().size());
+  ASSERT_EQ(1, result.getLibraries().size());
+  ASSERT_EQ(2, result.getPrograms().size());
+  ASSERT_EQ(2, result.getProgramMemes().size());
+  ASSERT_EQ(2, result.getProgramSequences().size());
+  ASSERT_EQ(2, result.getProgramSequenceBindings().size());
+  ASSERT_EQ(2, result.getProgramSequenceBindingMemes().size());
+  ASSERT_EQ(2, result.getProgramSequenceChords().size());
+  ASSERT_EQ(2, result.getProgramSequenceChordVoicings().size());
+  ASSERT_EQ(2, result.getProgramSequencePatterns().size());
+  ASSERT_EQ(2, result.getProgramSequencePatternEvents().size());
+  ASSERT_EQ(2, result.getProgramVoices().size());
+  ASSERT_EQ(2, result.getProgramVoiceTracks().size());
+  ASSERT_EQ(1, result.getProjects().size());
+  ASSERT_EQ(2, result.getTemplates().size());
+  ASSERT_EQ(3, result.getTemplateBindings().size());
 }
 
 TEST_F(ContentStoreTest, FromJsonString) {
@@ -179,31 +179,31 @@ TEST_F(ContentStoreTest, FromJsonString) {
   std::string jsonString((std::istreambuf_iterator(file)), std::istreambuf_iterator<char>());
 
   // Deserialize a content store from a JSON file stream
-  auto subject = ContentEntityStore(jsonString);
+  auto result = ContentEntityStore(jsonString);
 
   // Assert the correct count of entities in the content store
-  ASSERT_EQ(2, subject.getInstruments().size());
-  ASSERT_EQ(2, subject.getInstrumentAudios().size());
-  ASSERT_EQ(2, subject.getInstrumentMemes().size());
-  ASSERT_EQ(1, subject.getLibraries().size());
-  ASSERT_EQ(2, subject.getPrograms().size());
-  ASSERT_EQ(2, subject.getProgramMemes().size());
-  ASSERT_EQ(2, subject.getProgramSequences().size());
-  ASSERT_EQ(2, subject.getProgramSequenceBindings().size());
-  ASSERT_EQ(2, subject.getProgramSequenceBindingMemes().size());
-  ASSERT_EQ(2, subject.getProgramSequenceChords().size());
-  ASSERT_EQ(2, subject.getProgramSequenceChordVoicings().size());
-  ASSERT_EQ(2, subject.getProgramSequencePatterns().size());
-  ASSERT_EQ(2, subject.getProgramSequencePatternEvents().size());
-  ASSERT_EQ(2, subject.getProgramVoices().size());
-  ASSERT_EQ(2, subject.getProgramVoiceTracks().size());
-  ASSERT_EQ(1, subject.getProjects().size());
-  ASSERT_EQ(2, subject.getTemplates().size());
-  ASSERT_EQ(3, subject.getTemplateBindings().size());
+  ASSERT_EQ(2, result.getInstruments().size());
+  ASSERT_EQ(2, result.getInstrumentAudios().size());
+  ASSERT_EQ(2, result.getInstrumentMemes().size());
+  ASSERT_EQ(1, result.getLibraries().size());
+  ASSERT_EQ(2, result.getPrograms().size());
+  ASSERT_EQ(2, result.getProgramMemes().size());
+  ASSERT_EQ(2, result.getProgramSequences().size());
+  ASSERT_EQ(2, result.getProgramSequenceBindings().size());
+  ASSERT_EQ(2, result.getProgramSequenceBindingMemes().size());
+  ASSERT_EQ(2, result.getProgramSequenceChords().size());
+  ASSERT_EQ(2, result.getProgramSequenceChordVoicings().size());
+  ASSERT_EQ(2, result.getProgramSequencePatterns().size());
+  ASSERT_EQ(2, result.getProgramSequencePatternEvents().size());
+  ASSERT_EQ(2, result.getProgramVoices().size());
+  ASSERT_EQ(2, result.getProgramVoiceTracks().size());
+  ASSERT_EQ(1, result.getProjects().size());
+  ASSERT_EQ(2, result.getTemplates().size());
+  ASSERT_EQ(3, result.getTemplateBindings().size());
 }
 
 TEST_F(ContentStoreTest, SetProgramGetProgram) {
-  subject = ContentEntityStore();
+  subject.clear();
 
   // Create an EntityUtils object
   Program program;
@@ -774,6 +774,32 @@ TEST_F(ContentStoreTest, getVoicesOfProgramId) {
   ASSERT_EQ(1, result.size());
 }
 
+TEST_F(ContentStoreTest, getTemplateByIdentifier) {
+  const auto result1 = subject.getTemplateByIdentifier(template1.name);
+  ASSERT_TRUE(result1.has_value());
+  ASSERT_EQ(template1.id, result1.value()->id);
+
+  const auto result2 = subject.getTemplateByIdentifier(template2.name);
+  ASSERT_TRUE(result2.has_value());
+  ASSERT_EQ(template2.id, result2.value()->id);
+
+  const auto result3 = subject.getTemplateByIdentifier(template1.shipKey);
+  ASSERT_TRUE(result3.has_value());
+  ASSERT_EQ(template1.id, result3.value()->id);
+
+  const auto result4 = subject.getTemplateByIdentifier(template2.shipKey);
+  ASSERT_TRUE(result4.has_value());
+  ASSERT_EQ(template2.id, result4.value()->id);
+
+  const auto result5 = subject.getTemplateByIdentifier(template1.id);
+  ASSERT_TRUE(result5.has_value());
+  ASSERT_EQ(template1.id, result5.value()->id);
+
+  const auto result6 = subject.getTemplateByIdentifier(template2.id);
+  ASSERT_TRUE(result6.has_value());
+  ASSERT_EQ(template2.id, result6.value()->id);
+}
+
 TEST_F(ContentStoreTest, setInstruments) {
   subject.setInstruments({});
 
@@ -1122,4 +1148,51 @@ TEST_F(ContentStoreTest, Clear) {
   ASSERT_EQ(0, subject.getProjects().size());
   ASSERT_EQ(0, subject.getTemplates().size());
   ASSERT_EQ(0, subject.getTemplateBindings().size());
+}
+
+TEST_F(ContentStoreTest, PutFromOtherContentEntityStore) {
+  auto subject1 = ContentEntityStore();
+  subject1.setProjects({project1});
+  subject1.setLibraries({library1});
+  subject1.setTemplates({template1, template2});
+  subject1.setTemplateBindings({template1_binding});
+  subject1.setInstruments({instrument1, instrument2});
+  subject1.setInstrumentMemes({instrument1_meme, instrument2_meme});
+  subject1.setInstrumentAudios({instrument1_audio, instrument2_audio});
+  subject1.setPrograms({program1, program2});
+  subject1.setProgramMemes({program1_meme, program2_meme});
+  auto subject2 = ContentEntityStore();
+  subject2.setProgramVoices({program1_voice, program2_voice});
+  subject2.setProgramSequences({program1_sequence, program2_sequence});
+  subject2.setProgramSequenceChords({program1_sequence_chord0, program1_sequence_chord1});
+  subject2.setProgramSequenceChordVoicings({program1_sequence_chord0_voicing0, program1_sequence_chord1_voicing1});
+  subject2.setProgramSequenceBindings({program1_sequence_binding1, program1_sequence_binding2});
+  subject2.setProgramSequenceBindingMemes({program1_sequence_binding1_meme1, program1_sequence_binding1_meme2});
+  subject2.setProgramSequencePatterns({program2_sequence_pattern1, program2_sequence_pattern2});
+  subject2.setProgramVoiceTracks({program2_voice_track1, program2_voice_track2});
+  subject2.setProgramSequencePatternEvents({program2_sequence_pattern1_event1, program2_sequence_pattern1_event2});
+
+  auto subject3 = ContentEntityStore();
+  subject3.put(&subject1);
+  subject3.put(&subject2);
+
+  // Assert the correct count of entities in the content store
+  ASSERT_EQ(2, subject3.getInstruments().size());
+  ASSERT_EQ(2, subject3.getInstrumentAudios().size());
+  ASSERT_EQ(2, subject3.getInstrumentMemes().size());
+  ASSERT_EQ(1, subject3.getLibraries().size());
+  ASSERT_EQ(2, subject3.getPrograms().size());
+  ASSERT_EQ(2, subject3.getProgramMemes().size());
+  ASSERT_EQ(2, subject3.getProgramSequences().size());
+  ASSERT_EQ(2, subject3.getProgramSequenceBindings().size());
+  ASSERT_EQ(2, subject3.getProgramSequenceBindingMemes().size());
+  ASSERT_EQ(2, subject3.getProgramSequenceChords().size());
+  ASSERT_EQ(2, subject3.getProgramSequenceChordVoicings().size());
+  ASSERT_EQ(2, subject3.getProgramSequencePatterns().size());
+  ASSERT_EQ(2, subject3.getProgramSequencePatternEvents().size());
+  ASSERT_EQ(2, subject3.getProgramVoices().size());
+  ASSERT_EQ(2, subject3.getProgramVoiceTracks().size());
+  ASSERT_EQ(1, subject3.getProjects().size());
+  ASSERT_EQ(2, subject3.getTemplates().size());
+  ASSERT_EQ(1, subject3.getTemplateBindings().size());
 }

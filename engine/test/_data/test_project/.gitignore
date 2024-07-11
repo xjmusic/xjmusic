@@ -1,0 +1,5 @@
+# Git keep build folder inside of this test project
+!build
+
+# Ignore the render folder
+render

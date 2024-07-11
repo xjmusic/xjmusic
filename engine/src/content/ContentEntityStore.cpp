@@ -1,9 +1,9 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
+#include <memory>
 #include <optional>
 #include <set>
 #include <vector>
-#include <memory>
 
 #include <nlohmann/json.hpp>
 #include <spdlog/spdlog.h>
@@ -111,7 +111,7 @@ namespace XJ {
     }                                                                                      \
     return *this;                                                                          \
   }                                                                                        \
-  ENTITY* ContentEntityStore::put(const ENTITY &entity) {                                  \
+  ENTITY *ContentEntityStore::put(const ENTITY &entity) {                                  \
     try {                                                                                  \
       STORE[entity.id] = std::move(entity);                                                \
       return &STORE[entity.id];                                                            \
@@ -781,6 +781,28 @@ std::set<const ProgramVoice *> ContentEntityStore::getVoicesOfProgram(const UUID
   return result;
 }
 
+std::optional<const Template *> ContentEntityStore::getTemplateByIdentifier(const std::optional<std::string>::value_type &identifier) {
+  // "identifier" which is first the name, then the ship key, then the id
+  // is a unique identifier for a template
+  for (const auto &[_, tmpl]: templates) {
+    if (tmpl.name == identifier) {
+      return &tmpl;
+    }
+    if (tmpl.shipKey == identifier) {
+      return &tmpl;
+    }
+    if (tmpl.id == identifier) {
+      return &tmpl;
+    }
+  }
+  return std::nullopt;
+}
+
+std::optional<const Template *> ContentEntityStore::getFirstTemplate() {
+  if (templates.empty()) return std::nullopt;
+  return &templates.begin()->second;
+}
+
 ContentEntityStore ContentEntityStore::forTemplate(const Template *tmpl) {
   ContentEntityStore content;
 
@@ -893,6 +915,65 @@ void ContentEntityStore::clear() {
   templateBindings.clear();
   projects.clear();
 }
+
+void ContentEntityStore::put(const ContentEntityStore *other) {
+  for (const auto &[_, instrument]: other->instruments) {
+    instruments[instrument.id] = instrument;
+  }
+  for (const auto &[_, audio]: other->instrumentAudios) {
+    instrumentAudios[audio.id] = audio;
+  }
+  for (const auto &[_, meme]: other->instrumentMemes) {
+    instrumentMemes[meme.id] = meme;
+  }
+  for (const auto &[_, library]: other->libraries) {
+    libraries[library.id] = library;
+  }
+  for (const auto &[_, program]: other->programs) {
+    programs[program.id] = program;
+  }
+  for (const auto &[_, meme]: other->programMemes) {
+    programMemes[meme.id] = meme;
+  }
+  for (const auto &[_, sequence]: other->programSequences) {
+    programSequences[sequence.id] = sequence;
+  }
+  for (const auto &[_, binding]: other->programSequenceBindings) {
+    programSequenceBindings[binding.id] = binding;
+  }
+  for (const auto &[_, meme]: other->programSequenceBindingMemes) {
+    programSequenceBindingMemes[meme.id] = meme;
+  }
+  for (const auto &[_, chord]: other->programSequenceChords) {
+    programSequenceChords[chord.id] = chord;
+  }
+  for (const auto &[_, voicing]: other->programSequenceChordVoicings) {
+    programSequenceChordVoicings[voicing.id] = voicing;
+  }
+  for (const auto &[_, pattern]: other->programSequencePatterns) {
+    programSequencePatterns[pattern.id] = pattern;
+  }
+  for (const auto &[_, event]: other->programSequencePatternEvents) {
+    programSequencePatternEvents[event.id] = event;
+  }
+  for (const auto &[_, voice]: other->programVoices) {
+    programVoices[voice.id] = voice;
+  }
+  for (const auto &[_, track]: other->programVoiceTracks) {
+    programVoiceTracks[track.id] = track;
+  }
+  for (const auto &[_, tmpl]: other->templates) {
+    templates[tmpl.id] = tmpl;
+  }
+  for (const auto &[_, binding]: other->templateBindings) {
+    templateBindings[binding.id] = binding;
+  }
+  for (const auto &[_, project]: other->projects) {
+    projects[project.id] = project;
+  }
+}
+
+ContentEntityStore::~ContentEntityStore() = default;
 
 ContentEntityStore::ContentEntityStore() = default;
 
