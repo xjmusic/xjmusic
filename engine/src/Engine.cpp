@@ -28,7 +28,7 @@ Engine::Engine(
   projectContent = std::make_unique<ContentEntityStore>();
   templateContent = std::make_unique<ContentEntityStore>();
   loadProjectContent();
-  work = std::make_unique<WorkManager>(store.get(), templateContent.get(), settings);
+  work = std::make_unique<WorkManager>(store.get(), projectContent.get(), settings);
 }
 
 
