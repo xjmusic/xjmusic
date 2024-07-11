@@ -248,3 +248,23 @@ TEST(ConfigParserTest, SetToOperator) {
 
   ASSERT_EQ(subject, other);
 }
+
+TEST(ConfigParserTest, InvalidKeyTest) {
+  auto subject = ConfigParser(R"(
+            booleanValue = false
+    )");
+
+  ASSERT_THROW(subject.getSingleValue("invalidKey"), ConfigException);
+  ASSERT_THROW(subject.getListValue("invalidKey"), ConfigException);
+  ASSERT_THROW(subject.getObjectValue("invalidKey"), ConfigException);
+}
+
+TEST(ConfigParserTest, BareStringAsListOfStrings) {
+  auto subject = ConfigParser(R"(
+         deltaArcBeatLayersToPrioritize = Hook
+    )");
+
+  ConfigListValue list = subject.getListValue("deltaArcBeatLayersToPrioritize");
+  ASSERT_EQ(1, list.size());
+  ASSERT_EQ("Hook", list.atSingle(0).getString());
+}

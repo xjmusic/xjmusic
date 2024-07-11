@@ -9,6 +9,7 @@
 
 #include "xjmusic/util/ConfigParser.h"
 #include "xjmusic/util/StringUtils.h"
+#include "xjmusic/util/CsvUtils.h"
 
 using namespace XJ;
 
@@ -291,10 +292,18 @@ ConfigListValue ConfigParser::getListValue(const std::string &key) {
   if (config.find(key) == config.end()) {
     throw ConfigException("Key not found");
   }
-  if (!std::holds_alternative<ConfigListValue>(config.at(key))) {
-    throw ConfigException("Value is not a list value");
+  if (std::holds_alternative<ConfigListValue>(config.at(key))) {
+    return std::get<ConfigListValue>(config.at(key));
   }
-  return std::get<ConfigListValue>(config.at(key));
+  if (std::holds_alternative<ConfigSingleValue>(config.at(key))) {
+    ConfigListValue list;
+    auto text = std::get<ConfigSingleValue>(config.at(key));
+    for (auto &value : CsvUtils::split(text.getString())) {
+      list.add(ConfigSingleValue(value));
+    }
+    return list;
+  }
+  throw ConfigException("Value is not a list value");
 }
 
 
@@ -420,6 +429,7 @@ bool ConfigObjectValue::operator==(const ConfigObjectValue &other) const {
   }
   return true;
 }
+
 bool ConfigObjectValue::operator!=(const ConfigObjectValue &other) const {
   return !(*this == other);
 }
