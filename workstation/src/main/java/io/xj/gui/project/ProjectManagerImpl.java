@@ -45,6 +45,8 @@ import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -268,9 +270,9 @@ public class ProjectManagerImpl implements ProjectManager {
     String parentPathPrefix,
     String exportName,
     Boolean conversion,
-    @Nullable Integer conversionFrameRate,
-    @Nullable Integer conversionSampleBits,
-    @Nullable Integer conversionChannels
+    int conversionFrameRate,
+    int conversionSampleBits,
+    int conversionChannels
   ) {
     LOG.info("Exporting demo template \"{}\" to \"{}\" in parent folder {}", template.getName(), exportName, parentPathPrefix);
     try {
@@ -316,15 +318,8 @@ public class ProjectManagerImpl implements ProjectManager {
 
             try {
               Path destination = Paths.get(destinationPath);
-              Files.deleteIfExists(destination);
               if (conversion) {
-                FFmpegUtils.resampleAudio(
-                  sourcePath,
-                  destinationPath,
-                  Objects.requireNonNull(conversionFrameRate),
-                  Objects.requireNonNull(conversionSampleBits),
-                  Objects.requireNonNull(conversionChannels)
-                );
+                resampleAudioIfNeeded(sourcePath, destinationPath, conversionFrameRate, conversionSampleBits, conversionChannels);
               } else {
                 var existingDestinationSize = getFileSizeIfExistsOnDisk(destinationPath);
                 Path source = Paths.get(sourcePath);
@@ -427,21 +422,7 @@ public class ProjectManagerImpl implements ProjectManager {
             var waveformKey = audio.getId().toString() + "." + extension;
             var destinationPath = buildFolderPathPrefix + waveformKey;
             builtContent.update(InstrumentAudio.class, audio.getId(), "waveformKey", destinationPath);
-
-            try {
-              Path destination = Paths.get(destinationPath);
-              Files.deleteIfExists(destination);
-              FFmpegUtils.resampleAudio(
-                sourcePath,
-                destinationPath,
-                outputFrameRate,
-                outputSampleBits,
-                outputChannels
-              );
-
-            } catch (IOException e) {
-              System.err.println("Failed to copy file: " + e.getMessage());
-            }
+            resampleAudioIfNeeded(sourcePath, destinationPath, outputFrameRate, outputSampleBits, outputChannels);
 
           } else {
             LOG.warn("File not found for audio \"{}\" of instrument \"{}\" in library \"{}\" at {}", audio.getName(), instrument.getName(), builtContent.getLibrary(instrument.getLibraryId()).map(Library::getName).orElse("Unknown"), sourcePath);
@@ -480,6 +461,43 @@ public class ProjectManagerImpl implements ProjectManager {
       return false;
     }
 
+  }
+
+  /**
+   Resample the given audio file if the target file doesn't already exist with the expected format
+
+   @param sourcePath       the path to the source audio file
+   @param targetPath  the path to the destination audio file
+   @param targetFrameRate  the target frame rate
+   @param targetSampleBits the target sample bits
+   @param targetChannels   the target channels
+   */
+  private void resampleAudioIfNeeded(String sourcePath, String targetPath, int targetFrameRate, int targetSampleBits, int targetChannels) {
+    try {
+      Path destination = Paths.get(targetPath);
+      if (Files.exists(destination)) {
+        // Get the audio format of the existing file
+        var existingAudioFormat = AudioSystem.getAudioFileFormat(destination.toFile()).getFormat();
+        var existingFrameRate = (int) existingAudioFormat.getFrameRate();
+        var existingSampleBits = existingAudioFormat.getSampleSizeInBits();
+        var existingChannels = existingAudioFormat.getChannels();
+        if (existingFrameRate == targetFrameRate && existingSampleBits == targetSampleBits && existingChannels == targetChannels) {
+          return;
+        }
+        Files.delete(destination);
+      }
+
+      FFmpegUtils.resampleAudio(
+        sourcePath,
+        targetPath,
+        targetFrameRate,
+        targetSampleBits,
+        targetChannels
+      );
+
+    } catch (IOException | UnsupportedAudioFileException e) {
+      LOG.error("Failed to copy file", e);
+    }
   }
 
   @Override

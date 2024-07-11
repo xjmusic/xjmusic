@@ -133,16 +133,15 @@ public class TemplateExportModalController extends ProjectModalController {
   void handlePressOK() {
     var projectName = StringUtils.toLowerScored(templateExportName.getText());
     Boolean conversion = Objects.equals(selectAudioFormat.getValue(), audioFormatOptions.get(1));
-    @Nullable Integer conversionFrameRate = conversion ? Integer.valueOf(projectService.outputFrameRateProperty().getValue()) : null;
-    @Nullable Integer conversionSampleBits = conversion ? FIXED_SAMPLE_BITS : null;
-    @Nullable Integer conversionChannel = conversion ? Integer.valueOf(projectService.outputChannelsProperty().getValue()) : null;
+    int conversionFrameRate = Integer.parseInt(projectService.outputFrameRateProperty().getValue());
+    int conversionChannel = Integer.parseInt(projectService.outputChannelsProperty().getValue());
     projectService.exportTemplate(
       template.get(),
       fieldPathPrefix.getText(),
       projectName,
       conversion,
       conversionFrameRate,
-      conversionSampleBits,
+      FIXED_SAMPLE_BITS,
       conversionChannel
     );
     Stage stage = (Stage) buttonCancel.getScene().getWindow();
