@@ -3,8 +3,6 @@
 package io.xj.gui.controllers.template;
 
 import io.xj.gui.ProjectModalController;
-import io.xj.gui.WorkstationFxApplication;
-import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
@@ -42,7 +40,6 @@ public class TemplateExportModalController extends ProjectModalController {
     "Original Source",
     "Converted for Mixing"
   ));
-  private final FabricationService fabricationService;
 
   @FXML
   ComboBox<String> selectAudioFormat;
@@ -70,11 +67,9 @@ public class TemplateExportModalController extends ProjectModalController {
     ConfigurableApplicationContext ac,
     UIStateService uiStateService,
     ProjectService projectService,
-    FabricationService fabricationService,
     ThemeService themeService
   ) {
     super(fxml, ac, themeService, uiStateService, projectService);
-    this.fabricationService = fabricationService;
   }
 
   @Override
@@ -102,19 +97,6 @@ public class TemplateExportModalController extends ProjectModalController {
     // Audio output format selection
     selectAudioFormat.getItems().setAll(audioFormatOptions);
     selectAudioFormat.getSelectionModel().select(0);
-
-    String WorkDirectory = WorkstationFxApplication.GameWorkDirectory;
-
-    if(StringUtils.isNotNullOrEmpty(WorkDirectory))
-    {
-      buttonSelectDirectory.setVisible(false);
-
-      fieldPathPrefix.setEditable(false);
-      fieldPathPrefix.setText(WorkDirectory);
-
-      selectAudioFormat.getSelectionModel().select(1);
-      selectAudioFormat.setDisable(true);
-    }
   }
 
   @Override
@@ -134,7 +116,6 @@ public class TemplateExportModalController extends ProjectModalController {
    */
   public void launchModal(Template template) {
     this.template.set(template);
-
     createAndShowModal(String.format("Export %s", template.getName()), null);
   }
 
@@ -152,16 +133,15 @@ public class TemplateExportModalController extends ProjectModalController {
   void handlePressOK() {
     var projectName = StringUtils.toLowerScored(templateExportName.getText());
     Boolean conversion = Objects.equals(selectAudioFormat.getValue(), audioFormatOptions.get(1));
-    @Nullable Integer conversionFrameRate = conversion ? Integer.valueOf(fabricationService.outputFrameRateProperty().getValue()) : null;
-    @Nullable Integer conversionSampleBits = conversion ? FIXED_SAMPLE_BITS : null;
-    @Nullable Integer conversionChannel = conversion ? Integer.valueOf(fabricationService.outputChannelsProperty().getValue()) : null;
+    int conversionFrameRate = Integer.parseInt(projectService.outputFrameRateProperty().getValue());
+    int conversionChannel = Integer.parseInt(projectService.outputChannelsProperty().getValue());
     projectService.exportTemplate(
       template.get(),
       fieldPathPrefix.getText(),
       projectName,
       conversion,
       conversionFrameRate,
-      conversionSampleBits,
+      FIXED_SAMPLE_BITS,
       conversionChannel
     );
     Stage stage = (Stage) buttonCancel.getScene().getWindow();

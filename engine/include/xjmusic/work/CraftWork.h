@@ -25,13 +25,13 @@ namespace XJ {
  chunk at exactly the top of the following segment.
  */
   class CraftWork final {
-    SegmentEntityStore* store;
+    SegmentEntityStore *store;
     ContentEntityStore *content;
     bool running = true;
     long craftAheadMicros = 0;
     long persistenceWindowMicros = 0;
     bool nextCycleRewrite = false;
-    std::optional<const Program*> nextCycleOverrideMacroProgram = std::nullopt;
+    std::optional<const Program *> nextCycleOverrideMacroProgram = std::nullopt;
     std::set<std::string> nextCycleOverrideMemes = {};
     bool didOverride = false;
 
@@ -42,22 +42,27 @@ namespace XJ {
         long persistenceWindowSeconds,
         long craftAheadSeconds);
 
-   /**
+    /**
+     * Start work
+     */
+    void start();
+
+    /**
     Stop work
     */
-   void finish();
+    void finish();
 
-   /**
+    /**
     Check whether the craft work is finished
 
     @return true if finished (not running)
     */
-   bool isFinished() const;
+    bool isFinished() const;
 
-   /**
+    /**
     This is the internal cycle that's run indefinitely
     */
-   void runCycle(long atChainMicros);
+    void runCycle(long atChainMicros);
 
     /**
      Get the template config, if loaded
@@ -98,7 +103,7 @@ namespace XJ {
      @param segments the segments for which to get picks
      @return the picks for the given segments
      */
-   std::set<const SegmentChoiceArrangementPick *> getPicks(const std::vector<const Segment *> &segments) const;
+    std::set<const SegmentChoiceArrangementPick *> getPicks(const std::vector<const Segment *> &segments) const;
 
     /**
      Get the instrument for the given pick
@@ -197,8 +202,7 @@ namespace XJ {
     std::set<const SegmentChoiceArrangementPick *> getPicks(const SegmentChoiceArrangement *arrangement) const;
 
   private:
-
-   /**
+    /**
      Log and send notification of error that job failed while (message)
     
      @param msgWhile phrased like "Doing work"
@@ -218,7 +222,7 @@ namespace XJ {
     static const Segment *
     updateSegmentState(Fabricator *fabricator, const Segment *inputSegment, const Segment::State fromState, const Segment::State toState);
 
-   /**
+    /**
     Fabricate the chain based on craft state
     <p>
     Only ready to dub after at least one craft cycle is completed since the last time we weren't ready to dub live performance modulation https://github.com/xjmusic/xjmusic/issues/197
@@ -226,9 +230,9 @@ namespace XJ {
     @param craftToChainMicros  target to craft until
     @throws FabricationFatalException if the chain cannot be fabricated
     */
-   void doFabrication(long craftToChainMicros);
+    void doFabrication(long craftToChainMicros);
 
-   /**
+    /**
     Default behavior is to fabricate the next segment if we are not crafted enough ahead, otherwise skip
 
     @param toChainMicros to target chain micros
@@ -236,7 +240,7 @@ namespace XJ {
     @param overrideMemes to override fabrication
     @throws FabricationFatalException if the chain cannot be fabricated
     */
-   void doFabricationDefault(unsigned long long toChainMicros, const std::optional<const Program *> overrideMacroProgram, const std::set<std::string> &overrideMemes);
+    void doFabricationDefault(unsigned long long toChainMicros, const std::optional<const Program *> overrideMacroProgram, const std::set<std::string> &overrideMemes);
 
     /**
     Override behavior deletes all future segments and re-fabricates starting with the given parameters
@@ -252,17 +256,17 @@ namespace XJ {
     @param overrideMemes        to override fabrication
     @throws FabricationFatalException if the chain cannot be fabricated
     */
-   void doFabricationRewrite(unsigned long long dubbedToChainMicros, std::optional<const Program *> overrideMacroProgram, std::set<std::string> overrideMemes);
+    void doFabricationRewrite(unsigned long long dubbedToChainMicros, std::optional<const Program *> overrideMacroProgram, std::set<std::string> overrideMemes);
 
-   /**
+    /**
     Cut the current segment short after the given number of beats
 
     @param inputSegment          segment to cut short
     @param cutoffAfterBeats number of beats to cut short after
     */
-   void doCutoffLastSegment(const Segment *inputSegment, float cutoffAfterBeats) const;
+    void doCutoffLastSegment(const Segment *inputSegment, float cutoffAfterBeats) const;
 
-   /**
+    /**
     Craft a Segment, or fail
 
     @param inputSegment              to craft
@@ -272,21 +276,21 @@ namespace XJ {
     @ on configuration failure
     @ on craft failure
     */
-   void doFabricationWork(const Segment *inputSegment, std::optional<Segment::Type> overrideSegmentType, const std::optional<const Program *> overrideMacroProgram, const std::set<std::string> &overrideMemes) const;
+    void doFabricationWork(const Segment *inputSegment, std::optional<Segment::Type> overrideSegmentType, const std::optional<const Program *> overrideMacroProgram, const std::set<std::string> &overrideMemes) const;
 
     /**
      Delete segments before the given shipped-to chain micros
     
      @param shippedToChainMicros the shipped-to chain micros
      */
-   void doSegmentCleanup(long shippedToChainMicros) const;
+    void doSegmentCleanup(long shippedToChainMicros) const;
 
     /**
      Create the initial template segment
     
      @return initial template segment
      */
-   Segment buildSegmentInitial() const;
+    Segment buildSegmentInitial() const;
 
     /**
      Create the next segment in the chain, following the last segment
@@ -294,14 +298,14 @@ namespace XJ {
      @param last segment
      @return next segment
      */
-   Segment buildSegmentFollowing(const Segment *last) const;
+    Segment buildSegmentFollowing(const Segment *last) const;
 
-   /**
+    /**
     If memes/macro already engaged at fabrication start (which is always true in a manual control mode),
     the first segment should be governed by that selection
     https://github.com/xjmusic/xjmusic/issues/201
     */
-   void doNextCycleRewriteUnlessInitialSegment();
+    void doNextCycleRewriteUnlessInitialSegment();
   };
 
 }// namespace XJ

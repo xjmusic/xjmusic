@@ -15,6 +15,9 @@ DubWork::DubWork(
 ) {
   this->craftWork = craftWork;
   dubAheadMicros = dubAheadSeconds * ValueUtils::MICROS_PER_SECOND;
+}
+
+void DubWork::start() {
   templateConfig = craftWork->getTemplateConfig();
   running = true;
 }

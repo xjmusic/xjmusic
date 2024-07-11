@@ -3,6 +3,7 @@ package io.xj.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import io.xj.model.entity.EntityFactory;
 import io.xj.model.entity.EntityUtils;
 import io.xj.model.enums.InstrumentMode;
 import io.xj.model.enums.InstrumentType;

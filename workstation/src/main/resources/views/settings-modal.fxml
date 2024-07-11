@@ -24,7 +24,9 @@
       </fx:define>
       <ToggleButton mnemonicParsing="false" HBox.hgrow="ALWAYS" text="General" fx:id="navGeneral"
                     toggleGroup="$navToggleGroup" maxWidth="Infinity" selected="true"/>
-      <ToggleButton mnemonicParsing="false" HBox.hgrow="ALWAYS" text="Fabrication" fx:id="navFabrication"
+      <ToggleButton mnemonicParsing="false" HBox.hgrow="ALWAYS" text="Build" fx:id="navBuild"
+                    toggleGroup="$navToggleGroup" maxWidth="Infinity"/>
+      <ToggleButton mnemonicParsing="false" HBox.hgrow="ALWAYS" text="Preview" fx:id="navFabrication"
                     toggleGroup="$navToggleGroup" maxWidth="Infinity"/>
     </VBox>
 
@@ -66,18 +68,6 @@
         </HBox>
         <HBox alignment="CENTER_LEFT" spacing="5.0">
           <Label minWidth="200" maxWidth="200" alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY"
-                 text="Output Frame Rate"
-                 textAlignment="RIGHT"/>
-          <TextField fx:id="fieldOutputFrameRate" prefHeight="25.0"/>
-        </HBox>
-        <HBox alignment="CENTER_LEFT" spacing="5.0">
-          <Label minWidth="200" maxWidth="200" alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY"
-                 text="Output Channels"
-                 textAlignment="RIGHT"/>
-          <TextField fx:id="fieldOutputChannels" prefHeight="25.0"/>
-        </HBox>
-        <HBox alignment="CENTER_LEFT" spacing="5.0">
-          <Label minWidth="200" maxWidth="200" alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY"
                  text="Craft Ahead Seconds"
                  textAlignment="RIGHT"/>
           <TextField fx:id="fieldCraftAheadSeconds" prefHeight="25.0"/>
@@ -102,7 +92,7 @@
         </HBox>
         <HBox alignment="CENTER_LEFT">
           <Pane minWidth="200" maxWidth="200"/>
-          <Button fx:id="buttonReset" onAction="#handleResetFabricationSettings"
+          <Button fx:id="buttonResetFabricationSettings" onAction="#handleResetFabricationSettings"
                   styleClass="button"
                   text="Reset to Defaults"/>
         </HBox>
@@ -110,6 +100,45 @@
           <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
         </padding>
       </VBox>
+
+
+      <!-- Build Settings -->
+      <VBox spacing="10" fx:id="buildSettingsContainer">
+        <HBox alignment="CENTER_LEFT" spacing="5.0">
+          <Label minWidth="200" maxWidth="200" alignment="CENTER_RIGHT"
+                 contentDisplay="TEXT_ONLY"
+                 text="Output Container" textAlignment="RIGHT"/>
+          <ChoiceBox fx:id="choiceOutputContainer" prefHeight="25.0" prefWidth="120"/>
+        </HBox>
+        <HBox alignment="CENTER_LEFT" spacing="5.0">
+          <Label minWidth="200" maxWidth="200" alignment="CENTER_RIGHT"
+                 contentDisplay="TEXT_ONLY"
+                 text="Output Sample Bits" textAlignment="RIGHT"/>
+          <ChoiceBox fx:id="choiceOutputSampleBits" prefHeight="25.0" prefWidth="120"/>
+        </HBox>
+        <HBox alignment="CENTER_LEFT" spacing="5.0">
+          <Label minWidth="200" maxWidth="200" alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY"
+                 text="Output Frame Rate"
+                 textAlignment="RIGHT"/>
+          <TextField fx:id="fieldOutputFrameRate" prefHeight="25.0"/>
+        </HBox>
+        <HBox alignment="CENTER_LEFT" spacing="5.0">
+          <Label minWidth="200" maxWidth="200" alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY"
+                 text="Output Channels"
+                 textAlignment="RIGHT"/>
+          <TextField fx:id="fieldOutputChannels" prefHeight="25.0"/>
+        </HBox>
+        <HBox alignment="CENTER_LEFT">
+          <Pane minWidth="200" maxWidth="200"/>
+          <Button fx:id="buttonResetBuildSettings" onAction="#handleResetBuildSettings"
+                  styleClass="button"
+                  text="Reset to Defaults"/>
+        </HBox>
+        <padding>
+          <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+        </padding>
+      </VBox>
+
 
     </StackPane>
   </HBox>

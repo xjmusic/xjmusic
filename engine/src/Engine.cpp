@@ -27,8 +27,8 @@ Engine::Engine(
   store = std::make_unique<SegmentEntityStore>();
   projectContent = std::make_unique<ContentEntityStore>();
   templateContent = std::make_unique<ContentEntityStore>();
-  work = std::make_unique<WorkManager>(store.get(), templateContent.get(), settings);
   loadProjectContent();
+  work = std::make_unique<WorkManager>(store.get(), projectContent.get(), settings);
 }
 
 
@@ -92,6 +92,12 @@ void Engine::setIntensityOverride(const std::optional<float> intensity) const {
   return work->setIntensityOverride(intensity);
 }
 
+std::filesystem::path Engine::getPathToBuildDirectory() {
+  return pathToBuildDirectory;
+}
+
+Engine::~Engine() = default;
+
 void Engine::loadProjectContent() {
   projectContent->clear();
 
@@ -108,15 +114,19 @@ void Engine::loadProjectContent() {
   // Load the project file and deserialize it from JSON into a ContentEntityStore via the nlohmann::json library
   std::ifstream projectFile(pathToProjectFile);
   auto projectFileContent = ContentEntityStore(projectFile);
-  projectContent.get()->put(&projectFileContent);
-  spdlog::info("Loaded content from project file: {}", pathToProjectFile);
+  auto project = projectFileContent.getProject();
+  if (!project.has_value()) {
+    throw std::runtime_error("Project file does not contain a project: " + pathToProjectFile);
+  }
+  spdlog::info("Loaded project \"{}\" from file {}", project.value()->name, pathToProjectFile);
 
-  // Crawl the folder containing the project file
+  // Crawl the build folder in the folder containing the project file
   const std::filesystem::path projectPath(pathToProjectFile);
   const std::filesystem::path folderContainingProject = projectPath.parent_path();
+  // get the "build" folder path
+  pathToBuildDirectory = folderContainingProject / "build";
   try {
-    std::set<std::filesystem::path> absolutePathsToCandidateAudioFiles;
-    for (const auto &entry: std::filesystem::recursive_directory_iterator(folderContainingProject)) {
+    for (const auto &entry: std::filesystem::recursive_directory_iterator(pathToBuildDirectory)) {
       if (entry.is_regular_file()) {
         // Get the extension and convert it to lowercase
         std::string extension = entry.path().extension().string().substr(1);
@@ -129,14 +139,9 @@ void Engine::loadProjectContent() {
           auto subFileContent = ContentEntityStore(jsonFile);
           projectContent.get()->put(&subFileContent);
           spdlog::info("Loaded content from JSON file: {}", entry.path().string());
-
-        } else if (std::find(audioExtensions.begin(), audioExtensions.end(), extension) != audioExtensions.end()) {
-          // If file is an audio file, add it to the list of potential candidate audio files
-          absolutePathsToCandidateAudioFiles.insert(entry.path());
         }
       }
     }
-    // TODO for all audios in the working content, search for an absolute path in the candidate audio files, and replace the working content audio waveform key with the absolute path
 
   } catch (const std::filesystem::filesystem_error &e) {
     spdlog::error("Filesystem error! {}", e.what());

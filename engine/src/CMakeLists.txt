@@ -3,6 +3,7 @@ include(FetchContent)
 
 # show up in IDEs unless they are listed in add_library.
 add_library(xjmusic
+        Engine.cpp
         audio/ActiveAudio.cpp
         audio/AudioMathUtils.cpp
         content/ContentEntityStore.cpp
@@ -85,7 +86,6 @@ add_library(xjmusic
         work/DubWork.cpp
         work/WorkManager.cpp
         work/WorkSettings.cpp
-	Engine.cpp
 )
 
 # We need this directory, and users of our library will need it too

@@ -5,7 +5,6 @@
 #include "xjmusic/Engine.h"
 
 int main() {
-  // TODO engine testing application
   std::cout << "Test Engine" << std::endl;
   return 0;
 }

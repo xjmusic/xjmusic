@@ -16,6 +16,7 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collection;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -93,6 +94,10 @@ public interface LocalFileUtils {
    @throws IOException if the directory cannot be read
    */
   static Collection<Path> findJsonFiles(String projectPathPrefix) throws IOException {
+    // If the directory does not exist, return an empty set
+    if (!Files.exists(Paths.get(projectPathPrefix))) {
+      return Set.of();
+    }
     try (Stream<Path> paths = Files.walk(Paths.get(projectPathPrefix))) {
       return paths
         .filter(Files::isRegularFile)

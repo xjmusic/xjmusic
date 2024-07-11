@@ -55,10 +55,6 @@ public interface FabricationService {
 
   StringProperty mixerLengthSecondsProperty();
 
-  StringProperty outputChannelsProperty();
-
-  StringProperty outputFrameRateProperty();
-
   StringProperty timelineSegmentViewLimitProperty();
 
   Collection<SegmentMeme> getSegmentMemes(Segment segment);

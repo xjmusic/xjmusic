@@ -2,6 +2,7 @@
 
 package io.xj.gui.controllers;
 
+import io.xj.engine.work.FabricationState;
 import io.xj.gui.ProjectController;
 import io.xj.gui.WorkstationFxApplication;
 import io.xj.gui.services.FabricationService;
@@ -13,12 +14,15 @@ import io.xj.gui.services.UIStateService;
 import io.xj.gui.types.Route;
 import io.xj.gui.utils.ProjectUtils;
 import io.xj.gui.utils.UiUtils;
-import io.xj.engine.work.FabricationState;
+import jakarta.annotation.Nullable;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
@@ -26,14 +30,22 @@ import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.Tooltip;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.AnchorPane;
+import javafx.util.Duration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static io.xj.gui.services.UIStateService.ACTIVE_PSEUDO_CLASS;
 import static io.xj.gui.services.UIStateService.FABRICATION_FAILED_STATES;
@@ -43,6 +55,7 @@ import static io.xj.gui.services.UIStateService.PENDING_PSEUDO_CLASS;
 
 @Service
 public class MainMenuController extends ProjectController {
+  static final Logger LOG = LoggerFactory.getLogger(MainMenuController.class);
   private final static String DEBUG = "DEBUG";
   private final static String INFO = "INFO";
   private final static String WARN = "WARN";
@@ -52,6 +65,7 @@ public class MainMenuController extends ProjectController {
   private final ProjectCreationModalController projectCreationModalController;
   private final SettingsModalController settingsModalController;
   private final MainAboutModalController mainAboutModalController;
+  private final static int BUTTON_BUILD_IMAGE_ANIMATION_DELAY_MILLIS = 333;
 
   @FXML
   AnchorPane container;
@@ -106,6 +120,15 @@ public class MainMenuController extends ProjectController {
   RadioMenuItem menuViewModeTemplates;
   @FXML
   RadioMenuItem menuViewModeFabrication;
+
+  @FXML
+  Button buttonBuild;
+  @FXML
+  ImageView buttonBuildImageView;
+  @Nullable
+  Timeline buttonBuildImageTimeline;
+  @FXML
+  Button buttonBuildSettings;
 
   @FXML
   ToggleGroup buttonViewModeToggleGroup;
@@ -167,6 +190,20 @@ public class MainMenuController extends ProjectController {
 
     projectService.recentProjectsProperty().addListener((ChangeListener<? super ObservableList<ProjectDescriptor>>) (o, ov, value) -> updateRecentProjectsMenu());
     updateRecentProjectsMenu();
+
+    buttonBuild.disableProperty().bind(projectService.isStateReadyProperty().not());
+    buttonBuildSettings.disableProperty().bind(projectService.isStateReadyProperty().not());
+    projectService.buildStateProperty().addListener((o, ov, value) -> {
+      switch (value) {
+        case Standby -> setupButtonBuild("Build the project", List.of("icons/build.png"));
+        case Dirty -> setupButtonBuild("Project modified. Build to apply changes", List.of("icons/build-warn.png"));
+        case Clean -> setupButtonBuild("Build is up-to-date.", List.of("icons/build-ok.png"));
+        case Building -> {
+          setupButtonBuild("Building the project", List.of("icons/build-spin1.png","icons/build-spin2.png","icons/build-spin3.png"));
+        }
+        case Failed -> setupButtonBuild("Build failed. Click to retry.", List.of("icons/build-fail.png"));
+      }
+    });
 
     setupViewModeToggle(menuViewModeToggleGroup, menuViewModeContent, menuViewModeTemplates, menuViewModeFabrication);
     menuViewModeContent.disableProperty().bind(projectService.isStateReadyProperty().not());
@@ -282,6 +319,17 @@ public class MainMenuController extends ProjectController {
     uiStateService.logLevelProperty().set(((RadioMenuItem) logLevelToggleGroup.getSelectedToggle()).getText());
   }
 
+  @FXML
+  void handleBuild() {
+    projectService.buildProject();
+  }
+
+  @FXML
+  void handleBuildSettings() {
+    settingsModalController.launchModalWithBuildSettings();
+  }
+
+
   /**
    Set up the view mode toggle.
 
@@ -374,5 +422,39 @@ public class MainMenuController extends ProjectController {
    */
   private KeyCombination computeFabricationFollowButtonAccelerator() {
     return KeyCombination.valueOf("SHORTCUT+ALT+" + (System.getProperty("os.name").toLowerCase().contains("mac") ? "B" : "SPACE"));
+  }
+
+  /**
+   Set up the build button.
+
+   @param tooltipText  the tooltip text
+   @param imageSources a list of image URLs -- if there is one, just set it. if there are more, animate them
+   */
+  private void setupButtonBuild(String tooltipText, List<String> imageSources) {
+    buttonBuild.setTooltip(new Tooltip(tooltipText));
+    if (imageSources.size() > 1) {
+      AtomicInteger imageIndex = new AtomicInteger(0);
+      buttonBuildImageTimeline = new Timeline(new KeyFrame(Duration.millis(BUTTON_BUILD_IMAGE_ANIMATION_DELAY_MILLIS), event -> {
+        buttonBuildImageView.setImage(new Image(imageSources.get(imageIndex.getAndIncrement() % imageSources.size())));
+      }));
+      buttonBuildImageTimeline.setCycleCount(Timeline.INDEFINITE);
+      buttonBuildImageTimeline.play();
+
+    } else {
+      if (Objects.nonNull(buttonBuildImageTimeline))
+        buttonBuildImageTimeline.stop();
+    }
+
+    // Set the first image
+    setupButtonBuildImage(imageSources.get(0));
+  }
+
+  private void setupButtonBuildImage(String imageSource) {
+    try {
+      buttonBuildImageView.setImage(new Image(imageSource));
+      buttonBuild.setGraphic(buttonBuildImageView);
+    } catch (Exception e) {
+      LOG.error("Failed to setup build button with image source \"{}\"", imageSource, e);
+    }
   }
 }
