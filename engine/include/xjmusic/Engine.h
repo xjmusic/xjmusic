@@ -114,6 +114,11 @@ namespace XJ {
     void setIntensityOverride(std::optional<float> intensity) const;
 
     /**
+     Get the path to the build directory
+     */
+    std::filesystem::path getPathToBuildDirectory();
+
+    /**
      * Virtual destructor
      */
     ~Engine();

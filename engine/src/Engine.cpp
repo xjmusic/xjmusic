@@ -92,6 +92,10 @@ void Engine::setIntensityOverride(const std::optional<float> intensity) const {
   return work->setIntensityOverride(intensity);
 }
 
+std::filesystem::path Engine::getPathToBuildDirectory() {
+  return pathToBuildDirectory;
+}
+
 Engine::~Engine() = default;
 
 void Engine::loadProjectContent() {

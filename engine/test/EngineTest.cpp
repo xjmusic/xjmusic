@@ -78,6 +78,10 @@ TEST_F(XJEngineTest, HasSegmentsDubbedPastMinimumOffset) {
   while (!hasSegmentsDubbedPastMinimumOffset() && isWithinTimeLimit()) {
     auto audios = subject->runCycle(atChainMicros);
     ASSERT_FALSE(audios.empty());
+    for (auto audio: audios) {
+      // assert that this audio file exists
+      ASSERT_TRUE(std::filesystem::exists(subject->getPathToBuildDirectory() / audio.getAudio()->waveformKey));
+    }
     spdlog::info("Ran cycle at {}", atChainMicros);
     atChainMicros += MICROS_PER_CYCLE;
   }
