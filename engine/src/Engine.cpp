@@ -136,9 +136,12 @@ void Engine::loadProjectContent() {
         if (extension == "json") {
           // If file is a .json file, load it into the content entity store
           std::ifstream jsonFile(entry.path());
-          auto subFileContent = ContentEntityStore(jsonFile);
-          projectContent.get()->put(&subFileContent);
-          spdlog::info("Loaded content from JSON file: {}", entry.path().string());
+          if (jsonFile.is_open())
+          {
+            auto subFileContent = ContentEntityStore(jsonFile);
+            projectContent.get()->put(&subFileContent);
+            spdlog::info("Loaded content from JSON file: {}", entry.path().string());
+          }
         }
       }
     }

@@ -16,6 +16,7 @@ namespace XJ {
     std::unique_ptr<ContentEntityStore> templateContent;
     std::unique_ptr<WorkManager> work;
     std::string pathToProjectFile;
+    std::filesystem::path pathToBuildDirectory;
 
   public:
     /**
@@ -111,6 +112,11 @@ namespace XJ {
      @param intensity the intensity to set
      */
     void setIntensityOverride(std::optional<float> intensity) const;
+
+    /**
+     Get the path to the build directory
+     */
+    std::filesystem::path getPathToBuildDirectory();
 
     /**
      * Virtual destructor

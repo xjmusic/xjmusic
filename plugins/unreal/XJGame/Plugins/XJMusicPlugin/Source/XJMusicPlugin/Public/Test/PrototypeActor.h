@@ -5,9 +5,6 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 
-#include <xjmusic/xjmusic.h>
-#include <xjmusic/craft/Craft.h>
-#include <xjmusic/fabricator/FabricatorFactory.h>
 #include <xjmusic/work/WorkManager.h>
 #include <xjmusic/fabricator/SegmentUtils.h>
 #include <xjmusic/Engine.h>
@@ -42,33 +39,23 @@ protected:
 
 	unsigned long long atChainMicros = 0;
 
-	TArray<FString> ImportedAudioFiles;
-
-	TArray<FSoftObjectPath> AudioFilesReferences;
-
-	bool isWithinTimeLimit() const
-	{
-		if (MAXIMUM_TEST_WAIT_SECONDS * MILLIS_PER_SECOND > EntityUtils::currentTimeMillis() - startTime)
-		{
-			return true;
-		}
-
-		UE_LOG(LogTemp, Error, TEXT("EXCEEDED TEST TIME LIMIT OF %d SECONDS"), MAXIMUM_TEST_WAIT_SECONDS);
-
-		return false;
-	}
-
-	bool hasSegmentsDubbedPastMinimumOffset()
-	{
-		const auto segment = XJ::SegmentUtils::getLastCrafted(store->readAllSegments());
-		return segment.has_value() && segment.value()->id >= MARATHON_NUMBER_OF_SEGMENTS;
-	}
-
 	virtual void BeginPlay() override;
 
 	virtual void BeginDestroy() override;
 
 	void RunXjOneCycleTick();
+
+	bool isWithinTimeLimit() {
+		if (MAXIMUM_TEST_WAIT_SECONDS * MILLIS_PER_SECOND > EntityUtils::currentTimeMillis() - startTime)
+			return true;
+		//spdlog::error("EXCEEDED TEST TIME LIMIT OF {} SECONDS", MAXIMUM_TEST_WAIT_SECONDS);
+		return false;
+	}
+
+	bool hasSegmentsDubbedPastMinimumOffset() const {
+		const auto segment = SegmentUtils::getLastCrafted(engine->getSegmentStore()->readAllSegments());
+		return segment.has_value() && segment.value()->id >= MARATHON_NUMBER_OF_SEGMENTS;
+	}
 
 public:	
 	virtual void Tick(float DeltaTime) override;

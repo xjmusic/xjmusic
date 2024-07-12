@@ -40,8 +40,13 @@ namespace XJ {
     DubWork(CraftWork *craftWork, int dubAheadSeconds);
 
     /**
- Stop work
- */
+     * Start work
+     */
+    void start();
+
+    /**
+     Stop work
+     */
     void finish();
 
     /**

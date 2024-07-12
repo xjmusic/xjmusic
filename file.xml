@@ -16,7 +16,7 @@
   <icon></icon>
   <jre>
     <path>C:\Program Files\Java\jdk-17\bin</path>
-    <requiresJdk>true</requiresJdk>
+    <requiresJdk>false</requiresJdk>
     <requires64Bit>false</requires64Bit>
     <minVersion></minVersion>
     <maxVersion></maxVersion>
