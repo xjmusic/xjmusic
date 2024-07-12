@@ -1,6 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
 import org.panteleyev.jpackage.ImageType
+import java.util.Calendar
 
 plugins {
     id 'java'
@@ -149,12 +150,14 @@ tasks.register('copyResources', Copy) {
     }
 }
 
+def currentYear = Calendar.getInstance().get(Calendar.YEAR)
+
 jpackage {
     dependsOn("copyResources")
     appName = "XJ music workstation"
     appVersion = version.toString()
     vendor = "XJ Music Inc"
-    copyright = "Copyright (c) 2023 " + vendor
+    copyright = "Copyright (c) $currentYear " + vendor
     //take our input files from our working directory
     input = workingDir.toString()
     //set our main application jar
