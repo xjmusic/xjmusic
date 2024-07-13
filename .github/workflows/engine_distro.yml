@@ -27,8 +27,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       workstation-version: ${{ steps.get-workstation-version.outputs.version }}
-      engine-version: ${{ steps.get-engine-version.outputs.version }}
-      engine-docs-version: ${{ steps.get-engine-docs-version.outputs.version }}
+      version: ${{ steps.get-engine-version.outputs.version }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
