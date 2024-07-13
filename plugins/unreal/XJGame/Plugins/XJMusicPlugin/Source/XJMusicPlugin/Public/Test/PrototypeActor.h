@@ -14,6 +14,15 @@
 
 using namespace XJ;
 
+class AudioPlayer
+{
+public:
+	unsigned long long StartTime = 0;
+	unsigned long long EndTime = -1;
+
+	FString Name;
+};
+
 UCLASS()
 class XJMUSICPLUGIN_API APrototypeActor : public AActor
 {
@@ -22,11 +31,40 @@ class XJMUSICPLUGIN_API APrototypeActor : public AActor
 public:	
 	APrototypeActor();
 
+	virtual void Tick(float DeltaTime) override;
+
 protected:
+	virtual void BeginPlay() override;
+
+	virtual void BeginDestroy() override;
+
+	void RunXjOneCycleTick();
+
+	bool isWithinTimeLimit()
+	{
+		if (MAXIMUM_TEST_WAIT_SECONDS * MILLIS_PER_SECOND > EntityUtils::currentTimeMillis() - startTime)
+		{
+			return true;
+		}
+
+		UE_LOG(LogTemp, Error, TEXT("EXCEEDED TEST TIME LIMIT OF %d SECONDS"), MAXIMUM_TEST_WAIT_SECONDS)
+
+			return false;
+	}
+
+	bool hasSegmentsDubbedPastMinimumOffset() const
+	{
+		const auto segment = SegmentUtils::getLastCrafted(engine->getSegmentStore()->readAllSegments());
+		return segment.has_value() && segment.value()->id >= MARATHON_NUMBER_OF_SEGMENTS;
+	}
+
+private:
 	int MARATHON_NUMBER_OF_SEGMENTS = 50;
 	long MICROS_PER_CYCLE = 1000000;
 	long long MAXIMUM_TEST_WAIT_SECONDS = 10 * MARATHON_NUMBER_OF_SEGMENTS;
 	long long MILLIS_PER_SECOND = 1000;
+	long MICROS_PER_MILLI = 1000;
+	long MICROS_PER_SECOND = MICROS_PER_MILLI * MILLIS_PER_SECOND;
 	int GENERATED_FIXTURE_COMPLEXITY = 3;
 	long long startTime = EntityUtils::currentTimeMillis();
 
@@ -39,25 +77,9 @@ protected:
 
 	unsigned long long atChainMicros = 0;
 
-	virtual void BeginPlay() override;
+	TMap<unsigned long long, AudioPlayer> AudioLookup;
 
-	virtual void BeginDestroy() override;
+	TArray<FString> PlayingNames;
 
-	void RunXjOneCycleTick();
-
-	bool isWithinTimeLimit() {
-		if (MAXIMUM_TEST_WAIT_SECONDS * MILLIS_PER_SECOND > EntityUtils::currentTimeMillis() - startTime)
-			return true;
-		//spdlog::error("EXCEEDED TEST TIME LIMIT OF {} SECONDS", MAXIMUM_TEST_WAIT_SECONDS);
-		return false;
-	}
-
-	bool hasSegmentsDubbedPastMinimumOffset() const {
-		const auto segment = SegmentUtils::getLastCrafted(engine->getSegmentStore()->readAllSegments());
-		return segment.has_value() && segment.value()->id >= MARATHON_NUMBER_OF_SEGMENTS;
-	}
-
-public:	
-	virtual void Tick(float DeltaTime) override;
-
+	TArray<AudioPlayer> ActiveAudios;
 };
