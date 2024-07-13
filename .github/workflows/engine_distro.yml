@@ -150,7 +150,7 @@ jobs:
         run: |
           cmake .. -DCMAKE_BUILD_TYPE=Release
           cmake --build .
-          cp src/libxjmusic.a ../../xjmusic-v${{ needs.verify_version_number.outputs.version }}.lib
+          cp src/Debug/xjmusic.lib ../../xjmusic-v${{ needs.verify_version_number.outputs.version }}.lib
 
       - name: Compress .lib file (macOS/Intel)
         if: runner.os == 'macOS' && runner.arch == 'X64'
