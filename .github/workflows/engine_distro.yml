@@ -144,7 +144,7 @@ jobs:
           mkdir build
           cd build
           cmake .. -DCMAKE_BUILD_TYPE=Release
-          make
+          cmake --build .
           cp libxjmusic.a xjmusic-v${{ needs.verify_version_number.outputs.version }}.lib
 
       - name: Compress .lib file (macOS/Intel)
