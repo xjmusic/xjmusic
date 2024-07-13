@@ -145,7 +145,16 @@ jobs:
           cd build
           ctest --verbose
 
-      - name: Build for Release
+      - name: Build for Release (macOS/Linux)
+        if: runner.os == 'Linux' || runner.os == 'macOS'
+        working-directory: engine/build/
+        run: |
+          cmake .. -DCMAKE_BUILD_TYPE=Release
+          cmake --build .
+          cp src/libxjmusic.a ../../xjmusic-v${{ needs.verify_version_number.outputs.version }}.lib
+
+      - name: Build for Release (Windows)
+        if: runner.os == 'Windows'
         working-directory: engine/build/
         run: |
           cmake .. -DCMAKE_BUILD_TYPE=Release
