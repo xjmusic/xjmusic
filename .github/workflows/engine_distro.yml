@@ -78,12 +78,12 @@ jobs:
           fi
 
 
-  build_and_test:
+  test_and_ship_static_library:
     needs: verify_version_number
     env:
       REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
       REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
-    name: Build & Test [${{ matrix.os }}]
+    name: Test & Ship Library [${{ matrix.os }}]
     runs-on: ${{ matrix.os }}
     permissions: write-all
     strategy:
@@ -137,3 +137,100 @@ jobs:
         run: |
           cd build
           ctest --verbose
+
+      - name: Build the Static Library
+        working-directory: engine/
+        run: |
+          mkdir build
+          cd build
+          cmake .. -DCMAKE_BUILD_TYPE=Release
+          make
+          cp libxjmusic.a xjmusic-v${{ needs.verify_version_number.outputs.version }}.lib
+
+      - name: Compress .lib file (macOS/Intel)
+        if: runner.os == 'macOS' && runner.arch == 'X64'
+        working-directory: engine/
+        run: |
+          cd build/
+          zip xjmusic-v${{ needs.verify_version_number.outputs.version }}-macos-intel.lib.zip xjmusic-v${{ needs.verify_version_number.outputs.version }}.lib
+
+      - name: Upload to release (macOS/Intel)
+        if: runner.os == 'macOS' && runner.arch == 'X64'
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: engine/build/xjmusic-v${{ needs.verify_version_number.outputs.version }}-macos-intel.lib.zip
+          asset_name: xjmusic-v${{ needs.verify_version_number.outputs.version }}-macos-intel.lib.zip
+          tag: ${{ github.ref }}
+          overwrite: true
+
+      - name: Upload to Amazon S3 (macOS/Intel)
+        if: runner.os == 'macOS' && runner.arch == 'X64'
+        run:
+          aws s3 cp engine/build/xjmusic-v${{ needs.verify_version_number.outputs.version }}-macos-intel.lib.zip s3://${{ secrets.AWS_S3_BUCKET }}/
+
+      - name: Compress .lib file (macOS/Silicon)
+        if: runner.os == 'macOS' && runner.arch == 'ARM64'
+        working-directory: engine/
+        run: |
+          cd build/
+          zip xjmusic-v${{ needs.verify_version_number.outputs.version }}-macos-silicon.lib.zip xjmusic-v${{ needs.verify_version_number.outputs.version }}.lib
+
+      - name: Upload to release (macOS/Silicon)
+        if: runner.os == 'macOS' && runner.arch == 'ARM64'
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: engine/build/xjmusic-v${{ needs.verify_version_number.outputs.version }}-macos-silicon.lib.zip
+          asset_name: xjmusic-v${{ needs.verify_version_number.outputs.version }}-macos-silicon.lib.zip
+          tag: ${{ github.ref }}
+          overwrite: true
+
+      - name: Upload to Amazon S3 (macOS/Silicon)
+        if: runner.os == 'macOS' && runner.arch == 'ARM64'
+        run:
+          aws s3 cp engine/build/xjmusic-v${{ needs.verify_version_number.outputs.version }}-macos-silicon.lib.zip s3://${{ secrets.AWS_S3_BUCKET }}/
+
+      - name: Compress .lib file for Windows
+        if: runner.os == 'Windows'
+        working-directory: engine/
+        run: |
+          cd build/
+          Compress-Archive -Path xjmusic-v${{ needs.verify_version_number.outputs.version }}.lib -DestinationPath xjmusic-v${{ needs.verify_version_number.outputs.version }}-windows.lib.zip
+
+      - name: Upload to release (Windows)
+        if: runner.os == 'Windows'
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: engine/build/xjmusic-v${{ needs.verify_version_number.outputs.version }}-windows.lib.zip
+          asset_name: xjmusic-v${{ needs.verify_version_number.outputs.version }}-windows.lib.zip
+          tag: ${{ github.ref }}
+          overwrite: true
+
+      - name: Upload to Amazon S3 (Windows)
+        if: runner.os == 'Windows'
+        run:
+          aws s3 cp engine/build/xjmusic-v${{ needs.verify_version_number.outputs.version }}-windows.lib.zip s3://${{ secrets.AWS_S3_BUCKET }}/
+
+      - name: Compress .lib file for Linux
+        if: runner.os == 'Linux'
+        working-directory: engine/
+        run: |
+          cd build/
+          tar -czvf xjmusic-v${{ needs.verify_version_number.outputs.version }}-linux.lib.tar.gz xjmusic-v${{ needs.verify_version_number.outputs.version }}.lib
+
+      - name: Upload to release (Linux)
+        if: runner.os == 'Linux'
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: engine/build/xjmusic-v${{ needs.verify_version_number.outputs.version }}-linux.lib.tar.gz
+          asset_name: xjmusic-v${{ needs.verify_version_number.outputs.version }}-linux.lib.tar.gz
+          tag: ${{ github.ref }}
+          overwrite: true
+
+      - name: Upload to Amazon S3 (Linux)
+        if: runner.os == 'Linux'
+        run:
+          aws s3 cp engine/build/xjmusic-v${{ needs.verify_version_number.outputs.version }}-linux.lib.tar.gz s3://${{ secrets.AWS_S3_BUCKET }}/
