@@ -138,20 +138,17 @@ jobs:
           cd build
           ctest --verbose
 
-      - name: Build the Static Library
-        working-directory: engine/
+      - name: Build for Release
+        working-directory: engine/build/
         run: |
-          mkdir build
-          cd build
           cmake .. -DCMAKE_BUILD_TYPE=Release
           cmake --build .
           cp libxjmusic.a xjmusic-v${{ needs.verify_version_number.outputs.version }}.lib
 
       - name: Compress .lib file (macOS/Intel)
         if: runner.os == 'macOS' && runner.arch == 'X64'
-        working-directory: engine/
+        working-directory: engine/build/
         run: |
-          cd build/
           zip xjmusic-v${{ needs.verify_version_number.outputs.version }}-macos-intel.lib.zip xjmusic-v${{ needs.verify_version_number.outputs.version }}.lib
 
       - name: Upload to release (macOS/Intel)
@@ -171,9 +168,8 @@ jobs:
 
       - name: Compress .lib file (macOS/Silicon)
         if: runner.os == 'macOS' && runner.arch == 'ARM64'
-        working-directory: engine/
+        working-directory: engine/build/
         run: |
-          cd build/
           zip xjmusic-v${{ needs.verify_version_number.outputs.version }}-macos-silicon.lib.zip xjmusic-v${{ needs.verify_version_number.outputs.version }}.lib
 
       - name: Upload to release (macOS/Silicon)
@@ -193,9 +189,8 @@ jobs:
 
       - name: Compress .lib file for Windows
         if: runner.os == 'Windows'
-        working-directory: engine/
+        working-directory: engine/build/
         run: |
-          cd build/
           Compress-Archive -Path xjmusic-v${{ needs.verify_version_number.outputs.version }}.lib -DestinationPath xjmusic-v${{ needs.verify_version_number.outputs.version }}-windows.lib.zip
 
       - name: Upload to release (Windows)
@@ -215,9 +210,8 @@ jobs:
 
       - name: Compress .lib file for Linux
         if: runner.os == 'Linux'
-        working-directory: engine/
+        working-directory: engine/build/
         run: |
-          cd build/
           tar -czvf xjmusic-v${{ needs.verify_version_number.outputs.version }}-linux.lib.tar.gz xjmusic-v${{ needs.verify_version_number.outputs.version }}.lib
 
       - name: Upload to release (Linux)
