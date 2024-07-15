@@ -155,20 +155,10 @@ void APrototypeActor::Tick(float DeltaTime)
 		AudioLookup.Remove(Key);
 	}
 
-	//ActiveAudios.RemoveAll([this](const AudioPlayer& Element)
-	//	{
-	//		if (atChainMicros >= Element.EndTime)
-	//		{
-	//			UXjMusicInstanceSubsystem* XjMusicInstanceSubsystem = GetWorld()->GetGameInstance()->GetSubsystem<UXjMusicInstanceSubsystem>();
-	//			if (XjMusicInstanceSubsystem)
-	//			{
-	//				XjMusicInstanceSubsystem->StopAudioByName(Element.Id);
-	//				return false;
-	//			}
-	//		}
-	//		
-	//		return true;
-	//	});
+	ActiveAudios.RemoveAll([](const AudioPlayer& Element)
+		{
+			return Element.StartTime >= Element.EndTime;
+		});
 	
 	
 	for (AudioPlayer& Player : ActiveAudios)
