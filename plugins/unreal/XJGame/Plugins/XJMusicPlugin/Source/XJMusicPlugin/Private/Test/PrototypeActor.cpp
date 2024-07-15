@@ -5,11 +5,11 @@
 #include "Components/AudioComponent.h"
 #include <optional>
 #include <set>
+#include <XjMusicInstanceSubsystem.h>
 
 APrototypeActor::APrototypeActor()
 {
 	PrimaryActorTick.bCanEverTick = true;
-
 }
 
 void APrototypeActor::BeginPlay()
@@ -20,8 +20,10 @@ void APrototypeActor::BeginPlay()
 
 	try
 	{
-		std::string path = "D:/Dev/vgm/vgm.xj";
-		engine = new Engine(path, Fabricator::ControlMode::Taxonomy, DeaultSettings.craftAheadSeconds, DeaultSettings.dubAheadSeconds, DeaultSettings.persistenceWindowSeconds);
+		std::string Path = "D:/Dev/vgm/vgm.xj";
+		std::string BuildPath =  "D:/Dev/vgm/build";
+
+		engine = new Engine(Path, Fabricator::ControlMode::Taxonomy, DeaultSettings.craftAheadSeconds, DeaultSettings.dubAheadSeconds, DeaultSettings.persistenceWindowSeconds);
 	
 		if (!engine)
 		{
@@ -67,7 +69,8 @@ void APrototypeActor::RunXjOneCycleTick()
 
 	for (auto audio : audios) 
 	{
-		FString name = audio.getAudio()->name.c_str();
+		FString Name = audio.getAudio()->name.c_str();
+		FString WavKey = audio.getAudio()->waveformKey.c_str();
 
 		auto TransientMicros = audio.getAudio()->transientSeconds * MICROS_PER_SECOND;
 		auto LengthMicros = audio.getPick()->lengthMicros;
@@ -78,7 +81,8 @@ void APrototypeActor::RunXjOneCycleTick()
 		AudioPlayer Player;
 		Player.StartTime = StartTime;
 		Player.EndTime = EndTime;
-		Player.Name = name;
+		Player.Name = Name;
+		Player.Id = WavKey;
 
 		if (StartTime > atChainMicros)
 		{
@@ -90,7 +94,7 @@ void APrototypeActor::RunXjOneCycleTick()
 
 			for (const AudioPlayer& Info : ActiveAudios)
 			{
-				if (Info.Name == name)
+				if (Info.Name == Name)
 				{
 					Skip = true;
 					break;
@@ -151,15 +155,35 @@ void APrototypeActor::Tick(float DeltaTime)
 		AudioLookup.Remove(Key);
 	}
 
-	ActiveAudios.RemoveAll([](const AudioPlayer& Element)
-		{
-			return Element.StartTime >= Element.EndTime;
-		});
+	//ActiveAudios.RemoveAll([this](const AudioPlayer& Element)
+	//	{
+	//		if (atChainMicros >= Element.EndTime)
+	//		{
+	//			UXjMusicInstanceSubsystem* XjMusicInstanceSubsystem = GetWorld()->GetGameInstance()->GetSubsystem<UXjMusicInstanceSubsystem>();
+	//			if (XjMusicInstanceSubsystem)
+	//			{
+	//				XjMusicInstanceSubsystem->StopAudioByName(Element.Id);
+	//				return false;
+	//			}
+	//		}
+	//		
+	//		return true;
+	//	});
 	
 	
-	for (const AudioPlayer& Player : ActiveAudios)
+	for (AudioPlayer& Player : ActiveAudios)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 0.0f, FColor::Red, Player.Name);
+		GEngine->AddOnScreenDebugMessage(-1, 0.0f, FColor::Red, FString::Printf(TEXT("%s(%s)"), *Player.Name, *Player.Id));
+
+		if (!Player.bIsPlaying)
+		{
+			UXjMusicInstanceSubsystem* XjMusicInstanceSubsystem = GetWorld()->GetGameInstance()->GetSubsystem<UXjMusicInstanceSubsystem>();
+			if (XjMusicInstanceSubsystem)
+			{
+				XjMusicInstanceSubsystem->PlayAudioByName(Player.Id);
+				Player.bIsPlaying = true;
+			}
+		}
 	}
 }
 

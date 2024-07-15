@@ -20,7 +20,10 @@ public:
 	unsigned long long StartTime = 0;
 	unsigned long long EndTime = -1;
 
+	bool bIsPlaying = false;
+
 	FString Name;
+	FString Id;
 };
 
 UCLASS()

@@ -24,8 +24,8 @@ void AXjTestActor::BeginPlay()
 	UXjMusicInstanceSubsystem* XjMusicInstanceSubsystem = GetWorld()->GetGameInstance()->GetSubsystem<UXjMusicInstanceSubsystem>();
 	if (XjMusicInstanceSubsystem)
 	{
-		XjMusicInstanceSubsystem->RetriveProjectsContent();
-		XjMusicInstanceSubsystem->TestPlayAllSounds(this);
+		XjMusicInstanceSubsystem->RetriveProjectsContent("D:/Dev/vgm/build");
+		XjMusicInstanceSubsystem->TestPlayAllSounds();
 	}
 }
 
