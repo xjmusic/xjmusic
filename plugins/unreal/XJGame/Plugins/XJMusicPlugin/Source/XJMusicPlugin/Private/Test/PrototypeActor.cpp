@@ -23,6 +23,12 @@ void APrototypeActor::BeginPlay()
 		std::string Path = "D:/Dev/vgm/vgm.xj";
 		std::string BuildPath =  "D:/Dev/vgm/build";
 
+		UXjMusicInstanceSubsystem* XjMusicInstanceSubsystem = GetWorld()->GetGameInstance()->GetSubsystem<UXjMusicInstanceSubsystem>();
+		if (XjMusicInstanceSubsystem)
+		{
+			XjMusicInstanceSubsystem->RetriveProjectsContent(FString(BuildPath.c_str()));
+		}
+
 		engine = new Engine(Path, Fabricator::ControlMode::Taxonomy, DeaultSettings.craftAheadSeconds, DeaultSettings.dubAheadSeconds, DeaultSettings.persistenceWindowSeconds);
 	
 		if (!engine)
