@@ -23,7 +23,7 @@ void APrototypeActor::BeginPlay()
 		std::string Path = "D:/Dev/vgm/vgm.xj";
 		std::string BuildPath =  "D:/Dev/vgm/build";
 
-		UXjMusicInstanceSubsystem* XjMusicInstanceSubsystem = GetWorld()->GetGameInstance()->GetSubsystem<UXjMusicInstanceSubsystem>();
+		XjMusicInstanceSubsystem = GetWorld()->GetGameInstance()->GetSubsystem<UXjMusicInstanceSubsystem>();
 		if (XjMusicInstanceSubsystem)
 		{
 			XjMusicInstanceSubsystem->RetriveProjectsContent(FString(BuildPath.c_str()));
@@ -54,8 +54,6 @@ void APrototypeActor::BeginPlay()
 		const Template* FirstTemplate = *TemplatesInfo.begin();
 
 		engine->start(FirstTemplate->id);
-
-		engine->doOverrideMemes({ "EXPLORATION", "CALLTOACTION", "95BPM" });
 	}
 	catch (const std::invalid_argument& e)
 	{
@@ -69,7 +67,7 @@ void APrototypeActor::BeginDestroy()
 	Super::BeginDestroy();
 }
 
-void APrototypeActor::RunXjOneCycleTick()
+void APrototypeActor::RunXjOneCycleTick(const float DeltaTime)
 {
 	auto audios = engine->runCycle(atChainMicros);
 
@@ -92,23 +90,33 @@ void APrototypeActor::RunXjOneCycleTick()
 
 		if (StartTime > atChainMicros)
 		{
-			AudioLookup.Add(StartTime, Player);
+			if (AudioLookup.Contains(StartTime))
+			{
+				AudioLookup[StartTime] = Player;
+			}
+			else
+			{
+				AudioLookup.Add(StartTime, Player);
+			}
 		}
 		else
 		{
 			bool Skip = false;
 
-			for (const AudioPlayer& Info : ActiveAudios)
+			for (AudioPlayer& Info : ActiveAudios)
 			{
 				if (Info.Name == Name)
 				{
+					Info.EndTime = Player.EndTime;
 					Skip = true;
+
 					break;
 				}
 			}
 
 			if (!Skip)
 			{
+				Player.StartTime = atChainMicros - Player.StartTime;
 				ActiveAudios.Add(Player);
 			}
 		}
@@ -125,7 +133,7 @@ void APrototypeActor::Tick(float DeltaTime)
 
 	if (!hasSegmentsDubbedPastMinimumOffset() && isWithinTimeLimit())
 	{
-		RunXjOneCycleTick();
+		RunXjOneCycleTick(DeltaTime);
 	}
 
 	TArray<unsigned long long> ToRemoveKeys;
@@ -161,9 +169,20 @@ void APrototypeActor::Tick(float DeltaTime)
 		AudioLookup.Remove(Key);
 	}
 
-	ActiveAudios.RemoveAll([](const AudioPlayer& Element)
+	ActiveAudios.RemoveAll([this](const AudioPlayer& Element)
 		{
-			return Element.StartTime >= Element.EndTime;
+			if (Element.EndTime >= atChainMicros)
+			{
+				if (XjMusicInstanceSubsystem)
+				{
+					GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Red, FString::Printf(TEXT("Removed%s"), *Element.Name));
+					XjMusicInstanceSubsystem->StopAudioByName(Element.Id);
+				}
+
+				return true;
+			}
+
+			return false;
 		});
 	
 	
@@ -173,10 +192,9 @@ void APrototypeActor::Tick(float DeltaTime)
 
 		if (!Player.bIsPlaying)
 		{
-			UXjMusicInstanceSubsystem* XjMusicInstanceSubsystem = GetWorld()->GetGameInstance()->GetSubsystem<UXjMusicInstanceSubsystem>();
 			if (XjMusicInstanceSubsystem)
 			{
-				XjMusicInstanceSubsystem->PlayAudioByName(Player.Id);
+				XjMusicInstanceSubsystem->PlayAudioByName(Player.Id, Player.StartTime / 1000000.0f);
 				Player.bIsPlaying = true;
 			}
 		}

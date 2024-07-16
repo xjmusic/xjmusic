@@ -14,7 +14,7 @@ class XJMUSICPLUGIN_API UXjMusicInstanceSubsystem : public UGameInstanceSubsyste
 public:
 	void RetriveProjectsContent(const FString& Directory);
 
-	void PlayAudioByName(const FString& Name);
+	void PlayAudioByName(const FString& Name, const float OffsetPlayTime = 0.0f);
 
 	void StopAudioByName(const FString& Name);
 

@@ -41,7 +41,7 @@ protected:
 
 	virtual void BeginDestroy() override;
 
-	void RunXjOneCycleTick();
+	void RunXjOneCycleTick(const float DeltaTime);
 
 	bool isWithinTimeLimit()
 	{
@@ -85,4 +85,6 @@ private:
 	TArray<FString> PlayingNames;
 
 	TArray<AudioPlayer> ActiveAudios;
+
+	class UXjMusicInstanceSubsystem* XjMusicInstanceSubsystem = nullptr;
 };
