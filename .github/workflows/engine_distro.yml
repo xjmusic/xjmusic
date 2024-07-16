@@ -27,8 +27,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       workstation-version: ${{ steps.get-workstation-version.outputs.version }}
-      engine-version: ${{ steps.get-engine-version.outputs.version }}
-      engine-docs-version: ${{ steps.get-engine-docs-version.outputs.version }}
+      version: ${{ steps.get-engine-version.outputs.version }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -78,12 +77,12 @@ jobs:
           fi
 
 
-  build_and_test:
+  test_and_ship_static_library:
     needs: verify_version_number
     env:
       REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
       REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
-    name: Build & Test [${{ matrix.os }}]
+    name: Test & Ship Library [${{ matrix.os }}]
     runs-on: ${{ matrix.os }}
     permissions: write-all
     strategy:
@@ -97,6 +96,13 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: '3.x'
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets. AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets. AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Install dependencies (Windows)
         if: runner.os == 'Windows'
@@ -137,3 +143,99 @@ jobs:
         run: |
           cd build
           ctest --verbose
+
+      - name: Build for Release (macOS/Linux)
+        if: runner.os == 'Linux' || runner.os == 'macOS'
+        working-directory: engine/build/
+        run: |
+          cmake .. -DCMAKE_BUILD_TYPE=Release
+          cmake --build .
+          cp src/libxjmusic.a ../../xjmusic-v${{ needs.verify_version_number.outputs.version }}.lib
+
+      - name: Build for Release (Windows)
+        if: runner.os == 'Windows'
+        working-directory: engine/build/
+        run: |
+          cmake .. -DCMAKE_BUILD_TYPE=Release
+          cmake --build .
+          cp src/Debug/xjmusic.lib ../../xjmusic-v${{ needs.verify_version_number.outputs.version }}.lib
+
+      - name: Compress .lib file (macOS/Intel)
+        if: runner.os == 'macOS' && runner.arch == 'X64'
+        run: |
+          zip xjmusic-v${{ needs.verify_version_number.outputs.version }}-macos-intel.lib.zip xjmusic-v${{ needs.verify_version_number.outputs.version }}.lib
+
+      - name: Upload to release (macOS/Intel)
+        if: runner.os == 'macOS' && runner.arch == 'X64'
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: xjmusic-v${{ needs.verify_version_number.outputs.version }}-macos-intel.lib.zip
+          asset_name: xjmusic-v${{ needs.verify_version_number.outputs.version }}-macos-intel.lib.zip
+          tag: ${{ github.ref }}
+          overwrite: true
+
+      - name: Upload to Amazon S3 (macOS/Intel)
+        if: runner.os == 'macOS' && runner.arch == 'X64'
+        run:
+          aws s3 cp xjmusic-v${{ needs.verify_version_number.outputs.version }}-macos-intel.lib.zip s3://${{ secrets.AWS_S3_BUCKET }}/
+
+      - name: Compress .lib file (macOS/Silicon)
+        if: runner.os == 'macOS' && runner.arch == 'ARM64'
+        run: |
+          zip xjmusic-v${{ needs.verify_version_number.outputs.version }}-macos-silicon.lib.zip xjmusic-v${{ needs.verify_version_number.outputs.version }}.lib
+
+      - name: Upload to release (macOS/Silicon)
+        if: runner.os == 'macOS' && runner.arch == 'ARM64'
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: xjmusic-v${{ needs.verify_version_number.outputs.version }}-macos-silicon.lib.zip
+          asset_name: xjmusic-v${{ needs.verify_version_number.outputs.version }}-macos-silicon.lib.zip
+          tag: ${{ github.ref }}
+          overwrite: true
+
+      - name: Upload to Amazon S3 (macOS/Silicon)
+        if: runner.os == 'macOS' && runner.arch == 'ARM64'
+        run:
+          aws s3 cp xjmusic-v${{ needs.verify_version_number.outputs.version }}-macos-silicon.lib.zip s3://${{ secrets.AWS_S3_BUCKET }}/
+
+      - name: Compress .lib file for Windows
+        if: runner.os == 'Windows'
+        run: |
+          Compress-Archive -Path xjmusic-v${{ needs.verify_version_number.outputs.version }}.lib -DestinationPath xjmusic-v${{ needs.verify_version_number.outputs.version }}-windows.lib.zip
+
+      - name: Upload to release (Windows)
+        if: runner.os == 'Windows'
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: xjmusic-v${{ needs.verify_version_number.outputs.version }}-windows.lib.zip
+          asset_name: xjmusic-v${{ needs.verify_version_number.outputs.version }}-windows.lib.zip
+          tag: ${{ github.ref }}
+          overwrite: true
+
+      - name: Upload to Amazon S3 (Windows)
+        if: runner.os == 'Windows'
+        run:
+          aws s3 cp xjmusic-v${{ needs.verify_version_number.outputs.version }}-windows.lib.zip s3://${{ secrets.AWS_S3_BUCKET }}/
+
+      - name: Compress .lib file for Linux
+        if: runner.os == 'Linux'
+        run: |
+          tar -czvf xjmusic-v${{ needs.verify_version_number.outputs.version }}-linux.lib.tar.gz xjmusic-v${{ needs.verify_version_number.outputs.version }}.lib
+
+      - name: Upload to release (Linux)
+        if: runner.os == 'Linux'
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: xjmusic-v${{ needs.verify_version_number.outputs.version }}-linux.lib.tar.gz
+          asset_name: xjmusic-v${{ needs.verify_version_number.outputs.version }}-linux.lib.tar.gz
+          tag: ${{ github.ref }}
+          overwrite: true
+
+      - name: Upload to Amazon S3 (Linux)
+        if: runner.os == 'Linux'
+        run:
+          aws s3 cp xjmusic-v${{ needs.verify_version_number.outputs.version }}-linux.lib.tar.gz s3://${{ secrets.AWS_S3_BUCKET }}/
