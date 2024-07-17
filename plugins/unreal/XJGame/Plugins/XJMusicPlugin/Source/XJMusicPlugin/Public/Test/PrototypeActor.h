@@ -13,11 +13,10 @@
 
 using namespace XJ;
 
-class AudioPlayer
+struct FAudioPlayer
 {
-public:
-	unsigned long long StartTime = 0;
-	unsigned long long EndTime = -1;
+	float StartTime = 0.0f;
+	float EndTime = 0.0f;
 
 	bool bIsPlaying = false;
 
@@ -31,6 +30,7 @@ class XJMUSICPLUGIN_API APrototypeActor : public AActor
 	GENERATED_BODY()
 	
 public:	
+
 	APrototypeActor();
 
 	virtual void Tick(float DeltaTime) override;
@@ -73,6 +73,7 @@ protected:
 	}
 
 private:
+
 	int MARATHON_NUMBER_OF_SEGMENTS = 50;
 	long MICROS_PER_CYCLE = 1000000;
 	long long MAXIMUM_TEST_WAIT_SECONDS = 10 * MARATHON_NUMBER_OF_SEGMENTS;
@@ -83,15 +84,13 @@ private:
 
 	long long XjStartTime = EntityUtils::currentTimeMillis();
 	
-	TUniquePtr<Engine> XjEngine;
-
 	unsigned long long AtChainMicros = 0;
 
-	TMap<unsigned long long, AudioPlayer> AudioLookup;
+	TUniquePtr<Engine> XjEngine;
 
-	TArray<FString> PlayingNames;
+	TMap<unsigned long long, FAudioPlayer> AudioLookup;
 
-	TArray<AudioPlayer> ActiveAudios;
+	TSet<FString> CurrentlyPlayingIds;
 
 	class UXjMusicInstanceSubsystem* XjMusicInstanceSubsystem = nullptr;
 };

@@ -11,10 +11,6 @@
 AXjTestActor::AXjTestActor()
 {
 	PrimaryActorTick.bCanEverTick = true;
-
-	AudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("AudioComponent"));
-	AudioComponent->SetupAttachment(RootComponent);
-	AudioComponent->SetAutoActivate(true);
 }
 
 void AXjTestActor::BeginPlay()
@@ -34,10 +30,3 @@ void AXjTestActor::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 }
-
-void AXjTestActor::PlayTestSound(USoundBase* Sound)
-{
-	AudioComponent->SetSound(Sound);
-	AudioComponent->Play();
-}
-

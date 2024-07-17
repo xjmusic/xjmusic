@@ -79,15 +79,18 @@ void APrototypeActor::BeginPlay()
 			}
 		}
 
-		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, "Active memes: ");
+		FString MemesStr = "Activated memes: \n";
 
 		for (std::string Meme : Memes)
 		{
-			FString Str = Meme.c_str();
-			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, Str);
+			FString MemeStr = Meme.c_str();
+			MemesStr += MemeStr + "\n";
 		}
 
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, MemesStr);
+
 		XjEngine->doOverrideMemes(Memes);
+
 
 		const Template* FirstTemplate = *TemplatesInfo.begin();
 
@@ -112,63 +115,47 @@ void APrototypeActor::RunXjOneCycleTick(const float DeltaTime)
 		return;
 	}
 
-	auto audios = XjEngine->runCycle(AtChainMicros);
+	std::set<ActiveAudio> ReceivedAudios = XjEngine->runCycle(AtChainMicros);
 
-	for (auto audio : audios)
+	bool NeedSort = false;
+
+	for (const ActiveAudio& Audio : ReceivedAudios)
 	{
-		FString Name = audio.getAudio()->name.c_str();
-		FString WavKey = audio.getAudio()->waveformKey.c_str();
+		FString WavKey = Audio.getAudio()->waveformKey.c_str();
+		FString Name = Audio.getAudio()->name.c_str();
 
-		auto TransientMicros = audio.getAudio()->transientSeconds * MICROS_PER_SECOND;
-		auto LengthMicros = audio.getPick()->lengthMicros;
+		long TransientMicros = Audio.getAudio()->transientSeconds * MICROS_PER_SECOND;
+		long LengthMicros = Audio.getPick()->lengthMicros;
 
-		auto StartTime = audio.getStartAtChainMicros() - TransientMicros - AtChainMicros;
-		auto EndTime = StartTime + TransientMicros + LengthMicros;
+		unsigned long long StartTime = Audio.getStartAtChainMicros() - TransientMicros - AtChainMicros;
+		unsigned long long EndTime = StartTime + TransientMicros + LengthMicros;
 
-		AudioPlayer Player;
-		Player.StartTime = StartTime;
-		Player.EndTime = EndTime;
-		Player.Name = Name;
-		Player.Id = WavKey;
+		FAudioPlayer AudioPlayer;
+		AudioPlayer.StartTime = StartTime;
+		AudioPlayer.EndTime = EndTime;
+		AudioPlayer.Name = Name;
+		AudioPlayer.Id = WavKey;
 
-		if (StartTime > AtChainMicros)
+		if (AudioLookup.Contains(StartTime) && AudioLookup[StartTime].Id == AudioPlayer.Id)
 		{
-			if (AudioLookup.Contains(StartTime))
-			{
-				AudioLookup[StartTime] = Player;
-			}
-			else
-			{
-				AudioLookup.Add(StartTime, Player);
-			}
+			AudioLookup[StartTime] = AudioPlayer;
 		}
 		else
 		{
-			bool Skip = false;
-
-			for (AudioPlayer& Info : ActiveAudios)
-			{
-				if (Info.Name == Name)
-				{
-					Info.EndTime = Player.EndTime;
-					Skip = true;
-
-					break;
-				}
-			}
-
-			if (!Skip)
-			{
-				Player.StartTime = AtChainMicros - Player.StartTime;
-				ActiveAudios.Add(Player);
-			}
+			AudioLookup.Add(StartTime, AudioPlayer);
+			NeedSort = true;
 		}
 	}
 
-	GEngine->AddOnScreenDebugMessage(-1, GetWorld()->GetDeltaSeconds(), FColor::Green,
-	                                 FString::Printf(TEXT("Play at %d:"), AtChainMicros));
+	if (NeedSort)
+	{
+		AudioLookup.KeySort(TLess<unsigned long long>());
+	}
 
-	AtChainMicros += MICROS_PER_CYCLE;
+	GEngine->AddOnScreenDebugMessage(-1, GetWorld()->GetDeltaSeconds(), FColor::Green,
+	                                 FString::Printf(TEXT("Play at %d:"), AtChainMicros), true);
+
+	AtChainMicros += MICROS_PER_CYCLE * DeltaTime;
 }
 
 void APrototypeActor::Tick(float DeltaTime)
@@ -180,67 +167,55 @@ void APrototypeActor::Tick(float DeltaTime)
 		RunXjOneCycleTick(DeltaTime);
 	}
 
-	TArray<unsigned long long> ToRemoveKeys;
-
-	for (const TPair<unsigned long long, AudioPlayer>& Info : AudioLookup)
+	if (!XjMusicInstanceSubsystem)
 	{
-		if (Info.Key > AtChainMicros)
+		return;
+	}
+
+	TArray<unsigned long long> EndedAudiosList;
+
+	for (TPair<unsigned long long, FAudioPlayer>& AudioInfo : AudioLookup)
+	{
+		const unsigned long long& StartTime = AudioInfo.Key;
+		FAudioPlayer& AudioPlayer = AudioInfo.Value;
+
+		//We don't want to go to the unscheduled part
+		if (StartTime > AtChainMicros)
+		{
+			break;
+		}
+
+		if (AudioPlayer.EndTime <= AtChainMicros)
+		{
+			XjMusicInstanceSubsystem->StopAudioByName(AudioPlayer.Id);
+			CurrentlyPlayingIds.Remove(AudioPlayer.Id);
+
+			EndedAudiosList.Add(AudioPlayer.StartTime);
+
+			continue;
+		}
+
+		if (AudioPlayer.bIsPlaying)
 		{
 			continue;
 		}
 
-		bool Skip = false;
-
-		for (const AudioPlayer& Player : ActiveAudios)
+		if (CurrentlyPlayingIds.Contains(AudioPlayer.Id))
 		{
-			if (Player.Name == Info.Value.Name)
-			{
-				Skip = true;
-				break;
-			}
+			EndedAudiosList.Add(StartTime);
+			continue;
 		}
 
-		if (!Skip)
-		{
-			ActiveAudios.Add(Info.Value);
-		}
+		CurrentlyPlayingIds.Add(AudioPlayer.Id);
 
-		ToRemoveKeys.Add(Info.Key);
+		float OverridedStartTime = AtChainMicros - StartTime / 1000000.0f;
+		
+		XjMusicInstanceSubsystem->PlayAudioByName(AudioPlayer.Id);
+		AudioPlayer.bIsPlaying = true;
 	}
 
-	for (auto Key : ToRemoveKeys)
+	for (unsigned long long Id : EndedAudiosList)
 	{
-		AudioLookup.Remove(Key);
-	}
-
-	ActiveAudios.RemoveAll([this](const AudioPlayer& Element)
-	{
-		if (Element.EndTime >= AtChainMicros)
-		{
-			if (XjMusicInstanceSubsystem)
-			{
-				XjMusicInstanceSubsystem->StopAudioByName(Element.Id);
-			}
-
-			return true;
-		}
-
-		return false;
-	});
-
-
-	for (AudioPlayer& Player : ActiveAudios)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 0.0f, FColor::Red,
-		                                 FString::Printf(TEXT("%s(%s)"), *Player.Name, *Player.Id));
-
-		if (!Player.bIsPlaying)
-		{
-			if (XjMusicInstanceSubsystem)
-			{
-				XjMusicInstanceSubsystem->PlayAudioByName(Player.Id, Player.StartTime / 1000000.0f);
-				Player.bIsPlaying = true;
-			}
-		}
+		AudioLookup.Remove(Id);
 	}
 }

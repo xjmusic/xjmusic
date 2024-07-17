@@ -46,7 +46,7 @@ void UXjMusicInstanceSubsystem::RetrieveProjectsContent(const FString& Directory
 	}
 }
 
-void UXjMusicInstanceSubsystem::PlayAudioByName(const FString& Name, const float OffsetPlayTime)
+void UXjMusicInstanceSubsystem::PlayAudioByName(const FString& Name, const float OverrideStartTime)
 {
 	USoundWave* SoundWave = GetSoundWaveByName(Name);
 	if (!SoundWave)
@@ -62,7 +62,7 @@ void UXjMusicInstanceSubsystem::PlayAudioByName(const FString& Name, const float
 
 		ActiveSound->SetVolume(1.0f);
 
-		ActiveSound->RequestedStartTime = OffsetPlayTime;
+		ActiveSound->RequestedStartTime = OverrideStartTime;
 
 		ActiveSound->bIsUISound = true;
 		ActiveSound->bAllowSpatialization = false;
