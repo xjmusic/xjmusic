@@ -1,4 +1,6 @@
 
+*.wav
+
 # Visual Studio 2015 user specific files
 .vs/
 
@@ -7,8 +9,6 @@
 *.lo
 *.o
 *.obj
-
-*.exe
 
 # Precompiled Headers
 *.gch
