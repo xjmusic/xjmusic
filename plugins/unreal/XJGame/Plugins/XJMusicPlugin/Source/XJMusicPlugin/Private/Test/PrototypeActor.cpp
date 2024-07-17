@@ -65,6 +65,30 @@ void APrototypeActor::BeginPlay()
 			return;
 		}
 
+		MemeTaxonomy Taxonomy = XjEngine->getMemeTaxonomy().value();
+		std::set<MemeCategory> Categories = Taxonomy.getCategories();
+
+		std::set<std::string> Memes;
+
+		for (MemeCategory Category : Categories)
+		{
+			if (Category.hasMemes())
+			{
+				std::string Meme = *Category.getMemes().begin();
+				Memes.insert(Meme);
+			}
+		}
+
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, "Active memes: ");
+
+		for (std::string Meme : Memes)
+		{
+			FString Str = Meme.c_str();
+			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, Str);
+		}
+
+		XjEngine->doOverrideMemes(Memes);
+
 		const Template* FirstTemplate = *TemplatesInfo.begin();
 
 		XjEngine->start(FirstTemplate->id);
