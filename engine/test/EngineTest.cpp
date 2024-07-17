@@ -12,7 +12,7 @@
 #include "xjmusic/fabricator/SegmentUtils.h"
 #include "xjmusic/work/WorkManager.h"
 
-static std::string ENGINE_TEST_PROJECT_PATH = "X:/XJ music projects/Video Game Demo/Video Game Demo.xj"; // TODO use the local test project path
+static std::string ENGINE_TEST_PROJECT_PATH = "_data/test_project/TestProject.xj";
 
 // NOLINTNEXTLINE
 using ::testing::_;
