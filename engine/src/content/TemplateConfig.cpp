@@ -248,8 +248,9 @@ TemplateConfig::TemplateConfig(const std::string &input) : ConfigParser(input, C
   intensityLayers = parseInstrumentTypeIntMap(getObjectValue("intensityLayers"));
   intensityThreshold = parseInstrumentTypeFloatMap(getObjectValue("intensityThreshold"));
   mainProgramLengthMaxDelta = getSingleValue("mainProgramLengthMaxDelta").getInt();
-  const auto setOfMapsOfStrings = getListValue("memeTaxonomy").asListOfMapsOfStrings();
-  memeTaxonomy = MemeTaxonomy::fromList(setOfMapsOfStrings);
+  auto memeTaxonomyList = getListValue("memeTaxonomy");
+  const auto memeTaxonomyListOfMapsOfStrings = memeTaxonomyList.asListOfMapsOfStrings();
+  memeTaxonomy = MemeTaxonomy::fromList(memeTaxonomyListOfMapsOfStrings);
   mixerCompressAheadSeconds = getSingleValue("mixerCompressAheadSeconds").getFloat();
   mixerCompressDecaySeconds = getSingleValue("mixerCompressDecaySeconds").getFloat();
   mixerCompressRatioMax = getSingleValue("mixerCompressRatioMax").getFloat();
