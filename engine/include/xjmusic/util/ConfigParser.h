@@ -303,6 +303,13 @@ namespace XJ {
     static std::string format(const std::set<std::string> &values);
 
     /**
+     * Split a CSV string into top-level pieces
+     * @param basicString  The string to split
+     * @return           The pieces
+     */
+    static std::vector<std::string> splitCsvTopLevel(const std::string& basicString);
+
+    /**
      * Compare two ConfigParsers for equality
      * @param other  The ConfigParser to compare
      * @return  true if equal

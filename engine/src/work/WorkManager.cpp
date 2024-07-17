@@ -22,10 +22,12 @@ WorkManager::WorkManager(
   spdlog::debug("Did set work configuration: {}", config.toString());
 
   try {
-    const auto tmpls = getSourceMaterial()->getTemplates();
-    if (tmpls.empty())
-      throw std::runtime_error("No template found in source material");
-    memeTaxonomy = {MemeTaxonomy((*tmpls.begin())->config.memeTaxonomy)};
+    const auto templates = getSourceMaterial()->getTemplates();
+    if (templates.empty()) {
+      spdlog::error("No templates found in source material");
+      return;
+    }
+    memeTaxonomy = {MemeTaxonomy((*templates.begin())->config.memeTaxonomy)};
   } catch (std::exception &e) {
     spdlog::error("Failed to get meme taxonomy from template config: {}", e.what());
   }
@@ -41,11 +43,10 @@ void WorkManager::start() {
         doOverrideMacro(*programs.begin());
     } break;
     case Fabricator::ControlMode::Taxonomy: {
-      auto taxonomy = getMemeTaxonomy();
-      if (taxonomy.has_value()) {
+      if (memeTaxonomy.has_value()) {
         std::set<std::string> memes;
-        for (auto category: taxonomy.value().getCategories()) {
-          if (category.getMemes().size() > 0)
+        for (auto category: memeTaxonomy.value().getCategories()) {
+          if (!category.getMemes().empty())
             memes.insert(*category.getMemes().begin());
         }
         if (!memes.empty()) doOverrideMemes(memes);

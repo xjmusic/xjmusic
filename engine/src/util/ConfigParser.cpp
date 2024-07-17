@@ -17,6 +17,7 @@ using namespace XJ;
 // Only accept simple floats with no scientific notation
 static std::regex rgxIsFloat("^[-+]?[0-9]*\\.?[0-9]+$");
 
+
 /**
  * Parse a float value
  * @param s      The string to parse
@@ -99,31 +100,40 @@ ConfigObjectValue parseObjectValue(const std::string &input) {
   ConfigObjectValue obj;
 
   // Read one piece at a time from the input string, and add it to the members vector.
-  // If the next piece does not have an "=" sign, then it is a piece of the previous piece
+  // If the next piece does not have an "=" or ":" sign, then it is a piece of the previous piece
   std::istringstream iss(StringUtils::trim(input));
   std::vector<std::string> members;
   std::string piece;
+  std::string sub_piece;
   int inObject = 0;// depth inside an object
   int inList = 0;  // depth inside a list
   while (std::getline(iss, piece)) {
     piece = StringUtils::trim(piece);
-    if (0 == inObject && 0 == inList && piece.find('=') != std::string::npos) {
-      members.push_back(piece);
-    } else if (!members.empty()) {
-      members.back() += "\n" + piece;
-    }
 
-    if (piece.find('{') != std::string::npos) inObject++;
-    if (piece.find('}') != std::string::npos) inObject--;
-    if (piece.find('[') != std::string::npos) inList++;
-    if (piece.find(']') != std::string::npos) inList--;
+    for (const auto &sp: ConfigParser::splitCsvTopLevel(piece)) {
+      sub_piece = StringUtils::trim(sp);
+      if (0 == inObject && 0 == inList &&
+          (sub_piece.find('=') != std::string::npos || sub_piece.find(':') != std::string::npos)) {
+        members.push_back(sub_piece);
+      } else if (!members.empty()) {
+        members.back() += "\n" + sub_piece;
+      }
+
+      if (sub_piece.find('{') != std::string::npos) inObject++;
+      if (sub_piece.find('}') != std::string::npos) inObject--;
+      if (sub_piece.find('[') != std::string::npos) inList++;
+      if (sub_piece.find(']') != std::string::npos) inList--;
+    }
   }
 
   // Parse each piece of the members vector
   for (const auto &member: members) {
-    const auto pos = member.find('=');
+    auto pos = member.find('=');
+    if (pos == std::string::npos) {
+      pos = member.find(':');
+    }
     if (pos != std::string::npos) {
-      std::string key = StringUtils::trim(member.substr(0, pos));
+      std::string key = parseString(StringUtils::trim(member.substr(0, pos)));
       std::string value = StringUtils::trim(member.substr(pos + 1));
       if (value.front() == '[' && value.back() == ']') {// Array
         obj.set(key, parseSimpleListValue(value.substr(1, value.size() - 2)));
@@ -133,6 +143,29 @@ ConfigObjectValue parseObjectValue(const std::string &input) {
     }
   }
   return obj;
+}
+
+std::vector<std::string> ConfigParser::splitCsvTopLevel(const std::string& basicString) {
+  std::vector<std::string> pieces;
+  std::string piece;
+  int inObject = 0;// depth inside an object
+  int inList = 0;  // depth inside a list
+  std::istringstream iss(basicString);
+  while (std::getline(iss, piece, ',')) {
+    piece = StringUtils::trim(piece);
+    if (0 == inObject && 0 == inList) {
+      pieces.push_back(piece);
+    } else if (!pieces.empty()) {
+      pieces.back() += "," + piece;
+    }
+
+    if (piece.find('{') != std::string::npos) inObject++;
+    if (piece.find('}') != std::string::npos) inObject--;
+    if (piece.find('[') != std::string::npos) inList++;
+    if (piece.find(']') != std::string::npos) inList--;
+  }
+  return pieces;
+
 }
 
 
@@ -202,7 +235,8 @@ ConfigParser::ConfigParser(const std::string &input) {
   int inList = 0;  // depth inside a list
   while (std::getline(iss, piece)) {
     piece = StringUtils::trim(piece);
-    if (0 == inObject && 0 == inList && piece.find('=') != std::string::npos) {
+    if (0 == inObject && 0 == inList &&
+        (piece.find('=') != std::string::npos || piece.find(':') != std::string::npos)) {
       members.push_back(piece);
     } else if (!members.empty()) {
       members.back() += "\n" + piece;
@@ -216,7 +250,10 @@ ConfigParser::ConfigParser(const std::string &input) {
 
   // Parse each piece of the members vector
   for (const auto &member: members) {
-    const auto pos = member.find('=');
+    auto pos = member.find('=');
+    if (pos == std::string::npos) {
+      pos = member.find(':');
+    }
     if (pos != std::string::npos) {
       std::string key = StringUtils::trim(member.substr(0, pos));
       std::string value = StringUtils::trim(member.substr(pos + 1));
@@ -298,7 +335,7 @@ ConfigListValue ConfigParser::getListValue(const std::string &key) {
   if (std::holds_alternative<ConfigSingleValue>(config.at(key))) {
     ConfigListValue list;
     auto text = std::get<ConfigSingleValue>(config.at(key));
-    for (auto &value : CsvUtils::split(text.getString())) {
+    for (auto &value: CsvUtils::split(text.getString())) {
       list.add(ConfigSingleValue(value));
     }
     return list;
@@ -383,6 +420,12 @@ unsigned long ConfigObjectValue::size() const {
 
 
 ConfigSingleValue ConfigObjectValue::atSingle(const std::string &index) {
+  if (data.find(index) == data.end()) {
+    throw ConfigException("Key not found");
+  }
+  if (!std::holds_alternative<ConfigSingleValue>(data.at(index))) {
+    throw ConfigException("Value is not a single value");
+  }
   return std::get<ConfigSingleValue>(data.at(index));
 }
 
