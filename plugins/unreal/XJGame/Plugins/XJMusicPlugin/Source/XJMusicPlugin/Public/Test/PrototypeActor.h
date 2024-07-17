@@ -8,7 +8,6 @@
 #include <xjmusic/work/WorkManager.h>
 #include <xjmusic/fabricator/SegmentUtils.h>
 #include <xjmusic/Engine.h>
-#include <xjmusic/fabricator/Fabricator.h>
 
 #include "PrototypeActor.generated.h"
 
@@ -37,26 +36,34 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 protected:
+
+	UPROPERTY(EditInstanceOnly, Category = "XjMusic", meta = (ToolTip = "Path to XJ project folder, with trailing slash"))
+	FString XjProjectFolder;
+	
+	UPROPERTY(EditInstanceOnly, Category = "XjMusic", meta = (ToolTip = "Name of XJ project file"))
+	FString XjProjectFile;
+	
 	virtual void BeginPlay() override;
 
 	virtual void BeginDestroy() override;
 
 	void RunXjOneCycleTick(const float DeltaTime);
 
-	bool isWithinTimeLimit()
+	bool IsWithinTimeLimit() const
 	{
 		if (MAXIMUM_TEST_WAIT_SECONDS * MILLIS_PER_SECOND > EntityUtils::currentTimeMillis() - startTime)
 		{
 			return true;
 		}
 
-		UE_LOG(LogTemp, Error, TEXT("EXCEEDED TEST TIME LIMIT OF %d SECONDS"), MAXIMUM_TEST_WAIT_SECONDS)
+		UE_LOG(LogTemp, Error, TEXT("EXCEEDED TEST TIME LIMIT OF %lld SECONDS"), MAXIMUM_TEST_WAIT_SECONDS)
 
 			return false;
 	}
 
-	bool hasSegmentsDubbedPastMinimumOffset() const
+	bool HasSegmentsDubbedPastMinimumOffset() const
 	{
+		if (!engine) return false;
 		const auto segment = SegmentUtils::getLastCrafted(engine->getSegmentStore()->readAllSegments());
 		return segment.has_value() && segment.value()->id >= MARATHON_NUMBER_OF_SEGMENTS;
 	}
@@ -70,13 +77,8 @@ private:
 	long MICROS_PER_SECOND = MICROS_PER_MILLI * MILLIS_PER_SECOND;
 	int GENERATED_FIXTURE_COMPLEXITY = 3;
 	long long startTime = EntityUtils::currentTimeMillis();
-
-	SegmentEntityStore* store = nullptr;
-
-	ContentEntityStore* content = nullptr;
-	WorkManager* work = nullptr;
-
-	Engine* engine = nullptr;
+	
+	std::unique_ptr<Engine> engine;
 
 	unsigned long long atChainMicros = 0;
 

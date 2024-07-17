@@ -16,27 +16,39 @@ void APrototypeActor::BeginPlay()
 {
 	Super::BeginPlay();
 
-	WorkSettings DeaultSettings;
+	WorkSettings DefaultSettings;
+
+	FString PathToProject = XjProjectFolder + XjProjectFile;
+	std::string PathToProjectStr(TCHAR_TO_UTF8(*PathToProject));
+	UE_LOG(LogTemp, Display, TEXT("Path to project: %s"), *FString(PathToProjectStr.c_str()));
+	
+	FString PathToBuildFolder = XjProjectFolder + "build/";
+	UE_LOG(LogTemp, Display, TEXT("Path to build folder: %s"), *PathToBuildFolder);
 
 	try
 	{
-		std::string Path = "D:/Dev/vgm/vgm.xj";
-		std::string BuildPath =  "D:/Dev/vgm/build";
-
 		XjMusicInstanceSubsystem = GetWorld()->GetGameInstance()->GetSubsystem<UXjMusicInstanceSubsystem>();
 		if (XjMusicInstanceSubsystem)
 		{
-			XjMusicInstanceSubsystem->RetriveProjectsContent(FString(BuildPath.c_str()));
+			XjMusicInstanceSubsystem->RetrieveProjectsContent(PathToBuildFolder);
 		}
-
-		engine = new Engine(Path, Fabricator::ControlMode::Taxonomy, DeaultSettings.craftAheadSeconds, DeaultSettings.dubAheadSeconds, DeaultSettings.persistenceWindowSeconds);
-	
-		if (!engine)
+		else
 		{
+			UE_LOG(LogTemp, Error, TEXT("Cannot find XjMusicInstanceSubsystem"));
 			return;
 		}
 
-		std::set<const Template*> TemplatesInfo =  engine->getProjectContent()->getTemplates();
+		engine = std::make_unique<Engine>(PathToProjectStr,
+		                    Fabricator::ControlMode::Taxonomy, DefaultSettings.craftAheadSeconds,
+		                    DefaultSettings.dubAheadSeconds, DefaultSettings.persistenceWindowSeconds);
+
+		if (!engine)
+		{
+			UE_LOG(LogTemp, Error, TEXT("Cannot instantiate XJ Engine"));
+			return;
+		}
+
+		std::set<const Template*> TemplatesInfo = engine->getProjectContent()->getTemplates();
 
 
 		for (const Template* Info : TemplatesInfo)
@@ -45,7 +57,7 @@ void APrototypeActor::BeginPlay()
 
 			UE_LOG(LogTemp, Warning, TEXT("Imported template: %s"), *Name);
 		}
-		
+
 		if (TemplatesInfo.size() < 1)
 		{
 			return;
@@ -69,9 +81,10 @@ void APrototypeActor::BeginDestroy()
 
 void APrototypeActor::RunXjOneCycleTick(const float DeltaTime)
 {
+	if (!engine) return;
 	auto audios = engine->runCycle(atChainMicros);
 
-	for (auto audio : audios) 
+	for (auto audio : audios)
 	{
 		FString Name = audio.getAudio()->name.c_str();
 		FString WavKey = audio.getAudio()->waveformKey.c_str();
@@ -122,8 +135,9 @@ void APrototypeActor::RunXjOneCycleTick(const float DeltaTime)
 		}
 	}
 
-	GEngine->AddOnScreenDebugMessage(-1, GetWorld()->GetDeltaSeconds(), FColor::Green, FString::Printf(TEXT("Play at %d:"), atChainMicros));
-	
+	GEngine->AddOnScreenDebugMessage(-1, GetWorld()->GetDeltaSeconds(), FColor::Green,
+	                                 FString::Printf(TEXT("Play at %d:"), atChainMicros));
+
 	atChainMicros += MICROS_PER_CYCLE;
 }
 
@@ -131,7 +145,7 @@ void APrototypeActor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (!hasSegmentsDubbedPastMinimumOffset() && isWithinTimeLimit())
+	if (!HasSegmentsDubbedPastMinimumOffset() && IsWithinTimeLimit())
 	{
 		RunXjOneCycleTick(DeltaTime);
 	}
@@ -144,7 +158,7 @@ void APrototypeActor::Tick(float DeltaTime)
 		{
 			continue;
 		}
-		
+
 		bool Skip = false;
 
 		for (const AudioPlayer& Player : ActiveAudios)
@@ -170,25 +184,27 @@ void APrototypeActor::Tick(float DeltaTime)
 	}
 
 	ActiveAudios.RemoveAll([this](const AudioPlayer& Element)
+	{
+		if (Element.EndTime >= atChainMicros)
 		{
-			if (Element.EndTime >= atChainMicros)
+			if (XjMusicInstanceSubsystem)
 			{
-				if (XjMusicInstanceSubsystem)
-				{
-					GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Red, FString::Printf(TEXT("Removed%s"), *Element.Name));
-					XjMusicInstanceSubsystem->StopAudioByName(Element.Id);
-				}
-
-				return true;
+				GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Red,
+				                                 FString::Printf(TEXT("Removed%s"), *Element.Name));
+				XjMusicInstanceSubsystem->StopAudioByName(Element.Id);
 			}
 
-			return false;
-		});
-	
-	
+			return true;
+		}
+
+		return false;
+	});
+
+
 	for (AudioPlayer& Player : ActiveAudios)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 0.0f, FColor::Red, FString::Printf(TEXT("%s(%s)"), *Player.Name, *Player.Id));
+		GEngine->AddOnScreenDebugMessage(-1, 0.0f, FColor::Red,
+		                                 FString::Printf(TEXT("%s(%s)"), *Player.Name, *Player.Id));
 
 		if (!Player.bIsPlaying)
 		{
@@ -200,4 +216,3 @@ void APrototypeActor::Tick(float DeltaTime)
 		}
 	}
 }
-

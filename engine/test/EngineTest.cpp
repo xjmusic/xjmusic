@@ -12,7 +12,7 @@
 #include "xjmusic/fabricator/SegmentUtils.h"
 #include "xjmusic/work/WorkManager.h"
 
-static std::string ENGINE_TEST_PROJECT_PATH = "D:/Dev/vgm/vgm.xj";
+static std::string ENGINE_TEST_PROJECT_PATH = "X:/XJ music projects/Video Game Demo/Video Game Demo.xj"; // TODO use the local test project path
 
 // NOLINTNEXTLINE
 using ::testing::_;
@@ -70,6 +70,12 @@ protected:
 };
 
 TEST_F(XJEngineTest, HasSegmentsDubbedPastMinimumOffset) {
+  auto memeTaxonomy = subject->getMemeTaxonomy();
+  ASSERT_TRUE(memeTaxonomy.has_value());
+  auto categories = memeTaxonomy.value().getCategories();
+  ASSERT_FALSE(categories.empty());
+  ASSERT_EQ(categories.size(), 3); // todo assert actual categories from the test project
+
   const auto tmpl = subject->getProjectContent()->getFirstTemplate();
   ASSERT_TRUE(tmpl.has_value());
 

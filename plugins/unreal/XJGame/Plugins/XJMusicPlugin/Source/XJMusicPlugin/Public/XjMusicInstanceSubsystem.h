@@ -12,7 +12,7 @@ class XJMUSICPLUGIN_API UXjMusicInstanceSubsystem : public UGameInstanceSubsyste
 	GENERATED_BODY()
 	
 public:
-	void RetriveProjectsContent(const FString& Directory);
+	void RetrieveProjectsContent(const FString& Directory);
 
 	void PlayAudioByName(const FString& Name, const float OffsetPlayTime = 0.0f);
 

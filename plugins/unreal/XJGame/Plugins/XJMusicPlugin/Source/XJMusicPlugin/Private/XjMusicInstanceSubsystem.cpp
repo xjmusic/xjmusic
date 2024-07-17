@@ -14,7 +14,7 @@
 
 #include "TimerManager.h"
 
-void UXjMusicInstanceSubsystem::RetriveProjectsContent(const FString& Directory)
+void UXjMusicInstanceSubsystem::RetrieveProjectsContent(const FString& Directory)
 {
 	WorldAudioDeviceHandle = GetWorld()->GetAudioDevice();
 

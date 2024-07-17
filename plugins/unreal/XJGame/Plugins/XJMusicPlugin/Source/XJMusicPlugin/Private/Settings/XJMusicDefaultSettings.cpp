@@ -6,7 +6,7 @@
 
 UXJMusicDefaultSettings::UXJMusicDefaultSettings(const FObjectInitializer& obj)
 {
-	XjMusicPath = "";
+	PathToXjMusicWorkstation = "";
 	XjWorkDirectory = "Content/XjMusic/";
 }
 

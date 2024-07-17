@@ -16,7 +16,7 @@ public:
 	UXJMusicDefaultSettings(const FObjectInitializer& obj);
 
 	UPROPERTY(Config, EditAnywhere, Category = Settings)
-	FString XjMusicPath;
+	FString PathToXjMusicWorkstation;
 
 	UPROPERTY(Config, EditAnywhere, Category = Settings)
 	FString XjWorkDirectory;

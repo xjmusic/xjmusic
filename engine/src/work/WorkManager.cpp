@@ -20,6 +20,15 @@ WorkManager::WorkManager(
   this->content = content;
   this->config = config;
   spdlog::debug("Did set work configuration: {}", config.toString());
+
+  try {
+    const auto tmpls = getSourceMaterial()->getTemplates();
+    if (tmpls.empty())
+      throw std::runtime_error("No template found in source material");
+    memeTaxonomy = {MemeTaxonomy((*tmpls.begin())->config.memeTaxonomy)};
+  } catch (std::exception &e) {
+    spdlog::error("Failed to get meme taxonomy from template config: {}", e.what());
+  }
 }
 
 void WorkManager::start() {
@@ -44,15 +53,6 @@ void WorkManager::start() {
     } break;
     default:
       break;
-  }
-
-  try {
-    const auto tmpls = getSourceMaterial()->getTemplates();
-    if (tmpls.empty())
-      throw std::runtime_error("No template found in source material");
-    memeTaxonomy = {MemeTaxonomy((*tmpls.begin())->config.memeTaxonomy)};
-  } catch (std::exception &e) {
-    spdlog::error("Failed to get meme taxonomy from template config: {}", e.what());
   }
 
   // get system milliseconds UTC now
