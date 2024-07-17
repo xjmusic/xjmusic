@@ -51,20 +51,24 @@ protected:
 
 	bool IsWithinTimeLimit() const
 	{
-		if (MAXIMUM_TEST_WAIT_SECONDS * MILLIS_PER_SECOND > EntityUtils::currentTimeMillis() - startTime)
+		if (MAXIMUM_TEST_WAIT_SECONDS * MILLIS_PER_SECOND > EntityUtils::currentTimeMillis() - XjStartTime)
 		{
 			return true;
 		}
 
 		UE_LOG(LogTemp, Error, TEXT("EXCEEDED TEST TIME LIMIT OF %lld SECONDS"), MAXIMUM_TEST_WAIT_SECONDS)
 
-			return false;
+		return false;
 	}
 
 	bool HasSegmentsDubbedPastMinimumOffset() const
 	{
-		if (!engine) return false;
-		const auto segment = SegmentUtils::getLastCrafted(engine->getSegmentStore()->readAllSegments());
+		if (!XjEngine)
+		{
+			return false;
+		}
+
+		const auto segment = SegmentUtils::getLastCrafted(XjEngine->getSegmentStore()->readAllSegments());
 		return segment.has_value() && segment.value()->id >= MARATHON_NUMBER_OF_SEGMENTS;
 	}
 
@@ -76,11 +80,12 @@ private:
 	long MICROS_PER_MILLI = 1000;
 	long MICROS_PER_SECOND = MICROS_PER_MILLI * MILLIS_PER_SECOND;
 	int GENERATED_FIXTURE_COMPLEXITY = 3;
-	long long startTime = EntityUtils::currentTimeMillis();
-	
-	std::unique_ptr<Engine> engine;
 
-	unsigned long long atChainMicros = 0;
+	long long XjStartTime = EntityUtils::currentTimeMillis();
+	
+	TUniquePtr<Engine> XjEngine;
+
+	unsigned long long AtChainMicros = 0;
 
 	TMap<unsigned long long, AudioPlayer> AudioLookup;
 

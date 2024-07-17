@@ -38,17 +38,19 @@ void APrototypeActor::BeginPlay()
 			return;
 		}
 
-		engine = std::make_unique<Engine>(PathToProjectStr,
-		                    Fabricator::ControlMode::Taxonomy, DefaultSettings.craftAheadSeconds,
-		                    DefaultSettings.dubAheadSeconds, DefaultSettings.persistenceWindowSeconds);
+		XjEngine = MakeUnique<Engine>(PathToProjectStr,
+										Fabricator::ControlMode::Taxonomy, 
+										DefaultSettings.craftAheadSeconds,
+										DefaultSettings.dubAheadSeconds, 
+										DefaultSettings.persistenceWindowSeconds);
 
-		if (!engine)
+		if (!XjEngine)
 		{
 			UE_LOG(LogTemp, Error, TEXT("Cannot instantiate XJ Engine"));
 			return;
 		}
 
-		std::set<const Template*> TemplatesInfo = engine->getProjectContent()->getTemplates();
+		std::set<const Template*> TemplatesInfo = XjEngine->getProjectContent()->getTemplates();
 
 
 		for (const Template* Info : TemplatesInfo)
@@ -65,12 +67,12 @@ void APrototypeActor::BeginPlay()
 
 		const Template* FirstTemplate = *TemplatesInfo.begin();
 
-		engine->start(FirstTemplate->id);
+		XjEngine->start(FirstTemplate->id);
 	}
-	catch (const std::invalid_argument& e)
+	catch (const std::invalid_argument& Exception)
 	{
-		FString str(e.what());
-		UE_LOG(LogTemp, Error, TEXT("%s"), *str);
+		FString ErrorStr(Exception.what());
+		UE_LOG(LogTemp, Error, TEXT("%s"), *ErrorStr);
 	}
 }
 
@@ -81,8 +83,12 @@ void APrototypeActor::BeginDestroy()
 
 void APrototypeActor::RunXjOneCycleTick(const float DeltaTime)
 {
-	if (!engine) return;
-	auto audios = engine->runCycle(atChainMicros);
+	if (!XjEngine)
+	{
+		return;
+	}
+
+	auto audios = XjEngine->runCycle(AtChainMicros);
 
 	for (auto audio : audios)
 	{
@@ -92,7 +98,7 @@ void APrototypeActor::RunXjOneCycleTick(const float DeltaTime)
 		auto TransientMicros = audio.getAudio()->transientSeconds * MICROS_PER_SECOND;
 		auto LengthMicros = audio.getPick()->lengthMicros;
 
-		auto StartTime = audio.getStartAtChainMicros() - TransientMicros - atChainMicros;
+		auto StartTime = audio.getStartAtChainMicros() - TransientMicros - AtChainMicros;
 		auto EndTime = StartTime + TransientMicros + LengthMicros;
 
 		AudioPlayer Player;
@@ -101,7 +107,7 @@ void APrototypeActor::RunXjOneCycleTick(const float DeltaTime)
 		Player.Name = Name;
 		Player.Id = WavKey;
 
-		if (StartTime > atChainMicros)
+		if (StartTime > AtChainMicros)
 		{
 			if (AudioLookup.Contains(StartTime))
 			{
@@ -129,16 +135,16 @@ void APrototypeActor::RunXjOneCycleTick(const float DeltaTime)
 
 			if (!Skip)
 			{
-				Player.StartTime = atChainMicros - Player.StartTime;
+				Player.StartTime = AtChainMicros - Player.StartTime;
 				ActiveAudios.Add(Player);
 			}
 		}
 	}
 
 	GEngine->AddOnScreenDebugMessage(-1, GetWorld()->GetDeltaSeconds(), FColor::Green,
-	                                 FString::Printf(TEXT("Play at %d:"), atChainMicros));
+	                                 FString::Printf(TEXT("Play at %d:"), AtChainMicros));
 
-	atChainMicros += MICROS_PER_CYCLE;
+	AtChainMicros += MICROS_PER_CYCLE;
 }
 
 void APrototypeActor::Tick(float DeltaTime)
@@ -154,7 +160,7 @@ void APrototypeActor::Tick(float DeltaTime)
 
 	for (const TPair<unsigned long long, AudioPlayer>& Info : AudioLookup)
 	{
-		if (Info.Key > atChainMicros)
+		if (Info.Key > AtChainMicros)
 		{
 			continue;
 		}
@@ -185,12 +191,10 @@ void APrototypeActor::Tick(float DeltaTime)
 
 	ActiveAudios.RemoveAll([this](const AudioPlayer& Element)
 	{
-		if (Element.EndTime >= atChainMicros)
+		if (Element.EndTime >= AtChainMicros)
 		{
 			if (XjMusicInstanceSubsystem)
 			{
-				GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Red,
-				                                 FString::Printf(TEXT("Removed%s"), *Element.Name));
 				XjMusicInstanceSubsystem->StopAudioByName(Element.Id);
 			}
 
