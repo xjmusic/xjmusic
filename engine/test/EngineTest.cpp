@@ -10,7 +10,6 @@
 #include "xjmusic/Engine.h"
 #include "xjmusic/craft/Craft.h"
 #include "xjmusic/fabricator/SegmentUtils.h"
-#include "xjmusic/work/WorkManager.h"
 
 static std::string ENGINE_TEST_PROJECT_PATH = "_data/test_project/TestProject.xj";
 
@@ -27,7 +26,6 @@ protected:
   long MICROS_PER_CYCLE = 1000000;
   long long MAXIMUM_TEST_WAIT_SECONDS = 10 * MARATHON_NUMBER_OF_SEGMENTS;
   long long MILLIS_PER_SECOND = 1000;
-  int GENERATED_FIXTURE_COMPLEXITY = 3;
   long long startTime = EntityUtils::currentTimeMillis();
   Engine *subject = nullptr;
 
