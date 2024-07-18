@@ -7,10 +7,47 @@
 #include <set>
 #include <XjMusicInstanceSubsystem.h>
 
+FXjRunnable::FXjRunnable()
+{
+	Thread = FRunnableThread::Create(this, TEXT("FXjRunnable"), 0, TPri_BelowNormal);
+}
+
+FXjRunnable::~FXjRunnable()
+{
+}
+
+bool FXjRunnable::Init()
+{
+	return true;
+}
+
+uint32 FXjRunnable::Run()
+{
+	while (true)
+	{
+
+	}
+
+	return uint32();
+}
+
+void FXjRunnable::Stop()
+{
+}
+
+void FXjRunnable::Exit()
+{
+}
+
+void FXjRunnable::EnsureCompletion()
+{
+}
+
 APrototypeActor::APrototypeActor()
 {
 	PrimaryActorTick.bCanEverTick = true;
 }
+
 
 void APrototypeActor::BeginPlay()
 {
@@ -103,11 +140,6 @@ void APrototypeActor::BeginPlay()
 	}
 }
 
-void APrototypeActor::BeginDestroy()
-{
-	Super::BeginDestroy();
-}
-
 void APrototypeActor::RunXjOneCycleTick(const float DeltaTime)
 {
 	if (!XjEngine)
@@ -117,45 +149,49 @@ void APrototypeActor::RunXjOneCycleTick(const float DeltaTime)
 
 	std::set<ActiveAudio> ReceivedAudios = XjEngine->runCycle(AtChainMicros);
 
-	bool NeedSort = false;
+	GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::Green, FString::Printf(TEXT("Chain micros: %lld"), AtChainMicros));
 
 	for (const ActiveAudio& Audio : ReceivedAudios)
 	{
-		FString WavKey = Audio.getAudio()->waveformKey.c_str();
+		FString WaveKey = Audio.getAudio()->waveformKey.c_str();
 		FString Name = Audio.getAudio()->name.c_str();
 
 		long TransientMicros = Audio.getAudio()->transientSeconds * MICROS_PER_SECOND;
 		long LengthMicros = Audio.getPick()->lengthMicros;
 
-		unsigned long long StartTime = Audio.getStartAtChainMicros() - TransientMicros - AtChainMicros;
-		unsigned long long EndTime = StartTime + TransientMicros + LengthMicros;
+		unsigned long long StartTime = Audio.getStartAtChainMicros();
+		unsigned long long EndTime = Audio.getStopAtChainMicros().value();
 
 		FAudioPlayer AudioPlayer;
 		AudioPlayer.StartTime = StartTime;
 		AudioPlayer.EndTime = EndTime;
 		AudioPlayer.Name = Name;
-		AudioPlayer.Id = WavKey;
+		AudioPlayer.Id = WaveKey;
 
-		if (AudioLookup.Contains(StartTime) && AudioLookup[StartTime].Id == AudioPlayer.Id)
+		if (!NamesLookup.Contains(Name))
 		{
-			AudioLookup[StartTime] = AudioPlayer;
+			NamesLookup.Add(Name, AudioPlayer);
+		}
+
+		if (AudiosLookup.Contains(StartTime))
+		{
+			for (FAudioPlayer& Other : AudiosLookup[StartTime])
+			{
+				if (Other.Id == WaveKey)
+				{
+					//If we have exact audio at exact time we want to update information
+					Other = AudioPlayer;
+				}
+			}
 		}
 		else
 		{
-			AudioLookup.Add(StartTime, AudioPlayer);
-			NeedSort = true;
+			AudiosKeys.Add(StartTime);
+			AudiosLookup.Add(StartTime, { AudioPlayer });
 		}
+
+		AudiosKeys.Sort();
 	}
-
-	if (NeedSort)
-	{
-		AudioLookup.KeySort(TLess<unsigned long long>());
-	}
-
-	GEngine->AddOnScreenDebugMessage(-1, GetWorld()->GetDeltaSeconds(), FColor::Green,
-	                                 FString::Printf(TEXT("Play at %d:"), AtChainMicros), true);
-
-	AtChainMicros += MICROS_PER_CYCLE * DeltaTime;
 }
 
 void APrototypeActor::Tick(float DeltaTime)
@@ -172,50 +208,45 @@ void APrototypeActor::Tick(float DeltaTime)
 		return;
 	}
 
-	TArray<unsigned long long> EndedAudiosList;
+	FString PlayingAudios = "Playing:\n";
 
-	for (TPair<unsigned long long, FAudioPlayer>& AudioInfo : AudioLookup)
+	TArray<FString> RemoveKeys;
+
+	for (auto Info : NamesLookup)
 	{
-		const unsigned long long& StartTime = AudioInfo.Key;
-		FAudioPlayer& AudioPlayer = AudioInfo.Value;
+		FAudioPlayer& Audio = Info.Value;
 
-		//We don't want to go to the unscheduled part
-		if (StartTime > AtChainMicros)
-		{
-			break;
-		}
-
-		if (AudioPlayer.EndTime <= AtChainMicros)
-		{
-			XjMusicInstanceSubsystem->StopAudioByName(AudioPlayer.Id);
-			CurrentlyPlayingIds.Remove(AudioPlayer.Id);
-
-			EndedAudiosList.Add(AudioPlayer.StartTime);
-
-			continue;
-		}
-
-		if (AudioPlayer.bIsPlaying)
+		if (Audio.StartTime > AtChainMicros)
 		{
 			continue;
 		}
 
-		if (CurrentlyPlayingIds.Contains(AudioPlayer.Id))
+		if (Audio.EndTime <= AtChainMicros)
 		{
-			EndedAudiosList.Add(StartTime);
+			XjMusicInstanceSubsystem->StopAudioByName(Audio.Id);
+			RemoveKeys.Add(Info.Key);
+
 			continue;
 		}
 
-		CurrentlyPlayingIds.Add(AudioPlayer.Id);
+		PlayingAudios += Info.Key + '\n';
 
-		float OverridedStartTime = AtChainMicros - StartTime / 1000000.0f;
-		
-		XjMusicInstanceSubsystem->PlayAudioByName(AudioPlayer.Id);
-		AudioPlayer.bIsPlaying = true;
+		if (Audio.bIsPlaying)
+		{
+			continue;
+		}
+
+		Audio.bIsPlaying = true;
+
+		XjMusicInstanceSubsystem->PlayAudioByName(Audio.Id);
 	}
 
-	for (unsigned long long Id : EndedAudiosList)
+	for (FString Key : RemoveKeys)
 	{
-		AudioLookup.Remove(Id);
+		NamesLookup.Remove(Key);
 	}
+
+	GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::Magenta, PlayingAudios);
+
+	AtChainMicros += DeltaTime * MICROS_PER_SECOND;
 }

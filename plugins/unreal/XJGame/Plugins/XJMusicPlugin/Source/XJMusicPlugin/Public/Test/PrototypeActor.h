@@ -13,10 +13,28 @@
 
 using namespace XJ;
 
+
+class FXjRunnable : public FRunnable
+{
+public:
+	FXjRunnable();
+	virtual ~FXjRunnable() override;
+
+	virtual bool Init() override;
+	virtual uint32 Run() override;
+	virtual void Stop() override;
+	virtual void Exit() override;
+
+	void EnsureCompletion();
+
+private:
+	FRunnableThread* Thread;
+};
+
 struct FAudioPlayer
 {
-	float StartTime = 0.0f;
-	float EndTime = 0.0f;
+	unsigned long long  StartTime = 0;
+	unsigned long long EndTime = -1;
 
 	bool bIsPlaying = false;
 
@@ -44,8 +62,6 @@ protected:
 	FString XjProjectFile;
 	
 	virtual void BeginPlay() override;
-
-	virtual void BeginDestroy() override;
 
 	void RunXjOneCycleTick(const float DeltaTime);
 
@@ -88,9 +104,11 @@ private:
 
 	TUniquePtr<Engine> XjEngine;
 
-	TMap<unsigned long long, FAudioPlayer> AudioLookup;
+	TMap<unsigned long long, TArray<FAudioPlayer>> AudiosLookup;
 
-	TSet<FString> CurrentlyPlayingIds;
+	TMap<FString, FAudioPlayer> NamesLookup;
+
+	TArray<unsigned long long> AudiosKeys;
 
 	class UXjMusicInstanceSubsystem* XjMusicInstanceSubsystem = nullptr;
 };

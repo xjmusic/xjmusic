@@ -48,6 +48,11 @@ void UXjMusicInstanceSubsystem::RetrieveProjectsContent(const FString& Directory
 
 void UXjMusicInstanceSubsystem::PlayAudioByName(const FString& Name, const float OverrideStartTime)
 {
+	if (SoundsMap.Contains(Name))
+	{
+		return;
+	}
+
 	USoundWave* SoundWave = GetSoundWaveByName(Name);
 	if (!SoundWave)
 	{
