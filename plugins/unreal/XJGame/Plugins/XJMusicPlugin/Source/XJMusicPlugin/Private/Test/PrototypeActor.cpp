@@ -53,6 +53,8 @@ void APrototypeActor::BeginPlay()
 {
 	Super::BeginPlay();
 
+	XjStartTime.SetInMicros(EntityUtils::currentTimeMillis());
+
 	WorkSettings DefaultSettings;
 
 	FString PathToProject = XjProjectFolder + XjProjectFile;
@@ -147,9 +149,9 @@ void APrototypeActor::RunXjOneCycleTick(const float DeltaTime)
 		return;
 	}
 
-	std::set<ActiveAudio> ReceivedAudios = XjEngine->runCycle(AtChainMicros);
+	GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::Green, FString("Chain micros: ") + AtChainMicros.ToString());
 
-	GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::Green, FString::Printf(TEXT("Chain micros: %lld"), AtChainMicros));
+	std::set<ActiveAudio> ReceivedAudios = XjEngine->runCycle(AtChainMicros.GetMicros());
 
 	for (const ActiveAudio& Audio : ReceivedAudios)
 	{
@@ -159,14 +161,32 @@ void APrototypeActor::RunXjOneCycleTick(const float DeltaTime)
 		long TransientMicros = Audio.getAudio()->transientSeconds * MICROS_PER_SECOND;
 		long LengthMicros = Audio.getPick()->lengthMicros;
 
-		unsigned long long StartTime = Audio.getStartAtChainMicros();
-		unsigned long long EndTime = Audio.getStopAtChainMicros().value();
+		TimeRecord StartTime = Audio.getStartAtChainMicros();
+		TimeRecord EndTime = Audio.getStopAtChainMicros().value();
 
 		FAudioPlayer AudioPlayer;
 		AudioPlayer.StartTime = StartTime;
 		AudioPlayer.EndTime = EndTime;
 		AudioPlayer.Name = Name;
 		AudioPlayer.Id = WaveKey;
+
+		if (DebugViewAudioToTime.Contains(Name))
+		{
+			DebugViewAudioToTime[Name].Add(AudioPlayer);
+		}
+		else
+		{
+			DebugViewAudioToTime.Add(Name, { AudioPlayer });
+		}
+
+		if (DebugViewTimeToAudio.Contains(StartTime))
+		{
+			DebugViewTimeToAudio[StartTime].Add(Name);
+		}
+		else
+		{
+			DebugViewTimeToAudio.Add(StartTime, { Name });
+		}
 
 		if (!NamesLookup.Contains(Name))
 		{
@@ -248,5 +268,5 @@ void APrototypeActor::Tick(float DeltaTime)
 
 	GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::Magenta, PlayingAudios);
 
-	AtChainMicros += DeltaTime * MICROS_PER_SECOND;
+	AtChainMicros.SetInMicros(AtChainMicros.GetMicros() + DeltaTime * MICROS_PER_SECOND);
 }

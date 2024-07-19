@@ -13,6 +13,102 @@
 
 using namespace XJ;
 
+class TimeRecord
+{
+public:
+	TimeRecord() = default;
+
+	TimeRecord(const uint64 NewTime)
+	{
+		SetInMicros(NewTime);
+	}
+
+	TimeRecord(const int NewTime)
+	{
+		SetInMicros(NewTime);
+	}
+
+	TimeRecord(const float NewTime)
+	{
+		SetInSeconds(NewTime);
+	}
+
+	void SetInMicros(const uint64 NewTime)
+	{
+		Micros = NewTime;
+		Seconds = NewTime / 1000000.0f;
+	}
+
+	void SetInSeconds(const float NewTime)
+	{
+		Seconds = NewTime;
+		Micros = NewTime * 1000000;
+	}
+
+	uint64 GetMicros() const
+	{
+		return Micros;
+	}
+
+	float GetSeconds() const
+	{
+		return Seconds;
+	}
+
+	FString ToString() const
+	{
+		FString Out = FString::Printf(TEXT("%f s (%lld micro)"), Seconds, Micros);
+		return Out;
+	}
+
+	bool operator > (const TimeRecord& Other) const
+	{
+		return this->Micros > Other.Micros;
+	}
+
+	bool operator < (const TimeRecord& Other) const
+	{
+		return this->Micros < Other.Micros;
+	}
+
+	bool operator >= (const TimeRecord& Other) const
+	{
+		return this->Micros >= Other.Micros;
+	}
+
+	bool operator <= (const TimeRecord& Other) const
+	{
+		return this->Micros <= Other.Micros;
+	}
+
+	bool operator == (const TimeRecord& Other) const
+	{
+		return this->Micros == Other.Micros;
+	}
+
+	void operator = (const uint64) = delete;
+	void operator = (const float) = delete;
+
+private:
+	uint64 Micros = 0;
+	float Seconds = 0.0f;
+};
+
+static uint32 GetTypeHash(const TimeRecord& Record)
+{
+	return GetTypeHash(Record.GetMicros());
+}
+
+struct FAudioPlayer
+{
+	TimeRecord  StartTime;
+	TimeRecord EndTime;
+
+	bool bIsPlaying = false;
+
+	FString Name;
+	FString Id;
+};
 
 class FXjRunnable : public FRunnable
 {
@@ -31,16 +127,6 @@ private:
 	FRunnableThread* Thread;
 };
 
-struct FAudioPlayer
-{
-	unsigned long long  StartTime = 0;
-	unsigned long long EndTime = -1;
-
-	bool bIsPlaying = false;
-
-	FString Name;
-	FString Id;
-};
 
 UCLASS()
 class XJMUSICPLUGIN_API APrototypeActor : public AActor
@@ -67,7 +153,8 @@ protected:
 
 	bool IsWithinTimeLimit() const
 	{
-		if (MAXIMUM_TEST_WAIT_SECONDS * MILLIS_PER_SECOND > EntityUtils::currentTimeMillis() - XjStartTime)
+		uint64 ElapsedTime = EntityUtils::currentTimeMillis() - XjStartTime.GetMicros();
+		if (MAXIMUM_TEST_WAIT_SECONDS * MILLIS_PER_SECOND > ElapsedTime)
 		{
 			return true;
 		}
@@ -91,24 +178,28 @@ protected:
 private:
 
 	int MARATHON_NUMBER_OF_SEGMENTS = 50;
-	long MICROS_PER_CYCLE = 1000000;
-	long long MAXIMUM_TEST_WAIT_SECONDS = 10 * MARATHON_NUMBER_OF_SEGMENTS;
-	long long MILLIS_PER_SECOND = 1000;
-	long MICROS_PER_MILLI = 1000;
-	long MICROS_PER_SECOND = MICROS_PER_MILLI * MILLIS_PER_SECOND;
+	int MILLIS_PER_SECOND = 1000;
+	int MICROS_PER_MILLI = 1000;
 	int GENERATED_FIXTURE_COMPLEXITY = 3;
 
-	long long XjStartTime = EntityUtils::currentTimeMillis();
-	
-	unsigned long long AtChainMicros = 0;
+	uint64 MAXIMUM_TEST_WAIT_SECONDS = 10 * MARATHON_NUMBER_OF_SEGMENTS;
+	uint64 MICROS_PER_SECOND = MICROS_PER_MILLI * MILLIS_PER_SECOND;
+
+	TimeRecord XjStartTime;
+
+	TimeRecord AtChainMicros;
 
 	TUniquePtr<Engine> XjEngine;
 
-	TMap<unsigned long long, TArray<FAudioPlayer>> AudiosLookup;
+	TMap<TimeRecord, TArray<FAudioPlayer>> AudiosLookup;
 
 	TMap<FString, FAudioPlayer> NamesLookup;
 
-	TArray<unsigned long long> AudiosKeys;
+	TArray<TimeRecord> AudiosKeys;
 
 	class UXjMusicInstanceSubsystem* XjMusicInstanceSubsystem = nullptr;
+
+	TMap<FString, TArray<FAudioPlayer>> DebugViewAudioToTime;
+
+	TMap<TimeRecord, TArray<FString>> DebugViewTimeToAudio;
 };
