@@ -193,8 +193,6 @@ private:
 
 	TMap<TimeRecord, TArray<FAudioPlayer>> AudiosLookup;
 
-	TMap<FString, FAudioPlayer> NamesLookup;
-
 	TArray<TimeRecord> AudiosKeys;
 
 	class UXjMusicInstanceSubsystem* XjMusicInstanceSubsystem = nullptr;
