@@ -33,3 +33,5 @@ The engine is designed to be as simple as possible.
 All interaction is through an instance of an [XJ::Engine](https://engine-docs.xjmusic.com/d4/dde/classXJ_1_1Engine.html)
 
 For an example of how to use it in C++ see [test/EngineTest.cpp](test/EngineTest.cpp)
+
+Read the docs at [engine-docs.xjmusic.com](https://engine-docs.xjmusic.com)
