@@ -1,6 +1,3 @@
-# FetchContent added in CMake 3.11, downloads during the configure step
-include(FetchContent)
-
 # show up in IDEs unless they are listed in add_library.
 add_library(xjmusic
         Engine.cpp
@@ -97,7 +94,7 @@ target_compile_features(xjmusic PUBLIC cxx_std_17)
 # JSON for Modern C++
 add_dependencies(xjmusic vendored_json)
 target_include_directories(xjmusic PRIVATE ${CMAKE_BINARY_DIR}/json-3.11.3/include)
-target_link_libraries(xjmusic PRIVATE nlohmann_json::nlohmann_json)
+# todo target_link_libraries(xjmusic PRIVATE nlohmann_json::nlohmann_json)
 
 # IDEs should put the headers in a nice place
 source_group(

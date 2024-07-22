@@ -48,7 +48,6 @@ endfunction()
 add_vendored_dependency(vendored_sdl2 SDL-release-2.30.5.zip SDL-release-2.30.5)
 add_vendored_dependency(vendored_json nlohmann-json-3.11.3.zip json-3.11.3)
 add_vendored_dependency(vendored_googletest googletest-1.14.0.zip googletest-1.14.0)
-add_vendored_dependency(vendored_spdlog spdlog-1.13.0.tar.gz spdlog-1.13.0)
 add_vendored_dependency(vendored_yaml yaml-cpp-0.8.0.tar.gz yaml-cpp-0.8.0)
 
 # Only do these if this is the main project, and not if it is included through add_subdirectory
@@ -76,9 +75,6 @@ if (CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
         message(STATUS "Doxygen not found, not building docs")
     endif ()
 endif ()
-
-# FetchContent added in CMake 3.11, downloads during the configure step
-include(FetchContent)
 
 # The compiled library code is here
 add_subdirectory(src)

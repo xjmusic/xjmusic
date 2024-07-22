@@ -1,6 +1,3 @@
-# Fetch content module is available in CMake 3.11+
-include(FetchContent)
-
 # Tests need to be added as executables first
 add_executable(xjmusic_test
         EngineTest.cpp
@@ -130,25 +127,19 @@ target_compile_features(xjmusic_test PRIVATE cxx_std_17)
 target_link_libraries(xjmusic_test PRIVATE xjmusic)
 
 # Google Test (googletest)
-FetchContent_Declare(googletest URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.zip)
-FetchContent_MakeAvailable(googletest)
+add_dependencies(xjmusic_test vendored_googletest)
+target_include_directories(xjmusic_test PRIVATE ${CMAKE_BINARY_DIR}/googletest-1.14.0/googletest/include)
 target_link_libraries(xjmusic_test PRIVATE gtest_main)
 target_link_libraries(xjmusic_test PRIVATE gmock_main)
 
-# yaml-cpp (jbeder/yaml-cpp)
-FetchContent_Declare(yaml-cpp URL https://github.com/jbeder/yaml-cpp/archive/refs/tags/0.8.0.tar.gz)
-FetchContent_GetProperties(yaml-cpp)
-if(NOT yaml-cpp_POPULATED)
-    message(STATUS "Fetching yaml-cpp...")
-    FetchContent_Populate(yaml-cpp)
-    add_subdirectory(${yaml-cpp_SOURCE_DIR} ${yaml-cpp_BINARY_DIR})
-endif()
-target_link_libraries(xjmusic_test PUBLIC yaml-cpp::yaml-cpp)
+add_dependencies(xjmusic_test vendored_yaml)
+target_include_directories(xjmusic_test PRIVATE ${CMAKE_BINARY_DIR}/yaml-cpp-0.8.0/include)
+# todo target_link_libraries(xjmusic_test PUBLIC yaml-cpp::yaml-cpp)
 
 # JSON for Modern C++
-FetchContent_Declare(json URL https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz)
-FetchContent_MakeAvailable(json)
-target_link_libraries(xjmusic PRIVATE nlohmann_json::nlohmann_json)
+add_dependencies(xjmusic_test vendored_json)
+target_include_directories(xjmusic_test PRIVATE ${CMAKE_BINARY_DIR}/json-3.11.3/include)
+# todo target_link_libraries(xjmusic PRIVATE nlohmann_json::nlohmann_json)
 
 # For Windows: Prevent overriding the parent project's compiler/linker settings
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
