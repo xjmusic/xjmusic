@@ -27,14 +27,15 @@ Engine::Engine(
   store = std::make_unique<SegmentEntityStore>();
   projectContent = std::make_unique<ContentEntityStore>();
   templateContent = std::make_unique<ContentEntityStore>();
+
+  // Load the project content before creating the WorkManager
   loadProjectContent();
+
   work = std::make_unique<WorkManager>(store.get(), projectContent.get(), settings);
 }
 
 
 void Engine::start(const std::optional<std::string> &templateIdentifier) {
-  store->clear();
-  loadProjectContent();
   const std::optional<const Template *> tmpl = templateIdentifier.has_value()
                                                    ? projectContent->getTemplateByIdentifier(templateIdentifier.value())
                                                    : projectContent->getFirstTemplate();
