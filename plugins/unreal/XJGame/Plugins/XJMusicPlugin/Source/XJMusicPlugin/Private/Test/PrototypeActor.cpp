@@ -7,6 +7,7 @@
 #include <set>
 #include <XjMusicInstanceSubsystem.h>
 #include <Math/UnrealMathUtility.h>
+#include <Quartz/QuartzSubsystem.h>
 
 FXjRunnable::FXjRunnable(const FString& XjProjectFolder, const FString& XjProjectFile, UWorld* World)
 {
@@ -194,8 +195,8 @@ uint32 FXjRunnable::Run()
 			DebugInfo = FString("Chain micros: ") + AtChainMicros.ToString();
 			DebugInfo += FString::Printf(TEXT("\n %f ms"), SleepInterval);
 
-			GEngine->AddOnScreenDebugMessage(-1, SleepInterval, FColor::Green, DebugInfo);
-			GEngine->AddOnScreenDebugMessage(-1, SleepInterval, FColor::Magenta, PlayingAudios);
+			//GEngine->AddOnScreenDebugMessage(-1, SleepInterval, FColor::Green, DebugInfo);
+			//GEngine->AddOnScreenDebugMessage(-1, SleepInterval, FColor::Magenta, PlayingAudios);
 		}
 	}
 
@@ -294,6 +295,38 @@ APrototypeActor::APrototypeActor()
 void APrototypeActor::BeginPlay()
 {
 	XjThread = new FXjRunnable(XjProjectFolder, XjProjectFile, GetWorld()); 
+
+
+	UQuartzSubsystem* QuartzSubsystem = UQuartzSubsystem::Get(GetWorld());
+	if (QuartzSubsystem)
+	{
+		FQuartzTimeSignature TimeSignatures;
+		TimeSignatures.BeatType = EQuartzTimeSignatureQuantization::QuarterNote;
+		TimeSignatures.NumBeats = 1;
+
+		FQuartzClockSettings Settings;
+		Settings.TimeSignature = TimeSignatures;
+
+		QuartzClockHandle = QuartzSubsystem->CreateNewClock(GetWorld(), "XJ Clock", Settings);
+		if (QuartzClockHandle)
+		{
+			FQuartzQuantizationBoundary Boundary;
+			Boundary.Quantization = EQuartzCommandQuantization::Bar;
+			Boundary.Multiplier = 1.0f;
+
+			QuartzClockHandle->SetTicksPerSecond(GetWorld(), Boundary, QuartzDelegate, QuartzClockHandle, 10.0f);
+
+			QuartzClockHandle->StartClock(GetWorld(), QuartzClockHandle);
+
+			QuartzMetronomeDelegate.BindUFunction(this, "OnQuartz");
+			QuartzClockHandle->SubscribeToQuantizationEvent(GetWorld(), EQuartzCommandQuantization::Bar, QuartzMetronomeDelegate, QuartzClockHandle);
+		}
+	}
+}
+
+void APrototypeActor::OnQuartz(FName ClockName, EQuartzCommandQuantization QuantizationType, int32 NumBars, int32 Beat, float BeatFraction)
+{
+	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, "Test Quartz");
 }
 
 void APrototypeActor::EndPlay(const EEndPlayReason::Type EndPlayReason)

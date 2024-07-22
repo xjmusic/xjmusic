@@ -8,6 +8,7 @@
 #include <xjmusic/work/WorkManager.h>
 #include <xjmusic/fabricator/SegmentUtils.h>
 #include <xjmusic/Engine.h>
+#include <Quartz/QuartzSubsystem.h>
 
 #include "PrototypeActor.generated.h"
 
@@ -205,6 +206,14 @@ protected:
 
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
+	void OnQuartz(FName ClockName, EQuartzCommandQuantization QuantizationType, int32 NumBars, int32 Beat, float BeatFraction);
+
 private:
 	FXjRunnable* XjThread = nullptr;
+
+	UQuartzClockHandle* QuartzClockHandle;
+
+	FOnQuartzCommandEventBP QuartzDelegate;
+	FOnQuartzMetronomeEventBP QuartzMetronomeDelegate;
+
 };

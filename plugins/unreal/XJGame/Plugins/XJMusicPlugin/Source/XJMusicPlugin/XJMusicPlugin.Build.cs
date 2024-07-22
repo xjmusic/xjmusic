@@ -30,7 +30,8 @@ public class XJMusicPlugin : ModuleRules
 				"Engine",
 				"Slate",
 				"SlateCore",
-			}
+                "AudioMixer"
+            }
 		);
 
 		if (Target.Configuration == UnrealTargetConfiguration.Development)
