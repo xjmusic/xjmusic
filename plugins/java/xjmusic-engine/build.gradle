@@ -1,0 +1,50 @@
+// Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
+
+plugins {
+    id 'java'
+    id 'application'
+}
+
+// Define the main class for the application plugin
+application {
+    mainClass = 'io.xj.engine.Engine'
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+group = 'io.xj'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.bytedeco:javacpp:1.5.9'
+    // Add other dependencies here
+}
+
+// Define a task for generating JNI bindings using JavaCPP
+task generateJNIBindings(type: JavaExec) {
+    main = 'org.bytedeco.javacpp.tools.Builder'
+    classpath = configurations.compileClasspath
+    args = ['src/main/java/io/xj/engine/Engine.java', '-clean']
+}
+
+// Make sure to compile Java after generating JNI bindings
+compileJava.dependsOn generateJNIBindings
+
+// Customize the jar task to include your JNI bindings
+jar {
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+    manifest {
+        attributes(
+                'Main-Class': 'io.xj.engine.Engine'
+        )
+    }
+}
