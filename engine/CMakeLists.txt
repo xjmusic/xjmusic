@@ -47,7 +47,7 @@ endfunction()
 
 add_vendored_dependency(vendored_sdl2 SDL-release-2.30.5.zip SDL-release-2.30.5)
 add_vendored_dependency(vendored_json nlohmann-json-3.11.3.zip json-3.11.3)
-add_vendored_dependency(vendored_googletest googletest-1.14.0.zip googletest-1.14.0)
+add_vendored_dependency(vendored_googletest googletest-1.15.0.tar.gz googletest-1.15.0)
 add_vendored_dependency(vendored_yaml yaml-cpp-0.8.0.tar.gz yaml-cpp-0.8.0)
 
 # Only do these if this is the main project, and not if it is included through add_subdirectory
