@@ -26,6 +26,6 @@ void FabricationWrapper::reportMissing(const std::map<std::string, std::string> 
     fabricator->addWarningMessage("EntityUtils not found! " + CsvUtils::from(traces));
 
   } catch (const std::exception &e) {
-    spdlog::warn("Failed to create SegmentMessage", e.what());
+    std::cerr << "Failed to create SegmentMessage" << std::endl;
   }
 }

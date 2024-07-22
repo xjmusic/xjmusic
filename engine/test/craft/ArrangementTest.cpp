@@ -122,7 +122,7 @@ protected:
       }
 
     } catch (const YAML::Exception &e) {
-      spdlog::warn("[data[{}]] Exception: {}", dataKey, e.what());
+      std::cerr << "[data[" << dataKey << "]] Exception: " << e.what() << std::endl;
     }
   }
 
@@ -177,7 +177,7 @@ protected:
         detailProgramSequencePatternEvents[type].push_back(event);
       }
     } catch (const YAML::Exception &e) {
-      spdlog::warn("[data[{}]] Exception: {}", dataKey, e.what());
+      std::cerr << "[data[" << dataKey << "]] Exception: " << e.what() << std::endl;
     }
   }
 
@@ -259,7 +259,7 @@ protected:
                                                              &detailProgramVoices[instrument.type],
                                                              &instrument));
     } catch (const YAML::Exception &e) {
-      spdlog::warn("[segment] Exception: {}", e.what());
+      std::cerr << "[seg-" << segment->id << "] Exception: " << e.what() << std::endl;
     }
   }
 

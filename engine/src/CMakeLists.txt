@@ -94,11 +94,6 @@ target_include_directories(xjmusic PUBLIC ../include)
 # All users of this library will need at least C++17
 target_compile_features(xjmusic PUBLIC cxx_std_17)
 
-# Fast C++ logging library (gabime/spdlog)
-FetchContent_Declare(spdlog URL https://github.com/gabime/spdlog/archive/refs/tags/v1.14.1.zip)
-FetchContent_MakeAvailable(spdlog)
-target_link_libraries(xjmusic PRIVATE spdlog::spdlog)
-
 # JSON for Modern C++
 FetchContent_Declare(json URL https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz)
 FetchContent_MakeAvailable(json)

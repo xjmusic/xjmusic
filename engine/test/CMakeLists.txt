@@ -145,11 +145,6 @@ if(NOT yaml-cpp_POPULATED)
 endif()
 target_link_libraries(xjmusic_test PUBLIC yaml-cpp::yaml-cpp)
 
-# Fast C++ logging library (gabime/spdlog)
-FetchContent_Declare(spdlog URL https://github.com/gabime/spdlog/archive/v1.13.0.tar.gz)
-FetchContent_MakeAvailable(spdlog)
-target_link_libraries(xjmusic_test PRIVATE spdlog::spdlog)
-
 # JSON for Modern C++
 FetchContent_Declare(json URL https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz)
 FetchContent_MakeAvailable(json)

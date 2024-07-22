@@ -3,8 +3,6 @@
 #include <filesystem>
 #include <fstream>
 
-#include <spdlog/spdlog.h>
-
 #include "xjmusic/Engine.h"
 
 
@@ -118,7 +116,7 @@ void Engine::loadProjectContent() {
   if (!project.has_value()) {
     throw std::runtime_error("Project file does not contain a project: " + pathToProjectFile);
   }
-  spdlog::info("Loaded project \"{}\" from file {}", project.value()->name, pathToProjectFile);
+  std::cout << "Loaded project \"" << project.value()->name << "\" from file " << pathToProjectFile << std::endl;
 
   // Crawl the build folder in the folder containing the project file
   const std::filesystem::path projectPath(pathToProjectFile);
@@ -138,14 +136,14 @@ void Engine::loadProjectContent() {
           std::ifstream jsonFile(entry.path());
           auto subFileContent = ContentEntityStore(jsonFile);
           projectContent.get()->put(&subFileContent);
-          spdlog::info("Loaded content from JSON file: {}", entry.path().string());
+          std::cout << "Loaded content from JSON file: " << entry.path().string() << std::endl;
         }
       }
     }
 
   } catch (const std::filesystem::filesystem_error &e) {
-    spdlog::error("Filesystem error! {}", e.what());
+    std::cout << "Filesystem error! " << e.what() << std::endl;
   } catch (const std::exception &e) {
-    spdlog::error("General error! {}", e.what());
+    std::cout << "General error! " << e.what() << std::endl;
   }
 }
