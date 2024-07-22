@@ -100,11 +100,9 @@ FetchContent_MakeAvailable(spdlog)
 target_link_libraries(xjmusic PRIVATE spdlog::spdlog)
 
 # JSON for Modern C++
-FetchContent_Declare(json URL https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz)
-FetchContent_MakeAvailable(json)
+add_dependencies(xjmusic vendored_json)
+target_include_directories(xjmusic PRIVATE ${CMAKE_BINARY_DIR}/json-3.11.3/include)
 target_link_libraries(xjmusic PRIVATE nlohmann_json::nlohmann_json)
-get_target_property(JSON_INCLUDE_DIR nlohmann_json::nlohmann_json INTERFACE_INCLUDE_DIRECTORIES)
-target_include_directories(xjmusic PUBLIC ${JSON_INCLUDE_DIR})
 
 # IDEs should put the headers in a nice place
 source_group(
