@@ -1,4 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
+#ifndef XJMUSIC_CSV_UTILS_H
+#define XJMUSIC_CSV_UTILS_H
 
 #include <map>
 #include <string>
@@ -82,3 +84,5 @@ namespace XJ {
   };
 
 }// namespace XJ
+
+#endif// XJMUSIC_CSV_UTILS_H

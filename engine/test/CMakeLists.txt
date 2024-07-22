@@ -128,18 +128,22 @@ target_link_libraries(xjmusic_test PRIVATE xjmusic)
 
 # Google Test (googletest)
 add_dependencies(xjmusic_test vendored_googletest)
-target_include_directories(xjmusic_test PRIVATE ${CMAKE_BINARY_DIR}/googletest-1.14.0/googletest/include)
-target_link_libraries(xjmusic_test PRIVATE gtest_main)
-target_link_libraries(xjmusic_test PRIVATE gmock_main)
+target_include_directories(xjmusic_test PRIVATE ${CMAKE_BINARY_DIR}/googletest-1.15.0/googletest/include)
+target_include_directories(xjmusic_test PRIVATE ${CMAKE_BINARY_DIR}/googletest-1.15.0/googlemock/include)
+target_link_libraries(xjmusic_test PRIVATE ${CMAKE_BINARY_DIR}/googletest-1.15.0/build/lib/libgtest.a)
+target_link_libraries(xjmusic_test PRIVATE ${CMAKE_BINARY_DIR}/googletest-1.15.0/build/lib/libgmock.a)
+target_link_libraries(xjmusic_test PRIVATE ${CMAKE_BINARY_DIR}/googletest-1.15.0/build/lib/libgtest_main.a)
+target_link_libraries(xjmusic_test PRIVATE ${CMAKE_BINARY_DIR}/googletest-1.15.0/build/lib/libgmock_main.a)
 
+# YAML-CPP
 add_dependencies(xjmusic_test vendored_yaml)
 target_include_directories(xjmusic_test PRIVATE ${CMAKE_BINARY_DIR}/yaml-cpp-0.8.0/include)
-# todo target_link_libraries(xjmusic_test PUBLIC yaml-cpp::yaml-cpp)
+find_library(YAML_CPP_LIBRARIES yaml-cpp HINTS ${CMAKE_BINARY_DIR}/yaml-cpp-0.8.0/build)
+target_link_libraries(xjmusic_test PRIVATE ${YAML_CPP_LIBRARIES})
 
 # JSON for Modern C++
 add_dependencies(xjmusic_test vendored_json)
 target_include_directories(xjmusic_test PRIVATE ${CMAKE_BINARY_DIR}/json-3.11.3/include)
-# todo target_link_libraries(xjmusic PRIVATE nlohmann_json::nlohmann_json)
 
 # For Windows: Prevent overriding the parent project's compiler/linker settings
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)

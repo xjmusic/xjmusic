@@ -94,7 +94,6 @@ target_compile_features(xjmusic PUBLIC cxx_std_17)
 # JSON for Modern C++
 add_dependencies(xjmusic vendored_json)
 target_include_directories(xjmusic PRIVATE ${CMAKE_BINARY_DIR}/json-3.11.3/include)
-# todo target_link_libraries(xjmusic PRIVATE nlohmann_json::nlohmann_json)
 
 # IDEs should put the headers in a nice place
 source_group(

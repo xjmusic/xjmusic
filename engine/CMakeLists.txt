@@ -10,39 +10,24 @@ project(
 # C++ 17
 set(CMAKE_CXX_STANDARD 17)
 
-## Add a vendored dependency from the given archive
-#function(add_vendored_dependency TARGET_NAME ARCHIVE_NAME UNPACKED_DIR_NAME)
-#    file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/${UNPACKED_DIR_NAME}/build)
-#    add_custom_target(${TARGET_NAME} ALL)
-#    # Unpack the archive
-#    add_custom_command(TARGET ${TARGET_NAME} PRE_BUILD
-#            DEPENDS ${CMAKE_SOURCE_DIR}/vendor/${ARCHIVE_NAME}
-#            #
-#            COMMAND echo "\n\nUnpacking vendor/${ARCHIVE_NAME}"
-#            WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-#            COMMAND ${CMAKE_COMMAND} -E tar xzf ${CMAKE_SOURCE_DIR}/vendor/${ARCHIVE_NAME}
-#            #
-#            COMMAND echo "\n\nConfiguring ${UNPACKED_DIR_NAME}"
-#            WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/${UNPACKED_DIR_NAME}/build
-#            COMMAND ${CMAKE_COMMAND} .. -DCMAKE_BUILD_TYPE=Release
-#            #
-#            COMMAND echo "\n\nBuilding ${UNPACKED_DIR_NAME}"
-#            WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/${UNPACKED_DIR_NAME}/build
-#            COMMAND ${CMAKE_COMMAND} --build .
-#            VERBATIM)
-#endfunction()
-
-# Ensure the vendored_json target is correctly defined in your CMakeLists.txt
+# Add a vendored dependency from the given archive
 function(add_vendored_dependency TARGET_NAME ARCHIVE_NAME UNPACKED_DIR_NAME)
     file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/${UNPACKED_DIR_NAME}/build)
     add_custom_target(${TARGET_NAME} ALL)
-    add_custom_command(TARGET ${TARGET_NAME} PRE_BUILD
-            DEPENDS ${CMAKE_SOURCE_DIR}/vendor/${ARCHIVE_NAME}
-            WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-            COMMAND ${CMAKE_COMMAND} -E tar xzf ${CMAKE_SOURCE_DIR}/vendor/${ARCHIVE_NAME}
-            COMMAND ${CMAKE_COMMAND} -E chdir ${CMAKE_BINARY_DIR}/${UNPACKED_DIR_NAME} cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
-            COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR}/${UNPACKED_DIR_NAME}/build
-            VERBATIM)
+    if (EXISTS "${CMAKE_BINARY_DIR}/${UNPACKED_DIR_NAME}/build/CMakeCache.txt")
+        message(STATUS "Already built ${TARGET_NAME} - Found existing ${CMAKE_BINARY_DIR}/${UNPACKED_DIR_NAME}/build/CMakeCache.txt")
+    else ()
+        message(STATUS "Will build ${TARGET_NAME} - Did not find existing ${CMAKE_BINARY_DIR}/${UNPACKED_DIR_NAME}/build/CMakeCache.txt")
+        add_custom_command(TARGET ${TARGET_NAME} PRE_BUILD
+                DEPENDS ${CMAKE_SOURCE_DIR}/vendor/${ARCHIVE_NAME}
+                WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+                COMMAND echo "Building dependency ${TARGET_NAME}"
+                COMMAND ${CMAKE_COMMAND} -E tar xzf ${CMAKE_SOURCE_DIR}/vendor/${ARCHIVE_NAME}
+                COMMAND ${CMAKE_COMMAND} -E chdir ${CMAKE_BINARY_DIR}/${UNPACKED_DIR_NAME} cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+                COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR}/${UNPACKED_DIR_NAME}/build
+                VERBATIM)
+    endif ()
+
 endfunction()
 
 add_vendored_dependency(vendored_sdl2 SDL-release-2.30.5.zip SDL-release-2.30.5)
