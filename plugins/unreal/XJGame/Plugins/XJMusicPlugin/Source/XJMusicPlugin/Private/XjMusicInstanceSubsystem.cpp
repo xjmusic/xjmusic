@@ -77,7 +77,10 @@ void UXjMusicInstanceSubsystem::PlayAudioByName(const FString& Name, const float
 
 		SoundsMap.Add(Name, ActiveSound);
 
-		Device->AddNewActiveSound(*ActiveSound.Get());
+		FAudioThread::RunCommandOnAudioThread([this, ActiveSound, &Device]()
+			{
+				Device->AddNewActiveSound(*ActiveSound.Get());
+			});
 	}
 }
 

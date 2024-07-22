@@ -112,44 +112,19 @@ struct FAudioPlayer
 
 class FXjRunnable : public FRunnable
 {
+
 public:
-	FXjRunnable();
+
+	FXjRunnable(const FString& XjProjectFolder, const FString& XjProjectFile, UWorld* World);
 	virtual ~FXjRunnable() override;
 
 	virtual bool Init() override;
 	virtual uint32 Run() override;
 	virtual void Stop() override;
-	virtual void Exit() override;
-
-	void EnsureCompletion();
 
 private:
-	FRunnableThread* Thread;
-};
 
-
-UCLASS()
-class XJMUSICPLUGIN_API APrototypeActor : public AActor
-{
-	GENERATED_BODY()
-	
-public:	
-
-	APrototypeActor();
-
-	virtual void Tick(float DeltaTime) override;
-
-protected:
-
-	UPROPERTY(EditInstanceOnly, Category = "XjMusic", meta = (ToolTip = "Path to XJ project folder, with trailing slash"))
-	FString XjProjectFolder;
-	
-	UPROPERTY(EditInstanceOnly, Category = "XjMusic", meta = (ToolTip = "Name of XJ project file"))
-	FString XjProjectFile;
-	
-	virtual void BeginPlay() override;
-
-	void RunXjOneCycleTick(const float DeltaTime);
+	void RunXjOneCycleTick();
 
 	bool IsWithinTimeLimit() const
 	{
@@ -161,7 +136,7 @@ protected:
 
 		UE_LOG(LogTemp, Error, TEXT("EXCEEDED TEST TIME LIMIT OF %lld SECONDS"), MAXIMUM_TEST_WAIT_SECONDS)
 
-		return false;
+			return false;
 	}
 
 	bool HasSegmentsDubbedPastMinimumOffset() const
@@ -177,6 +152,12 @@ protected:
 
 private:
 
+	FRunnableThread* Thread;
+
+	FThreadSafeBool bShouldStop = false;
+
+	int RunCycleFrequency = 3;
+
 	int MARATHON_NUMBER_OF_SEGMENTS = 50;
 	int MILLIS_PER_SECOND = 1000;
 	int MICROS_PER_MILLI = 1000;
@@ -191,13 +172,39 @@ private:
 
 	TUniquePtr<Engine> XjEngine;
 
+	class UXjMusicInstanceSubsystem* XjMusicInstanceSubsystem = nullptr;
+
 	TMap<TimeRecord, TArray<FAudioPlayer>> AudiosLookup;
 
 	TArray<TimeRecord> AudiosKeys;
 
-	class UXjMusicInstanceSubsystem* XjMusicInstanceSubsystem = nullptr;
-
 	TMap<FString, TArray<FAudioPlayer>> DebugViewAudioToTime;
 
 	TMap<TimeRecord, TArray<FString>> DebugViewTimeToAudio;
+};
+
+
+UCLASS()
+class XJMUSICPLUGIN_API APrototypeActor : public AActor
+{
+	GENERATED_BODY()
+	
+public:	
+
+	APrototypeActor();
+
+protected:
+
+	UPROPERTY(EditInstanceOnly, Category = "XjMusic", meta = (ToolTip = "Path to XJ project folder, with trailing slash"))
+	FString XjProjectFolder;
+	
+	UPROPERTY(EditInstanceOnly, Category = "XjMusic", meta = (ToolTip = "Name of XJ project file"))
+	FString XjProjectFile;
+	
+	virtual void BeginPlay() override;
+
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
+private:
+	FXjRunnable* XjThread = nullptr;
 };
