@@ -4,10 +4,9 @@
 #include <optional>
 #include <set>
 #include <vector>
+#include <iostream>
 
 #include <nlohmann/json.hpp>
-#include <spdlog/spdlog.h>
-
 #include "xjmusic/content/ContentEntityStore.h"
 
 using namespace XJ;
@@ -107,7 +106,7 @@ namespace XJ {
         STORE[entity.id] = std::move(entity);                                              \
       }                                                                                    \
     } catch (const std::exception &e) {                                                    \
-      spdlog::error("Error putting all {}: {}", #ENTITY, e.what());                        \
+      std::cout << "Error putting all " << #ENTITY << ": " << e.what() << std::endl;       \
     }                                                                                      \
     return *this;                                                                          \
   }                                                                                        \
@@ -116,7 +115,7 @@ namespace XJ {
       STORE[entity.id] = std::move(entity);                                                \
       return &STORE[entity.id];                                                            \
     } catch (const std::exception &e) {                                                    \
-      spdlog::error("Error putting {}: {}", "ENTITY", e.what());                           \
+      std::cout << "Error putting " << #ENTITY << ": " << e.what() << std::endl;           \
       return nullptr;                                                                      \
     }                                                                                      \
   }
