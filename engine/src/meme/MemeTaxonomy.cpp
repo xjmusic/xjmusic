@@ -3,8 +3,7 @@
 #include <sstream>
 #include <regex>
 #include <set>
-
-#include <spdlog/spdlog.h>
+#include <iostream>
 
 #include "xjmusic/meme/MemeTaxonomy.h"
 
@@ -145,7 +144,7 @@ MemeTaxonomy::MemeTaxonomy(const std::set<MapStringToOneOrManyString> &data) {
     try {
       categories.insert(MemeCategory(d));
     } catch (...) {
-      spdlog::error("Failed to add map data!");
+      std::cerr << "Failed to add map data!" << std::endl;
     }
   }
 }

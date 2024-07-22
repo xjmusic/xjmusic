@@ -59,7 +59,7 @@ protected:
   bool isWithinTimeLimit() {
     if (MAXIMUM_TEST_WAIT_SECONDS * MILLIS_PER_SECOND > EntityUtils::currentTimeMillis() - startTime)
       return true;
-    spdlog::error("EXCEEDED TEST TIME LIMIT OF {} SECONDS", MAXIMUM_TEST_WAIT_SECONDS);
+    std::cerr << "EXCEEDED TEST TIME LIMIT OF " << MAXIMUM_TEST_WAIT_SECONDS << " SECONDS" << std::endl;
     return false;
   }
 
@@ -79,7 +79,7 @@ TEST_F(WorkManagerTest, HasSegmentsDubbedPastMinimumOffset) {
   unsigned long long atChainMicros = 0;
   while (!hasSegmentsDubbedPastMinimumOffset() && isWithinTimeLimit()) {
     subject->runCycle(atChainMicros);
-    spdlog::info("Ran cycle at {}", atChainMicros);
+    std::cout << "Ran cycle at " << atChainMicros << std::endl;
     atChainMicros += MICROS_PER_CYCLE;
   }
 

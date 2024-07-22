@@ -1,8 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
 #include <gtest/gtest.h>
-#include <spdlog/spdlog.h>
-
 #include "xjmusic/fabricator/MarbleBag.h"
 #include "xjmusic/fabricator/FabricationException.h"
 
@@ -40,7 +38,7 @@ TEST_F(MarbleBagTest, add_pick) {
   bag.add(1, frogId, 1000);
   bag.add(1, bearId, 30);
   bag.add(1, zebraId, 5);
-  spdlog::info("will pick 100 marbles from {}", bag.toString());
+  std::cout << "will pick 100 marbles from " << bag.toString() << std::endl;
   auto result = MarbleBag();
   auto allowed = std::set{frogId, bearId, zebraId};
   for (auto i = 0; i < 100; i++) {
@@ -48,7 +46,7 @@ TEST_F(MarbleBagTest, add_pick) {
     ASSERT_FALSE(allowed.find(pick) == allowed.end());
     result.add(1, pick);
   }
-  spdlog::info("picked {}", result.toString());
+  std::cout << "picked " << result.toString() << std::endl;
 }
 
 /**
@@ -66,7 +64,7 @@ TEST_F(MarbleBagTest, pick_phaseLowerPreferred) {
   bag.add(1, frogId, 1000);
   bag.add(1, bearId, 30);
   bag.add(2, zebraId, 5);
-  spdlog::info("will pick 100 marbles from {}", bag.toString());
+  std::cout << "will pick 100 marbles from " << bag.toString() << std::endl;
   auto allowed = std::set{frogId, bearId};
   for (auto i = 0; i < 100; i++) {
     auto pick = bag.pick();
@@ -79,7 +77,7 @@ TEST_F(MarbleBagTest, pick_skipEmptyPhases) {
   bag.add(4, frogId, 1000);
   bag.add(5, bearId, 30);
   bag.add(6, zebraId, 5);
-  spdlog::info("will pick 100 marbles from {}", bag.toString());
+  std::cout << "will pick 100 marbles from " << bag.toString() << std::endl;
   auto allowed = std::set{frogId, bearId};
   for (auto i = 0; i < 100; i++) {
     auto pick = bag.pick();

@@ -52,7 +52,7 @@ protected:
   bool isWithinTimeLimit() {
     if (MAXIMUM_TEST_WAIT_SECONDS * MILLIS_PER_SECOND > EntityUtils::currentTimeMillis() - startTime)
       return true;
-    spdlog::error("EXCEEDED TEST TIME LIMIT OF {} SECONDS", MAXIMUM_TEST_WAIT_SECONDS);
+    std::cerr << "EXCEEDED TEST TIME LIMIT OF " << MAXIMUM_TEST_WAIT_SECONDS << " SECONDS" << std::endl;
     return false;
   }
 
@@ -86,7 +86,7 @@ TEST_F(XJEngineTest, ReadsAndRunsProjectFromDisk) {
       // assert that this audio file exists
       ASSERT_TRUE(std::filesystem::exists(subject->getPathToBuildDirectory() / audio.getAudio()->waveformKey));
     }
-    spdlog::info("Ran cycle at {}", atChainMicros);
+    std::cout << "Ran cycle at " << std::to_string(atChainMicros) << std::endl;
     atChainMicros += MICROS_PER_CYCLE;
   }
 

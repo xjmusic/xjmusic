@@ -1,7 +1,5 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-#include <spdlog/spdlog.h>
-
 #include "xjmusic/audio/ActiveAudio.h"
 #include "xjmusic/audio/AudioMathUtils.h"
 #include "xjmusic/util/ValueUtils.h"
@@ -26,7 +24,7 @@ void DubWork::finish() {
   if (!running) return;
   running = false;
   craftWork->finish();
-  spdlog::info("Finished");
+  std::cout << "Finished" << std::endl;
 }
 
 std::set<ActiveAudio> DubWork::runCycle(unsigned long long atChainMicros) {
@@ -35,12 +33,12 @@ std::set<ActiveAudio> DubWork::runCycle(unsigned long long atChainMicros) {
   // Only ready to dub after at least one craft cycle is completed since the last time we weren't ready to dub
   // live performance modulation https://github.com/xjmusic/xjmusic/issues/197
   if (!craftWork->isReady()) {
-    spdlog::debug("Waiting for Craft readiness...");
+    // Waiting for Craft readiness...
     return {};
   }
 
   if (craftWork->isFinished()) {
-    spdlog::info("Craft is finished. Dub will finish.");
+    std::cout << "Craft is finished. Dub will finish." << std::endl;
     finish();
     return {};
   }
@@ -84,7 +82,7 @@ std::set<ActiveAudio> DubWork::computeActiveAudios(const unsigned long long atCh
   const auto toChainMicros = atChainMicros + dubAheadMicros;
   const auto segments = craftWork->getSegmentsIfReady(atChainMicros, toChainMicros);
   if (segments.empty()) {
-    spdlog::debug("Waiting for segments");
+    // Waiting for segments
     return {};
   }
 
@@ -95,7 +93,7 @@ std::set<ActiveAudio> DubWork::computeActiveAudios(const unsigned long long atCh
   }
 
   try {
-    std::set<ActiveAudio> activeAudios;
+    std::set < ActiveAudio > activeAudios;
     for (const auto segment: segments)
       for (const auto choice: craftWork->getChoices(segment))
         if (!choice->mute)
@@ -151,7 +149,7 @@ std::set<ActiveAudio> DubWork::computeActiveAudios(const unsigned long long atCh
               }
             }
     prevIntensity = {nextIntensity.value()};
-    spdlog::debug("Dubbed to {}", toChainMicros / ValueUtils::MICROS_PER_SECOND_FLOAT);
+    // Dubbed toChainMicros
     return activeAudios;
 
   } catch (std::exception &e) {
@@ -163,8 +161,7 @@ std::set<ActiveAudio> DubWork::computeActiveAudios(const unsigned long long atCh
 
 
 void DubWork::didFailWhile(std::string msgWhile, const std::exception &e) {
-  spdlog::error("Failed while {} because {}", msgWhile, e.what());
-
+  std::cerr << "Failed while " << msgWhile << " because " << e.what() << std::endl;
   running = false;
   finish();
 }
