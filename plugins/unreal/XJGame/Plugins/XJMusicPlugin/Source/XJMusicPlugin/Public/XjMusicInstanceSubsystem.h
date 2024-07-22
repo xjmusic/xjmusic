@@ -18,12 +18,7 @@ public:
 
 	void StopAudioByName(const FString& Name);
 
-	void TestPlayAllSounds();
-
 private:
-	UFUNCTION()
-	void OnTestTimerCallback();
-
 	USoundWave* GetSoundWaveByName(const FString& AudioName);
 
 private:

@@ -154,35 +154,3 @@ USoundWave* UXjMusicInstanceSubsystem::GetSoundWaveByName(const FString& AudioNa
 
 	return SoundWave;
 }
-
-void UXjMusicInstanceSubsystem::TestPlayAllSounds()
-{
-	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, "Audio test started");
-
-	TestAudioCounter = 0;
-	GetWorld()->GetTimerManager().SetTimer(TestTimerHandle, this, &UXjMusicInstanceSubsystem::OnTestTimerCallback,5.0f, true);
-}
-
-void UXjMusicInstanceSubsystem::OnTestTimerCallback()
-{
-	if (TestAudioCounter >= AudioPathsByNameLookup.Num())
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, "Audio test finished");
-		return;
-	}
-
-	TArray<FString> Names;
-	AudioPathsByNameLookup.GetKeys(Names);
-
-	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, FString::Printf(TEXT("Played audio %d/%d"), TestAudioCounter + 1, AudioPathsByNameLookup.Num()));
-
-	if (!TestLastAudioName.IsEmpty())
-	{
-		StopAudioByName(TestLastAudioName);
-	}
-
-	TestLastAudioName = Names[TestAudioCounter];
-	PlayAudioByName(TestLastAudioName);
-
-	TestAudioCounter++;
-}
