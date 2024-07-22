@@ -12,4 +12,4 @@ target_link_libraries(xj_player PRIVATE nlohmann_json::nlohmann_json)
 # SDL2
 add_dependencies(xj_player vendored_sdl2)
 target_include_directories(xj_player PRIVATE ${CMAKE_BINARY_DIR}/SDL-release-2.30.5/include)
-target_link_libraries(xj_player PRIVATE ${CMAKE_BINARY_DIR}/SDL-release-2.30.5/build/libSDL2.a)
+# todo target_link_libraries(xj_player PRIVATE ${CMAKE_BINARY_DIR}/SDL-release-2.30.5/build/libSDL2.a)
