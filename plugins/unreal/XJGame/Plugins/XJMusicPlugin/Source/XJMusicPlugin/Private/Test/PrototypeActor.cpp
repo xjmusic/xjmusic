@@ -26,16 +26,16 @@ FXjRunnable::FXjRunnable(const FString& XjProjectFolder, const FString& XjProjec
 
 	try
 	{
-		XjMusicInstanceSubsystem = World->GetGameInstance()->GetSubsystem<UXjMusicInstanceSubsystem>();
-		if (XjMusicInstanceSubsystem)
-		{
-			XjMusicInstanceSubsystem->RetrieveProjectsContent(PathToBuildFolder);
-		}
-		else
-		{
-			UE_LOG(LogTemp, Error, TEXT("Cannot find XjMusicInstanceSubsystem"));
-			return;
-		}
+		//XjMusicInstanceSubsystem = World->GetGameInstance()->GetSubsystem<UXjMusicInstanceSubsystem>();
+		//if (XjMusicInstanceSubsystem)
+		//{
+		//	XjMusicInstanceSubsystem->RetrieveProjectsContent(PathToBuildFolder);
+		//}
+		//else
+		//{
+		//	UE_LOG(LogTemp, Error, TEXT("Cannot find XjMusicInstanceSubsystem"));
+		//	return;
+		//}
 
 		XjEngine = MakeUnique<Engine>(PathToProjectStr,
 			Fabricator::ControlMode::Taxonomy,
@@ -131,11 +131,6 @@ uint32 FXjRunnable::Run()
 			RunXjOneCycleTick();
 		}
 
-		if (!XjMusicInstanceSubsystem)
-		{
-			return 0;
-		}
-
 		FString PlayingAudios = "Playing:\n";
 
 		for (TimeRecord Time : AudiosKeys)
@@ -195,8 +190,8 @@ uint32 FXjRunnable::Run()
 			DebugInfo = FString("Chain micros: ") + AtChainMicros.ToString();
 			DebugInfo += FString::Printf(TEXT("\n %f ms"), SleepInterval);
 
-			//GEngine->AddOnScreenDebugMessage(-1, SleepInterval, FColor::Green, DebugInfo);
-			//GEngine->AddOnScreenDebugMessage(-1, SleepInterval, FColor::Magenta, PlayingAudios);
+			GEngine->AddOnScreenDebugMessage(-1, SleepInterval, FColor::Green, DebugInfo);
+			GEngine->AddOnScreenDebugMessage(-1, SleepInterval, FColor::Magenta, PlayingAudios);
 		}
 	}
 
