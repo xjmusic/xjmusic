@@ -1,3 +1,6 @@
+# FetchContent added in CMake 3.11, downloads during the configure step
+include(FetchContent)
+
 # show up in IDEs unless they are listed in add_library.
 add_library(xjmusic
         Engine.cpp
@@ -85,11 +88,6 @@ add_library(xjmusic
         work/WorkSettings.cpp
 )
 
-# For Windows: Build with MultiThreadedDebug runtime library
-if (WIN32)
-    set_property(TARGET xjmusic PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDebug")
-endif ()
-
 # We need this directory, and users of our library will need it too
 target_include_directories(xjmusic PUBLIC ../include)
 
@@ -97,8 +95,11 @@ target_include_directories(xjmusic PUBLIC ../include)
 target_compile_features(xjmusic PUBLIC cxx_std_17)
 
 # JSON for Modern C++
-add_dependencies(xjmusic vendored_json)
-target_include_directories(xjmusic PRIVATE ${CMAKE_BINARY_DIR}/json-3.11.3/src/vendored_json/include)
+FetchContent_Declare(json URL ${CMAKE_SOURCE_DIR}/vendor/nlohmann-json-3.11.3.zip)
+FetchContent_MakeAvailable(json)
+target_link_libraries(xjmusic PRIVATE nlohmann_json::nlohmann_json)
+get_target_property(JSON_INCLUDE_DIR nlohmann_json::nlohmann_json INTERFACE_INCLUDE_DIRECTORIES)
+target_include_directories(xjmusic PUBLIC ${JSON_INCLUDE_DIR})
 
 # IDEs should put the headers in a nice place
 source_group(

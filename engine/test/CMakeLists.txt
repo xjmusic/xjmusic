@@ -1,3 +1,6 @@
+# Fetch content module is available in CMake 3.11+
+include(FetchContent)
+
 # Tests need to be added as executables first
 add_executable(xjmusic_test
         EngineTest.cpp
@@ -120,11 +123,6 @@ add_executable(xjmusic_test
         work/WorkManagerTest.cpp
 )
 
-# For Windows: Build with MultiThreadedDebug runtime library
-if (WIN32)
-    set_property(TARGET xjmusic_test PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDebug")
-endif ()
-
 # I'm using C++17 in the test
 target_compile_features(xjmusic_test PRIVATE cxx_std_17)
 
@@ -132,33 +130,25 @@ target_compile_features(xjmusic_test PRIVATE cxx_std_17)
 target_link_libraries(xjmusic_test PRIVATE xjmusic)
 
 # Google Test (googletest)
-add_dependencies(xjmusic_test vendored_googletest)
-target_include_directories(xjmusic_test PRIVATE ${CMAKE_BINARY_DIR}/googletest-1.15.0/src/vendored_googletest/googletest/include)
-target_include_directories(xjmusic_test PRIVATE ${CMAKE_BINARY_DIR}/googletest-1.15.0/src/vendored_googletest/googlemock/include)
-if (WIN32)
-    target_link_libraries(xjmusic_test PRIVATE ${CMAKE_BINARY_DIR}/googletest-1.15.0/src/vendored_googletest-build/lib/gtest.lib)
-    target_link_libraries(xjmusic_test PRIVATE ${CMAKE_BINARY_DIR}/googletest-1.15.0/src/vendored_googletest-build/lib/gmock.lib)
-    target_link_libraries(xjmusic_test PRIVATE ${CMAKE_BINARY_DIR}/googletest-1.15.0/src/vendored_googletest-build/lib/gtest_main.lib)
-    target_link_libraries(xjmusic_test PRIVATE ${CMAKE_BINARY_DIR}/googletest-1.15.0/src/vendored_googletest-build/lib/gmock_main.lib)
-else ()
-    target_link_libraries(xjmusic_test PRIVATE ${CMAKE_BINARY_DIR}/googletest-1.15.0/src/vendored_googletest-build/lib/libgtest.a)
-    target_link_libraries(xjmusic_test PRIVATE ${CMAKE_BINARY_DIR}/googletest-1.15.0/src/vendored_googletest-build/lib/libgmock.a)
-    target_link_libraries(xjmusic_test PRIVATE ${CMAKE_BINARY_DIR}/googletest-1.15.0/src/vendored_googletest-build/lib/libgtest_main.a)
-    target_link_libraries(xjmusic_test PRIVATE ${CMAKE_BINARY_DIR}/googletest-1.15.0/src/vendored_googletest-build/lib/libgmock_main.a)
-endif ()
+FetchContent_Declare(googletest URL ${CMAKE_SOURCE_DIR}/vendor/googletest-1.15.0.tar.gz)
+FetchContent_MakeAvailable(googletest)
+target_link_libraries(xjmusic_test PRIVATE gtest_main)
+target_link_libraries(xjmusic_test PRIVATE gmock_main)
 
-# YAML-CPP
-add_dependencies(xjmusic_test vendored_yaml)
-target_include_directories(xjmusic_test PRIVATE ${CMAKE_BINARY_DIR}/yaml-cpp-0.8.0/src/vendored_yaml/include)
-if (WIN32)
-    target_link_libraries(xjmusic_test PRIVATE ${CMAKE_BINARY_DIR}/yaml-cpp-0.8.0/src/vendored_yaml-build/yaml-cppd.lib)
-else ()
-    target_link_libraries(xjmusic_test PRIVATE ${CMAKE_BINARY_DIR}/yaml-cpp-0.8.0/src/vendored_yaml-build/libyaml-cpp.a)
-endif ()
+# yaml-cpp (jbeder/yaml-cpp)
+FetchContent_Declare(yaml-cpp URL ${CMAKE_SOURCE_DIR}/vendor/yaml-cpp-0.8.0.tar.gz)
+FetchContent_GetProperties(yaml-cpp)
+if(NOT yaml-cpp_POPULATED)
+    message(STATUS "Fetching yaml-cpp...")
+    FetchContent_Populate(yaml-cpp)
+    add_subdirectory(${yaml-cpp_SOURCE_DIR} ${yaml-cpp_BINARY_DIR})
+endif()
+target_link_libraries(xjmusic_test PUBLIC yaml-cpp::yaml-cpp)
 
 # JSON for Modern C++
-add_dependencies(xjmusic_test vendored_json)
-target_include_directories(xjmusic_test PRIVATE ${CMAKE_BINARY_DIR}/json-3.11.3/src/vendored_json/include)
+FetchContent_Declare(json URL ${CMAKE_SOURCE_DIR}/vendor/nlohmann-json-3.11.3.zip)
+FetchContent_MakeAvailable(json)
+target_link_libraries(xjmusic PRIVATE nlohmann_json::nlohmann_json)
 
 # For Windows: Prevent overriding the parent project's compiler/linker settings
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
