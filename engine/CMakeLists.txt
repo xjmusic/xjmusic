@@ -37,7 +37,7 @@ if (CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
 endif ()
 
 # Function to add a vendor external project
-function(add_vendor_external_project NAME ARCHIVE_FILE HASH_MD5 INSTALLED_BUILD_BYPRODUCTS COPY_TO_RUNTIME_LOCATION)
+function(add_vendor_external_project PARENT NAME ARCHIVE_FILE HASH_MD5 INSTALLED_BUILD_BYPRODUCTS COPY_TO_RUNTIME_LOCATION)
     set(INSTALLED_DIR ${CMAKE_BINARY_DIR}/vendor/installed)
     set(BUILD_BYPRODUCTS "")
 
@@ -55,15 +55,15 @@ function(add_vendor_external_project NAME ARCHIVE_FILE HASH_MD5 INSTALLED_BUILD_
 
     include_directories(${INSTALLED_DIR}/include)
     set_target_properties(${NAME} PROPERTIES EXCLUDE_FROM_ALL TRUE)
-    add_dependencies(xj_player ${NAME})
+    add_dependencies(${PARENT} ${NAME})
 
     foreach (BYPRODUCT ${BUILD_BYPRODUCTS})
-        target_link_libraries(xj_player PRIVATE ${BYPRODUCT})
+        target_link_libraries(${PARENT} PRIVATE ${BYPRODUCT})
     endforeach ()
 
     foreach (BYPRODUCT ${COPY_TO_RUNTIME_LOCATION})
-        set(RUNTIME_LOCATION $<TARGET_FILE_DIR:xj_player>)
-        add_custom_command(TARGET xj_player POST_BUILD
+        set(RUNTIME_LOCATION $<TARGET_FILE_DIR:${PARENT}>)
+        add_custom_command(TARGET ${PARENT} POST_BUILD
                 COMMAND ${CMAKE_COMMAND} -E copy
                 ${INSTALLED_DIR}/${BYPRODUCT}
                 ${RUNTIME_LOCATION})
