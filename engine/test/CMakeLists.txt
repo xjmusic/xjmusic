@@ -130,13 +130,13 @@ target_compile_features(xjmusic_test PRIVATE cxx_std_17)
 target_link_libraries(xjmusic_test PRIVATE xjmusic)
 
 # Google Test (googletest)
-FetchContent_Declare(googletest URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.zip)
+FetchContent_Declare(googletest URL ${CMAKE_SOURCE_DIR}/vendor/googletest-1.15.0.tar.gz)
 FetchContent_MakeAvailable(googletest)
 target_link_libraries(xjmusic_test PRIVATE gtest_main)
 target_link_libraries(xjmusic_test PRIVATE gmock_main)
 
 # yaml-cpp (jbeder/yaml-cpp)
-FetchContent_Declare(yaml-cpp URL https://github.com/jbeder/yaml-cpp/archive/refs/tags/0.8.0.tar.gz)
+FetchContent_Declare(yaml-cpp URL ${CMAKE_SOURCE_DIR}/vendor/yaml-cpp-0.8.0.tar.gz)
 FetchContent_GetProperties(yaml-cpp)
 if(NOT yaml-cpp_POPULATED)
     message(STATUS "Fetching yaml-cpp...")
@@ -146,7 +146,7 @@ endif()
 target_link_libraries(xjmusic_test PUBLIC yaml-cpp::yaml-cpp)
 
 # JSON for Modern C++
-FetchContent_Declare(json URL https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz)
+FetchContent_Declare(json URL ${CMAKE_SOURCE_DIR}/vendor/nlohmann-json-3.11.3.tar.gz)
 FetchContent_MakeAvailable(json)
 target_link_libraries(xjmusic PRIVATE nlohmann_json::nlohmann_json)
 

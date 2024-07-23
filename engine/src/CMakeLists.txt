@@ -95,7 +95,7 @@ target_include_directories(xjmusic PUBLIC ../include)
 target_compile_features(xjmusic PUBLIC cxx_std_17)
 
 # JSON for Modern C++
-FetchContent_Declare(json URL https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz)
+FetchContent_Declare(json URL ${CMAKE_SOURCE_DIR}/vendor/nlohmann-json-3.11.3.tar.gz)
 FetchContent_MakeAvailable(json)
 target_link_libraries(xjmusic PRIVATE nlohmann_json::nlohmann_json)
 get_target_property(JSON_INCLUDE_DIR nlohmann_json::nlohmann_json INTERFACE_INCLUDE_DIRECTORIES)

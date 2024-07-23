@@ -42,10 +42,21 @@ TEST(CsvUtilsTest, splitProperSlug) {
 }
 
 
-TEST(CsvUtilsTest, join) {
+TEST(CsvUtilsTest, joinList) {
   const std::string expected = "one, two, three";
 
-  const auto actual = CsvUtils::join({"one", "two", "three"});
+  const std::vector<std::string> list = {"one", "two", "three"};
+  const auto actual = CsvUtils::join(list);
+
+  ASSERT_EQ(expected, actual);
+}
+
+
+TEST(CsvUtilsTest, joinSet) {
+  const std::string expected = "apples, bananas, carrots";
+
+  const std::set<std::string> set = {"bananas", "carrots", "apples"};
+  const auto actual = CsvUtils::join(set);
 
   ASSERT_EQ(expected, actual);
 }

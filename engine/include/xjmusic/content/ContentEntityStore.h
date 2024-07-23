@@ -409,7 +409,7 @@ namespace XJ {
 
 
     /**
-     * Fetch all memes for a given program at sequence binding offset 0
+     * Get all memes for a given program at sequence binding offset 0
      * @return collection of sequence memes
      */
     std::set<std::string> getMemesAtBeginning(const Program *program) const;

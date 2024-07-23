@@ -257,7 +257,7 @@ const Segment *SegmentEntityStore::updateSegment(Segment &segment) {
   validate(segment);
   const Segment::State toState = segment.state;
 
-  // fetch existing segment; further logic is based on its current state
+  // read existing segment; further logic is based on its current state
   const std::optional<const Segment *> existingOpt = readSegment(segment.id);
   if (existingOpt.has_value()) {
     const Segment *existing = existingOpt.value();
