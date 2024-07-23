@@ -153,8 +153,6 @@ private:
 
 private:
 
-	FRunnableThread* Thread;
-
 	FThreadSafeBool bShouldStop = false;
 
 	int RunCycleFrequency = 3;
@@ -204,13 +202,14 @@ protected:
 	
 	virtual void BeginPlay() override;
 
-	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+	virtual void BeginDestroy() override;
 
 	UFUNCTION()
 	void OnQuartz(FName ClockName, EQuartzCommandQuantization QuantizationType, int32 NumBars, int32 Beat, float BeatFraction);
 
 private:
-	FXjRunnable* XjThread = nullptr;
+	FXjRunnable* XjRunnable = nullptr;
+	FRunnableThread* XjThread = nullptr;
 
 	UQuartzClockHandle* QuartzClockHandle;
 

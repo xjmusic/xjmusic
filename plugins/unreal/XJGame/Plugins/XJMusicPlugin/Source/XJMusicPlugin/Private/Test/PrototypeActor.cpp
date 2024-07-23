@@ -38,7 +38,7 @@ FXjRunnable::FXjRunnable(const FString& XjProjectFolder, const FString& XjProjec
 		//}
 
 		XjEngine = MakeUnique<Engine>(PathToProjectStr,
-			Fabricator::ControlMode::Taxonomy,
+			Fabricator::ControlMode::Auto,
 			DefaultSettings.craftAheadSeconds,
 			DefaultSettings.dubAheadSeconds,
 			DefaultSettings.persistenceWindowSeconds);
@@ -101,16 +101,12 @@ FXjRunnable::FXjRunnable(const FString& XjProjectFolder, const FString& XjProjec
 		UE_LOG(LogTemp, Error, TEXT("%s"), *ErrorStr);
 	}
 
-	Thread = FRunnableThread::Create(this, TEXT("XJ Thread"), 0, TPri_TimeCritical);
+	FPlatformProcess::Sleep(5.0f);
 }
 
 FXjRunnable::~FXjRunnable()
 {
-	if (Thread)
-	{
-		delete Thread;
-		Thread = nullptr;
-	}
+
 }
 
 bool FXjRunnable::Init()
@@ -201,7 +197,6 @@ uint32 FXjRunnable::Run()
 void FXjRunnable::Stop()
 {
 	bShouldStop = true;
-	Thread->WaitForCompletion();
 }
 
 void FXjRunnable::RunXjOneCycleTick()
@@ -289,8 +284,8 @@ APrototypeActor::APrototypeActor()
 
 void APrototypeActor::BeginPlay()
 {
-	XjThread = new FXjRunnable(XjProjectFolder, XjProjectFile, GetWorld()); 
-
+	XjRunnable = new FXjRunnable(XjProjectFolder, XjProjectFile, GetWorld()); 
+	XjThread = FRunnableThread::Create(XjRunnable, TEXT("Xj Thread"));
 
 	UQuartzSubsystem* QuartzSubsystem = UQuartzSubsystem::Get(GetWorld());
 	if (QuartzSubsystem)
@@ -319,16 +314,20 @@ void APrototypeActor::BeginPlay()
 	}
 }
 
+void APrototypeActor::BeginDestroy()
+{
+	if (XjThread && XjRunnable)
+	{
+		XjRunnable->Stop();
+		XjThread->WaitForCompletion();
+		delete XjThread;
+		delete XjRunnable;
+	}
+
+	Super::BeginDestroy();
+}
+
 void APrototypeActor::OnQuartz(FName ClockName, EQuartzCommandQuantization QuantizationType, int32 NumBars, int32 Beat, float BeatFraction)
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, "Test Quartz");
-}
-
-void APrototypeActor::EndPlay(const EEndPlayReason::Type EndPlayReason)
-{
-	if (XjThread)
-	{
-		XjThread->Stop();
-		delete XjThread;
-	}
 }
