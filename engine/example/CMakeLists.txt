@@ -5,7 +5,7 @@ target_link_libraries(xj_player PRIVATE xjmusic)
 
 ExternalProject_Add(vendor_sdl
         PREFIX "${CMAKE_BINARY_DIR}/vendor"
-        URL "${CMAKE_SOURCE_DIR}/vendor/SDL-release-2.30.5.zip"
+        URL "${CMAKE_SOURCE_DIR}/vendor/SDL-release-2.30.5.tar.gz"
         URL_HASH MD5=c0bbff02fc1919bd42defc2a486c4056
         CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/vendor/installed
 )

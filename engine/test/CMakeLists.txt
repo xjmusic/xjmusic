@@ -146,7 +146,7 @@ endif()
 target_link_libraries(xjmusic_test PUBLIC yaml-cpp::yaml-cpp)
 
 # JSON for Modern C++
-FetchContent_Declare(json URL ${CMAKE_SOURCE_DIR}/vendor/nlohmann-json-3.11.3.zip)
+FetchContent_Declare(json URL ${CMAKE_SOURCE_DIR}/vendor/nlohmann-json-3.11.3.tar.gz)
 FetchContent_MakeAvailable(json)
 target_link_libraries(xjmusic PRIVATE nlohmann_json::nlohmann_json)
 
