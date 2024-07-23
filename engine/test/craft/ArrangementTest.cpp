@@ -264,7 +264,7 @@ protected:
   }
 
   /**
-   Load the assertions of picks section after a test has run
+   Load the assertions of picks section after a test has Run
    Load the instrument section of the test YAML file, for one type of Instrument
    @param fabricator Fabricator to use
    @param data YAML file wrapper
@@ -276,7 +276,7 @@ protected:
   }
 
   /**
-   * Load the assertions of picks section after a test has run
+   * Load the assertions of picks section after a test has Run
    * @param fabricator Fabricator to use
    * @param data  YAML file wrapper
    * @param type  type of instrument to read
@@ -339,7 +339,7 @@ protected:
   }
 
   /**
-   Load the specified test YAML file and run it repeatedly.
+   Load the specified test YAML file and Run it repeatedly.
 
    @param filename of test YAML file
    */

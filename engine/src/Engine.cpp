@@ -51,7 +51,7 @@ void Engine::finish(const bool cancelled) const {
   work->finish(cancelled);
 }
 
-std::set<ActiveAudio> Engine::runCycle(const unsigned long long atChainMicros) const {
+std::set<ActiveAudio> Engine::RunCycle(const unsigned long long atChainMicros) const {
   return work->runCycle(atChainMicros);
 }
 
@@ -72,7 +72,7 @@ WorkState Engine::getWorkState() const {
 }
 
 std::optional<MemeTaxonomy> Engine::getMemeTaxonomy() const {
-  return work->getMemeTaxonomy();
+  return templateContent->getMemeTaxonomy();
 }
 
 std::vector<const Program *> Engine::getAllMacroPrograms() const {
@@ -117,7 +117,7 @@ void Engine::loadProjectContent() {
   if (!project.has_value()) {
     throw std::runtime_error("Project file does not contain a project: " + pathToProjectFile);
   }
-  std::cout << "Loaded project \"" << project.value()->name << "\" from file " << pathToProjectFile << std::endl;
+  std::cout << "Did read project \"" << project.value()->name << "\" from file " << pathToProjectFile << std::endl;
 
   // Crawl the build folder in the folder containing the project file
   const std::filesystem::path projectPath(pathToProjectFile);
@@ -147,4 +147,6 @@ void Engine::loadProjectContent() {
   } catch (const std::exception &e) {
     std::cout << "General error! " << e.what() << std::endl;
   }
+
+  std::cout << "Loaded project OK" << std::endl << std::endl;
 }

@@ -610,7 +610,12 @@ namespace XJ {
       * Get the first template from the content
       * @return  the template if any exist in the content
       */
-     std::optional<const Template *> getFirstTemplate();
+    std::optional<const Template *> getFirstTemplate();
+
+    /**
+     * Get meme taxonomy for the current template, if present, else empty meme taxonomy
+     */
+    MemeTaxonomy getMemeTaxonomy();
 
     /**
      * Get a new ContentEntityStore object for a specific template

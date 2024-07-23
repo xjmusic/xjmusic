@@ -117,7 +117,7 @@ ContentEntityStore *WorkManager::getSourceMaterial() const {
 
 void WorkManager::runCraftCycle(const unsigned long long atChainMicros) {
   if (state != Active) {
-    // Will not run craft cycle because work state
+    // Will not Run craft cycle because work state
     return;
   }
   try {
@@ -131,7 +131,7 @@ void WorkManager::runCraftCycle(const unsigned long long atChainMicros) {
 
 std::set<ActiveAudio> WorkManager::runDubCycle(const unsigned long long atChainMicros) {
   if (state != Active) {
-    // Will not run dub cycle because work state
+    // Will not Run dub cycle because work state
     return {};
   }
 

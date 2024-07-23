@@ -80,7 +80,7 @@ TEST_F(XJEngineTest, ReadsAndRunsProjectFromDisk) {
   subject->start(tmpl.value()->id);
   unsigned long long atChainMicros = 0;
   while (!hasSegmentsDubbedPastMinimumOffset() && isWithinTimeLimit()) {
-    auto audios = subject->runCycle(atChainMicros);
+    auto audios = subject->RunCycle(atChainMicros);
     ASSERT_FALSE(audios.empty());
     for (auto audio: audios) {
       // assert that this audio file exists

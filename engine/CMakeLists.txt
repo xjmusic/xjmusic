@@ -39,8 +39,8 @@ endif ()
 # Function to add a vendor external project
 function(add_vendor_external_project PARENT NAME ARCHIVE_FILE HASH_MD5 INSTALLED_BUILD_BYPRODUCTS COPY_TO_RUNTIME_LOCATION)
     set(INSTALLED_DIR ${CMAKE_BINARY_DIR}/vendor/installed)
-    set(BUILD_BYPRODUCTS "")
 
+    set(BUILD_BYPRODUCTS "")
     foreach (BYPRODUCT ${INSTALLED_BUILD_BYPRODUCTS})
         list(APPEND BUILD_BYPRODUCTS "${INSTALLED_DIR}/${BYPRODUCT}")
     endforeach ()
@@ -69,13 +69,12 @@ function(add_vendor_external_project PARENT NAME ARCHIVE_FILE HASH_MD5 INSTALLED
                 ${RUNTIME_LOCATION})
         message(STATUS "Copying ${BYPRODUCT} to runtime location ${RUNTIME_LOCATION}")
     endforeach ()
-
 endfunction()
 
 # FetchContent added in CMake 3.11, downloads during the configure step
 include(FetchContent)
 
-# The compiled library code is here
+# The compiled library code is here`
 add_subdirectory(src)
 
 # The executable code is here
