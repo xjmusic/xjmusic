@@ -1,11 +1,13 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
+#include <SDL2/SDL.h>
+
 #include <iostream>
 
 #include "xjmusic/Engine.h"
 #include "xjmusic/util/CsvUtils.h"
 
-int main(const int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
   // Check if at least one argument was passed
   if (argc <= 1) {
     std::cout << "Must pass the path to an XJ music workstation .xj project as the first argument!" << std::endl;
