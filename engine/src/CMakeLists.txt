@@ -85,6 +85,11 @@ add_library(xjmusic
         work/WorkSettings.cpp
 )
 
+# For Windows: Build with MultiThreadedDebug runtime library
+if (WIN32)
+    set_property(TARGET xjmusic PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDebug")
+endif ()
+
 # We need this directory, and users of our library will need it too
 target_include_directories(xjmusic PUBLIC ../include)
 

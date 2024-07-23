@@ -25,6 +25,10 @@ function(add_vendored_dependency TARGET_NAME ARCHIVE_NAME UNPACKED_DIR_NAME HASH
             BUILD_BYPRODUCTS ${BUILD_BYPRODUCTS}
             INSTALL_COMMAND ""
     )
+    # For Windows: Build with MultiThreadedDebug runtime library
+    if (WIN32)
+        set_property(TARGET ${TARGET_NAME} PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDebug")
+    endif ()
 endfunction()
 
 # Windows libaries have different names than Linux/Mac

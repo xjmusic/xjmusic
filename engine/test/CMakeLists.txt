@@ -120,6 +120,11 @@ add_executable(xjmusic_test
         work/WorkManagerTest.cpp
 )
 
+# For Windows: Build with MultiThreadedDebug runtime library
+if (WIN32)
+    set_property(TARGET xjmusic_test PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDebug")
+endif ()
+
 # I'm using C++17 in the test
 target_compile_features(xjmusic_test PRIVATE cxx_std_17)
 
