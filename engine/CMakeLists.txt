@@ -26,10 +26,19 @@ function(add_vendored_dependency TARGET_NAME ARCHIVE_NAME UNPACKED_DIR_NAME HASH
             INSTALL_COMMAND ""
     )
 endfunction()
-add_vendored_dependency(vendored_googletest googletest-1.15.0.tar.gz googletest-1.15.0 1fb60c818501bcecee87349cf2e7377f "lib/libgtest.a;lib/libgmock.a;lib/libgtest_main.a;lib/libgmock_main.a")
+
+# Windows libaries have different names than Linux/Mac
+if (WIN32)
+    add_vendored_dependency(vendored_googletest googletest-1.15.0.tar.gz googletest-1.15.0 1fb60c818501bcecee87349cf2e7377f "lib/gtest.lib;lib/gmock.lib;lib/gtest_main.lib;lib/gmock_main.lib")
+    add_vendored_dependency(vendored_yaml yaml-cpp-0.8.0.tar.gz yaml-cpp-0.8.0 1d2c7975edba60e995abe3c4af6480e5 "yaml-cppd.lib")
+    add_vendored_dependency(vendored_sdl2 SDL-release-2.30.5.zip SDL-release-2.30.5 c0bbff02fc1919bd42defc2a486c4056 "SDL2d.lib")
+else ()
+    add_vendored_dependency(vendored_googletest googletest-1.15.0.tar.gz googletest-1.15.0 1fb60c818501bcecee87349cf2e7377f "lib/libgtest.a;lib/libgmock.a;lib/libgtest_main.a;lib/libgmock_main.a")
+    add_vendored_dependency(vendored_yaml yaml-cpp-0.8.0.tar.gz yaml-cpp-0.8.0 1d2c7975edba60e995abe3c4af6480e5 "libyaml-cpp.a")
+    add_vendored_dependency(vendored_sdl2 SDL-release-2.30.5.zip SDL-release-2.30.5 c0bbff02fc1919bd42defc2a486c4056 "libSDL2.a")
+endif ()
 add_vendored_dependency(vendored_json nlohmann-json-3.11.3.zip json-3.11.3 23712ebf3a4b4ccb39f2375521716ab3 "")
-add_vendored_dependency(vendored_sdl2 SDL-release-2.30.5.zip SDL-release-2.30.5 c0bbff02fc1919bd42defc2a486c4056 "libSDL2.a")
-add_vendored_dependency(vendored_yaml yaml-cpp-0.8.0.tar.gz yaml-cpp-0.8.0 1d2c7975edba60e995abe3c4af6480e5 "libyaml-cpp.a")
+
 
 # Only do these if this is the main project, and not if it is included through add_subdirectory
 if (CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)

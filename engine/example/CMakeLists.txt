@@ -11,4 +11,8 @@ target_include_directories(xj_player PRIVATE ${CMAKE_BINARY_DIR}/json-3.11.3/src
 # SDL2
 add_dependencies(xj_player vendored_sdl2)
 target_include_directories(xj_player PRIVATE ${CMAKE_BINARY_DIR}/SDL-release-2.30.5/include)
-target_link_libraries(xj_player PRIVATE ${CMAKE_BINARY_DIR}/SDL-release-2.30.5/src/vendored_sdl2-build/libSDL2.a)
+if (WIN32)
+    target_link_libraries(xj_player PRIVATE ${CMAKE_BINARY_DIR}/SDL-release-2.30.5/src/vendored_sdl2-build/SDL2d.lib)
+else ()
+    target_link_libraries(xj_player PRIVATE ${CMAKE_BINARY_DIR}/SDL-release-2.30.5/src/vendored_sdl2-build/libSDL2.a)
+endif ()
