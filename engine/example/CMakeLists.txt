@@ -33,6 +33,6 @@ FetchContent_MakeAvailable(ftxui)
 target_link_libraries(xj_player
         PRIVATE ftxui::screen
         PRIVATE ftxui::dom
-        PRIVATE ftxui::component # Not needed for this example.
+        PRIVATE ftxui::component
 )
 
