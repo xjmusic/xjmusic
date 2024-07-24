@@ -62,10 +62,15 @@ protected:
   const Template *SelectTemplate();
 
   /**
-   * Runs the engine
+   * Run the engine for the given template until quit
    * @param CurrentTemplate  The template to run.
    */
   void RunEngine(const Template *CurrentTemplate);
+
+  /**
+   * Run one engine cycle.
+   */
+  void RunEngineCycle();
 
   /**
    * Shows the running UI.
@@ -73,6 +78,12 @@ protected:
    */
   std::shared_ptr<ComponentBase> BuildRunningUI();
 
+  /**
+   * Formats the given micros into a human-readable string of thousands of a second, i.e. 24.573s
+   * @param micros
+   * @return
+   */
+  static std::string formatChainMicros(unsigned long long int micros);
 };
 
 #endif //XJMUSIC_XJ_PLAYER_H

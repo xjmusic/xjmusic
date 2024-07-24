@@ -2,6 +2,7 @@
 
 #include <SDL2/SDL.h>
 
+#include <iomanip>
 #include <iostream>
 
 #include <ftxui/component/component.hpp>
@@ -10,6 +11,7 @@
 #include "xjmusic/Engine.h"
 #include "xjmusic/util/CsvUtils.h"
 #include "XJPlayer.h"
+#include "ftxui/dom/table.hpp"
 
 
 const Uint32 MICROSECONDS_PER_MILLISECOND = 1000;
@@ -120,8 +122,7 @@ void XJPlayer::RunEngine(const Template *CurrentTemplate) {
       ElapsedMillis = SDL_GetTicks() - StartTime;
 
       // Run the engine cycle
-      auto Audios = engine->RunCycle(ElapsedMillis * MICROSECONDS_PER_MILLISECOND);
-      ActiveAudios.swap(Audios);
+      RunEngineCycle();
 
       // Update the screen
       screen.PostEvent(ftxui::Event::Custom);
@@ -136,6 +137,12 @@ void XJPlayer::RunEngine(const Template *CurrentTemplate) {
   screen.Loop(document);
 }
 
+void XJPlayer::RunEngineCycle() {
+  // Compute the active audios
+  auto Audios = engine->RunCycle(ElapsedMillis * MICROSECONDS_PER_MILLISECOND);
+  ActiveAudios.swap(Audios);
+}
+
 std::shared_ptr<ComponentBase> XJPlayer::BuildRunningUI() {
 
   tab_content_stats = Renderer([this] {
@@ -145,8 +152,38 @@ std::shared_ptr<ComponentBase> XJPlayer::BuildRunningUI() {
                 });
   });
 
-  tab_content_sounds = Renderer([] {
-    return text("Sounds placeholder");
+  tab_content_sounds = Renderer([this] {
+    std::vector<std::vector<std::string>> tableContents;
+    tableContents.emplace_back(std::vector<std::string>{"Audio Name", "Start At", "Stop At"});
+    for (const auto &audio: ActiveAudios) {
+      std::vector<std::string> row = {
+          audio.getAudio()->name,
+          formatChainMicros(audio.getStartAtChainMicros()),
+          audio.getStopAtChainMicros().has_value() ? formatChainMicros(audio.getStopAtChainMicros().value()) : "-",
+      };
+      tableContents.emplace_back(row);
+    }
+
+    auto table = Table(tableContents);
+
+    table.SelectAll().Border(LIGHT);
+
+    // Add border around the first column.
+    table.SelectColumn(0).Border(LIGHT);
+
+    // Make first row bold with a double border.
+    table.SelectRow(0).Decorate(bold);
+    table.SelectRow(0).SeparatorVertical(LIGHT);
+    table.SelectRow(0).Border(DOUBLE);
+
+    // Align right the "Release date" column.
+    table.SelectColumn(2).DecorateCells(align_right);
+
+    return vbox({
+                    text("Time Elapsed: " + formatChainMicros(ElapsedMillis * 1000)),
+                         table.Render(),
+                });
+
   });
 
   tab_content_content = Renderer([] {
@@ -164,9 +201,9 @@ std::shared_ptr<ComponentBase> XJPlayer::BuildRunningUI() {
       &ui_tab_selected);
 
   ui_container = Container::Vertical({
-                                           tab_toggle,
-                                           tab_container,
-                                       });
+                                         tab_toggle,
+                                         tab_container,
+                                     });
 
   ui_document = Renderer(ui_container, [&] {
     return vbox({
@@ -178,4 +215,10 @@ std::shared_ptr<ComponentBase> XJPlayer::BuildRunningUI() {
   });
 
   return ui_document;
+}
+
+std::string XJPlayer::formatChainMicros(unsigned long long int micros) {
+  std::stringstream ss;
+  ss << std::fixed << std::setprecision(3) << static_cast<float>(micros) / 1000000;
+  return ss.str() + "s";
 }
