@@ -5,33 +5,15 @@
 
 #include <memory>
 
-#include <ftxui/component/screen_interactive.hpp>
-
 #include "xjmusic/Engine.h"
+
+#include "App.h"
 
 using namespace XJ;
 using namespace ftxui;
 
-class XJPlayer {
-  std::unique_ptr<Engine> engine;
-  ScreenInteractive screen;
-  std::set<ActiveAudio> ActiveAudios;
-  Component tab_toggle;
-  Component tab_container;
-  Component tab_content_stats;
-  Component tab_content_sounds;
-  Component tab_content_content;
-  Component ui_container;
-  Component ui_document;
-  std::vector<std::string> ui_tab_values{
-      "stats",
-      "sounds",
-      "content",
-  };
-  int ui_tab_selected{};
-
+class XJPlayer : public App {
 public:
-
   /**
    * Construct a new XJPlayer.
    * @param pathToProjectFile  The path to the .xj project file from which to load content.
@@ -44,22 +26,6 @@ public:
   void Start();
 
 protected:
-  /**
-   * The running state of the XJPlayer.
-   */
-  bool running = true;
-
-  /**
-   * The elapsed time in milliseconds since starting playback.
-   */
-  Uint32 ElapsedMillis{};
-
-  /**
-   * Selects a template from the Engine.
-   * @param XJ  The Engine to select the template from.
-   * @return  The selected template.
-   */
-  const Template *SelectTemplate();
 
   /**
    * Run the engine for the given template until quit
@@ -72,18 +38,6 @@ protected:
    */
   void RunEngineCycle();
 
-  /**
-   * Shows the running UI.
-   * This should be run on a separate thread.
-   */
-  std::shared_ptr<ComponentBase> BuildRunningUI();
-
-  /**
-   * Formats the given micros into a human-readable string of thousands of a second, i.e. 24.573s
-   * @param micros
-   * @return
-   */
-  static std::string formatChainMicros(unsigned long long int micros);
 };
 
 #endif //XJMUSIC_XJ_PLAYER_H

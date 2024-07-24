@@ -186,11 +186,11 @@ namespace XJ {
 
     /**
     * Read all choices for the set of segments
-    * @param segments    of segments
+    * @param forSegments    of segments
     * @return        list of choices
     */
     std::set<const SegmentChoiceArrangementPick *>
-    readAllSegmentChoiceArrangementPicks(const std::vector<const Segment *> &segments);
+    readAllSegmentChoiceArrangementPicks(const std::vector<const Segment *> &forSegments);
 
     /**
      * Read all segment chords in order of position for the given segmefnt
