@@ -4,9 +4,9 @@
 
 #include <iostream>
 
-// todo #include <ftxui/dom/elements.hpp>
-// todo #include <ftxui/screen/screen.hpp>
-// todo #include <ftxui/screen/string.hpp>
+#include <ftxui/screen/screen.hpp>
+#include <ftxui/component/component.hpp>
+#include <ftxui/component/screen_interactive.hpp>
 
 #include "xjmusic/Engine.h"
 #include "xjmusic/util/CsvUtils.h"
@@ -83,7 +83,9 @@ static void Run(Engine *XJ, const Template *CurrentTemplate) {
  * @param XJ  The Engine to select the template from.
  * @return  The selected template.
  */
-static const Template *SelectTemplate(Engine *XJ) {
+static const Template *SelectTemplate(Engine *XJ, ftxui::ScreenInteractive *screen) {
+  using namespace ftxui;
+
   std::cout << "[Templates]" << std::endl;
   std::vector<const Template *> AllTemplates;
   for (const Template *Template: XJ->getProjectContent()->getTemplates()) {
@@ -92,21 +94,41 @@ static const Template *SelectTemplate(Engine *XJ) {
   std::sort(AllTemplates.begin(), AllTemplates.end(), [](const Template *a, const Template *b) {
     return a->name < b->name;
   });
-  for (int i = 0; i < AllTemplates.size(); i++) {
-    const Template *Template = AllTemplates[i];
-    std::cout << "  " << i << ": " << Template->name << std::endl;
+
+  // Extract template names
+  std::vector<std::string> templateNames;
+  for (const auto& tmpl : AllTemplates) {
+    templateNames.push_back(tmpl->name);
   }
-  // get keyboard input of a number followed by the enter key
-  int TemplateIndex = -1;
-  std::cout << "Enter the number of the template to start: ";
-  std::cin >> TemplateIndex;
-  if (TemplateIndex < 0 || TemplateIndex >= AllTemplates.size()) {
-    std::cerr << "Invalid template index" << std::endl;
+
+  // Define the selected index
+  int selectedTemplateIndex = 0;
+
+  // Create the radio menu
+  auto radio = Radiobox(&templateNames, &selectedTemplateIndex);
+
+  // todo instead of a button to confirm the selection, can we catch the enter key to submit the radio form? Is there a better type of form?
+  // Create a button to confirm the selection
+  auto button = Button("Select", [&] {
+    screen->ExitLoopClosure();
+  });
+
+  // Compose the layout
+  auto layout = Container::Vertical({
+                                        radio,
+                                        button,
+                                    });
+
+  // Create the screen
+  screen->Loop(layout); // todo exit loop wheb selection is made
+
+  // Return the selected template
+  if (selectedTemplateIndex >= 0 && selectedTemplateIndex < AllTemplates.size()) {
+    return AllTemplates[selectedTemplateIndex];
+  } else {
     throw std::invalid_argument("Invalid template index");
   }
-  return AllTemplates[TemplateIndex];
 }
-
 
 /**
  * Main entry point of the application.
@@ -115,6 +137,11 @@ static const Template *SelectTemplate(Engine *XJ) {
  * @return    The exit code of the application.
  */
 int main(int argc, char *argv[]) {
+  using namespace ftxui;
+
+  // Step 1: Create a ScreenInteractive instance
+  auto screen = ScreenInteractive::TerminalOutput();
+
   // Check if at least one argument was passed
   if (argc <= 1) {
     std::cout << "Must pass the path to an XJ music workstation .xj project as the first argument!" << std::endl;
@@ -131,7 +158,7 @@ int main(int argc, char *argv[]) {
         std::nullopt,
         std::nullopt
     );
-    const Template *CurrentTemplate = SelectTemplate(XJ.get());
+    const Template *CurrentTemplate = SelectTemplate(XJ.get(), &screen);
     Run(XJ.get(), CurrentTemplate);
 
   } catch (const std::exception &e) {
