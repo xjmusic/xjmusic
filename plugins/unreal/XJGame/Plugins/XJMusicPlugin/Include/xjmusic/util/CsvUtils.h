@@ -1,4 +1,6 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
+#ifndef XJMUSIC_CSV_UTILS_H
+#define XJMUSIC_CSV_UTILS_H
 
 #include <map>
 #include <string>
@@ -25,14 +27,21 @@ namespace XJ {
     static std::vector<std::string> splitProperSlug(const std::string &csv);
 
     /**
-     * Join a set of items' toPrettyCsv() values properly, e.g. "One, Two, Three, and Four"
+     * Join a list of items
      * @param parts
      * @return
      */
     static std::string join(const std::vector<std::string> &parts);
 
     /**
-     Join a set of items properly, e.g. "One, Two, Three, and Four"
+     * Join a set of items in alphabetical order
+     * @param parts
+     * @return
+     */
+    static std::string join(const std::set<std::string> &parts);
+
+    /**
+     Join a list of items properly, e.g. "One, Two, Three, and Four"
 
      @param ids             to write
      @param beforeFinalItem text after last comma
@@ -75,3 +84,5 @@ namespace XJ {
   };
 
 }// namespace XJ
+
+#endif// XJMUSIC_CSV_UTILS_H
