@@ -15,6 +15,20 @@ using namespace ftxui;
 class XJPlayer {
   std::unique_ptr<Engine> engine;
   ScreenInteractive screen;
+  std::set<ActiveAudio> ActiveAudios;
+  Component tab_toggle;
+  Component tab_container;
+  Component tab_content_stats;
+  Component tab_content_sounds;
+  Component tab_content_content;
+  Component ui_container;
+  Component ui_document;
+  std::vector<std::string> ui_tab_values{
+      "stats",
+      "sounds",
+      "content",
+  };
+  int ui_tab_selected{};
 
 public:
 
@@ -58,6 +72,7 @@ protected:
    * This should be run on a separate thread.
    */
   std::shared_ptr<ComponentBase> BuildRunningUI();
+
 };
 
 #endif //XJMUSIC_XJ_PLAYER_H

@@ -16,66 +16,20 @@ const Uint32 MICROSECONDS_PER_MILLISECOND = 1000;
 
 const Uint32 CYCLE_MILLISECONDS = 100;
 
-void XJPlayer::RunEngine(const Template *CurrentTemplate) {
-  // Use SDL to open an audio output buffer
-  if (SDL_Init(SDL_INIT_AUDIO) < 0) {
-    std::cerr << "SDL_Init failed: " << SDL_GetError() << std::endl;
-    return;
-  }
+XJPlayer::XJPlayer(const std::string &pathToProjectFile)
+    : engine(std::make_unique<Engine>(
+    pathToProjectFile,
+    Fabricator::ControlMode::Auto,
+    std::nullopt,
+    std::nullopt,
+    std::nullopt
+)), screen(ScreenInteractive::TerminalOutput()) {
+  ElapsedMillis = 0;
+  ui_tab_selected = 0;
+}
 
-  // Set up an exit condition
-  screen.Post([&] { running = false; });
-
-  // Record the current start time
-  const Uint32 StartTime = SDL_GetTicks();
-
-  // Start the engine
-  engine->start(CurrentTemplate->id);
-
-  // Spin off the screen UI on its own thread
-  auto document = BuildRunningUI();
-  std::thread uiThread([this, &document] { screen.Loop(document); });
-  uiThread.detach(); // Detach the thread to run independently
-
-  // The main loop
-  while (running) {
-    // Process events
-    SDL_Event Event;
-    while (SDL_PollEvent(&Event)) {
-      switch (Event.type) {
-        case SDL_QUIT:
-          running = false;
-          break;
-        default:
-          break;
-      }
-    }
-
-    // Calculate the time since the start
-    ElapsedMillis = SDL_GetTicks() - StartTime;
-
-    // Update the XJ
-    std::set<ActiveAudio> ActiveAudios = engine->RunCycle(ElapsedMillis * MICROSECONDS_PER_MILLISECOND);
-
-/*
-    // Print the active audios
-    if (!ActiveAudios.empty()) {
-      std::cout << "Active Audios:" << std::endl;
-      for (const ActiveAudio &ActiveAudio: ActiveAudios) {
-        std::cout << "Active Audio: " << ActiveAudio.getId() << " at " << ActiveAudio.getStartAtChainMicros()
-                  << std::endl;
-      }
-    } else {
-      std::cout << "No active audios" << std::endl;
-    }
-*/
-
-    screen.Print();
-
-    // Sleep for a bit
-    SDL_Delay(CYCLE_MILLISECONDS);
-  }
-  screen.Exit();
+void XJPlayer::Start() {
+  RunEngine(SelectTemplate());
 }
 
 const Template *XJPlayer::SelectTemplate() {
@@ -129,58 +83,92 @@ const Template *XJPlayer::SelectTemplate() {
   }
 }
 
-XJPlayer::XJPlayer(const std::string &pathToProjectFile)
-    : engine(std::make_unique<Engine>(
-    pathToProjectFile,
-    Fabricator::ControlMode::Auto,
-    std::nullopt,
-    std::nullopt,
-    std::nullopt
-)), screen(ScreenInteractive::TerminalOutput()) {
-  ElapsedMillis = 0;
-}
+void XJPlayer::RunEngine(const Template *CurrentTemplate) {
+  // Use SDL to open an audio output buffer
+  if (SDL_Init(SDL_INIT_AUDIO) < 0) {
+    std::cerr << "SDL_Init failed: " << SDL_GetError() << std::endl;
+    return;
+  }
 
-void XJPlayer::Start() {
-  RunEngine(SelectTemplate());
+  // Set up an exit condition
+  screen.Post([&] { running = false; });
+
+  // Start the engine
+  engine->start(CurrentTemplate->id);
+
+  // Spin off the screen UI on its own thread
+  auto document = BuildRunningUI();
+  std::thread runEngineThread([this] {
+    // Record the current start time
+    const Uint32 StartTime = SDL_GetTicks();
+
+    // The main loop
+    while (running) {
+      // Process events
+      SDL_Event Event;
+      while (SDL_PollEvent(&Event)) {
+        switch (Event.type) {
+          case SDL_QUIT:
+            running = false;
+            break;
+          default:
+            break;
+        }
+      }
+
+      // Calculate the time since the start
+      ElapsedMillis = SDL_GetTicks() - StartTime;
+
+      // Run the engine cycle
+      auto Audios = engine->RunCycle(ElapsedMillis * MICROSECONDS_PER_MILLISECOND);
+      ActiveAudios.swap(Audios);
+
+      // Update the screen
+      screen.PostEvent(ftxui::Event::Custom);
+
+      // Sleep for a bit
+      SDL_Delay(CYCLE_MILLISECONDS);
+    }
+    screen.Exit();
+  });
+  runEngineThread.detach(); // Detach the thread to run independently
+
+  screen.Loop(document);
 }
 
 std::shared_ptr<ComponentBase> XJPlayer::BuildRunningUI() {
-  std::vector<std::string> tab_values{
-      "stats",
-      "sounds",
-      "content",
-  };
-  auto tab_stats_placeholder = Renderer([this] {
+
+  tab_content_stats = Renderer([this] {
     return vbox({
                     text("Time Elapsed: " + std::to_string(ElapsedMillis / 1000) + "s"),
                     text("Meme Taxonomy: " + engine->getProjectContent()->getMemeTaxonomy().toString()),
                 });
   });
 
-  auto tab_sounds_placeholder = Renderer([] {
+  tab_content_sounds = Renderer([] {
     return text("Sounds placeholder");
   });
 
-  auto tab_content_placeholder = Renderer([] {
+  tab_content_content = Renderer([] {
     return text("Content placeholder");
   });
 
-  int tab_selected = 0;
-  auto tab_toggle = Toggle(&tab_values, &tab_selected);
-  auto tab_container = Container::Tab(
+  ui_tab_selected = 0;
+  tab_toggle = Toggle(&ui_tab_values, &ui_tab_selected);
+  tab_container = Container::Tab(
       {
-          tab_stats_placeholder,
-          tab_sounds_placeholder,
-          tab_content_placeholder,
+          tab_content_stats,
+          tab_content_sounds,
+          tab_content_content,
       },
-      &tab_selected);
+      &ui_tab_selected);
 
-  auto container = Container::Vertical({
+  ui_container = Container::Vertical({
                                            tab_toggle,
                                            tab_container,
                                        });
 
-  auto document = Renderer(container, [&] {
+  ui_document = Renderer(ui_container, [&] {
     return vbox({
                     tab_toggle->Render(),
                     separator(),
@@ -189,5 +177,5 @@ std::shared_ptr<ComponentBase> XJPlayer::BuildRunningUI() {
            border;
   });
 
-  return document;
+  return ui_document;
 }
