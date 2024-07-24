@@ -11,7 +11,7 @@
 #include "xjmusic/craft/Craft.h"
 #include "xjmusic/fabricator/SegmentUtils.h"
 
-static std::string ENGINE_TEST_PROJECT_PATH = "D:/Dev/vgm/vgm.xj";
+static std::string ENGINE_TEST_PROJECT_PATH = "_data/test_project/TestProject.xj";
 
 // NOLINTNEXTLINE
 using ::testing::_;
@@ -34,7 +34,7 @@ protected:
     auto [controlMode, craftAheadSeconds, dubAheadSeconds, persistenceWindowSeconds] = WorkSettings();
     subject = new Engine(
         ENGINE_TEST_PROJECT_PATH,
-        Fabricator::ControlMode::Taxonomy,
+        controlMode,
         craftAheadSeconds,
         dubAheadSeconds,
         persistenceWindowSeconds);
@@ -52,7 +52,7 @@ protected:
   bool isWithinTimeLimit() {
     if (MAXIMUM_TEST_WAIT_SECONDS * MILLIS_PER_SECOND > EntityUtils::currentTimeMillis() - startTime)
       return true;
-    spdlog::error("EXCEEDED TEST TIME LIMIT OF {} SECONDS", MAXIMUM_TEST_WAIT_SECONDS);
+    std::cerr << "EXCEEDED TEST TIME LIMIT OF " << MAXIMUM_TEST_WAIT_SECONDS << " SECONDS" << std::endl;
     return false;
   }
 
@@ -80,23 +80,13 @@ TEST_F(XJEngineTest, ReadsAndRunsProjectFromDisk) {
   subject->start(tmpl.value()->id);
   unsigned long long atChainMicros = 0;
   while (!hasSegmentsDubbedPastMinimumOffset() && isWithinTimeLimit()) {
-    auto audios = subject->runCycle(atChainMicros);
-
-    if (audios.empty())
-    {
-      spdlog::error("Audio empty");
-    }
-    else
-    {
-      spdlog::info("Audio correct");
-    }
-
-    //ASSERT_FALSE(audios.empty());
+    auto audios = subject->RunCycle(atChainMicros);
+    ASSERT_FALSE(audios.empty());
     for (auto audio: audios) {
       // assert that this audio file exists
       ASSERT_TRUE(std::filesystem::exists(subject->getPathToBuildDirectory() / audio.getAudio()->waveformKey));
     }
-    //spdlog::info("Ran cycle at {}", atChainMicros);
+    std::cout << "Ran cycle at " << std::to_string(atChainMicros) << std::endl;
     atChainMicros += MICROS_PER_CYCLE;
   }
 

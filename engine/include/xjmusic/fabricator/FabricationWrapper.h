@@ -3,8 +3,6 @@
 #ifndef XJ_MUSIC_FABRICATOR_FABRICATION_WRAPPER_H
 #define XJ_MUSIC_FABRICATOR_FABRICATION_WRAPPER_H
 
-#include <spdlog/spdlog.h>
-
 #include "Fabricator.h"
 #include "FabricationException.h"
 

@@ -137,9 +137,9 @@ namespace XJ {
     std::vector<const Segment*> readSegmentsFromToOffset(int fromOffset, int toOffset);
 
     /**
-     Fetch all sub-entities records for many parent segments by id
+     Read all sub-entities records for many parent segments by id
 
-     @param segmentIds to fetch records for.
+     @param segmentIds for which to read records.
      @return collection of all sub entities of these parent segments, different classes that extend EntityUtils
      */
     std::set<const SegmentEntity *> readAllSegmentEntities(const std::set<int> &segmentIds);
@@ -186,11 +186,11 @@ namespace XJ {
 
     /**
     * Read all choices for the set of segments
-    * @param segments    of segments
+    * @param forSegments    of segments
     * @return        list of choices
     */
     std::set<const SegmentChoiceArrangementPick *>
-    readAllSegmentChoiceArrangementPicks(const std::vector<const Segment *> &segments);
+    readAllSegmentChoiceArrangementPicks(const std::vector<const Segment *> &forSegments);
 
     /**
      * Read all segment chords in order of position for the given segmefnt

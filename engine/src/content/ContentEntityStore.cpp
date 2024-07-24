@@ -4,10 +4,9 @@
 #include <optional>
 #include <set>
 #include <vector>
+#include <iostream>
 
 #include <nlohmann/json.hpp>
-#include <spdlog/spdlog.h>
-
 #include "xjmusic/content/ContentEntityStore.h"
 
 using namespace XJ;
@@ -107,7 +106,7 @@ namespace XJ {
         STORE[entity.id] = std::move(entity);                                              \
       }                                                                                    \
     } catch (const std::exception &e) {                                                    \
-      spdlog::error("Error putting all {}: {}", #ENTITY, e.what());                        \
+      std::cout << "Error putting all " << #ENTITY << ": " << e.what() << std::endl;       \
     }                                                                                      \
     return *this;                                                                          \
   }                                                                                        \
@@ -116,7 +115,7 @@ namespace XJ {
       STORE[entity.id] = std::move(entity);                                                \
       return &STORE[entity.id];                                                            \
     } catch (const std::exception &e) {                                                    \
-      spdlog::error("Error putting {}: {}", "ENTITY", e.what());                           \
+      std::cout << "Error putting " << #ENTITY << ": " << e.what() << std::endl;           \
       return nullptr;                                                                      \
     }                                                                                      \
   }
@@ -781,7 +780,8 @@ std::set<const ProgramVoice *> ContentEntityStore::getVoicesOfProgram(const UUID
   return result;
 }
 
-std::optional<const Template *> ContentEntityStore::getTemplateByIdentifier(const std::optional<std::string>::value_type &identifier) {
+std::optional<const Template *>
+ContentEntityStore::getTemplateByIdentifier(const std::optional<std::string>::value_type &identifier) {
   // "identifier" which is first the name, then the ship key, then the id
   // is a unique identifier for a template
   for (const auto &[_, tmpl]: templates) {
@@ -801,6 +801,11 @@ std::optional<const Template *> ContentEntityStore::getTemplateByIdentifier(cons
 std::optional<const Template *> ContentEntityStore::getFirstTemplate() {
   if (templates.empty()) return std::nullopt;
   return &templates.begin()->second;
+}
+
+MemeTaxonomy ContentEntityStore::getMemeTaxonomy() {
+  std::optional<const Template *> FirstTemplate = getFirstTemplate();
+  return FirstTemplate.has_value() ? FirstTemplate.value()->config.memeTaxonomy : MemeTaxonomy();
 }
 
 ContentEntityStore ContentEntityStore::forTemplate(const Template *tmpl) {
