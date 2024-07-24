@@ -86,7 +86,7 @@ static void Run(Engine *XJ, const Template *CurrentTemplate) {
 static const Template *SelectTemplate(Engine *XJ, ftxui::ScreenInteractive *screen) {
   using namespace ftxui;
 
-  std::cout << "[Templates]" << std::endl;
+  std::cout << "Select a template in the list and press ENTER" << std::endl;
   std::vector<const Template *> AllTemplates;
   for (const Template *Template: XJ->getProjectContent()->getTemplates()) {
     AllTemplates.push_back(Template);
@@ -97,7 +97,8 @@ static const Template *SelectTemplate(Engine *XJ, ftxui::ScreenInteractive *scre
 
   // Extract template names
   std::vector<std::string> templateNames;
-  for (const auto& tmpl : AllTemplates) {
+  templateNames.reserve(AllTemplates.size());
+  for (const auto &tmpl: AllTemplates) {
     templateNames.push_back(tmpl->name);
   }
 
@@ -106,21 +107,27 @@ static const Template *SelectTemplate(Engine *XJ, ftxui::ScreenInteractive *scre
 
   // Create the radio menu
   auto radio = Radiobox(&templateNames, &selectedTemplateIndex);
-
-  // todo instead of a button to confirm the selection, can we catch the enter key to submit the radio form? Is there a better type of form?
-  // Create a button to confirm the selection
-  auto button = Button("Select", [&] {
-    screen->ExitLoopClosure();
+  auto radioInFrame = Renderer(radio, [&] {
+    return radio->Render() | vscroll_indicator | frame |
+           size(HEIGHT, LESS_THAN, 10) | border;
   });
 
   // Compose the layout
   auto layout = Container::Vertical({
-                                        radio,
-                                        button,
+                                        radioInFrame,
                                     });
 
+  layout |= CatchEvent([&](const Event &event) {
+    if (Event::Return == event) {
+      auto closure = screen->ExitLoopClosure();
+      closure();
+      return true;
+    }
+    return false;
+  });
+
   // Create the screen
-  screen->Loop(layout); // todo exit loop wheb selection is made
+  screen->Loop(layout);
 
   // Return the selected template
   if (selectedTemplateIndex >= 0 && selectedTemplateIndex < AllTemplates.size()) {
