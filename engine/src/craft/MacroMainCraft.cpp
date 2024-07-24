@@ -169,7 +169,8 @@ float MacroMainCraft::computeSegmentIntensity(
   return ValueUtils::interpolate(
       fabricator->getTemplateConfig().intensityAutoCrescendoMinimum,
       fabricator->getTemplateConfig().intensityAutoCrescendoMinimum +
-          (fabricator->getTemplateConfig().intensityAutoCrescendoMaximum - fabricator->getTemplateConfig().intensityAutoCrescendoMinimum) * programmaticIntensity,
+      (fabricator->getTemplateConfig().intensityAutoCrescendoMaximum -
+       fabricator->getTemplateConfig().intensityAutoCrescendoMinimum) * programmaticIntensity,
       delta / fabricator->getTemplateConfig().mainProgramLengthMaxDelta);
 }
 
@@ -177,7 +178,7 @@ float MacroMainCraft::computeIntensity(
     const std::optional<const ProgramSequence *> macroSequence,
     const std::optional<const ProgramSequence *> mainSequence) {
   const std::optional<float> macroIntensity = macroSequence.has_value() ? std::optional(
-                                                                              macroSequence.value()->intensity)
+      macroSequence.value()->intensity)
                                                                         : std::nullopt;
   const std::optional<float> mainIntensity = mainSequence.has_value() ? std::optional(mainSequence.value()->intensity)
                                                                       : std::nullopt;
@@ -193,8 +194,8 @@ float MacroMainCraft::computeIntensity(
 int MacroMainCraft::computeMacroSequenceBindingOffset() const {
   if (fabricator->getType() == Segment::Type::Initial || fabricator->getType() == Segment::Type::NextMacro)
     return overrideMacroProgram.has_value()
-               ? fabricator->getSecondMacroSequenceBindingOffset(overrideMacroProgram.value())
-               : 0;
+           ? fabricator->getSecondMacroSequenceBindingOffset(overrideMacroProgram.value())
+           : 0;
 
   const auto previousMacroChoice = fabricator->getMacroChoiceOfPreviousSegment();
   if (!previousMacroChoice.has_value())
@@ -231,7 +232,8 @@ int MacroMainCraft::computeMainProgramSequenceBindingOffset() const {
   }
 }
 
-const Program *MacroMainCraft::chooseRandomProgram(const std::set<const Program *> &programs, std::set<UUID> avoid) const {
+const Program *
+MacroMainCraft::chooseRandomProgram(const std::set<const Program *> &programs, std::set<UUID> avoid) const {
   auto bag = MarbleBag();
 
   // Phase 1: Directly Bound Programs, besides those we should avoid
@@ -263,7 +265,7 @@ const Program *MacroMainCraft::chooseRandomProgram(const std::set<const Program 
     const auto message =
         "Unable to choose main program for Segment[" + std::to_string(fabricator->getSegment()->id) + "]";
     fabricator->addErrorMessage(message);
-    spdlog::error(message);
+    std::cerr << message << std::endl;
     throw FabricationException(message);
   }
   return program.value();
@@ -286,7 +288,7 @@ const Program *MacroMainCraft::chooseMacroProgram() const {
       auto message =
           "Unable to get previous macro program for Segment[" + std::to_string(fabricator->getSegment()->id) + "]";
       fabricator->addErrorMessage(message);
-      spdlog::error(message);
+      std::cerr << message << std::endl;
       throw FabricationException(message);
     }
     return previousProgram.value();
@@ -338,7 +340,7 @@ const Program *MacroMainCraft::chooseMacroProgram() const {
   if (!program.has_value()) {
     auto message = "Unable to choose macro program for Segment[" + std::to_string(fabricator->getSegment()->id) + "]";
     fabricator->addErrorMessage(message);
-    spdlog::error(message);
+    std::cerr << message << std::endl;
     throw FabricationException(message);
   }
   return program.value();
@@ -351,13 +353,14 @@ const Program *MacroMainCraft::chooseMainProgram() const {
   // if continuing the macro program, use the same one
   if (Segment::Type::Continue == fabricator->getType() && fabricator->getPreviousMainChoice().has_value()) {
     auto previousChoice = fabricator->getPreviousMainChoice();
-    auto previousProgram = previousChoice.has_value() ? fabricator->getProgram(fabricator->getPreviousMainChoice().value())
+    auto previousProgram = previousChoice.has_value() ? fabricator->getProgram(
+        fabricator->getPreviousMainChoice().value())
                                                       : std::nullopt;
     if (!previousProgram.has_value()) {
       auto message =
           "Unable to get previous main program for Segment[" + std::to_string(fabricator->getSegment()->id) + "]";
       fabricator->addErrorMessage(message);
-      spdlog::error(message);
+      std::cerr << message << std::endl;
       throw FabricationException(message);
     }
     return previousProgram.value();
@@ -408,7 +411,7 @@ const Program *MacroMainCraft::chooseMainProgram() const {
   if (!program.has_value()) {
     auto message = "Unable to choose main program for Segment[" + std::to_string(fabricator->getSegment()->id) + "]";
     fabricator->addErrorMessage(message);
-    spdlog::error(message);
+    std::cerr << message << std::endl;
     throw FabricationException(message);
   }
   return program.value();

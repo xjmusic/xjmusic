@@ -3,8 +3,6 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <set>
-#include <spdlog/spdlog.h>
-
 #include "../../_helper/ContentFixtures.h"
 #include "../../_helper/SegmentFixtures.h"
 
@@ -30,7 +28,7 @@ static int TEST_REPEAT_ITERATIONS = 14;
    */
 TEST(CraftSegmentPatternMemeTest, CraftSegment) {
   for (int i = 1; i <= TEST_REPEAT_ITERATIONS; i++) {
-    spdlog::info("ATTEMPT NUMBER {}", i);
+    std::cout << "ATTEMPT NUMBER " << i << std::endl;
 
     const auto store = std::make_unique<SegmentEntityStore>();
 
@@ -71,7 +69,7 @@ TEST(CraftSegmentPatternMemeTest, CraftSegment) {
 
     const auto result = store->readSegment(segment->id).value();
     ASSERT_EQ(Segment::Type::NextMacro, result->type);
-    ASSERT_EQ(std::set<std::string>({"REGRET", "HINDSIGHT", "CHUNKY", "TANGY"}),
+    ASSERT_EQ(std::set < std::string > ({ "REGRET", "HINDSIGHT", "CHUNKY", "TANGY" }),
               SegmentMeme::getNames(store->readAllSegmentMemes(result->id)));
   }
 }

@@ -3,8 +3,6 @@
 #include <filesystem>
 #include <fstream>
 
-#include <spdlog/spdlog.h>
-
 #include "xjmusic/Engine.h"
 
 
@@ -27,14 +25,16 @@ Engine::Engine(
   store = std::make_unique<SegmentEntityStore>();
   projectContent = std::make_unique<ContentEntityStore>();
   templateContent = std::make_unique<ContentEntityStore>();
+
+  // Load the project content before creating the WorkManager
   loadProjectContent();
+  templateContent->put(projectContent.get());
+
   work = std::make_unique<WorkManager>(store.get(), projectContent.get(), settings);
 }
 
 
 void Engine::start(const std::optional<std::string> &templateIdentifier) {
-  store->clear();
-  loadProjectContent();
   const std::optional<const Template *> tmpl = templateIdentifier.has_value()
                                                    ? projectContent->getTemplateByIdentifier(templateIdentifier.value())
                                                    : projectContent->getFirstTemplate();
@@ -52,7 +52,7 @@ void Engine::finish(const bool cancelled) const {
   work->finish(cancelled);
 }
 
-std::set<ActiveAudio> Engine::runCycle(const unsigned long long atChainMicros) const {
+std::set<ActiveAudio> Engine::RunCycle(const unsigned long long atChainMicros) const {
   return work->runCycle(atChainMicros);
 }
 
@@ -73,7 +73,7 @@ WorkState Engine::getWorkState() const {
 }
 
 std::optional<MemeTaxonomy> Engine::getMemeTaxonomy() const {
-  return work->getMemeTaxonomy();
+  return templateContent->getMemeTaxonomy();
 }
 
 std::vector<const Program *> Engine::getAllMacroPrograms() const {
@@ -118,7 +118,7 @@ void Engine::loadProjectContent() {
   if (!project.has_value()) {
     throw std::runtime_error("Project file does not contain a project: " + pathToProjectFile);
   }
-  spdlog::info("Loaded project \"{}\" from file {}", project.value()->name, pathToProjectFile);
+  std::cout << "Did read project \"" << project.value()->name << "\" from file " << pathToProjectFile << std::endl;
 
   // Crawl the build folder in the folder containing the project file
   const std::filesystem::path projectPath(pathToProjectFile);
@@ -136,19 +136,18 @@ void Engine::loadProjectContent() {
         if (extension == "json") {
           // If file is a .json file, load it into the content entity store
           std::ifstream jsonFile(entry.path());
-          if (jsonFile.is_open())
-          {
-            auto subFileContent = ContentEntityStore(jsonFile);
-            projectContent.get()->put(&subFileContent);
-            spdlog::info("Loaded content from JSON file: {}", entry.path().string());
-          }
+          auto subFileContent = ContentEntityStore(jsonFile);
+          projectContent.get()->put(&subFileContent);
+          std::cout << "Loaded content from JSON file: " << entry.path().string() << std::endl;
         }
       }
     }
 
   } catch (const std::filesystem::filesystem_error &e) {
-    spdlog::error("Filesystem error! {}", e.what());
+    std::cout << "Filesystem error! " << e.what() << std::endl;
   } catch (const std::exception &e) {
-    spdlog::error("General error! {}", e.what());
+    std::cout << "General error! " << e.what() << std::endl;
   }
+
+  std::cout << "Loaded project OK" << std::endl << std::endl;
 }

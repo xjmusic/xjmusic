@@ -6,4 +6,4 @@ The codebase is available on [GitHub](https://github.com/xjmusic/xjmusic).
 
 It's written in C++ as a shared library, and can be used in any language that can interface with C++.
 
-The engine is designed to be as simple as possible, and to be able to run on any platform.
+The engine is designed to be as simple as possible, and to be able to Run on any platform.

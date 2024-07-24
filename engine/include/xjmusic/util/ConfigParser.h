@@ -4,7 +4,6 @@
 #define XJMUSIC_CONFIG_PARSER_H
 
 #include <map>
-#include <regex>
 #include <set>
 #include <string>
 #include <utility>

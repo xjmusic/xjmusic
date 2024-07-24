@@ -2,8 +2,6 @@
 
 #include <algorithm>
 
-#include <spdlog/spdlog.h>
-
 #include "xjmusic/craft/BackgroundCraft.h"
 #include "xjmusic/craft/BeatCraft.h"
 #include "xjmusic/craft/DetailCraft.h"
@@ -42,14 +40,15 @@ void CraftWork::start() {
 void CraftWork::finish() {
   if (!running) return;
   running = false;
-  spdlog::info("Finished");
+  std::cout << "CraftWork Finished" << std::endl;
 }
 
 TemplateConfig CraftWork::getTemplateConfig() const {
   return store->readChain().value()->config;
 }
 
-std::vector<const Segment *> CraftWork::getSegmentsIfReady(const unsigned long long fromChainMicros, const unsigned long long toChainMicros) const {
+std::vector<const Segment *>
+CraftWork::getSegmentsIfReady(const unsigned long long fromChainMicros, const unsigned long long toChainMicros) const {
   const auto currentSegments = store->readAllSegmentsSpanning(fromChainMicros, toChainMicros);
   if (currentSegments.empty()) {
     return {};
@@ -119,7 +118,8 @@ bool CraftWork::isMuted(const SegmentChoiceArrangementPick *pick) const {
     return choice.has_value() ? choice.value()->mute : false;
 
   } catch (std::exception &e) {
-    spdlog::warn("Unable to determine if SegmentChoiceArrangementPick[{}] is muted because {}", pick->id, e.what());
+    std::cerr << "Unable to determine if SegmentChoiceArrangementPick[" << pick->id << "] is muted because " << e.what()
+              << std::endl;
     return false;
   }
 }
@@ -171,14 +171,14 @@ bool CraftWork::isReady() const {
 }
 
 void CraftWork::doOverrideMacro(const Program *macroProgram) {
-  spdlog::info("Next craft cycle, will override macro with {}", macroProgram->name);
+  std::cout << "Next craft cycle, will override macro with " << macroProgram->name << std::endl;
   nextCycleOverrideMacroProgram = {macroProgram};
   doNextCycleRewriteUnlessInitialSegment();
 }
 
 void CraftWork::doOverrideMemes(std::set<std::string> memes) {
-  spdlog::info("Next craft cycle, will override memes with {}",
-               CsvUtils::toProperCsvAnd(std::vector(memes.begin(), memes.end())));
+  std::cout << "Next craft cycle, will override memes with "
+            << CsvUtils::toProperCsvAnd(std::vector(memes.begin(), memes.end())) << std::endl;
   nextCycleOverrideMemes = memes;
   doNextCycleRewriteUnlessInitialSegment();
 }
@@ -211,8 +211,8 @@ void CraftWork::doFabricationDefault(
     // currently fabricated AT (vs target fabricated TO)
     const long atChainMicros = ChainUtils::computeFabricatedToChainMicros(store->readAllSegments());
     const float aheadSeconds = atChainMicros > toChainMicros
-                                   ? (static_cast<float>(atChainMicros - toChainMicros) / ValueUtils::MICROS_PER_SECOND)
-                                   : 0;
+                               ? (static_cast<float>(atChainMicros - toChainMicros) / ValueUtils::MICROS_PER_SECOND)
+                               : 0;
     if (aheadSeconds > 0) return;
 
     // Build next segment in chain
@@ -223,7 +223,7 @@ void CraftWork::doFabricationDefault(
     if (!existing.has_value()) {
       segment = buildSegmentInitial();
     } else if (!existing.value()->durationMicros.has_value()) {
-      spdlog::debug("Last segment in chain has no duration, cannot fabricate next segment");
+      // Last segment in chain has no duration, cannot fabricate next segment
       return;
     } else {
       segment = buildSegmentFollowing(existing.value());
@@ -244,14 +244,15 @@ void CraftWork::doFabricationRewrite(
     // Determine the segment we are currently in the middle of dubbing
     const auto lastSegment = getSegmentAtChainMicros(dubbedToChainMicros);
     if (!lastSegment.has_value()) {
-      spdlog::warn("Will not delete any segments because fabrication is already at the end of the known chain->");
+      std::cerr << "Will not delete any segments because fabrication is already at the end of the known chain->"
+                << std::endl;
       return;
     }
 
     // Determine whether the current segment can be cut short
     const auto currentMainProgram = getMainProgram(lastSegment.value());
     if (!currentMainProgram.has_value()) {
-      spdlog::warn("Will not delete any segments because current segment has no main program.");
+      std::cerr << "Will not delete any segments because current segment has no main program." << std::endl;
       return;
     }
     ProgramConfig mainProgramConfig;
@@ -270,14 +271,16 @@ void CraftWork::doFabricationRewrite(
     }
 
     // Delete all segments after the current segment and fabricate the next segment
-    spdlog::info("Will delete segments after #{} and re-fabricate.", lastSegment.value()->id);
+    std::cout << "Will delete segments after #" << lastSegment.value()->id << " and re-fabricate." << std::endl;
     if (overrideMacroProgram.has_value())
-      spdlog::info("Has macro program override {}", overrideMacroProgram.value()->name);
+      std::cout << "Has macro program override " << overrideMacroProgram.value()->name << std::endl;
     else if (!overrideMemes.empty())
-      spdlog::info("Has meme override {}", CsvUtils::toProperCsvAnd(std::vector(overrideMemes.begin(), overrideMemes.end())));
-    else {
-      spdlog::warn("Neither override memes nor macros are present: unsure what rewrite action to take");
-    }
+      std::cout << "Has meme override "
+                << CsvUtils::toProperCsvAnd(std::vector(overrideMemes.begin(), overrideMemes.end()))
+                << std::endl;
+    else
+      std::cerr << "Neither override memes nor macros are present: unsure what rewrite action to take" << std::endl;
+
     store->deleteSegmentsAfter(lastSegment.value()->id);
     Segment followingSegment = buildSegmentFollowing(lastSegment.value());
     followingSegment.type = Segment::Type::NextMacro;
@@ -293,7 +296,8 @@ void CraftWork::doFabricationRewrite(
 void CraftWork::doCutoffLastSegment(const Segment *inputSegment, float cutoffAfterBeats) const {
   try {
     const long durationMicros = cutoffAfterBeats * ValueUtils::MICROS_PER_MINUTE / inputSegment->tempo;
-    spdlog::info("Will cut current segment short after {} beats.", cutoffAfterBeats);
+    std::cout << "[seg-" << std::to_string(inputSegment->id) << "] Will cut current segment short after "
+              << cutoffAfterBeats << " beats." << std::endl;
     Segment updateSegment = *inputSegment;
     updateSegment.total = static_cast<int>(cutoffAfterBeats);
     updateSegment.durationMicros = static_cast<long>(durationMicros);
@@ -309,14 +313,16 @@ void CraftWork::doCutoffLastSegment(const Segment *inputSegment, float cutoffAft
           store->put(updatePick);
         }
       } catch (std::exception &e) {
-        spdlog::error("Failed to cut SegmentChoiceArrangementPick[{}] short to {} beats because {}", pick->id,
-                      cutoffAfterBeats, e.what());
+        std::cerr << "[seg-" << std::to_string(inputSegment->id) << "] "
+                  << "Failed to cut SegmentChoiceArrangementPick[" << pick->id << "] short to " << cutoffAfterBeats
+                  << " beats: " << e.what() << std::endl;
       }
     }
 
   } catch (std::exception &e) {
     throw FabricationException(
-        "Failed to cut Segment[" + std::to_string(inputSegment->id) + "] short to " + std::to_string(cutoffAfterBeats) + " beats: " + e.what());
+        "Failed to cut Segment[" + std::to_string(inputSegment->id) + "] short to " + std::to_string(cutoffAfterBeats) +
+        " beats: " + e.what());
   }
 }
 
@@ -325,21 +331,20 @@ void CraftWork::doFabricationWork(
     const std::optional<Segment::Type> overrideSegmentType,
     const std::optional<const Program *> overrideMacroProgram,
     const std::set<std::string> &overrideMemes) const {
-  spdlog::debug("[segId={}] will prepare fabricator", inputSegment->id);
+  // will prepare fabricator
   const auto retrospective = SegmentRetrospective(store, inputSegment->id);
   auto fabricator = Fabricator(content, store, &retrospective, inputSegment->id, overrideSegmentType);
 
-  spdlog::debug("[segId={}] will do craft work", inputSegment->id);
-  const Segment *updatedSegment = updateSegmentState(&fabricator, inputSegment, Segment::State::Planned, Segment::State::Crafting);
+  // will do craft work and fabricate the segment
+  const Segment *updatedSegment = updateSegmentState(&fabricator, inputSegment, Segment::State::Planned,
+                                                     Segment::State::Crafting);
   MacroMainCraft(&fabricator, overrideMacroProgram, overrideMemes).doWork();
-
   BeatCraft(&fabricator).doWork();
   DetailCraft(&fabricator).doWork();
   TransitionCraft(&fabricator).doWork();
   BackgroundCraft(&fabricator).doWork();
 
-  spdlog::debug("Fabricated Segment[{}]", inputSegment->id);
-
+  // Update segment state
   updateSegmentState(&fabricator, updatedSegment, Segment::State::Crafting, Segment::State::Crafted);
 }
 
@@ -375,19 +380,22 @@ Segment CraftWork::buildSegmentFollowing(const Segment *last) const {
 }
 
 void CraftWork::didFailWhile(std::string msgWhile, const std::exception &e) {
-  spdlog::error("Failed while {} because {}\n{}", msgWhile, e.what());
+  std::cerr << "Failed while " << msgWhile << " because " << e.what() << std::endl;
   running = false;
   finish();
 }
 
 const Segment *
-CraftWork::updateSegmentState(Fabricator *fabricator, const Segment *inputSegment, const Segment::State fromState, const Segment::State toState) {
+CraftWork::updateSegmentState(Fabricator *fabricator, const Segment *inputSegment, const Segment::State fromState,
+                              const Segment::State toState) {
   if (fromState != inputSegment->state)
-    throw std::runtime_error("Segment[" + std::to_string(inputSegment->id) + "] " + Segment::toString(toState) + " requires Segment must be in " + Segment::toString(fromState) + " state.");
+    throw std::runtime_error("Segment[" + std::to_string(inputSegment->id) + "] " + Segment::toString(toState) +
+                             " requires Segment must be in " + Segment::toString(fromState) + " state.");
   Segment updateSegment = *inputSegment;
   updateSegment.state = toState;
   const auto updatedSegment = fabricator->updateSegment(updateSegment);
-  spdlog::debug("[segId={}] Segment transitioned to state {} OK", inputSegment->id, Segment::toString(toState));
+
+  // Segment transitioned to state OK
   return updatedSegment;
 }
 
