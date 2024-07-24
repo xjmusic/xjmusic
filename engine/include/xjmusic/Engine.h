@@ -42,8 +42,7 @@ namespace XJ {
      4. Begin fabrication work
      @param templateIdentifier identify the template to fabricate
      */
-    void start(
-        const std::optional<std::string> &templateIdentifier);
+    void start(const std::optional<std::string> &templateIdentifier);
 
     /**
      Stop work
@@ -55,40 +54,40 @@ namespace XJ {
     * (1-3 times per second)
     * This returns the list of audio that should be queued up for playback in a structured way
     */
-    std::set<ActiveAudio> RunCycle(unsigned long long atChainMicros) const;
+    [[nodiscard]] std::set<ActiveAudio> RunCycle(unsigned long long atChainMicros) const;
 
     /**
      Get the entity store
      */
-    SegmentEntityStore *getSegmentStore() const;
+    [[nodiscard]] SegmentEntityStore *getSegmentStore() const;
 
     /**
      Get all the content loaded for the project
 
      @return source material
      */
-    ContentEntityStore *getProjectContent() const;
+    [[nodiscard]] ContentEntityStore *getProjectContent() const;
 
     /**
      Get all the content for the working template
      * @return
      */
-    ContentEntityStore *getTemplateContent() const;
+    [[nodiscard]] ContentEntityStore *getTemplateContent() const;
 
     /**
      @return the current work state
      */
-    WorkState getWorkState() const;
+    [[nodiscard]] WorkState getWorkState() const;
 
     /**
      @return the meme taxonomy from the current template configuration
      */
-    std::optional<MemeTaxonomy> getMemeTaxonomy() const;
+    [[nodiscard]] std::optional<MemeTaxonomy> getMemeTaxonomy() const;
 
     /**
      * @return all macro programs in alphabetical order
      */
-    std::vector<const Program *> getAllMacroPrograms() const;
+    [[nodiscard]] std::vector<const Program *> getAllMacroPrograms() const;
 
     /**
      Go to the given macro program right away

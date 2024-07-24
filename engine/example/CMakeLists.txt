@@ -2,7 +2,8 @@
 include(FetchContent)
 
 # Create the executable
-add_executable(xj_player XJPlayer.cpp ../include/xjmusic/Engine.h)
+add_executable(xj_player main.cpp ../include/xjmusic/Engine.h
+        XJPlayer.cpp)
 target_compile_features(xj_player PRIVATE cxx_std_17)
 target_link_libraries(xj_player PRIVATE xjmusic)
 

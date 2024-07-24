@@ -4,50 +4,47 @@
 
 #include <iostream>
 
-#include <ftxui/screen/screen.hpp>
 #include <ftxui/component/component.hpp>
 #include <ftxui/component/screen_interactive.hpp>
 
 #include "xjmusic/Engine.h"
 #include "xjmusic/util/CsvUtils.h"
+#include "XJPlayer.h"
+
 
 const Uint32 MICROSECONDS_PER_MILLISECOND = 1000;
 
 const Uint32 CYCLE_MILLISECONDS = 100;
 
-/**
- * Runs the main loop of the application.
- *
- * @param XJ The XJ to Run.
- */
-static void Run(Engine *XJ, const Template *CurrentTemplate) {
+void XJPlayer::RunEngine(const Template *CurrentTemplate) {
   // Use SDL to open an audio output buffer
   if (SDL_Init(SDL_INIT_AUDIO) < 0) {
     std::cerr << "SDL_Init failed: " << SDL_GetError() << std::endl;
     return;
   }
 
-  std::cout << "Will start template: " << CurrentTemplate->name << std::endl;
-  std::cout << "Meme Taxonomy: " << XJ->getMemeTaxonomy()->toString() << std::endl;
-
-  // Start the engine
-  XJ->start(CurrentTemplate->id);
+  // Set up an exit condition
+  screen.Post([&] { running = false; });
 
   // Record the current start time
   const Uint32 StartTime = SDL_GetTicks();
-  Uint32 ElapsedTime;
 
-  // Whether we are Running
-  bool Running = true;
+  // Start the engine
+  engine->start(CurrentTemplate->id);
+
+  // Spin off the screen UI on its own thread
+  auto document = BuildRunningUI();
+  std::thread uiThread([this, &document] { screen.Loop(document); });
+  uiThread.detach(); // Detach the thread to run independently
 
   // The main loop
-  while (Running) {
+  while (running) {
     // Process events
     SDL_Event Event;
     while (SDL_PollEvent(&Event)) {
       switch (Event.type) {
         case SDL_QUIT:
-          Running = false;
+          running = false;
           break;
         default:
           break;
@@ -55,13 +52,12 @@ static void Run(Engine *XJ, const Template *CurrentTemplate) {
     }
 
     // Calculate the time since the start
-    ElapsedTime = SDL_GetTicks() - StartTime;
+    ElapsedMillis = SDL_GetTicks() - StartTime;
 
     // Update the XJ
-    std::set<ActiveAudio> ActiveAudios = XJ->RunCycle(ElapsedTime * MICROSECONDS_PER_MILLISECOND);
+    std::set<ActiveAudio> ActiveAudios = engine->RunCycle(ElapsedMillis * MICROSECONDS_PER_MILLISECOND);
 
-
-
+/*
     // Print the active audios
     if (!ActiveAudios.empty()) {
       std::cout << "Active Audios:" << std::endl;
@@ -72,23 +68,21 @@ static void Run(Engine *XJ, const Template *CurrentTemplate) {
     } else {
       std::cout << "No active audios" << std::endl;
     }
+*/
+
+    screen.Print();
 
     // Sleep for a bit
     SDL_Delay(CYCLE_MILLISECONDS);
   }
+  screen.Exit();
 }
 
-/**
- * Selects a template from the Engine.
- * @param XJ  The Engine to select the template from.
- * @return  The selected template.
- */
-static const Template *SelectTemplate(Engine *XJ, ftxui::ScreenInteractive *screen) {
+const Template *XJPlayer::SelectTemplate() {
   using namespace ftxui;
 
-  std::cout << "Select a template in the list and press ENTER" << std::endl;
   std::vector<const Template *> AllTemplates;
-  for (const Template *Template: XJ->getProjectContent()->getTemplates()) {
+  for (const Template *Template: engine->getProjectContent()->getTemplates()) {
     AllTemplates.push_back(Template);
   }
   std::sort(AllTemplates.begin(), AllTemplates.end(), [](const Template *a, const Template *b) {
@@ -102,76 +96,98 @@ static const Template *SelectTemplate(Engine *XJ, ftxui::ScreenInteractive *scre
     templateNames.push_back(tmpl->name);
   }
 
-  // Define the selected index
-  int selectedTemplateIndex = 0;
+  int selected = 0;
+  MenuOption option;
+  option.on_enter = screen.ExitLoopClosure();
 
-  // Create the radio menu
-  auto radio = Radiobox(&templateNames, &selectedTemplateIndex);
-  auto radioInFrame = Renderer(radio, [&] {
-    return radio->Render() | vscroll_indicator | frame |
-           size(HEIGHT, LESS_THAN, 10) | border;
+  auto header_text = Renderer([] {
+    return text("Select a template and press ENTER") | bold;
+  });
+  auto template_menu = Menu(&templateNames, &selected, option);
+  auto container = Container::Vertical({
+                                           header_text,
+                                           template_menu,
+                                       });
+
+  auto document = Renderer(container, [&] {
+    return vbox({
+                    header_text->Render(),
+                    separator(),
+                    template_menu->Render(),
+                }) |
+           border;
   });
 
-  // Compose the layout
-  auto layout = Container::Vertical({
-                                        radioInFrame,
-                                    });
-
-  layout |= CatchEvent([&](const Event &event) {
-    if (Event::Return == event) {
-      auto closure = screen->ExitLoopClosure();
-      closure();
-      return true;
-    }
-    return false;
-  });
-
-  // Create the screen
-  screen->Loop(layout);
+  screen.Clear();
+  screen.Loop(document);
 
   // Return the selected template
-  if (selectedTemplateIndex >= 0 && selectedTemplateIndex < AllTemplates.size()) {
-    return AllTemplates[selectedTemplateIndex];
+  if (selected >= 0 && selected < AllTemplates.size()) {
+    return AllTemplates[selected];
   } else {
     throw std::invalid_argument("Invalid template index");
   }
 }
 
-/**
- * Main entry point of the application.
- * @param argc  The number of arguments passed to the application.
- * @param argv  The arguments passed to the application.
- * @return    The exit code of the application.
- */
-int main(int argc, char *argv[]) {
-  using namespace ftxui;
-
-  // Step 1: Create a ScreenInteractive instance
-  auto screen = ScreenInteractive::TerminalOutput();
-
-  // Check if at least one argument was passed
-  if (argc <= 1) {
-    std::cout << "Must pass the path to an XJ music workstation .xj project as the first argument!" << std::endl;
-    return -1;
-  }
-  std::string pathToProjectFile = argv[1];
-  std::cout << "Will open project: " << pathToProjectFile << std::endl;
-
-  try {
-    const std::unique_ptr<Engine> XJ = std::make_unique<Engine>(
-        pathToProjectFile,
-        Fabricator::ControlMode::Auto,
-        std::nullopt,
-        std::nullopt,
-        std::nullopt
-    );
-    const Template *CurrentTemplate = SelectTemplate(XJ.get(), &screen);
-    Run(XJ.get(), CurrentTemplate);
-
-  } catch (const std::exception &e) {
-    std::cerr << "Error: " << e.what() << std::endl;
-    return -1;
-  }
-  return 0;
+XJPlayer::XJPlayer(const std::string &pathToProjectFile)
+    : engine(std::make_unique<Engine>(
+    pathToProjectFile,
+    Fabricator::ControlMode::Auto,
+    std::nullopt,
+    std::nullopt,
+    std::nullopt
+)), screen(ScreenInteractive::TerminalOutput()) {
+  ElapsedMillis = 0;
 }
 
+void XJPlayer::Start() {
+  RunEngine(SelectTemplate());
+}
+
+std::shared_ptr<ComponentBase> XJPlayer::BuildRunningUI() {
+  std::vector<std::string> tab_values{
+      "stats",
+      "sounds",
+      "content",
+  };
+  auto tab_stats_placeholder = Renderer([this] {
+    return vbox({
+                    text("Time Elapsed: " + std::to_string(ElapsedMillis / 1000) + "s"),
+                    text("Meme Taxonomy: " + engine->getProjectContent()->getMemeTaxonomy().toString()),
+                });
+  });
+
+  auto tab_sounds_placeholder = Renderer([] {
+    return text("Sounds placeholder");
+  });
+
+  auto tab_content_placeholder = Renderer([] {
+    return text("Content placeholder");
+  });
+
+  int tab_selected = 0;
+  auto tab_toggle = Toggle(&tab_values, &tab_selected);
+  auto tab_container = Container::Tab(
+      {
+          tab_stats_placeholder,
+          tab_sounds_placeholder,
+          tab_content_placeholder,
+      },
+      &tab_selected);
+
+  auto container = Container::Vertical({
+                                           tab_toggle,
+                                           tab_container,
+                                       });
+
+  auto document = Renderer(container, [&] {
+    return vbox({
+                    tab_toggle->Render(),
+                    separator(),
+                    tab_container->Render(),
+                }) |
+           border;
+  });
+
+  return document;
+}
