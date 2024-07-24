@@ -28,6 +28,7 @@ Engine::Engine(
 
   // Load the project content before creating the WorkManager
   loadProjectContent();
+  templateContent->put(projectContent.get());
 
   work = std::make_unique<WorkManager>(store.get(), projectContent.get(), settings);
 }
