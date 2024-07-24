@@ -191,7 +191,7 @@ namespace XJ {
     virtual std::optional<const SegmentChord *> getChordAt(float position);
 
     /**
-     fetch the main-type choice for the current segment in the chain
+     Get the main-type choice for the current segment in the chain
 
      @return main-type segment choice
      */
@@ -205,14 +205,14 @@ namespace XJ {
     virtual std::optional<const ProgramSequence *> getCurrentMainSequence();
 
     /**
-     fetch the detail-type choice for the current segment in the chain
+     Get the detail-type choice for the current segment in the chain
 
      @return detail-type segment choice
      */
     virtual std::set<const SegmentChoice *> getCurrentDetailChoices();
 
     /**
-     fetch the beat-type choice for the current segment in the chain
+     Get the beat-type choice for the current segment in the chain
 
      @return beat-type segment choice
      */
@@ -242,14 +242,14 @@ namespace XJ {
     virtual Chord getKeyForChoice(const SegmentChoice *choice);
 
     /**
-     fetch the macro-type choice for the previous segment in the chain
+     Get the macro-type choice for the previous segment in the chain
 
      @return macro-type segment choice, null if none found
      */
     virtual std::optional<const SegmentChoice *> getMacroChoiceOfPreviousSegment();
 
     /**
-     fetch the main-type choice for the previous segment in the chain
+     Get the main-type choice for the previous segment in the chain
 
      @return main-type segment choice, null if none found
      */

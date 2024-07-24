@@ -218,6 +218,7 @@ namespace XJ {
     * @return     vector of strings
     */
     static std::vector<std::string> sort(const std::set<std::string> &items);
+
   };
 
 

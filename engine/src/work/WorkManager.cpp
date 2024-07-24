@@ -1,7 +1,5 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-#include <spdlog/spdlog.h>
-
 #include "xjmusic/work/WorkManager.h"
 
 using namespace XJ;
@@ -19,17 +17,16 @@ WorkManager::WorkManager(
   this->store = store;
   this->content = content;
   this->config = config;
-  spdlog::debug("Did set work configuration: {}", config.toString());
 
   try {
     const auto templates = getSourceMaterial()->getTemplates();
     if (templates.empty()) {
-      spdlog::error("No templates found in source material");
+      std::cerr << "No templates found in source material" << std::endl;
       return;
     }
     memeTaxonomy = {MemeTaxonomy((*templates.begin())->config.memeTaxonomy)};
   } catch (std::exception &e) {
-    spdlog::error("Failed to get meme taxonomy from template config: {}", e.what());
+    std::cerr << "Failed to get meme taxonomy from template config: " << e.what() << std::endl;
   }
 }
 
@@ -41,25 +38,27 @@ void WorkManager::start() {
       auto programs = getAllMacroPrograms();
       if (!programs.empty())
         doOverrideMacro(*programs.begin());
-    } break;
+    }
+      break;
     case Fabricator::ControlMode::Taxonomy: {
       if (memeTaxonomy.has_value()) {
-        std::set<std::string> memes;
+        std::set < std::string > memes;
         for (auto category: memeTaxonomy.value().getCategories()) {
           if (!category.getMemes().empty())
             memes.insert(*category.getMemes().begin());
         }
         if (!memes.empty()) doOverrideMemes(memes);
       }
-    } break;
+    }
+      break;
     default:
       break;
   }
 
   // get system milliseconds UTC now
   startedAtMillis = std::chrono::duration_cast<std::chrono::milliseconds>(
-                        std::chrono::system_clock::now().time_since_epoch())
-                        .count();
+      std::chrono::system_clock::now().time_since_epoch())
+      .count();
   isAudioLoaded = false;
   updateState(Active);
   craftWork.start();
@@ -118,13 +117,12 @@ ContentEntityStore *WorkManager::getSourceMaterial() const {
 
 void WorkManager::runCraftCycle(const unsigned long long atChainMicros) {
   if (state != Active) {
-    spdlog::debug("Will not run craft cycle because work state is {}", toString(state));
+    // Will not Run craft cycle because work state
     return;
   }
   try {
-    spdlog::debug("Will run craft cycle");
+    // Run craft cycle
     craftWork.runCycle(atChainMicros);
-    spdlog::debug("Did run craft cycle");
 
   } catch (std::exception &e) {
     didFailWhile("running craft cycle", e);
@@ -133,12 +131,12 @@ void WorkManager::runCraftCycle(const unsigned long long atChainMicros) {
 
 std::set<ActiveAudio> WorkManager::runDubCycle(const unsigned long long atChainMicros) {
   if (state != Active) {
-    spdlog::debug("Will not run dub cycle because work state is {}", toString(state));
+    // Will not Run dub cycle because work state
     return {};
   }
 
   try {
-    spdlog::debug("Will run dub cycle");
+    // Run dub cycle
     return dubWork.runCycle(atChainMicros);
 
   } catch (std::exception &e) {
@@ -148,7 +146,7 @@ std::set<ActiveAudio> WorkManager::runDubCycle(const unsigned long long atChainM
 }
 
 void WorkManager::didFailWhile(std::string msgWhile, const std::exception &e) {
-  spdlog::error("Failed while {}: {}", msgWhile, e.what());
+  std::cerr << "Failed while " << msgWhile << ": " << e.what() << std::endl;
   // This will cascade-send the finish() instruction to dub and ship
   updateState(Failed);
 }
@@ -171,5 +169,4 @@ std::string WorkManager::toString(const WorkState state) {
 
 void WorkManager::updateState(const WorkState fabricationState) {
   state = fabricationState;
-  spdlog::debug("Did update work state to {}", toString(state));
 }

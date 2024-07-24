@@ -4,3 +4,4 @@ build/
 cmake-*
 out/
 CMakeSettings.json
+CppProperties.json

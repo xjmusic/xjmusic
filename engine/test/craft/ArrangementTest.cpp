@@ -122,7 +122,7 @@ protected:
       }
 
     } catch (const YAML::Exception &e) {
-      spdlog::warn("[data[{}]] Exception: {}", dataKey, e.what());
+      std::cerr << "[data[" << dataKey << "]] Exception: " << e.what() << std::endl;
     }
   }
 
@@ -177,7 +177,7 @@ protected:
         detailProgramSequencePatternEvents[type].push_back(event);
       }
     } catch (const YAML::Exception &e) {
-      spdlog::warn("[data[{}]] Exception: {}", dataKey, e.what());
+      std::cerr << "[data[" << dataKey << "]] Exception: " << e.what() << std::endl;
     }
   }
 
@@ -259,12 +259,12 @@ protected:
                                                              &detailProgramVoices[instrument.type],
                                                              &instrument));
     } catch (const YAML::Exception &e) {
-      spdlog::warn("[segment] Exception: {}", e.what());
+      std::cerr << "[seg-" << segment->id << "] Exception: " << e.what() << std::endl;
     }
   }
 
   /**
-   Load the assertions of picks section after a test has run
+   Load the assertions of picks section after a test has Run
    Load the instrument section of the test YAML file, for one type of Instrument
    @param fabricator Fabricator to use
    @param data YAML file wrapper
@@ -276,7 +276,7 @@ protected:
   }
 
   /**
-   * Load the assertions of picks section after a test has run
+   * Load the assertions of picks section after a test has Run
    * @param fabricator Fabricator to use
    * @param data  YAML file wrapper
    * @param type  type of instrument to read
@@ -339,7 +339,7 @@ protected:
   }
 
   /**
-   Load the specified test YAML file and run it repeatedly.
+   Load the specified test YAML file and Run it repeatedly.
 
    @param filename of test YAML file
    */

@@ -25,7 +25,7 @@ protected:
   std::unique_ptr<NotePicker> subject;
 
   /**
-   Load the specified test YAML file and run it repeatedly.
+   Load the specified test YAML file and Run it repeatedly.
 
    @param filename of test YAML file
    */

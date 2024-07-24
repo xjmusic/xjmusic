@@ -31,7 +31,7 @@ TEST(Music_Note, sameAs) {
 }
 
 TEST(Music_Note, delta) {
-  // run from -20 to +20
+  // Run from -20 to +20
   ASSERT_EQ(-20, Note::of("C5").delta(Note::of("E3")));
   ASSERT_EQ(-19, Note::of("C5").delta(Note::of("F3")));
   ASSERT_EQ(-18, Note::of("C5").delta(Note::of("Gb3")));

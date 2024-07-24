@@ -60,7 +60,7 @@ namespace XJ {
     bool isFinished() const;
 
     /**
-    This is the internal cycle that's run indefinitely
+    This is the internal cycle that's Run indefinitely
     */
     void runCycle(long atChainMicros);
 

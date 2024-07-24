@@ -1,7 +1,5 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-#include <spdlog/spdlog.h>
-
 #include "xjmusic/fabricator/ChainUtils.h"
 #include "xjmusic/fabricator/FabricationException.h"
 #include "xjmusic/fabricator/FabricationFatalException.h"
@@ -42,8 +40,6 @@ Fabricator::Fabricator(
   templateBindings = sourceMaterial->getTemplateBindings();
   boundProgramIds = ChainUtils::targetIdsOfType(templateBindings, TemplateBinding::Type::Program);
   boundInstrumentIds = ChainUtils::targetIdsOfType(templateBindings, TemplateBinding::Type::Instrument);
-  spdlog::debug("[segId={}] Chain {} configured with {} and bound to {} ",
-                segmentId, chain->id, chain->config.toString(), TemplateBinding::toPrettyCsv(templateBindings));
 
   // digest previous instrument audio
   preferredAudios = computePreferredInstrumentAudio();
@@ -71,7 +67,7 @@ void Fabricator::addMessage(const SegmentMessage::Type messageType, std::string 
     msg.body = std::move(body);
     put(msg);
   } catch (const FabricationFatalException &e) {
-    spdlog::warn("Failed to add message!", e.what());
+    std::cerr << "Failed to add message!" << std::endl;
   }
 }
 
@@ -185,7 +181,7 @@ std::set<Instrument::Type> Fabricator::getDistinctChordVoicingTypes() {
       try {
         distinctChordVoicingTypes.emplace(getProgramVoiceType(voicing));
       } catch (FabricationException &e) {
-        spdlog::warn("[seg-{}] Failed to get distinct chord voicing type! {}", segmentId, e.what());
+        std::cerr << "[seg-" << std::to_string(segmentId) << "] Failed to get distinct chord voicing type!" << e.what() << std::endl;
       }
     }
   }
@@ -212,7 +208,7 @@ std::optional<const SegmentChoice *> Fabricator::getChoiceIfContinued(const Prog
   });
 
   if (it == choices.end()) {
-    spdlog::warn("[seg-{}] Could not get previous voice instrumentId for voiceName={}", segmentId, voice->name);
+    std::cerr << "[seg-" << std::to_string(segmentId) << "] Could not get previous voice instrumentId for voiceName=" << voice->name << std::endl;
     return std::nullopt;
   }
 
@@ -232,8 +228,7 @@ std::optional<const SegmentChoice *> Fabricator::getChoiceIfContinued(const Inst
     return *it;
   }
 
-  spdlog::debug("[seg-{}] Could not get previous choice for instrumentType={}", segmentId,
-                Instrument::toString(instrumentType));
+  // Could not get previous choice for instrumentType
   return std::nullopt;
 }
 
@@ -251,8 +246,7 @@ Fabricator::getChoiceIfContinued(const Instrument::Type instrumentType, const In
     return *it;
   }
 
-  spdlog::debug("[seg-{}] Could not get previous choice for instrumentType={}", segmentId,
-                Instrument::toString(instrumentType));
+  // Could not get previous choice for instrumentType
   return std::nullopt;
 }
 
@@ -266,11 +260,7 @@ std::set<const SegmentChoice *> Fabricator::getChoicesIfContinued(const Program:
     if (choice->programType == programType)
       filteredChoices.emplace(choice);
 
-  if (filteredChoices.empty()) {
-    spdlog::debug("[seg-{}] Could not get previous choice for programType={}", segmentId,
-                  Program::toString(programType));
-  }
-
+  // Could not get previous choice for programType
   return filteredChoices;
 }
 
@@ -944,7 +934,7 @@ const Segment *Fabricator::updateSegment(Segment segment) {
     return store->updateSegment(segment);
 
   } catch (const FabricationException &e) {
-    spdlog::error("Failed to update Segment", e.what());
+    std::cerr << "[seg-" << std::to_string(segmentId) << "] Failed to update Segment: " << e.what() << std::endl;
     return nullptr;
   }
 }
@@ -1064,10 +1054,9 @@ void Fabricator::ensureShipKey() {
       throw FabricationException("No chain");
     }
     Segment updatedSegment = *originalSegment;
+    // Generate ship key
     updatedSegment.storageKey = computeShipKey(chainOpt.value(), getSegment());
     updateSegment(updatedSegment);
-
-    spdlog::debug("[seg-{}] Generated ship key {}", segmentId, getSegment()->storageKey);
   }
 }
 
@@ -1136,9 +1125,7 @@ bool Fabricator::isValidChoiceAndMemesHaveBeenAdded(const SegmentChoice &choice,
     return false;
   }
 
-  spdlog::debug("Adding Choice[{}] with Memes[{}]", SegmentUtils::describe(choice),
-                CsvUtils::join(std::vector(names.begin(), names.end())));
-
+  // adding choice with memes
   for (auto &name: names) {
     SegmentMeme segmentMeme;
     segmentMeme.id = EntityUtils::computeUniqueId();
