@@ -37,4 +37,6 @@ private:
 	TMap<FString, TMap<float, UAudioComponent*>> SoundsMap;
 
 	UQuartzClockHandle* QuartzClockHandle;
+
+	float PlanAheadMs = 16;
 };

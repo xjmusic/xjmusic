@@ -129,7 +129,7 @@ uint32 FXjRunnable::Run()
 
 		FString PlayingAudios = "Scheduled:\n";
 
-		std::set<ActiveAudio> ReceivedAudios = XjEngine->runCycle(AtChainMicros.GetMicros());
+		std::set<ActiveAudio> ReceivedAudios = XjEngine->RunCycle(AtChainMicros.GetMicros());
 
 		for (const ActiveAudio& Audio : ReceivedAudios)
 		{

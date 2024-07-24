@@ -56,18 +56,41 @@ bool UXjMusicInstanceSubsystem::PlayAudioByName(const FString& Name, const float
 	{
 		return false;
 	}
+
+	bool OverrideStartBars = false;
+
+	FQuartzTransportTimeStamp CurrentTimestamp = QuartzClockHandle->GetCurrentTimestamp(GetWorld());
+	float ActualCurrentTime = CurrentTimestamp.Seconds * CurrentTimestamp.BeatFraction;
+
+	//Disable offset internal audio
+	//if (ActualCurrentTime > StartTime)
+	//{
+	//	OverrideStartBars = true;
+	//}
 	
-	AsyncTask(ENamedThreads::GameThread, [this, SoundWave, StartTime, Name]()
+	AsyncTask(ENamedThreads::GameThread, [this, SoundWave, StartTime, Name, OverrideStartBars, ActualCurrentTime]()
 		{
 			UAudioComponent* NewAudioComponent = UGameplayStatics::CreateSound2D(GetWorld(), SoundWave);
 			if (NewAudioComponent)
 			{
-				FQuartzQuantizationBoundary Boundary;
-				Boundary.Quantization = EQuartzCommandQuantization::Bar;
-				Boundary.Multiplier = StartTime;
-				Boundary.CountingReferencePoint = EQuarztQuantizationReference::TransportRelative;
+				if (OverrideStartBars)
+				{
+					FQuartzQuantizationBoundary Boundary;
+					Boundary.Quantization = EQuartzCommandQuantization::ThirtySecondNote;
+					Boundary.CountingReferencePoint = EQuarztQuantizationReference::CurrentTimeRelative;
+					Boundary.Multiplier = OverrideStartBars;
 
-				NewAudioComponent->PlayQuantized(GetWorld(), QuartzClockHandle, Boundary, {});
+					NewAudioComponent->PlayQuantized(GetWorld(), QuartzClockHandle, Boundary, {}, ActualCurrentTime + (PlanAheadMs / 1000.0f));
+				}
+				else
+				{
+					FQuartzQuantizationBoundary Boundary;
+					Boundary.Quantization = EQuartzCommandQuantization::ThirtySecondNote;
+					Boundary.CountingReferencePoint = EQuarztQuantizationReference::TransportRelative;
+					Boundary.Multiplier = OverrideStartBars == 0 ? StartTime : OverrideStartBars;
+
+					NewAudioComponent->PlayQuantized(GetWorld(), QuartzClockHandle, Boundary, {});
+				}
 
 				if (!SoundsMap.Contains(Name))
 				{
@@ -156,7 +179,7 @@ void UXjMusicInstanceSubsystem::InitQuartz()
 		QuartzClockHandle = QuartzSubsystem->CreateNewClock(GetWorld(), "XJ Clock", Settings);
 		if (QuartzClockHandle)
 		{
-			QuartzClockHandle->SetTicksPerSecond(GetWorld(), {}, {}, QuartzClockHandle, 1000.0f);
+			QuartzClockHandle->SetThirtySecondNotesPerMinute(GetWorld(), {}, {}, QuartzClockHandle, 60000);
 		
 			QuartzClockHandle->StartClock(GetWorld(), QuartzClockHandle);
 		}
