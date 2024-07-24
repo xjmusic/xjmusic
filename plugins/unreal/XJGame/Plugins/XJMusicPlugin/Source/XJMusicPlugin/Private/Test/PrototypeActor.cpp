@@ -3,13 +3,13 @@
 
 #include "Test/PrototypeActor.h"
 #include "Components/AudioComponent.h"
-#include <optional>
-#include <set>
 #include <XjMusicInstanceSubsystem.h>
 #include <Math/UnrealMathUtility.h>
-#include <Quartz/QuartzSubsystem.h>
 
-FXjRunnable::FXjRunnable(const FString& XjProjectFolder, const FString& XjProjectFile, UWorld* World)
+#include <optional>
+#include <set>
+
+FXjRunnable::FXjRunnable(const FString& XjProjectFolder, const FString& XjProjectFile, UWorld* World, class UAudioComponent* AudioComponent)
 {
 	check(World);
 
@@ -26,16 +26,16 @@ FXjRunnable::FXjRunnable(const FString& XjProjectFolder, const FString& XjProjec
 
 	try
 	{
-		//XjMusicInstanceSubsystem = World->GetGameInstance()->GetSubsystem<UXjMusicInstanceSubsystem>();
-		//if (XjMusicInstanceSubsystem)
-		//{
-		//	XjMusicInstanceSubsystem->RetrieveProjectsContent(PathToBuildFolder);
-		//}
-		//else
-		//{
-		//	UE_LOG(LogTemp, Error, TEXT("Cannot find XjMusicInstanceSubsystem"));
-		//	return;
-		//}
+		XjMusicInstanceSubsystem = World->GetGameInstance()->GetSubsystem<UXjMusicInstanceSubsystem>();
+		if (XjMusicInstanceSubsystem)
+		{
+			XjMusicInstanceSubsystem->RetrieveProjectsContent(PathToBuildFolder);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("Cannot find XjMusicInstanceSubsystem"));
+			return;
+		}
 
 		XjEngine = MakeUnique<Engine>(PathToProjectStr,
 			Fabricator::ControlMode::Auto,
@@ -120,52 +120,58 @@ uint32 FXjRunnable::Run()
 
 	while (!bShouldStop)
 	{
+		if (HasSegmentsDubbedPastMinimumOffset() || !IsWithinTimeLimit())
+		{
+			continue;
+		}
+
 		float StartFrameTime = FPlatformTime::Seconds();
 
-		if (!HasSegmentsDubbedPastMinimumOffset() && IsWithinTimeLimit())
-		{
-			RunXjOneCycleTick();
-		}
+		FString PlayingAudios = "Scheduled:\n";
 
-		FString PlayingAudios = "Playing:\n";
+		std::set<ActiveAudio> ReceivedAudios = XjEngine->runCycle(AtChainMicros.GetMicros());
 
-		for (TimeRecord Time : AudiosKeys)
+		for (const ActiveAudio& Audio : ReceivedAudios)
 		{
-			if (!AudiosLookup.Contains(Time))
+			FString WaveKey = Audio.getAudio()->waveformKey.c_str();
+			FString Name = Audio.getAudio()->name.c_str();
+
+			long TransientMicros = Audio.getAudio()->transientSeconds * MICROS_PER_SECOND;
+			long LengthMicros = Audio.getPick()->lengthMicros;
+
+			TimeRecord StartTime = Audio.getStartAtChainMicros();
+			TimeRecord EndTime = Audio.getStopAtChainMicros().value();
+
+			FAudioPlayer AudioPlayer;
+			AudioPlayer.StartTime = StartTime;
+			AudioPlayer.EndTime = EndTime;
+			AudioPlayer.Name = Name;
+			AudioPlayer.Id = WaveKey;
+
+			if (XjMusicInstanceSubsystem->PlayAudioByName(WaveKey, StartTime.GetMillie()))
 			{
-				continue;
+				PlayingAudios += FString::Printf(TEXT("%s start: %f end: %f\n"), *AudioPlayer.Name, AudioPlayer.StartTime.GetSeconds(), AudioPlayer.EndTime.GetSeconds());
 			}
 
-			TArray<FAudioPlayer>& Audios = AudiosLookup[Time];
+			if (DebugViewAudioToTime.Contains(Name))
+			{
+				DebugViewAudioToTime[Name].Add(AudioPlayer);
+			}
+			else
+			{
+				DebugViewAudioToTime.Add(Name, { AudioPlayer });
+			}
 
-			Audios.RemoveAll([this, &PlayingAudios](FAudioPlayer& Element)
-				{
-					if (Element.StartTime > AtChainMicros.GetMicros())
-					{
-						return false;
-					}
-
-					if (Element.EndTime <= AtChainMicros.GetMicros())
-					{
-						//XjMusicInstanceSubsystem->StopAudioByName(Element.Id);
-						return true;
-					}
-
-					PlayingAudios += FString::Printf(TEXT("%s start - %f  end - %f\n"), *Element.Name, Element.StartTime.GetSeconds(), Element.EndTime.GetSeconds());
-
-					if (Element.bIsPlaying)
-					{
-						return false;
-					}
-
-					Element.bIsPlaying = true;
-
-					//XjMusicInstanceSubsystem->PlayAudioByName(Element.Id);
-
-					return false;
-				});
+			if (DebugViewTimeToAudio.Contains(StartTime))
+			{
+				DebugViewTimeToAudio[StartTime].Add(Name);
+			}
+			else
+			{
+				DebugViewTimeToAudio.Add(StartTime, { Name });
+			}
 		}
-
+	
 		{
 			float EndFrameTime = FPlatformTime::Seconds();
 
@@ -199,84 +205,6 @@ void FXjRunnable::Stop()
 	bShouldStop = true;
 }
 
-void FXjRunnable::RunXjOneCycleTick()
-{
-	std::set<ActiveAudio> ReceivedAudios = XjEngine->runCycle(AtChainMicros.GetMicros());
-
-	for (const ActiveAudio& Audio : ReceivedAudios)
-	{
-		FString WaveKey = Audio.getAudio()->waveformKey.c_str();
-		FString Name = Audio.getAudio()->name.c_str();
-
-		long TransientMicros = Audio.getAudio()->transientSeconds * MICROS_PER_SECOND;
-		long LengthMicros = Audio.getPick()->lengthMicros;
-
-		TimeRecord StartTime = Audio.getStartAtChainMicros();
-		TimeRecord EndTime = Audio.getStopAtChainMicros().value();
-
-		FAudioPlayer AudioPlayer;
-		AudioPlayer.StartTime = StartTime;
-		AudioPlayer.EndTime = EndTime;
-		AudioPlayer.Name = Name;
-		AudioPlayer.Id = WaveKey;
-
-		if (AudiosLookup.Contains(StartTime))
-		{
-			TArray<FAudioPlayer>& SavedAudios = AudiosLookup[StartTime];
-
-			bool SkipAdding = false;
-
-			for (FAudioPlayer& SavedAudio : SavedAudios)
-			{
-				if (SavedAudio.Id != WaveKey)
-				{
-					continue;
-				}
-
-				if (SavedAudio.StartTime == AudioPlayer.StartTime)
-				{
-					SkipAdding = true;
-
-					if (!(SavedAudio.EndTime == AudioPlayer.EndTime))
-					{
-						//Update end time then
-					}
-				}
-			}
-
-			if (!SkipAdding)
-			{
-				SavedAudios.Add(AudioPlayer);
-			}
-		}
-		else
-		{
-			AudiosLookup.Add(StartTime, { AudioPlayer });
-			AudiosKeys.Add(StartTime);
-		}
-
-		if (DebugViewAudioToTime.Contains(Name))
-		{
-			DebugViewAudioToTime[Name].Add(AudioPlayer);
-		}
-		else
-		{
-			DebugViewAudioToTime.Add(Name, { AudioPlayer });
-		}
-
-		if (DebugViewTimeToAudio.Contains(StartTime))
-		{
-			DebugViewTimeToAudio[StartTime].Add(Name);
-		}
-		else
-		{
-			DebugViewTimeToAudio.Add(StartTime, { Name });
-		}
-	}
-
-	AudiosKeys.Sort();
-}
-
 APrototypeActor::APrototypeActor()
 {
 	PrimaryActorTick.bCanEverTick = false;
@@ -284,34 +212,8 @@ APrototypeActor::APrototypeActor()
 
 void APrototypeActor::BeginPlay()
 {
-	XjRunnable = new FXjRunnable(XjProjectFolder, XjProjectFile, GetWorld()); 
+	XjRunnable = new FXjRunnable(XjProjectFolder, XjProjectFile, GetWorld(), AudioComponent); 
 	XjThread = FRunnableThread::Create(XjRunnable, TEXT("Xj Thread"));
-
-	UQuartzSubsystem* QuartzSubsystem = UQuartzSubsystem::Get(GetWorld());
-	if (QuartzSubsystem)
-	{
-		FQuartzTimeSignature TimeSignatures;
-		TimeSignatures.BeatType = EQuartzTimeSignatureQuantization::QuarterNote;
-		TimeSignatures.NumBeats = 1;
-
-		FQuartzClockSettings Settings;
-		Settings.TimeSignature = TimeSignatures;
-
-		QuartzClockHandle = QuartzSubsystem->CreateNewClock(GetWorld(), "XJ Clock", Settings);
-		if (QuartzClockHandle)
-		{
-			FQuartzQuantizationBoundary Boundary;
-			Boundary.Quantization = EQuartzCommandQuantization::Bar;
-			Boundary.Multiplier = 1.0f;
-
-			QuartzClockHandle->SetTicksPerSecond(GetWorld(), Boundary, QuartzDelegate, QuartzClockHandle, 10.0f);
-
-			QuartzClockHandle->StartClock(GetWorld(), QuartzClockHandle);
-
-			QuartzMetronomeDelegate.BindUFunction(this, "OnQuartz");
-			QuartzClockHandle->SubscribeToQuantizationEvent(GetWorld(), EQuartzCommandQuantization::Bar, QuartzMetronomeDelegate, QuartzClockHandle);
-		}
-	}
 }
 
 void APrototypeActor::BeginDestroy()
@@ -325,9 +227,4 @@ void APrototypeActor::BeginDestroy()
 	}
 
 	Super::BeginDestroy();
-}
-
-void APrototypeActor::OnQuartz(FName ClockName, EQuartzCommandQuantization QuantizationType, int32 NumBars, int32 Beat, float BeatFraction)
-{
-	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, "Test Quartz");
 }

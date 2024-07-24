@@ -1,6 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "XjMusicInstanceSubsystem.h"
 #include "Kismet/GameplayStatics.h"
 #include <Settings/XJMusicDefaultSettings.h>
@@ -11,12 +10,11 @@
 #include <Engine/ObjectLibrary.h>
 #include <Misc/FileHelper.h>
 #include <Runtime/Engine/Public/AudioDevice.h>
-
-#include "TimerManager.h"
+#include <Async/Async.h>
 
 void UXjMusicInstanceSubsystem::RetrieveProjectsContent(const FString& Directory)
 {
-	WorldAudioDeviceHandle = GetWorld()->GetAudioDevice();
+	InitQuartz();
 
 	TArray<FString> WavFiles;
 
@@ -46,74 +44,59 @@ void UXjMusicInstanceSubsystem::RetrieveProjectsContent(const FString& Directory
 	}
 }
 
-void UXjMusicInstanceSubsystem::PlayAudioByName(const FString& Name, const float OverrideStartTime)
+bool UXjMusicInstanceSubsystem::PlayAudioByName(const FString& Name, const float StartTime)
 {
-	if (SoundsMap.Contains(Name))
+	if (IsAudioScheduled(Name, StartTime))
 	{
-		return;
+		return false;
 	}
 
 	USoundWave* SoundWave = GetSoundWaveByName(Name);
 	if (!SoundWave)
 	{
-		return;
+		return false;
 	}
-
-	if (FAudioDeviceHandle Device = GetWorld()->GetAudioDevice())
-	{
-		TSharedPtr<FActiveSound> ActiveSound = MakeShared<FActiveSound>();
-		ActiveSound->SetSound(SoundWave);
-		ActiveSound->SetWorld(GetWorld());
-
-		ActiveSound->SetVolume(1.0f);
-
-		ActiveSound->RequestedStartTime = OverrideStartTime;
-
-		ActiveSound->bIsUISound = true;
-		ActiveSound->bAllowSpatialization = false;
-
-		ActiveSound->Priority = SoundWave->GetPriority();
-		ActiveSound->SubtitlePriority = SoundWave->GetSubtitlePriority();
-
-		SoundsMap.Add(Name, ActiveSound);
-
-		FAudioThread::RunCommandOnAudioThread([this, ActiveSound, &Device]()
+	
+	AsyncTask(ENamedThreads::GameThread, [this, SoundWave, StartTime, Name]()
+		{
+			UAudioComponent* NewAudioComponent = UGameplayStatics::CreateSound2D(GetWorld(), SoundWave);
+			if (NewAudioComponent)
 			{
-				Device->AddNewActiveSound(*ActiveSound.Get());
-			});
-	}
+				FQuartzQuantizationBoundary Boundary;
+				Boundary.Quantization = EQuartzCommandQuantization::Bar;
+				Boundary.Multiplier = StartTime;
+				Boundary.CountingReferencePoint = EQuarztQuantizationReference::TransportRelative;
+
+				NewAudioComponent->PlayQuantized(GetWorld(), QuartzClockHandle, Boundary, {});
+
+				if (!SoundsMap.Contains(Name))
+				{
+					SoundsMap.Add(Name, {});
+				}
+
+				SoundsMap[Name].Add(StartTime, NewAudioComponent);
+			}
+		});
+
+	return true;
 }
 
 void UXjMusicInstanceSubsystem::StopAudioByName(const FString& Name)
 {
-	if (!SoundsMap.Contains(Name))
+
+}
+
+bool UXjMusicInstanceSubsystem::IsAudioScheduled(const FString& Name, const float Time) const
+{
+	if (SoundsMap.Contains(Name))
 	{
-		return;
-	}
-
-	FActiveSound* Sound = SoundsMap[Name].Get();
-
-	if (!Sound)
-	{
-		return;
-	}
-
-	FAudioThread::RunCommandOnAudioThread([this, Sound, Name]()
+		if (SoundsMap[Name].Contains(Time))
 		{
-			TArray<FActiveSound*> ActiveSounds = WorldAudioDeviceHandle->GetActiveSounds();
+			return true;
+		}
+	}
 
-			for (int32 SoundIndex = ActiveSounds.Num() - 1; SoundIndex >= 0; --SoundIndex)
-			{
-				FActiveSound* Inst = ActiveSounds[SoundIndex];
-				if (Inst && (Inst->GetSound()->GetName() == Sound->GetSound()->GetName()))
-				{
-					WorldAudioDeviceHandle->AddSoundToStop(Inst);
-					SoundsMap.Remove(Name);
-
-					break;
-				}
-			}
-		});
+	return false;
 }
 
 USoundWave* UXjMusicInstanceSubsystem::GetSoundWaveByName(const FString& AudioName)
@@ -156,4 +139,26 @@ USoundWave* UXjMusicInstanceSubsystem::GetSoundWaveByName(const FString& AudioNa
 	//SoundWave->bNeedsThumbnailGeneration = true;
 
 	return SoundWave;
+}
+
+void UXjMusicInstanceSubsystem::InitQuartz()
+{
+	UQuartzSubsystem* QuartzSubsystem = UQuartzSubsystem::Get(GetWorld());
+	if (QuartzSubsystem)
+	{
+		FQuartzTimeSignature TimeSignatures;
+		TimeSignatures.BeatType = EQuartzTimeSignatureQuantization::ThirtySecondNote;
+		TimeSignatures.NumBeats = 1;
+
+		FQuartzClockSettings Settings;
+		Settings.TimeSignature = TimeSignatures;
+
+		QuartzClockHandle = QuartzSubsystem->CreateNewClock(GetWorld(), "XJ Clock", Settings);
+		if (QuartzClockHandle)
+		{
+			QuartzClockHandle->SetTicksPerSecond(GetWorld(), {}, {}, QuartzClockHandle, 1000.0f);
+		
+			QuartzClockHandle->StartClock(GetWorld(), QuartzClockHandle);
+		}
+	}
 }

@@ -8,7 +8,6 @@
 #include <xjmusic/work/WorkManager.h>
 #include <xjmusic/fabricator/SegmentUtils.h>
 #include <xjmusic/Engine.h>
-#include <Quartz/QuartzSubsystem.h>
 
 #include "PrototypeActor.generated.h"
 
@@ -49,6 +48,11 @@ public:
 	uint64 GetMicros() const
 	{
 		return Micros;
+	}
+
+	float GetMillie() const
+	{
+		return Seconds * 1000.0f;
 	}
 
 	float GetSeconds() const
@@ -116,7 +120,7 @@ class FXjRunnable : public FRunnable
 
 public:
 
-	FXjRunnable(const FString& XjProjectFolder, const FString& XjProjectFile, UWorld* World);
+	FXjRunnable(const FString& XjProjectFolder, const FString& XjProjectFile, UWorld* World, class UAudioComponent* AudioComponent);
 	virtual ~FXjRunnable() override;
 
 	virtual bool Init() override;
@@ -124,8 +128,6 @@ public:
 	virtual void Stop() override;
 
 private:
-
-	void RunXjOneCycleTick();
 
 	bool IsWithinTimeLimit() const
 	{
@@ -137,7 +139,7 @@ private:
 
 		UE_LOG(LogTemp, Error, TEXT("EXCEEDED TEST TIME LIMIT OF %lld SECONDS"), MAXIMUM_TEST_WAIT_SECONDS)
 
-			return false;
+		return false;
 	}
 
 	bool HasSegmentsDubbedPastMinimumOffset() const
@@ -173,10 +175,6 @@ private:
 
 	class UXjMusicInstanceSubsystem* XjMusicInstanceSubsystem = nullptr;
 
-	TMap<TimeRecord, TArray<FAudioPlayer>> AudiosLookup;
-
-	TArray<TimeRecord> AudiosKeys;
-
 	TMap<FString, TArray<FAudioPlayer>> DebugViewAudioToTime;
 
 	TMap<TimeRecord, TArray<FString>> DebugViewTimeToAudio;
@@ -204,16 +202,9 @@ protected:
 
 	virtual void BeginDestroy() override;
 
-	UFUNCTION()
-	void OnQuartz(FName ClockName, EQuartzCommandQuantization QuantizationType, int32 NumBars, int32 Beat, float BeatFraction);
+	class UAudioComponent* AudioComponent;
 
 private:
 	FXjRunnable* XjRunnable = nullptr;
 	FRunnableThread* XjThread = nullptr;
-
-	UQuartzClockHandle* QuartzClockHandle;
-
-	FOnQuartzCommandEventBP QuartzDelegate;
-	FOnQuartzMetronomeEventBP QuartzMetronomeDelegate;
-
 };
