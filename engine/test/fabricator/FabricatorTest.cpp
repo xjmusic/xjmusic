@@ -590,3 +590,14 @@ TEST_F(FabricatorTest, GetSegmentId) {
   ASSERT_EQ(segment->id, Fabricator::getSegmentId(&segmentMessage));
   ASSERT_EQ(segment->id, Fabricator::getSegmentId(&segmentMeta));
 }
+
+TEST_F(FabricatorTest, ParseControlMode) {
+  ASSERT_EQ(Fabricator::ControlMode::Auto, Fabricator::parseControlMode("auto"));
+  ASSERT_EQ(Fabricator::ControlMode::Taxonomy, Fabricator::parseControlMode("Taxonomy"));
+  ASSERT_EQ(Fabricator::ControlMode::Taxonomy, Fabricator::parseControlMode("taxonomy"));
+  ASSERT_EQ(Fabricator::ControlMode::Taxonomy, Fabricator::parseControlMode("TAXONOMY"));
+  ASSERT_EQ(Fabricator::ControlMode::Macro, Fabricator::parseControlMode("MACRO"));
+  ASSERT_EQ(Fabricator::ControlMode::Macro, Fabricator::parseControlMode("macro"));
+  ASSERT_EQ(Fabricator::ControlMode::Macro, Fabricator::parseControlMode("Macro"));
+  ASSERT_EQ(Fabricator::ControlMode::Auto, Fabricator::parseControlMode("1235"));
+}
