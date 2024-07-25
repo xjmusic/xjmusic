@@ -36,7 +36,9 @@ private:
 
 	TMap<FString, TMap<float, UAudioComponent*>> SoundsMap;
 
+	mutable FCriticalSection SoundsMapCriticalSection;
+
 	UQuartzClockHandle* QuartzClockHandle;
 
-	float PlanAheadMs = 16;
+	float PlanAheadMs = 64;
 };

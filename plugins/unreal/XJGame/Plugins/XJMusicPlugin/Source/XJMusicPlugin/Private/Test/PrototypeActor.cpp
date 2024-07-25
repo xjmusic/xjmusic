@@ -38,7 +38,7 @@ FXjRunnable::FXjRunnable(const FString& XjProjectFolder, const FString& XjProjec
 		}
 
 		XjEngine = MakeUnique<Engine>(PathToProjectStr,
-			Fabricator::ControlMode::Auto,
+			DefaultSettings.controlMode,
 			DefaultSettings.craftAheadSeconds,
 			DefaultSettings.dubAheadSeconds,
 			DefaultSettings.persistenceWindowSeconds);

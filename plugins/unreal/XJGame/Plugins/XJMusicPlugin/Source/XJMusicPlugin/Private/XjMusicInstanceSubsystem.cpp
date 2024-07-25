@@ -46,11 +46,6 @@ void UXjMusicInstanceSubsystem::RetrieveProjectsContent(const FString& Directory
 
 bool UXjMusicInstanceSubsystem::PlayAudioByName(const FString& Name, const float StartTime)
 {
-	if (IsAudioScheduled(Name, StartTime))
-	{
-		return false;
-	}
-
 	USoundWave* SoundWave = GetSoundWaveByName(Name);
 	if (!SoundWave)
 	{
@@ -62,14 +57,18 @@ bool UXjMusicInstanceSubsystem::PlayAudioByName(const FString& Name, const float
 	FQuartzTransportTimeStamp CurrentTimestamp = QuartzClockHandle->GetCurrentTimestamp(GetWorld());
 	float ActualCurrentTime = CurrentTimestamp.Seconds * CurrentTimestamp.BeatFraction;
 
-	//Disable offset internal audio
-	//if (ActualCurrentTime > StartTime)
-	//{
-	//	OverrideStartBars = true;
-	//}
+	if (ActualCurrentTime > StartTime)
+	{
+		OverrideStartBars = true;
+	}
 	
 	AsyncTask(ENamedThreads::GameThread, [this, SoundWave, StartTime, Name, OverrideStartBars, ActualCurrentTime]()
 		{
+			if (IsAudioScheduled(Name, StartTime))
+			{
+				return;
+			}
+
 			UAudioComponent* NewAudioComponent = UGameplayStatics::CreateSound2D(GetWorld(), SoundWave);
 			if (NewAudioComponent)
 			{
@@ -92,12 +91,16 @@ bool UXjMusicInstanceSubsystem::PlayAudioByName(const FString& Name, const float
 					NewAudioComponent->PlayQuantized(GetWorld(), QuartzClockHandle, Boundary, {});
 				}
 
+				SoundsMapCriticalSection.Lock();
+
 				if (!SoundsMap.Contains(Name))
 				{
 					SoundsMap.Add(Name, {});
 				}
 
 				SoundsMap[Name].Add(StartTime, NewAudioComponent);
+
+				SoundsMapCriticalSection.Unlock();
 			}
 		});
 
@@ -111,6 +114,8 @@ void UXjMusicInstanceSubsystem::StopAudioByName(const FString& Name)
 
 bool UXjMusicInstanceSubsystem::IsAudioScheduled(const FString& Name, const float Time) const
 {
+	SoundsMapCriticalSection.Lock();
+
 	if (SoundsMap.Contains(Name))
 	{
 		if (SoundsMap[Name].Contains(Time))
@@ -118,6 +123,8 @@ bool UXjMusicInstanceSubsystem::IsAudioScheduled(const FString& Name, const floa
 			return true;
 		}
 	}
+
+	SoundsMapCriticalSection.Unlock();
 
 	return false;
 }
