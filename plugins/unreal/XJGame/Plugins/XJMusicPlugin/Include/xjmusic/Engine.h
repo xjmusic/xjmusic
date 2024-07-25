@@ -20,7 +20,7 @@ namespace XJ {
 
   public:
     /**
-    * Construct a new WorkManager
+    * Construct a new Engine
     * @param pathToProjectFile     path to the .xj project file from which to load content
     * @param controlMode      the fabrication control mode
     * @param craftAheadSeconds (optional) how many seconds ahead to craft
@@ -116,6 +116,12 @@ namespace XJ {
      Get the path to the build directory
      */
     std::filesystem::path getPathToBuildDirectory();
+
+    /**
+     * Get the work settings
+     * @return  the settings
+     */
+    WorkSettings getSettings() const;
 
     /**
      * Virtual destructor
