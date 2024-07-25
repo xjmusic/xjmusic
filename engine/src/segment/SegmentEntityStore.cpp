@@ -234,6 +234,22 @@ SegmentEntityStore::readAllSegmentChoiceArrangementPicks(const std::vector<const
   return picks;
 }
 
+std::set<const SegmentChoiceArrangementPick *>
+SegmentEntityStore::readAllSegmentChoiceArrangementPicks(const SegmentChoice *segmentChoice) {
+  std::set<const SegmentChoiceArrangementPick *> picks;
+  const auto allPicks = readAllSegmentChoiceArrangementPicks(segmentChoice->segmentId);
+  for (auto &arrangement: readAllSegmentChoiceArrangements(segmentChoice->segmentId)) {
+    if (arrangement->segmentChoiceId == segmentChoice->id) {
+      for (auto &pick: allPicks) {
+        if (pick->segmentChoiceArrangementId == arrangement->id) {
+          picks.emplace(pick);
+        }
+      }
+    }
+  }
+  return picks;
+}
+
 std::vector<const SegmentChord *> SegmentEntityStore::readOrderedSegmentChords(const int segmentId) {
   auto chords = readAllSegmentChords(segmentId);
   auto sortedChords = std::vector(chords.begin(), chords.end());
@@ -308,28 +324,28 @@ void SegmentEntityStore::protectSegmentStateTransition(const Segment::State from
   switch (fromState) {
     case Segment::State::Planned:
       onlyAllowSegmentStateTransitions(toState, {
-          Segment::State::Planned,
-          Segment::State::Crafting,
-      });
+                                                    Segment::State::Planned,
+                                                    Segment::State::Crafting,
+                                                });
       break;
     case Segment::State::Crafting:
       onlyAllowSegmentStateTransitions(toState, {
-          Segment::State::Crafting,
-          Segment::State::Crafted,
-          Segment::State::Failed,
-          Segment::State::Planned,
-      });
+                                                    Segment::State::Crafting,
+                                                    Segment::State::Crafted,
+                                                    Segment::State::Failed,
+                                                    Segment::State::Planned,
+                                                });
       break;
     case Segment::State::Crafted:
       onlyAllowSegmentStateTransitions(toState, {
-          Segment::State::Crafted,
-          Segment::State::Crafting,
-      });
+                                                    Segment::State::Crafted,
+                                                    Segment::State::Crafting,
+                                                });
       break;
     case Segment::State::Failed:
       onlyAllowSegmentStateTransitions(toState, {
-          Segment::State::Failed,
-      });
+                                                    Segment::State::Failed,
+                                                });
       break;
     default:
       onlyAllowSegmentStateTransitions(toState, {Segment::State::Planned});

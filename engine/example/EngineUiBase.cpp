@@ -1,15 +1,13 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
 
-#include <iostream>
 #include <iomanip>
+#include <iostream>
 
 #include <SDL2/SDL.h>
 #include <ftxui/component/component.hpp>
 #include <ftxui/component/screen_interactive.hpp>
 #include <ftxui/dom/table.hpp>
-
-#include "xjmusic/util/CsvUtils.h"
 
 #include "EngineUiBase.h"
 
@@ -18,13 +16,13 @@ EngineUiBase::EngineUiBase(
     Fabricator::ControlMode controlMode,
     std::optional<int> craftAheadSeconds,
     std::optional<int> dubAheadSeconds,
-    std::optional<int> persistenceWindowSeconds
-)
+    std::optional<int> persistenceWindowSeconds)
     : engine(std::make_unique<Engine>(pathToProjectFile,
                                       controlMode,
                                       craftAheadSeconds,
                                       dubAheadSeconds,
-                                      persistenceWindowSeconds)), screen(ScreenInteractive::Fullscreen()) {
+                                      persistenceWindowSeconds)),
+      screen(ScreenInteractive::Fullscreen()) {
   AtChainMicros = 0;
   ui_tab_selected = 0;
 }
@@ -56,16 +54,16 @@ const Template *EngineUiBase::SelectTemplate() {
   });
   auto template_menu = Menu(&templateNames, &selected, option);
   auto container = Container::Vertical({
-                                           header_text,
-                                           template_menu,
-                                       });
+      header_text,
+      template_menu,
+  });
 
   auto document = Renderer(container, [&] {
     return vbox({
-                    header_text->Render(),
-                    separator(),
-                    template_menu->Render(),
-                }) |
+               header_text->Render(),
+               separator(),
+               template_menu->Render(),
+           }) |
            border;
   });
 
@@ -94,35 +92,33 @@ std::shared_ptr<ComponentBase> EngineUiBase::BuildRunningUI() {
     memeTaxonomyCategories.push_back(separatorEmpty());
     memeTaxonomyCategories.push_back(
         vbox({
-                 hbox(separatorEmpty(), text(name) | bold),
-                 separator(),
-                 vbox(memeList),
-             })
-    );
+            hbox(separatorEmpty(), text(name) | bold),
+            separator(),
+            vbox(memeList),
+        }));
     memeTaxonomyCategories.push_back(separatorEmpty());
   }
 
   ui_tab_content_template = Renderer([this] {
     return hbox({
-                    separatorEmpty(),
-                    vbox({
-                             vbox({
-                                      hbox({filler(), text("Meme Taxonomy") | bold, filler()}),
-                                      separator(),
-                                      hbox(memeTaxonomyCategories)
-                                  }) | border,
-                         }),
-                    separatorEmpty(),
-                });
+        separatorEmpty(),
+        vbox({
+            vbox({hbox({filler(), text("Meme Taxonomy") | bold, filler()}),
+                  separator(),
+                  hbox(memeTaxonomyCategories)}) |
+                border,
+        }),
+        separatorEmpty(),
+    });
   });
 
   ui_tab_content_segments = Renderer([this] {
     std::vector<Element> segments;
     for (auto &segment: engine->getSegmentStore()->readAllSegments()) {
       if (segment->durationMicros.has_value() && segment->beginAtChainMicros + segment->durationMicros.value() >
-                                                 AtChainMicros) {
+                                                     AtChainMicros) {
 
-        std::set < std::string > segMemeNames;
+        std::set<std::string> segMemeNames;
         for (auto &meme: engine->getSegmentStore()->readAllSegmentMemes(segment->id)) {
           segMemeNames.emplace(meme->name);
         }
@@ -139,73 +135,77 @@ std::shared_ptr<ComponentBase> EngineUiBase::BuildRunningUI() {
         }
 
         auto segCol = vbox({
-                               hbox({
-                                        separatorEmpty(),
-                                        vbox({
-                                                 text("[" + std::to_string(segment->id) + "]") | color(Color::GrayDark),
-                                                 text(formatTimeFromMicros(segment->beginAtChainMicros)) |
-                                                 bold,
-                                             }),
-                                        separatorEmpty(),
-                                        separatorEmpty(),
-                                        vbox({
-                                                 text(formatPositionBarBeats(*segment, segment->delta)) |
-                                                 color(Color::GrayDark),
-                                                 text(Segment::toString(segment->type)) | bold,
-                                             }),
-                                        separatorEmpty(),
-                                    }),
-                               separatorEmpty(),
-                               hbox({
-                                        separatorEmpty(),
-                                        vbox({
-                                                 text(formatTotalBars(*segment, segment->total)) |
-                                                 color(Color::GrayDark),
-                                                 text(formatTimeFromMicros(
-                                                     segment->durationMicros.value())) | bold,
-                                             }),
-                                        separatorEmpty(),
-                                        separatorEmpty(),
-                                        vbox({
-                                                 text("Intensity") | color(Color::GrayDark),
-                                                 text(formatDecimal(segment->intensity, 2)) | bold,
-                                             }),
-                                        separatorEmpty(),
-                                        separatorEmpty(),
-                                        vbox({
-                                                 text("Tempo") | color(Color::GrayDark),
-                                                 text(formatMinDecimal(segment->tempo)) | bold,
-                                             }),
-                                        separatorEmpty(),
-                                        separatorEmpty(),
-                                        vbox({
-                                                 text("Key") | color(Color::GrayDark),
-                                                 text(segment->key) | bold,
-                                             }),
-                                        separatorEmpty(),
-                                    }),
-                               separatorEmpty(),
-                               hbox({
-                                        separatorEmpty(),
-                                        vbox({
-                                                 text("Memes") | color(Color::GrayDark),
-                                                 vbox(segMemeList),
-                                             }),
-                                        separatorEmpty(),
-                                    }),
-                               separatorEmpty(),
-                               hbox({
-                                        separatorEmpty(),
-                                        computeSegmentChoicesNode(segment),
-                                        separatorEmpty(),
-                                    }),
+            hbox({
+                separatorEmpty(),
+                vbox({
+                    text("[" + std::to_string(segment->id) + "]") | color(Color::GrayDark),
+                    text(formatTimeFromMicros(segment->beginAtChainMicros)) |
+                        bold,
+                }),
+                separatorEmpty(),
+                separatorEmpty(),
+                vbox({
+                    text(formatPositionBarBeats(*segment, segment->delta)) |
+                        color(Color::GrayDark),
+                    text(Segment::toString(segment->type)) | bold,
+                }),
+                separatorEmpty(),
+            }),
+            separatorEmpty(),
+            hbox({
+                separatorEmpty(),
+                vbox({
+                    text(formatTotalBars(*segment, segment->total)) |
+                        color(Color::GrayDark),
+                    text(formatTimeFromMicros(
+                        segment->durationMicros.value())) |
+                        bold,
+                }),
+                separatorEmpty(),
+                separatorEmpty(),
+                vbox({
+                    text("Intensity") | color(Color::GrayDark),
+                    text(formatDecimal(segment->intensity, 2)) | bold,
+                }),
+                separatorEmpty(),
+                separatorEmpty(),
+                vbox({
+                    text("Tempo") | color(Color::GrayDark),
+                    text(formatMinDecimal(segment->tempo)) | bold,
+                }),
+                separatorEmpty(),
+                separatorEmpty(),
+                vbox({
+                    text("Key") | color(Color::GrayDark),
+                    text(segment->key) | bold,
+                }),
+                separatorEmpty(),
+            }),
+            separatorEmpty(),
+            hbox({
+                separatorEmpty(),
+                vbox({
+                    text("Memes") | color(Color::GrayDark),
+                    vbox(segMemeList),
+                }),
+                separatorEmpty(),
+            }),
+            separatorEmpty(),
+            hbox({
+                separatorEmpty(),
+                computeSegmentChoicesNode(segment),
+                separatorEmpty(),
+            }),
+            /*
+                          * TODO
                                separatorEmpty(),
                                hbox({
                                         separatorEmpty(),
                                         computeSegmentPicksNode(segment),
                                         separatorEmpty(),
                                     }),
-                           });
+                           */
+        });
         segments.push_back(segCol);
         segments.push_back(separatorLight());
       }
@@ -221,7 +221,8 @@ std::shared_ptr<ComponentBase> EngineUiBase::BuildRunningUI() {
           audio.getAudio()->name,
           formatMicrosAsFloatingPointSeconds(audio.getStartAtChainMicros()),
           audio.getStopAtChainMicros().has_value() ? formatMicrosAsFloatingPointSeconds(
-              audio.getStopAtChainMicros().value()) : "-",
+                                                         audio.getStopAtChainMicros().value())
+                                                   : "-",
       };
       tableContents.emplace_back(row);
     }
@@ -264,26 +265,26 @@ std::shared_ptr<ComponentBase> EngineUiBase::BuildRunningUI() {
       &ui_tab_selected);
 
   ui_container = Container::Vertical({
-                                         ui_tab_toggle,
-                                         ui_tab_container,
-                                     });
+      ui_tab_toggle,
+      ui_tab_container,
+  });
 
   ui_document = Renderer(ui_container, [&] {
     return vbox({
-                    hbox({
-                             separatorEmpty(),
-                             text(engine->getTemplateContent()->getFirstTemplate().value()->name) | bold,
-                             separatorEmpty(),
-                             separator(),
-                             separatorEmpty(),
-                             ui_header_elapsed_time->Render(),
-                             filler(),
-                             separator(),
-                             ui_tab_toggle->Render(),
-                         }),
-                    separator(),
-                    ui_tab_container->Render(),
-                }) |
+               hbox({
+                   separatorEmpty(),
+                   text(engine->getTemplateContent()->getFirstTemplate().value()->name) | bold,
+                   separatorEmpty(),
+                   separator(),
+                   separatorEmpty(),
+                   ui_header_elapsed_time->Render(),
+                   filler(),
+                   separator(),
+                   ui_tab_toggle->Render(),
+               }),
+               separator(),
+               ui_tab_container->Render(),
+           }) |
            border;
   });
 
@@ -337,13 +338,12 @@ std::string EngineUiBase::formatTotalBars(const Segment &segment, std::optional<
   if (!beats.has_value()) return "N/A";
   auto barBeats = getBarBeats(segment);
   if (!barBeats.has_value()) return "N/A";
-  return std::to_string(beats.value() / barBeats.value()) + formatFractionalSuffix(
-      static_cast<double>(beats.value() % barBeats.value()) / barBeats.value()) + " " +
+  return std::to_string(beats.value() / barBeats.value()) + formatFractionalSuffix(static_cast<double>(beats.value() % barBeats.value()) / barBeats.value()) + " " +
          (beats.value() == 1 ? "bar" : "bars");
 }
 
 std::string EngineUiBase::formatPositionBarBeats(const Segment &segment, double position) {
-  if (isnan(position)) { // Assuming position is a pointer or a nullable type in the original context
+  if (isnan(position)) {// Assuming position is a pointer or a nullable type in the original context
     return "N/A";
   }
 
@@ -358,7 +358,7 @@ std::string EngineUiBase::formatPositionBarBeats(const Segment &segment, double 
     ss << (bars + 1) << '.' << (beats + 1) << formatDecimalSuffix(remaining);
     return ss.str();
   } else {
-    return formatMinDecimal(position); // Assuming this function is implemented to handle double to string conversion
+    return formatMinDecimal(position);// Assuming this function is implemented to handle double to string conversion
   }
 }
 
@@ -475,60 +475,67 @@ std::optional<int> EngineUiBase::getBarBeats(const Segment &segment) {
   }
 }
 
-std::shared_ptr<Node> EngineUiBase::computeSegmentChoicesNode(const Segment *&pSegment) {
+std::shared_ptr<Node> EngineUiBase::computeSegmentChoicesNode(const Segment *&pSegment) const {
   std::vector<Element> col;
   col.push_back(text("Choices") | color(Color::GrayDark));
-/*
- *
- * TODO show macro and main choices here
-  for (const SegmentChoiceArrangementPick *pick: engine->getSegmentStore()->readAllSegmentChoiceArrangementPicks(
-      pSegment->id)) {
-    std::optional<const InstrumentAudio *> audio = engine->getProjectContent()->getInstrumentAudio(
-        pick->instrumentAudioId);
-    if (!audio.has_value()) continue;
-    std::optional<const SegmentChoiceArrangement *> arrangement = engine->getSegmentStore()->readSegmentChoiceArrangement(
-        pSegment->id, pick->segmentChoiceArrangementId);
-    if (!arrangement.has_value()) continue;
-    std::optional<const SegmentChoice *> choice = engine->getSegmentStore()->readSegmentChoice(pSegment->id,
-                                                                                               arrangement.value()->segmentChoiceId);
-    if (!choice.has_value()) continue;
-    std::vector<Element> row;
-    col.push_back(hbox({
-                           text(
-                               "[" + Instrument::toString(choice.value()->instrumentType) +
-                               Instrument::toString(choice.value()->instrumentMode) + "]"
-                           ),
-                           separatorEmpty(),
-                           text(audio.value()->name)
-                       }));
+  std::vector<const SegmentChoice *> choices;
+  for (const SegmentChoice *choice: engine->getSegmentStore()->readAllSegmentChoices(pSegment->id)) {
+    choices.emplace_back(choice);
   }
-*/
+  col.push_back(computeSegmentChoicesNode(filterSegmentChoices(choices, {Program::Type::Macro}, std::nullopt)));
+  col.push_back(computeSegmentChoicesNode(filterSegmentChoices(choices, Program::Type::Main, std::nullopt)));
+  col.push_back(computeSegmentChoicesNode(filterSegmentChoices(choices, Program::Type::Beat, std::nullopt)));
+  col.push_back(computeSegmentChoicesNode(filterSegmentChoices(choices, Program::Type::Detail, std::nullopt)));
   return vbox(col);
 }
 
-std::shared_ptr<Node> EngineUiBase::computeSegmentPicksNode(const Segment *&pSegment) {
+std::vector<const SegmentChoice *> EngineUiBase::filterSegmentChoices(
+    const std::vector<const SegmentChoice *> &segmentChoices,
+    const std::optional<Program::Type> programType,
+    const std::optional<Instrument::Type> instrumentType) {
+  std::vector<const SegmentChoice *> filtered;
+  for (const SegmentChoice *choice: segmentChoices) {
+    if (!programType.has_value() || (!choice->programId.empty() && choice->programType == programType.value())) {
+      if (!instrumentType.has_value() || (!choice->instrumentId.empty() && choice->instrumentType == instrumentType.value())) {
+        filtered.push_back(choice);
+      }
+    }
+  }
+  return filtered;
+}
+
+std::shared_ptr<Node> EngineUiBase::computeSegmentChoicesNode(const std::vector<const SegmentChoice *> &segmentChoices) const {
+  std::vector<Element> col;
+  for (const SegmentChoice *choice: segmentChoices) {
+    std::optional<const Instrument *> instrument = engine->getProjectContent()->getInstrument(choice->instrumentId);
+    std::optional<const Program *> program = engine->getProjectContent()->getProgram(choice->programId);
+    std::vector<Element> row;
+    if (instrument.has_value()) {
+      col.push_back(hbox({text(
+                              "[" + Instrument::toString(instrument.value()->type) +
+                              Instrument::toString(instrument.value()->mode) + "]"),
+                          separatorEmpty(),
+                          text(instrument.value()->name)}));
+    } else if (program.has_value()) {
+      col.push_back(hbox({text(
+                              "[" + Program::toString(program.value()->type) + "]"),
+                          separatorEmpty(),
+                          text(program.value()->name)}));
+    }
+  }
+  return vbox(col);
+}
+
+std::shared_ptr<Node> EngineUiBase::computeSegmentPicksNode(const SegmentChoice *&pSegmentChoice) const {
   std::vector<Element> col;
   col.push_back(text("Picks") | color(Color::GrayDark));
-  for (const SegmentChoiceArrangementPick *pick: engine->getSegmentStore()->readAllSegmentChoiceArrangementPicks(
-      pSegment->id)) {
+  for (const SegmentChoiceArrangementPick *pick: engine->getSegmentStore()->readAllSegmentChoiceArrangementPicks(pSegmentChoice)) {
     std::optional<const InstrumentAudio *> audio = engine->getProjectContent()->getInstrumentAudio(
         pick->instrumentAudioId);
     if (!audio.has_value()) continue;
-    std::optional<const SegmentChoiceArrangement *> arrangement = engine->getSegmentStore()->readSegmentChoiceArrangement(
-        pSegment->id, pick->segmentChoiceArrangementId);
-    if (!arrangement.has_value()) continue;
-    std::optional<const SegmentChoice *> choice = engine->getSegmentStore()->readSegmentChoice(pSegment->id,
-                                                                                               arrangement.value()->segmentChoiceId);
-    if (!choice.has_value()) continue;
     std::vector<Element> row;
-    col.push_back(hbox({
-                           text(
-                               "[" + Instrument::toString(choice.value()->instrumentType) +
-                               Instrument::toString(choice.value()->instrumentMode) + "]"
-                           ),
-                           separatorEmpty(),
-                           text(audio.value()->name)
-                       }));
+    col.push_back(hbox({separatorEmpty(), separatorEmpty(),
+                        text(audio.value()->name)}));
   }
   return vbox(col);
 }
