@@ -196,15 +196,6 @@ std::shared_ptr<ComponentBase> EngineUiBase::BuildRunningUI() {
                 computeSegmentChoicesNode(segment),
                 separatorEmpty(),
             }),
-            /*
-                          * TODO
-                               separatorEmpty(),
-                               hbox({
-                                        separatorEmpty(),
-                                        computeSegmentPicksNode(segment),
-                                        separatorEmpty(),
-                                    }),
-                           */
         });
         segments.push_back(segCol);
         segments.push_back(separatorLight());
