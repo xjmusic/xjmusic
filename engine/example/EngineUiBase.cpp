@@ -11,21 +11,25 @@
 
 #include "xjmusic/util/CsvUtils.h"
 
-#include "App.h"
+#include "EngineUiBase.h"
 
-App::App(const std::string &pathToProjectFile)
-    : engine(std::make_unique<Engine>(
-    pathToProjectFile,
-    Fabricator::ControlMode::Auto,
-    std::nullopt,
-    std::nullopt,
-    std::nullopt
-)), screen(ScreenInteractive::Fullscreen()) {
+EngineUiBase::EngineUiBase(
+    const std::string &pathToProjectFile,
+    Fabricator::ControlMode controlMode,
+    std::optional<int> craftAheadSeconds,
+    std::optional<int> dubAheadSeconds,
+    std::optional<int> persistenceWindowSeconds
+)
+    : engine(std::make_unique<Engine>(pathToProjectFile,
+                                      controlMode,
+                                      craftAheadSeconds,
+                                      dubAheadSeconds,
+                                      persistenceWindowSeconds)), screen(ScreenInteractive::Fullscreen()) {
   AtChainMicros = 0;
   ui_tab_selected = 0;
 }
 
-const Template *App::SelectTemplate() {
+const Template *EngineUiBase::SelectTemplate() {
   using namespace ftxui;
 
   std::vector<const Template *> AllTemplates;
@@ -76,12 +80,39 @@ const Template *App::SelectTemplate() {
   }
 }
 
-std::shared_ptr<ComponentBase> App::BuildRunningUI() {
+std::shared_ptr<ComponentBase> EngineUiBase::BuildRunningUI() {
+  memeTaxonomy = engine->getMemeTaxonomy()->toMap();
+  for (const auto &[name, memes]: memeTaxonomy) {
+    memeTaxonomySelection[name] = 0;
+    std::vector<Element> memeList;
+    for (const auto &meme: memes) {
+      memeList.push_back(text(meme));
+    }
+    if (!memeTaxonomyCategories.empty()) {
+      memeTaxonomyCategories.push_back(separator());
+    }
+    memeTaxonomyCategories.push_back(separatorEmpty());
+    memeTaxonomyCategories.push_back(
+        vbox({
+                 hbox(separatorEmpty(), text(name) | bold),
+                 separator(),
+                 vbox(memeList),
+             })
+    );
+    memeTaxonomyCategories.push_back(separatorEmpty());
+  }
 
   ui_tab_content_template = Renderer([this] {
-    return vbox({
-                    text("Time Elapsed: " + std::to_string(AtChainMicros / MICROS_PER_SECOND) + "s"),
-                    text("Meme Taxonomy: " + engine->getProjectContent()->getMemeTaxonomy().toString()),
+    return hbox({
+                    separatorEmpty(),
+                    vbox({
+                             vbox({
+                                      hbox({filler(), text("Meme Taxonomy") | bold, filler()}),
+                                      separator(),
+                                      hbox(memeTaxonomyCategories)
+                                  }) | border,
+                         }),
+                    separatorEmpty(),
                 });
   });
 
@@ -91,7 +122,7 @@ std::shared_ptr<ComponentBase> App::BuildRunningUI() {
       if (segment->durationMicros.has_value() && segment->beginAtChainMicros + segment->durationMicros.value() >
                                                  AtChainMicros) {
 
-        std::set<std::string> segMemeNames;
+        std::set < std::string > segMemeNames;
         for (auto &meme: engine->getSegmentStore()->readAllSegmentMemes(segment->id)) {
           segMemeNames.emplace(meme->name);
         }
@@ -202,7 +233,7 @@ std::shared_ptr<ComponentBase> App::BuildRunningUI() {
   });
 
   ui_header_elapsed_time = Renderer([this] {
-    return text("Time Elapsed: " + std::to_string(AtChainMicros / MICROS_PER_SECOND) + "s") | color(Color::Green);
+    return text("Time Elapsed: " + formatTimeFromMicros(AtChainMicros)) | color(Color::Green);
   });
 
   ui_tab_content_content = Renderer([] {
@@ -229,6 +260,10 @@ std::shared_ptr<ComponentBase> App::BuildRunningUI() {
     return vbox({
                     hbox({
                              separatorEmpty(),
+                             text(engine->getTemplateContent()->getFirstTemplate().value()->name) | bold,
+                             separatorEmpty(),
+                             separator(),
+                             separatorEmpty(),
                              ui_header_elapsed_time->Render(),
                              filler(),
                              separator(),
@@ -243,16 +278,16 @@ std::shared_ptr<ComponentBase> App::BuildRunningUI() {
   return ui_document;
 }
 
-std::string App::formatMicrosAsFloatingPointSeconds(unsigned long long int micros, int precision) {
+std::string EngineUiBase::formatMicrosAsFloatingPointSeconds(unsigned long long int micros, int precision) {
   std::stringstream ss;
   ss << std::fixed << std::setprecision(precision) << static_cast<float>(micros) / 1000000;
   return ss.str() + "s";
 }
 
-std::string App::formatTimeFromMicros(unsigned long long int micros) {
+std::string EngineUiBase::formatTimeFromMicros(unsigned long long int micros) {
   // Check for null equivalent in C++ (microseconds being 0 might be considered as "null" equivalent)
   if (micros == 0) {
-    return "N/A";
+    return "0s";
   }
 
   // Round up to the nearest second
@@ -286,7 +321,7 @@ std::string App::formatTimeFromMicros(unsigned long long int micros) {
   return readableTime.str();
 }
 
-std::string App::formatTotalBars(const Segment &segment, std::optional<int> beats) {
+std::string EngineUiBase::formatTotalBars(const Segment &segment, std::optional<int> beats) {
   if (!beats.has_value()) return "N/A";
   auto barBeats = getBarBeats(segment);
   if (!barBeats.has_value()) return "N/A";
@@ -295,7 +330,7 @@ std::string App::formatTotalBars(const Segment &segment, std::optional<int> beat
          (beats.value() == 1 ? "bar" : "bars");
 }
 
-std::string App::formatPositionBarBeats(const Segment &segment, double position) {
+std::string EngineUiBase::formatPositionBarBeats(const Segment &segment, double position) {
   if (isnan(position)) { // Assuming position is a pointer or a nullable type in the original context
     return "N/A";
   }
@@ -315,20 +350,20 @@ std::string App::formatPositionBarBeats(const Segment &segment, double position)
   }
 }
 
-std::string App::formatDecimal(double value, int precision) {
+std::string EngineUiBase::formatDecimal(double value, int precision) {
   std::stringstream ss;
   ss << std::fixed << std::setprecision(precision) << value;
   return ss.str();
 }
 
-std::string App::formatDecimalSuffix(double value) {
+std::string EngineUiBase::formatDecimalSuffix(double value) {
   if (value <= 0 || value >= 1) {
     return "";
   }
   return formatMinDecimal(value).substr(1);
 }
 
-std::string App::formatFractionalSuffix(double value) {
+std::string EngineUiBase::formatFractionalSuffix(double value) {
   if (value <= 0 || value >= 1) {
     return "";
   }
@@ -375,7 +410,7 @@ std::string App::formatFractionalSuffix(double value) {
   }
 }
 
-std::string App::formatMinDecimal(double number) {
+std::string EngineUiBase::formatMinDecimal(double number) {
   if (isnan(number)) {
     return "N/A";
   }
@@ -401,23 +436,12 @@ std::string App::formatMinDecimal(double number) {
 }
 
 /**
- Format total bars for the given beats.
-
- @param bars     to format
- @param fraction to format
- @return formatted total bars
- */
-std::string App::formatTotalBars(int bars, const std::string &fraction) {
-  return std::to_string(bars) + fraction + " " + (bars == 1 ? "bar" : "bars");
-}
-
-/**
  Get the bar beats for the given segment.
 
  @param segment for which to get the bar beats
  @return bar beats, else empty
  */
-std::optional<int> App::getBarBeats(const Segment &segment) {
+std::optional<int> EngineUiBase::getBarBeats(const Segment &segment) {
   try {
     auto choice = engine->getSegmentStore()->readChoice(segment.id, Program::Main);
     if (!choice.has_value()) {

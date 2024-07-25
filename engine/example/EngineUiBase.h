@@ -1,21 +1,22 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-#ifndef XJMUSIC_APP_H
-#define XJMUSIC_APP_H
+#ifndef XJMUSIC_ENGINE_UI_BASE_H
+#define XJMUSIC_ENGINE_UI_BASE_H
 
 #include <memory>
 
 #include <SDL2/SDL.h>
 #include <ftxui/component/screen_interactive.hpp>
+#include <ftxui/dom/elements.hpp>
 
 #include "xjmusic/Engine.h"
 
-#include "App.h"
+#include "EngineUiBase.h"
 
 using namespace XJ;
 using namespace ftxui;
 
-class App {
+class EngineUiBase {
 protected:
   const Uint32 MICROS_PER_MILLI = 1000;
   const Uint32 MICROS_PER_SECOND = 1000000;
@@ -39,6 +40,9 @@ protected:
       "Content",
   };
   int ui_tab_selected;
+  std::vector<Element> memeTaxonomyCategories;
+  std::map<std::string, std::vector<std::string>> memeTaxonomy;
+  std::map<std::string, int> memeTaxonomySelection;
 
   /**
    * The running state of the XJPlayer.
@@ -127,14 +131,6 @@ static std::string formatFractionalSuffix(double value);
 static std::string formatMinDecimal(double value);
 
 /**
- * Formats the total bars
- * @param bars  The number of bars
- * @param fraction  The fraction of the bar
- * @return  The formatted string
- */
-static std::string formatTotalBars(int bars, const std::string& fraction);
-
-/**
  * Get the bar and beat of a segment
  * @param segment  The segment to get the bar and beat of
  * @return  The bar and beat of the segment
@@ -143,13 +139,22 @@ std::optional<int> getBarBeats(const Segment& segment);
 
 public:
   /**
-   * Construct a new App.
-   * @param pathToProjectFile  The path to the .xj project file from which to load content.
-   */
-  explicit App(const std::string &pathToProjectFile);
-
+  * Construct a new App
+  * @param pathToProjectFile     path to the .xj project file from which to load content
+  * @param controlMode      the fabrication control mode
+  * @param craftAheadSeconds (optional) how many seconds ahead to craft
+  * @param dubAheadSeconds  (optional) how many seconds ahead to dub
+  * @param persistenceWindowSeconds (optional) how long to keep segments in memory
+  */
+  explicit EngineUiBase(
+      const std::string &pathToProjectFile,
+      Fabricator::ControlMode controlMode,
+      std::optional<int> craftAheadSeconds,
+      std::optional<int> dubAheadSeconds,
+      std::optional<int> persistenceWindowSeconds
+      );
 
 };
 
 
-#endif //XJMUSIC_APP_H
+#endif //XJMUSIC_ENGINE_UI_BASE_H

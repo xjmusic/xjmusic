@@ -13,7 +13,18 @@
 #include "XJPlayer.h"
 
 
-XJPlayer::XJPlayer(const std::string &pathToProjectFile) : App(pathToProjectFile) {
+XJPlayer::XJPlayer(
+    const std::string &pathToProjectFile,
+    Fabricator::ControlMode controlMode,
+    std::optional<int> craftAheadSeconds,
+    std::optional<int> dubAheadSeconds,
+    std::optional<int> persistenceWindowSeconds
+    ) : EngineUiBase(pathToProjectFile,
+                     controlMode,
+                     craftAheadSeconds,
+                     dubAheadSeconds,
+                     persistenceWindowSeconds
+) {
 }
 
 void XJPlayer::Start() {

@@ -110,3 +110,13 @@ TEST(MemeTaxonomyTest, IsAllowed_alreadyPresentFromTaxonomy) {
   ASSERT_TRUE(MemeTaxonomy("CITY[ABERDEEN,NAGOYA]").isAllowed({"ABERDEEN", "ABERDEEN"}));
 }
 
+TEST(MemeTaxonomyTest, ToMap) {
+  const MemeTaxonomy subject("COLOR[RED,GREEN,BLUE];SIZE[LARGE,MEDIUM,SMALL]");
+
+  const std::map<std::string, std::vector<std::string>> expected = {
+      {"COLOR", {"RED", "GREEN", "BLUE"}},
+      {"SIZE", {"LARGE", "MEDIUM", "SMALL"}}
+  };
+
+  ASSERT_EQ(expected, subject.toMap());
+}

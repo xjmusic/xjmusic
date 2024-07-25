@@ -24,7 +24,11 @@ int main(int argc, char *argv[]) {
   std::cout << "Will open project: " << pathToProjectFile << std::endl;
 
   try {
-    XJPlayer player(pathToProjectFile);
+    XJPlayer player(pathToProjectFile,
+                    Fabricator::ControlMode::Auto,
+                    std::nullopt,
+                    std::nullopt,
+                    std::nullopt);
     player.Start();
 
   } catch (const std::exception &e) {

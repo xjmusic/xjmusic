@@ -20,7 +20,7 @@ namespace XJ {
 
   public:
     /**
-    * Construct a new WorkManager
+    * Construct a new Engine
     * @param pathToProjectFile     path to the .xj project file from which to load content
     * @param controlMode      the fabrication control mode
     * @param craftAheadSeconds (optional) how many seconds ahead to craft
