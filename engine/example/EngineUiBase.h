@@ -154,6 +154,9 @@ public:
       std::optional<int> persistenceWindowSeconds
       );
 
+  std::shared_ptr<Node> computeSegmentChoicesNode(const Segment *&pSegment);
+
+  std::shared_ptr<Node> computeSegmentPicksNode(const Segment *&pSegment);
 };
 
 

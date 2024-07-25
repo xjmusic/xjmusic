@@ -193,6 +193,18 @@ std::shared_ptr<ComponentBase> EngineUiBase::BuildRunningUI() {
                                              }),
                                         separatorEmpty(),
                                     }),
+                               separatorEmpty(),
+                               hbox({
+                                        separatorEmpty(),
+                                        computeSegmentChoicesNode(segment),
+                                        separatorEmpty(),
+                                    }),
+                               separatorEmpty(),
+                               hbox({
+                                        separatorEmpty(),
+                                        computeSegmentPicksNode(segment),
+                                        separatorEmpty(),
+                                    }),
                            });
         segments.push_back(segCol);
         segments.push_back(separatorLight());
@@ -461,4 +473,62 @@ std::optional<int> EngineUiBase::getBarBeats(const Segment &segment) {
     // Failed to format beats duration for Segment
     return std::nullopt;
   }
+}
+
+std::shared_ptr<Node> EngineUiBase::computeSegmentChoicesNode(const Segment *&pSegment) {
+  std::vector<Element> col;
+  col.push_back(text("Choices") | color(Color::GrayDark));
+/*
+ *
+ * TODO show macro and main choices here
+  for (const SegmentChoiceArrangementPick *pick: engine->getSegmentStore()->readAllSegmentChoiceArrangementPicks(
+      pSegment->id)) {
+    std::optional<const InstrumentAudio *> audio = engine->getProjectContent()->getInstrumentAudio(
+        pick->instrumentAudioId);
+    if (!audio.has_value()) continue;
+    std::optional<const SegmentChoiceArrangement *> arrangement = engine->getSegmentStore()->readSegmentChoiceArrangement(
+        pSegment->id, pick->segmentChoiceArrangementId);
+    if (!arrangement.has_value()) continue;
+    std::optional<const SegmentChoice *> choice = engine->getSegmentStore()->readSegmentChoice(pSegment->id,
+                                                                                               arrangement.value()->segmentChoiceId);
+    if (!choice.has_value()) continue;
+    std::vector<Element> row;
+    col.push_back(hbox({
+                           text(
+                               "[" + Instrument::toString(choice.value()->instrumentType) +
+                               Instrument::toString(choice.value()->instrumentMode) + "]"
+                           ),
+                           separatorEmpty(),
+                           text(audio.value()->name)
+                       }));
+  }
+*/
+  return vbox(col);
+}
+
+std::shared_ptr<Node> EngineUiBase::computeSegmentPicksNode(const Segment *&pSegment) {
+  std::vector<Element> col;
+  col.push_back(text("Picks") | color(Color::GrayDark));
+  for (const SegmentChoiceArrangementPick *pick: engine->getSegmentStore()->readAllSegmentChoiceArrangementPicks(
+      pSegment->id)) {
+    std::optional<const InstrumentAudio *> audio = engine->getProjectContent()->getInstrumentAudio(
+        pick->instrumentAudioId);
+    if (!audio.has_value()) continue;
+    std::optional<const SegmentChoiceArrangement *> arrangement = engine->getSegmentStore()->readSegmentChoiceArrangement(
+        pSegment->id, pick->segmentChoiceArrangementId);
+    if (!arrangement.has_value()) continue;
+    std::optional<const SegmentChoice *> choice = engine->getSegmentStore()->readSegmentChoice(pSegment->id,
+                                                                                               arrangement.value()->segmentChoiceId);
+    if (!choice.has_value()) continue;
+    std::vector<Element> row;
+    col.push_back(hbox({
+                           text(
+                               "[" + Instrument::toString(choice.value()->instrumentType) +
+                               Instrument::toString(choice.value()->instrumentMode) + "]"
+                           ),
+                           separatorEmpty(),
+                           text(audio.value()->name)
+                       }));
+  }
+  return vbox(col);
 }
