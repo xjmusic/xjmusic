@@ -45,28 +45,28 @@ void UXjMusicInstanceSubsystem::RetrieveProjectsContent(const FString& Directory
 }
 
 bool UXjMusicInstanceSubsystem::PlayAudioByName(const FString& Name, const float StartTime)
-{
-	USoundWave* SoundWave = GetSoundWaveByName(Name);
-	if (!SoundWave)
-	{
-		return false;
-	}
-
-	bool OverrideStartBars = false;
-
-	FQuartzTransportTimeStamp CurrentTimestamp = QuartzClockHandle->GetCurrentTimestamp(GetWorld());
-	float ActualCurrentTime = CurrentTimestamp.Seconds * CurrentTimestamp.BeatFraction;
-
-	if (ActualCurrentTime > StartTime)
-	{
-		OverrideStartBars = true;
-	}
-	
-	AsyncTask(ENamedThreads::GameThread, [this, SoundWave, StartTime, Name, OverrideStartBars, ActualCurrentTime]()
+{	
+	AsyncTask(ENamedThreads::GameThread, [this, StartTime, Name]()
 		{
 			if (IsAudioScheduled(Name, StartTime))
 			{
 				return;
+			}
+
+			USoundWave* SoundWave = GetSoundWaveByName(Name);
+			if (!SoundWave)
+			{
+				return;
+			}
+
+			bool OverrideStartBars = false;
+
+			FQuartzTransportTimeStamp CurrentTimestamp = QuartzClockHandle->GetCurrentTimestamp(GetWorld());
+			float ActualCurrentTime = CurrentTimestamp.Seconds * CurrentTimestamp.BeatFraction;
+
+			if (ActualCurrentTime > StartTime)
+			{
+				OverrideStartBars = true;
 			}
 
 			UAudioComponent* NewAudioComponent = UGameplayStatics::CreateSound2D(GetWorld(), SoundWave);
