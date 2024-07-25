@@ -4,7 +4,6 @@
 #define SEGMENT_CHOICE_H
 
 #include <string>
-#include <utility>
 
 #include "xjmusic/util/EntityUtils.h"
 #include "xjmusic/content/Instrument.h"
@@ -45,6 +44,36 @@ namespace XJ {
      * @return       hash code
      */
     [[nodiscard]] unsigned long long hashCode() const;
+
+    /**
+     * Operator to compare Segment Choices by type/mode equality
+     */
+    bool operator==(const SegmentChoice& other) const;
+
+    /**
+     * Operator to compare Segment Choices by type/mode inequality
+     */
+    bool operator!=(const SegmentChoice& other) const;
+
+   /**
+     * Operator to compare Segment Choices by type/mode for sorting in ascending order
+     */
+    bool operator<(const SegmentChoice& other) const;
+
+    /**
+     * Operator to compare Segment Choices by type/mode for sorting in ascending order
+     */
+    bool operator<=(const SegmentChoice& other) const;
+
+    /**
+     * Operator to compare Segment Choices by type/mode for sorting in descending order
+     */
+    bool operator>(const SegmentChoice& other) const;
+
+    /**
+     * Operator to compare Segment Choices by type/mode for sorting in descending order
+     */
+    bool operator>=(const SegmentChoice& other) const;
 
   };
 

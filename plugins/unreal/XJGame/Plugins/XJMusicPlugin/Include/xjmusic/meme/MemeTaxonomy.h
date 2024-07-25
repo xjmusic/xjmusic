@@ -66,7 +66,7 @@ namespace XJ {
      * Get the list of memes
      * @return  The list of memes
      */
-    std::set<std::string> getMemes();
+    [[nodiscard]] std::set<std::string> getMemes() const;
 
     /**
      * Whether a list of memes is allowed because no more than one matches the category's memes
@@ -161,6 +161,12 @@ namespace XJ {
      * @return  The list of maps
      */
     std::set<MapStringToOneOrManyString> toList() const;
+
+    /**
+     * Convert the taxonomy to a map like "{CATEGORY1:[MEME1, MEME2],CATEGORY2:[MEME3, MEME4]}"
+     * @return  The string
+     */
+    [[nodiscard]] std::map<std::string, std::vector<std::string>> toMap() const;
 
     /**
      * Get the categories

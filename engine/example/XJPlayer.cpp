@@ -8,12 +8,22 @@
 #include <ftxui/component/screen_interactive.hpp>
 
 #include "xjmusic/Engine.h"
-#include "xjmusic/util/CsvUtils.h"
 
 #include "XJPlayer.h"
 
 
-XJPlayer::XJPlayer(const std::string &pathToProjectFile) : App(pathToProjectFile) {
+XJPlayer::XJPlayer(
+    const std::string &pathToProjectFile,
+    const Fabricator::ControlMode controlMode,
+    const std::optional<int> craftAheadSeconds,
+    const std::optional<int> dubAheadSeconds,
+    const std::optional<int> persistenceWindowSeconds
+    ) : EngineUiBase(pathToProjectFile,
+                     controlMode,
+                     craftAheadSeconds,
+                     dubAheadSeconds,
+                     persistenceWindowSeconds
+) {
 }
 
 void XJPlayer::Start() {

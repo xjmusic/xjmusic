@@ -1,12 +1,14 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
-#include <SDL2/SDL.h>
-
 #include <iostream>
 
+#include "XJPlayer.h"
 #include "xjmusic/Engine.h"
 #include "xjmusic/util/CsvUtils.h"
-#include "XJPlayer.h"
+
+void showUsage(const std::string &name) {
+  std::cout << "Usage: " << name << " <pathToProjectFile> [-controlMode <mode>] [-craftAheadSeconds <seconds>] [-dubAheadSeconds <seconds>] [-persistenceWindowSeconds <seconds>]" << std::endl;
+}
 
 /**
  * Main entry point of the application.
@@ -14,17 +16,57 @@
  * @param argv  The arguments passed to the application.
  * @return    The exit code of the application.
  */
-int main(int argc, char *argv[]) {
+int main(const int argc, char *argv[]) {
   // Check if at least one argument was passed
   if (argc <= 1) {
     std::cout << "Must pass the path to an XJ music workstation .xj project as the first argument!" << std::endl;
+    showUsage(argv[0]);
     return -1;
   }
   std::string pathToProjectFile = argv[1];
   std::cout << "Will open project: " << pathToProjectFile << std::endl;
 
+  // User can specify the control mode, craft ahead seconds, dub ahead seconds, and persistence window seconds
+  Fabricator::ControlMode controlMode = Fabricator::ControlMode::Auto;
+  std::optional craftAheadSeconds = 240;
+  std::optional dubAheadSeconds = 300;
+  std::optional persistenceWindowSeconds = 120;
+
+  // Parse all remaining arguments to set the control mode, craft ahead seconds, dub ahead seconds, and persistence window seconds
+  for (int i = 2; i < argc; i++) {
+    std::string arg = argv[i];
+    if (arg == "-controlMode") {
+      if (i + 1 < argc) {
+        controlMode = Fabricator::parseControlMode(argv[i + 1]);
+        i++;
+      }
+    } else if (arg == "-craftAheadSeconds") {
+      if (i + 1 < argc) {
+        craftAheadSeconds = std::stoi(argv[i + 1]);
+        i++;
+      }
+    } else if (arg == "-dubAheadSeconds") {
+      if (i + 1 < argc) {
+        dubAheadSeconds = std::stoi(argv[i + 1]);
+        i++;
+      }
+    } else if (arg == "-persistenceWindowSeconds") {
+      if (i + 1 < argc) {
+        persistenceWindowSeconds = std::stoi(argv[i + 1]);
+        i++;
+      }
+    } else if (arg == "-h" || arg == "--help") {
+      showUsage(argv[0]);
+      return 0;
+    }
+  }
+
   try {
-    XJPlayer player(pathToProjectFile);
+    XJPlayer player(pathToProjectFile,
+                    controlMode,
+                    craftAheadSeconds,
+                    dubAheadSeconds,
+                    persistenceWindowSeconds);
     player.Start();
 
   } catch (const std::exception &e) {
@@ -33,4 +75,3 @@ int main(int argc, char *argv[]) {
   }
   return 0;
 }
-

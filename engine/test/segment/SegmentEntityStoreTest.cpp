@@ -610,3 +610,24 @@ TEST_F(SegmentEntityStoreTest, DeleteSegmentsBefore) {
   ASSERT_TRUE(subject->readSegment(8).has_value());
   ASSERT_TRUE(subject->readSegment(9).has_value());
 }
+
+TEST_F(SegmentEntityStoreTest, ReadAllSegmentChoiceArrangementPicks_ForChoice) {
+  std::vector input = {segment1, segment2, segment3, segment4, segment5};
+  const Program program = ContentFixtures::buildProgram(Program::Type::Macro, "C", 120.0f);
+  const ProgramSequence programSequence = ContentFixtures::buildProgramSequence(&program, 8, "Hay", 0.6f, "G");
+  const ProgramVoice voice = ContentFixtures::buildProgramVoice(&program, Instrument::Type::Bass, "Bassline");
+  const Instrument instrument = ContentFixtures::buildInstrument(Instrument::Type::Bass, Instrument::Mode::Chord, true, false);
+  const InstrumentAudio audio = ContentFixtures::buildInstrumentAudio(&instrument, "slow loop", "70bpm.wav", 0.01f, 2.123f, 120.0f, 0.62f,
+                                                                      "PRIMARY", "X", 1.0f);
+  std::vector<const SegmentChoice *> choices;
+  for (const auto segment: input) {
+    auto choice = subject->put(SegmentFixtures::buildSegmentChoice(segment, &program, &programSequence, &voice, &instrument));
+    choices.push_back(choice);
+    auto arrangement = subject->put(SegmentFixtures::buildSegmentChoiceArrangement(choice));
+    subject->put(SegmentFixtures::buildSegmentChoiceArrangementPick(segment, arrangement, &audio, "G"));
+  }
+
+  const auto result = subject->readAllSegmentChoiceArrangementPicks(choices.at(0));
+
+  ASSERT_EQ(1, result.size());
+}

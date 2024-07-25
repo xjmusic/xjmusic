@@ -878,10 +878,17 @@ namespace XJ {
     static int getSegmentId(const SegmentMeta *segmentMeta);
 
     /**
-    * Get the string representation of the control mode
-    * @param controlMode
-    */
+     * Get the string representation of the control mode
+     * @param controlMode
+     */
     static std::string toString(ControlMode controlMode);
+
+    /**
+     * Parse the control mode from a string
+     * @param str  to parse
+     * @return   control mode
+     */
+    static ControlMode parseControlMode(const char * str);
 
   private:
     static const std::string KEY_VOICE_TRACK_TEMPLATE;

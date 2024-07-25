@@ -41,3 +41,26 @@ unsigned long long SegmentChoice::hashCode() const {
          std::hash<int>{}(instrumentMode) ^
          std::hash<Program::Type>{}(programType);
 }
+
+bool SegmentChoice::operator==(const SegmentChoice &other) const {
+  return programType == other.programType && instrumentType == other.instrumentType && instrumentMode == other.instrumentMode;
+}
+bool SegmentChoice::operator!=(const SegmentChoice &other) const {
+  return !(*this == other);
+}
+
+bool SegmentChoice::operator<(const SegmentChoice &other) const {
+  return programType < other.programType && instrumentType < other.instrumentType && instrumentMode < other.instrumentMode;
+}
+
+bool SegmentChoice::operator<=(const SegmentChoice &other) const {
+  return programType <= other.programType && instrumentType <= other.instrumentType && instrumentMode <= other.instrumentMode;
+}
+
+bool SegmentChoice::operator>(const SegmentChoice &other) const {
+  return programType > other.programType && instrumentType > other.instrumentType && instrumentMode > other.instrumentMode;
+}
+
+bool SegmentChoice::operator>=(const SegmentChoice &other) const {
+  return programType >= other.programType && instrumentType >= other.instrumentType && instrumentMode >= other.instrumentMode;
+}
