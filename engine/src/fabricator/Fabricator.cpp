@@ -1,9 +1,9 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
+#include "xjmusic/fabricator/Fabricator.h"
 #include "xjmusic/fabricator/ChainUtils.h"
 #include "xjmusic/fabricator/FabricationException.h"
 #include "xjmusic/fabricator/FabricationFatalException.h"
-#include "xjmusic/fabricator/Fabricator.h"
 #include "xjmusic/fabricator/MarbleBag.h"
 #include "xjmusic/fabricator/SegmentUtils.h"
 #include "xjmusic/music/Step.h"
@@ -67,7 +67,7 @@ void Fabricator::addMessage(const SegmentMessage::Type messageType, std::string 
     msg.body = std::move(body);
     put(msg);
   } catch (const FabricationFatalException &e) {
-    std::cerr << "Failed to add message!" << std::endl;
+    std::cerr << "Failed to add message! " << e.what() << std::endl;
   }
 }
 
@@ -1220,4 +1220,13 @@ std::string Fabricator::toString(const ControlMode controlMode) {
     case ControlMode::Taxonomy:
       return "Taxonomy";
   }
+}
+
+Fabricator::ControlMode Fabricator::parseControlMode(const char *str) {
+  const std::string mode = StringUtils::trim(StringUtils::toLowerCase(str));
+  if (mode == "taxonomy")
+    return ControlMode::Taxonomy;
+  if (mode == "macro")
+    return ControlMode::Macro;
+  return ControlMode::Auto;
 }

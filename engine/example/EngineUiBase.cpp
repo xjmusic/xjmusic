@@ -264,11 +264,25 @@ std::shared_ptr<ComponentBase> EngineUiBase::BuildRunningUI() {
     return vbox({
                hbox({
                    separatorEmpty(),
+                   ui_header_elapsed_time->Render(),
+                   separatorEmpty(),
+                   separator(),
+                   separatorEmpty(),
                    text(engine->getTemplateContent()->getFirstTemplate().value()->name) | bold,
                    separatorEmpty(),
                    separator(),
                    separatorEmpty(),
-                   ui_header_elapsed_time->Render(),
+                   text(Fabricator::toString(engine->getSettings().controlMode) + " control mode") | color(Color::GrayLight),
+                   separatorEmpty(),
+                   separator(),
+                   separatorEmpty(),
+                   text("Dub ahead " + std::to_string(engine->getSettings().dubAheadSeconds) + "s") | color(Color::GrayLight),
+                   separatorEmpty(),
+                   separator(),
+                   separatorEmpty(),
+                   text("Craft ahead " + std::to_string(engine->getSettings().craftAheadSeconds) + "s") | color(Color::GrayLight),
+                   separatorEmpty(),
+                   separator(),
                    filler(),
                    separator(),
                    ui_tab_toggle->Render(),
@@ -325,7 +339,7 @@ std::string EngineUiBase::formatTimeFromMicros(unsigned long long int micros) {
   return readableTime.str();
 }
 
-std::string EngineUiBase::formatTotalBars(const Segment &segment, std::optional<int> beats) {
+std::string EngineUiBase::formatTotalBars(const Segment &segment, std::optional<int> beats) const {
   if (!beats.has_value()) return "N/A";
   auto barBeats = getBarBeats(segment);
   if (!barBeats.has_value()) return "N/A";
@@ -333,7 +347,7 @@ std::string EngineUiBase::formatTotalBars(const Segment &segment, std::optional<
          (beats.value() == 1 ? "bar" : "bars");
 }
 
-std::string EngineUiBase::formatPositionBarBeats(const Segment &segment, double position) {
+std::string EngineUiBase::formatPositionBarBeats(const Segment &segment, double position) const {
   if (isnan(position)) {// Assuming position is a pointer or a nullable type in the original context
     return "N/A";
   }
@@ -353,7 +367,7 @@ std::string EngineUiBase::formatPositionBarBeats(const Segment &segment, double 
   }
 }
 
-std::string EngineUiBase::formatDecimal(double value, int precision) {
+std::string EngineUiBase::formatDecimal(const double value, const int precision) {
   std::stringstream ss;
   ss << std::fixed << std::setprecision(precision) << value;
   return ss.str();
@@ -366,12 +380,12 @@ std::string EngineUiBase::formatDecimalSuffix(double value) {
   return formatMinDecimal(value).substr(1);
 }
 
-std::string EngineUiBase::formatFractionalSuffix(double value) {
+std::string EngineUiBase::formatFractionalSuffix(const double value) {
   if (value <= 0 || value >= 1) {
     return "";
   }
 
-  switch ((int) (value * 100)) {
+  switch (static_cast<int>(value * 100)) {
     case 10:
       return "⅒";
     case 11:
@@ -413,7 +427,7 @@ std::string EngineUiBase::formatFractionalSuffix(double value) {
   }
 }
 
-std::string EngineUiBase::formatMinDecimal(double number) {
+std::string EngineUiBase::formatMinDecimal(const double number) {
   if (isnan(number)) {
     return "N/A";
   }
@@ -444,7 +458,7 @@ std::string EngineUiBase::formatMinDecimal(double number) {
  @param segment for which to get the bar beats
  @return bar beats, else empty
  */
-std::optional<int> EngineUiBase::getBarBeats(const Segment &segment) {
+std::optional<int> EngineUiBase::getBarBeats(const Segment &segment) const {
   try {
     auto choice = engine->getSegmentStore()->readChoice(segment.id, Program::Main);
     if (!choice.has_value()) {
@@ -469,30 +483,30 @@ std::optional<int> EngineUiBase::getBarBeats(const Segment &segment) {
 std::shared_ptr<Node> EngineUiBase::computeSegmentChoicesNode(const Segment *&pSegment) const {
   std::vector<Element> col;
   col.push_back(text("Choices") | color(Color::GrayDark));
-  std::vector<const SegmentChoice *> choices;
+  std::vector<const SegmentChoice *> macroChoices;
+  std::vector<const SegmentChoice *> mainChoices;
+  std::vector<const SegmentChoice *> beatChoices;
+  std::vector<const SegmentChoice *> detailChoices;
   for (const SegmentChoice *choice: engine->getSegmentStore()->readAllSegmentChoices(pSegment->id)) {
-    choices.emplace_back(choice);
-  }
-  col.push_back(computeSegmentChoicesNode(filterSegmentChoices(choices, {Program::Type::Macro}, std::nullopt)));
-  col.push_back(computeSegmentChoicesNode(filterSegmentChoices(choices, Program::Type::Main, std::nullopt)));
-  col.push_back(computeSegmentChoicesNode(filterSegmentChoices(choices, Program::Type::Beat, std::nullopt)));
-  col.push_back(computeSegmentChoicesNode(filterSegmentChoices(choices, Program::Type::Detail, std::nullopt)));
-  return vbox(col);
-}
-
-std::vector<const SegmentChoice *> EngineUiBase::filterSegmentChoices(
-    const std::vector<const SegmentChoice *> &segmentChoices,
-    const std::optional<Program::Type> programType,
-    const std::optional<Instrument::Type> instrumentType) {
-  std::vector<const SegmentChoice *> filtered;
-  for (const SegmentChoice *choice: segmentChoices) {
-    if (!programType.has_value() || (!choice->programId.empty() && choice->programType == programType.value())) {
-      if (!instrumentType.has_value() || (!choice->instrumentId.empty() && choice->instrumentType == instrumentType.value())) {
-        filtered.push_back(choice);
-      }
+    if (!choice->programId.empty() && Program::Type::Macro == choice->programType) {
+      macroChoices.push_back(choice);
+    } else if (!choice->programId.empty() && Program::Type::Main == choice->programType) {
+      mainChoices.push_back(choice);
+    } else if ((!choice->programId.empty() && Program::Type::Beat == choice->programType) || Instrument::Type::Drum == choice->instrumentType) {
+      beatChoices.push_back(choice);
+    } else {
+      detailChoices.push_back(choice);
     }
   }
-  return filtered;
+  std::sort(macroChoices.begin(), macroChoices.end());
+  col.push_back(computeSegmentChoicesNode(macroChoices));
+  std::sort(mainChoices.begin(), mainChoices.end());
+  col.push_back(computeSegmentChoicesNode(mainChoices));
+  std::sort(beatChoices.begin(), beatChoices.end());
+  col.push_back(computeSegmentChoicesNode(beatChoices));
+  std::sort(detailChoices.begin(), detailChoices.end());
+  col.push_back(computeSegmentChoicesNode(detailChoices));
+  return vbox(col);
 }
 
 std::shared_ptr<Node> EngineUiBase::computeSegmentChoicesNode(const std::vector<const SegmentChoice *> &segmentChoices) const {
@@ -507,6 +521,7 @@ std::shared_ptr<Node> EngineUiBase::computeSegmentChoicesNode(const std::vector<
                               Instrument::toString(instrument.value()->mode) + "]"),
                           separatorEmpty(),
                           text(instrument.value()->name)}));
+      col.push_back(computeSegmentPicksNode(choice));
     } else if (program.has_value()) {
       col.push_back(hbox({text(
                               "[" + Program::toString(program.value()->type) + "]"),
@@ -519,14 +534,16 @@ std::shared_ptr<Node> EngineUiBase::computeSegmentChoicesNode(const std::vector<
 
 std::shared_ptr<Node> EngineUiBase::computeSegmentPicksNode(const SegmentChoice *&pSegmentChoice) const {
   std::vector<Element> col;
-  col.push_back(text("Picks") | color(Color::GrayDark));
   for (const SegmentChoiceArrangementPick *pick: engine->getSegmentStore()->readAllSegmentChoiceArrangementPicks(pSegmentChoice)) {
     std::optional<const InstrumentAudio *> audio = engine->getProjectContent()->getInstrumentAudio(
         pick->instrumentAudioId);
     if (!audio.has_value()) continue;
     std::vector<Element> row;
-    col.push_back(hbox({separatorEmpty(), separatorEmpty(),
-                        text(audio.value()->name)}));
+    col.push_back(hbox({separatorEmpty(),
+                        separatorEmpty(),
+                        text("[" + formatTimeFromMicros(pick->startAtSegmentMicros) + "]") | color(Color::GrayDark),
+                        separatorEmpty(),
+                        text(audio.value()->name) | color(Color::GrayLight)}));
   }
   return vbox(col);
 }

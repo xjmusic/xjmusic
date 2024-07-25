@@ -96,6 +96,10 @@ std::filesystem::path Engine::getPathToBuildDirectory() {
   return pathToBuildDirectory;
 }
 
+WorkSettings Engine::getSettings() const {
+  return settings;
+}
+
 Engine::~Engine() = default;
 
 void Engine::loadProjectContent() {

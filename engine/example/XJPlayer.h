@@ -3,8 +3,6 @@
 #ifndef XJMUSIC_XJ_PLAYER_H
 #define XJMUSIC_XJ_PLAYER_H
 
-#include <memory>
-
 #include "xjmusic/Engine.h"
 
 #include "EngineUiBase.h"

@@ -118,6 +118,12 @@ namespace XJ {
     std::filesystem::path getPathToBuildDirectory();
 
     /**
+     * Get the work settings
+     * @return  the settings
+     */
+    WorkSettings getSettings() const;
+
+    /**
      * Virtual destructor
      */
     ~Engine();
