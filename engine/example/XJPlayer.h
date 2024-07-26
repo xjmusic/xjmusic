@@ -11,11 +11,14 @@ using namespace XJ;
 using namespace ftxui;
 
 class XJPlayer : public EngineUiBase {
+  std::optional<std::string> templateName;
+
 public:
   /**
   * Construct a new XJPlayer
   * @param pathToProjectFile     path to the .xj project file from which to load content
   * @param controlMode      the fabrication control mode
+  * @param templateName     (optional) the name of the template to start with
   * @param craftAheadSeconds (optional) how many seconds ahead to craft
   * @param dubAheadSeconds  (optional) how many seconds ahead to dub
   * @param persistenceWindowSeconds (optional) how long to keep segments in memory
@@ -23,10 +26,10 @@ public:
   explicit XJPlayer(
       const std::string &pathToProjectFile,
       Fabricator::ControlMode controlMode,
+      std::optional<std::string> templateName,
       std::optional<int> craftAheadSeconds,
       std::optional<int> dubAheadSeconds,
-      std::optional<int> persistenceWindowSeconds
-      );
+      std::optional<int> persistenceWindowSeconds);
 
   /**
    * Starts the XJPlayer.
@@ -37,9 +40,9 @@ protected:
 
   /**
    * Run the engine for the given template until quit
-   * @param CurrentTemplate  The template to run.
+   * @param templateIdentifier  The template to run.
    */
-  void RunEngine(const Template *CurrentTemplate);
+  void RunEngine(const std::string &templateIdentifier);
 
   /**
    * Run one engine cycle.

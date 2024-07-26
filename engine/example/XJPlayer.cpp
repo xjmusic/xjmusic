@@ -6,6 +6,7 @@
 #include <SDL2/SDL.h>
 #include <ftxui/component/component.hpp>
 #include <ftxui/component/screen_interactive.hpp>
+#include <utility>
 
 #include "xjmusic/Engine.h"
 
@@ -14,23 +15,24 @@
 
 XJPlayer::XJPlayer(
     const std::string &pathToProjectFile,
-    const Fabricator::ControlMode controlMode,
-    const std::optional<int> craftAheadSeconds,
-    const std::optional<int> dubAheadSeconds,
-    const std::optional<int> persistenceWindowSeconds
-    ) : EngineUiBase(pathToProjectFile,
-                     controlMode,
-                     craftAheadSeconds,
-                     dubAheadSeconds,
-                     persistenceWindowSeconds
+    Fabricator::ControlMode controlMode,
+    std::optional<std::string> templateName,
+    std::optional<int> craftAheadSeconds,
+    std::optional<int> dubAheadSeconds,
+    std::optional<int> persistenceWindowSeconds) : EngineUiBase(pathToProjectFile,
+                                                                controlMode,
+                                                                craftAheadSeconds,
+                                                                dubAheadSeconds,
+                                                                persistenceWindowSeconds
 ) {
+  this->templateName = std::move(templateName);
 }
 
 void XJPlayer::Start() {
-  RunEngine(SelectTemplate());
+  RunEngine(templateName.has_value() ? templateName.value() : SelectTemplate()->id);
 }
 
-void XJPlayer::RunEngine(const Template *CurrentTemplate) {
+void XJPlayer::RunEngine(const std::string &templateIdentifier) {
   // Use SDL to open an audio output buffer
   if (SDL_Init(SDL_INIT_AUDIO) < 0) {
     std::cerr << "SDL_Init failed: " << SDL_GetError() << std::endl;
@@ -41,7 +43,7 @@ void XJPlayer::RunEngine(const Template *CurrentTemplate) {
   screen.Post([&] { running = false; });
 
   // Start the engine
-  engine->start(CurrentTemplate->id);
+  engine->start(templateIdentifier);
 
   // Spin off the screen UI on its own thread
   auto document = BuildRunningUI();

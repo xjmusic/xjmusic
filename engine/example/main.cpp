@@ -3,11 +3,14 @@
 #include <iostream>
 
 #include "XJPlayer.h"
-#include "xjmusic/Engine.h"
 #include "xjmusic/util/CsvUtils.h"
 
+/**
+ * Show the usage of the application.
+ * @param name  The name of the application.
+ */
 void showUsage(const std::string &name) {
-  std::cout << "Usage: " << name << " <pathToProjectFile> [-controlMode <mode>] [-craftAheadSeconds <seconds>] [-dubAheadSeconds <seconds>] [-persistenceWindowSeconds <seconds>]" << std::endl;
+  std::cout << "Usage: " << name << " <pathToProjectFile> [-template <name>] [-controlMode <mode>] [-craftAheadSeconds <seconds>] [-dubAheadSeconds <seconds>] [-persistenceWindowSeconds <seconds>]" << std::endl;
 }
 
 /**
@@ -31,10 +34,17 @@ int main(const int argc, char *argv[]) {
   std::optional craftAheadSeconds = 240;
   std::optional dubAheadSeconds = 300;
   std::optional persistenceWindowSeconds = 120;
+  std::optional<std::string> templateName;
 
   // Parse all remaining arguments to set the control mode, craft ahead seconds, dub ahead seconds, and persistence window seconds
   for (int i = 2; i < argc; i++) {
     std::string arg = argv[i];
+    if (arg == "-template") {
+      if (i + 1 < argc) {
+        templateName = argv[i + 1];
+        i++;
+      }
+    } else
     if (arg == "-controlMode") {
       if (i + 1 < argc) {
         controlMode = Fabricator::parseControlMode(argv[i + 1]);
@@ -63,7 +73,7 @@ int main(const int argc, char *argv[]) {
 
   try {
     XJPlayer player(pathToProjectFile,
-                    controlMode,
+                    controlMode, templateName,
                     craftAheadSeconds,
                     dubAheadSeconds,
                     persistenceWindowSeconds);
