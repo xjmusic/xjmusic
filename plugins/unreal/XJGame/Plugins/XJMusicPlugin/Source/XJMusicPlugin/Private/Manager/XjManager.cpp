@@ -5,18 +5,12 @@
 #include "Components/AudioComponent.h"
 #include <XjMusicInstanceSubsystem.h>
 #include <Math/UnrealMathUtility.h>
-
-#include <optional>
-#include <set>
+#include <Engine/XjMainEngine.h>
 #include <Settings/XJMusicDefaultSettings.h>
 
 FXjRunnable::FXjRunnable(const FString& XjProjectFolder, const FString& XjProjectFile, UWorld* World)
 {
 	check(World);
-
-	XjStartTime.SetInMicros(EntityUtils::currentTimeMillis());
-
-	WorkSettings DefaultSettings;
 
 	FString PathToProject = XjProjectFolder + XjProjectFile;
 	std::string PathToProjectStr(TCHAR_TO_UTF8(*PathToProject));
@@ -25,89 +19,24 @@ FXjRunnable::FXjRunnable(const FString& XjProjectFolder, const FString& XjProjec
 	FString PathToBuildFolder = XjProjectFolder + "build/";
 	UE_LOG(LogTemp, Display, TEXT("Path to build folder: %s"), *PathToBuildFolder);
 
-	try
+	XjMusicSubsystem = World->GetGameInstance()->GetSubsystem<UXjMusicInstanceSubsystem>();
+	if (XjMusicSubsystem)
 	{
-		XjMusicInstanceSubsystem = World->GetGameInstance()->GetSubsystem<UXjMusicInstanceSubsystem>();
-		if (XjMusicInstanceSubsystem)
-		{
-			XjMusicInstanceSubsystem->RetrieveProjectsContent(PathToBuildFolder);
-		}
-		else
-		{
-			UE_LOG(LogTemp, Error, TEXT("Cannot find XjMusicInstanceSubsystem"));
-			return;
-		}
-
-		XjEngine = MakeUnique<Engine>(PathToProjectStr,
-			DefaultSettings.controlMode,
-			DefaultSettings.craftAheadSeconds,
-			DefaultSettings.dubAheadSeconds,
-			DefaultSettings.persistenceWindowSeconds);
-
-		if (!XjEngine)
-		{
-			UE_LOG(LogTemp, Error, TEXT("Cannot instantiate XJ Engine"));
-			return;
-		}
-
-		std::set<const Template*> TemplatesInfo = XjEngine->getProjectContent()->getTemplates();
-
-
-		for (const Template* Info : TemplatesInfo)
-		{
-			FString Name(Info->name.c_str());
-
-			UE_LOG(LogTemp, Warning, TEXT("Imported template: %s"), *Name);
-		}
-
-		if (TemplatesInfo.size() < 1)
-		{
-			return;
-		}
-
-		MemeTaxonomy Taxonomy = XjEngine->getMemeTaxonomy().value();
-		std::set<MemeCategory> Categories = Taxonomy.getCategories();
-
-		std::set<std::string> Memes;
-
-		for (MemeCategory Category : Categories)
-		{
-			if (Category.hasMemes())
-			{
-				std::string Meme = *Category.getMemes().begin();
-				Memes.insert(Meme);
-			}
-		}
-
-		FString MemesStr = "Activated memes: \n";
-
-		for (std::string Meme : Memes)
-		{
-			FString MemeStr = Meme.c_str();
-			MemesStr += MemeStr + "\n";
-		}
-
-		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, MemesStr);
-
-		XjEngine->doOverrideMemes(Memes);
-
-
-		const Template* FirstTemplate = *TemplatesInfo.begin();
-
-		XjEngine->start(FirstTemplate->id);
+		XjMusicSubsystem->RetrieveProjectsContent(PathToBuildFolder);
 	}
-	catch (const std::invalid_argument& Exception)
+	else
 	{
-		FString ErrorStr(Exception.what());
-		UE_LOG(LogTemp, Error, TEXT("%s"), *ErrorStr);
+		UE_LOG(LogTemp, Error, TEXT("Cannot find XjMusicInstanceSubsystem"));
+		return;
 	}
 
-	FPlatformProcess::Sleep(5.0f);
-}
+	XjStartTime.SetInSeconds(FPlatformTime::Seconds());
 
-FXjRunnable::~FXjRunnable()
-{
-
+	Engine = MakeUnique<TXjMainEngine>();
+	if (Engine)
+	{
+		Engine->Setup(PathToProject);
+	}
 }
 
 bool FXjRunnable::Init()
@@ -121,55 +50,22 @@ uint32 FXjRunnable::Run()
 
 	while (!bShouldStop)
 	{
-		if (HasSegmentsDubbedPastMinimumOffset() || !IsWithinTimeLimit())
-		{
-			continue;
-		}
-
 		float StartFrameTime = FPlatformTime::Seconds();
 
 		FString PlayingAudios = "Scheduled:\n";
 
-		std::set<ActiveAudio> ReceivedAudios = XjEngine->RunCycle(AtChainMicros.GetMicros());
-
-		for (const ActiveAudio& Audio : ReceivedAudios)
+		if (!Engine)
 		{
-			FString WaveKey = Audio.getAudio()->waveformKey.c_str();
-			FString Name = Audio.getAudio()->name.c_str();
+			continue;
+		}
 
-			long TransientMicros = Audio.getAudio()->transientSeconds * MICROS_PER_SECOND;
-			long LengthMicros = Audio.getPick()->lengthMicros;
+		TSet<FAudioPlayer> ReceivedAudios = Engine->RunCycle(AtChainMicros.GetMicros());
 
-			TimeRecord StartTime = Audio.getStartAtChainMicros();
-			TimeRecord EndTime = Audio.getStopAtChainMicros().value();
-
-			FAudioPlayer AudioPlayer;
-			AudioPlayer.StartTime = StartTime;
-			AudioPlayer.EndTime = EndTime;
-			AudioPlayer.Name = Name;
-			AudioPlayer.Id = WaveKey;
-
-			if (XjMusicInstanceSubsystem->PlayAudioByName(WaveKey, StartTime.GetMillie()))
+		for (const FAudioPlayer& Audio : ReceivedAudios)
+		{
+			if (XjMusicSubsystem->PlayAudioByName(Audio.Id, Audio.StartTime.GetMillie()))
 			{
-				PlayingAudios += FString::Printf(TEXT("%s start: %f end: %f\n"), *AudioPlayer.Name, AudioPlayer.StartTime.GetSeconds(), AudioPlayer.EndTime.GetSeconds());
-			}
-
-			if (DebugViewAudioToTime.Contains(Name))
-			{
-				DebugViewAudioToTime[Name].Add(AudioPlayer);
-			}
-			else
-			{
-				DebugViewAudioToTime.Add(Name, { AudioPlayer });
-			}
-
-			if (DebugViewTimeToAudio.Contains(StartTime))
-			{
-				DebugViewTimeToAudio[StartTime].Add(Name);
-			}
-			else
-			{
-				DebugViewTimeToAudio.Add(StartTime, { Name });
+				PlayingAudios += FString::Printf(TEXT("%s start: %f end: %f\n"), *Audio.Name, Audio.StartTime.GetSeconds(), Audio.EndTime.GetSeconds());
 			}
 		}
 
