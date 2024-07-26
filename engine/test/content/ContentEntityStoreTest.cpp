@@ -12,7 +12,7 @@ static std::string CONTENT_STORE_TEST_JSON_PATH = "_data/content_store_test.json
 
 using namespace XJ;
 
-class ContentStoreTest : public testing::Test {
+class ContentEntityStoreTest : public testing::Test {
 
 protected:
   ContentEntityStore subject{};
@@ -143,7 +143,7 @@ protected:
   }
 };
 
-TEST_F(ContentStoreTest, FromJsonFile) {
+TEST_F(ContentEntityStoreTest, FromJsonFile) {
   // Load the JSON file
   std::ifstream file(CONTENT_STORE_TEST_JSON_PATH);
   ASSERT_TRUE(file.is_open());
@@ -172,7 +172,7 @@ TEST_F(ContentStoreTest, FromJsonFile) {
   ASSERT_EQ(3, result.getTemplateBindings().size());
 }
 
-TEST_F(ContentStoreTest, FromJsonString) {
+TEST_F(ContentEntityStoreTest, FromJsonString) {
   // Load the JSON file
   std::ifstream file(CONTENT_STORE_TEST_JSON_PATH);
   ASSERT_TRUE(file.is_open());
@@ -202,7 +202,7 @@ TEST_F(ContentStoreTest, FromJsonString) {
   ASSERT_EQ(3, result.getTemplateBindings().size());
 }
 
-TEST_F(ContentStoreTest, SetProgramGetProgram) {
+TEST_F(ContentEntityStoreTest, SetProgramGetProgram) {
   subject.clear();
 
   // Create an EntityUtils object
@@ -229,16 +229,16 @@ TEST_F(ContentStoreTest, SetProgramGetProgram) {
   ASSERT_EQ(program.id, retrievedEntity.value()->id);
 }
 
-TEST_F(ContentStoreTest, GetInstrumentTypeOfEvent) {
+TEST_F(ContentEntityStoreTest, GetInstrumentTypeOfEvent) {
   ASSERT_EQ(Instrument::Type::Drum, subject.getInstrumentTypeOfEvent(&program2_sequence_pattern1_event1));
 }
 
-TEST_F(ContentStoreTest, HasInstrumentsOfMode) {
+TEST_F(ContentEntityStoreTest, HasInstrumentsOfMode) {
   ASSERT_FALSE(subject.hasInstrumentsOfMode(Instrument::Mode::Loop));
   ASSERT_TRUE(subject.hasInstrumentsOfMode(Instrument::Mode::Event));
 }
 
-TEST_F(ContentStoreTest, HasInstrumentsOfType) {
+TEST_F(ContentEntityStoreTest, HasInstrumentsOfType) {
   ASSERT_FALSE(subject.hasInstrumentsOfType(Instrument::Type::Bass));
   ASSERT_FALSE(subject.hasInstrumentsOfType(Instrument::Type::Hook));
   ASSERT_FALSE(subject.hasInstrumentsOfType(Instrument::Type::Percussion));
@@ -249,54 +249,54 @@ TEST_F(ContentStoreTest, HasInstrumentsOfType) {
   ASSERT_TRUE(subject.hasInstrumentsOfType(Instrument::Type::Pad));
 }
 
-TEST_F(ContentStoreTest, HasInstrumentsOfTypeAndMode) {
+TEST_F(ContentEntityStoreTest, HasInstrumentsOfTypeAndMode) {
   ASSERT_TRUE(subject.hasInstrumentsOfTypeAndMode(Instrument::Type::Drum, Instrument::Mode::Event));
   ASSERT_FALSE(subject.hasInstrumentsOfTypeAndMode(Instrument::Type::Drum, Instrument::Mode::Loop));
 }
 
-TEST_F(ContentStoreTest, GetAvailableOffsets) {
+TEST_F(ContentEntityStoreTest, GetAvailableOffsets) {
   const auto result = subject.getAvailableOffsets(&program1_sequence_binding1);
 
   ASSERT_EQ(2, result.size());
 }
 
-TEST_F(ContentStoreTest, getAudiosOfInstrumentId) {
+TEST_F(ContentEntityStoreTest, getAudiosOfInstrumentId) {
   const auto result = subject.getAudiosOfInstrument(instrument1.id);
 
   ASSERT_EQ(1, result.size());
 }
 
-TEST_F(ContentStoreTest, getAudiosOfInstrument) {
+TEST_F(ContentEntityStoreTest, getAudiosOfInstrument) {
   const auto result = subject.getAudiosOfInstrument(&instrument2);
 
   ASSERT_EQ(1, result.size());
 }
 
-TEST_F(ContentStoreTest, getBindingsOfSequence) {
+TEST_F(ContentEntityStoreTest, getBindingsOfSequence) {
   const auto result = subject.getBindingsOfSequence(&program1_sequence);
 
   ASSERT_EQ(2, result.size());
 }
 
-TEST_F(ContentStoreTest, getBindingsOfSequenceId) {
+TEST_F(ContentEntityStoreTest, getBindingsOfSequenceId) {
   const auto result = subject.getBindingsOfSequence(program1_sequence.id);
 
   ASSERT_EQ(2, result.size());
 }
 
-TEST_F(ContentStoreTest, getSequenceBindingMemesOfProgram) {
+TEST_F(ContentEntityStoreTest, getSequenceBindingMemesOfProgram) {
   const auto result = subject.getSequenceBindingMemesOfProgram(&program1);
 
   ASSERT_EQ(2, result.size());
 }
 
-TEST_F(ContentStoreTest, getSequenceBindingMemesOfProgramId) {
+TEST_F(ContentEntityStoreTest, getSequenceBindingMemesOfProgramId) {
   const auto result = subject.getSequenceBindingMemesOfProgram(program1.id);
 
   ASSERT_EQ(2, result.size());
 }
 
-TEST_F(ContentStoreTest, getBindingsAtOffsetOfProgram) {
+TEST_F(ContentEntityStoreTest, getBindingsAtOffsetOfProgram) {
   ASSERT_EQ(1, subject.getBindingsAtOffsetOfProgram(&program1, 0, false).size());
   ASSERT_EQ(0, subject.getBindingsAtOffsetOfProgram(&program1, 1, false).size());
   ASSERT_EQ(1, subject.getBindingsAtOffsetOfProgram(&program1, 0, true).size());
@@ -304,7 +304,7 @@ TEST_F(ContentStoreTest, getBindingsAtOffsetOfProgram) {
   ASSERT_EQ(1, subject.getBindingsAtOffsetOfProgram(&program1, 2, true).size());
 }
 
-TEST_F(ContentStoreTest, getBindingsAtOffsetOfProgramId) {
+TEST_F(ContentEntityStoreTest, getBindingsAtOffsetOfProgramId) {
   ASSERT_EQ(1, subject.getBindingsAtOffsetOfProgram(program1.id, 0, false).size());
   ASSERT_EQ(0, subject.getBindingsAtOffsetOfProgram(program1.id, 1, false).size());
   ASSERT_EQ(1, subject.getBindingsAtOffsetOfProgram(program1.id, 0, true).size());
@@ -312,429 +312,429 @@ TEST_F(ContentStoreTest, getBindingsAtOffsetOfProgramId) {
   ASSERT_EQ(1, subject.getBindingsAtOffsetOfProgram(program1.id, 2, true).size());
 }
 
-TEST_F(ContentStoreTest, getChordsOfSequence) {
+TEST_F(ContentEntityStoreTest, getChordsOfSequence) {
   const auto result = subject.getChordsOfSequence(&program1_sequence);
 
   ASSERT_EQ(2, result.size());
 }
 
-TEST_F(ContentStoreTest, getChordsOfSequenceId) {
+TEST_F(ContentEntityStoreTest, getChordsOfSequenceId) {
   const auto result = subject.getChordsOfSequence(program1_sequence.id);
 
   ASSERT_EQ(2, result.size());
 }
 
-TEST_F(ContentStoreTest, getEventsOfPattern) {
+TEST_F(ContentEntityStoreTest, getEventsOfPattern) {
   const auto result = subject.getEventsOfPattern(&program2_sequence_pattern1);
 
   ASSERT_EQ(2, result.size());
 }
 
-TEST_F(ContentStoreTest, getEventsOfPatternId) {
+TEST_F(ContentEntityStoreTest, getEventsOfPatternId) {
   const auto result = subject.getEventsOfPattern(program2_sequence_pattern1.id);
 
   ASSERT_EQ(2, result.size());
 }
 
-TEST_F(ContentStoreTest, getEventsOfTrack) {
+TEST_F(ContentEntityStoreTest, getEventsOfTrack) {
   const auto result = subject.getEventsOfTrack(&program2_voice_track1);
 
   ASSERT_EQ(1, result.size());
 }
 
-TEST_F(ContentStoreTest, getEventsOfTrackId) {
+TEST_F(ContentEntityStoreTest, getEventsOfTrackId) {
   const auto result = subject.getEventsOfTrack(program2_voice_track1.id);
 
   ASSERT_EQ(1, result.size());
 }
 
-TEST_F(ContentStoreTest, getEventsOfPatternAndTrack) {
+TEST_F(ContentEntityStoreTest, getEventsOfPatternAndTrack) {
   const auto result = subject.getEventsOfPatternAndTrack(&program2_sequence_pattern1, &program2_voice_track1);
 
   ASSERT_EQ(1, result.size());
 }
 
-TEST_F(ContentStoreTest, getEventsOfPatternAndTrackId) {
+TEST_F(ContentEntityStoreTest, getEventsOfPatternAndTrackId) {
   const auto result = subject.getEventsOfPatternAndTrack(program2_sequence_pattern1.id, program2_voice_track1.id);
 
   ASSERT_EQ(1, result.size());
 }
 
-TEST_F(ContentStoreTest, getInstrument) {
+TEST_F(ContentEntityStoreTest, getInstrument) {
   const auto result = subject.getInstrument(instrument1.id);
 
   ASSERT_TRUE(result.has_value());
   ASSERT_EQ(instrument1.id, result.value()->id);
 }
 
-TEST_F(ContentStoreTest, getInstrumentAudio) {
+TEST_F(ContentEntityStoreTest, getInstrumentAudio) {
   const auto result = subject.getInstrumentAudio(instrument1_audio.id);
 
   ASSERT_TRUE(result.has_value());
   ASSERT_EQ(instrument1_audio.id, result.value()->id);
 }
 
-TEST_F(ContentStoreTest, getAudiosOfInstrumentTypesAndModes) {
+TEST_F(ContentEntityStoreTest, getAudiosOfInstrumentTypesAndModes) {
   const auto result = subject.getAudiosOfInstrumentTypesAndModes({Instrument::Type::Drum}, {Instrument::Mode::Event});
 
   ASSERT_EQ(1, result.size());
 }
 
-TEST_F(ContentStoreTest, getAudiosOfInstrumentTypes) {
+TEST_F(ContentEntityStoreTest, getAudiosOfInstrumentTypes) {
   const auto result = subject.getAudiosOfInstrumentTypes({Instrument::Type::Drum});
 
   ASSERT_EQ(1, result.size());
 }
 
-TEST_F(ContentStoreTest, getInstrumentAudios) {
+TEST_F(ContentEntityStoreTest, getInstrumentAudios) {
   const auto result = subject.getInstrumentAudios();
 
   ASSERT_EQ(2, result.size());
 }
 
-TEST_F(ContentStoreTest, getMemesOfInstrumentId) {
+TEST_F(ContentEntityStoreTest, getMemesOfInstrumentId) {
   const auto result = subject.getMemesOfInstrument(instrument1.id);
 
   ASSERT_EQ(1, result.size());
 }
 
-TEST_F(ContentStoreTest, getInstrumentMemes) {
+TEST_F(ContentEntityStoreTest, getInstrumentMemes) {
   const auto result = subject.getInstrumentMemes();
 
   ASSERT_EQ(2, result.size());
 }
 
-TEST_F(ContentStoreTest, getInstruments) {
+TEST_F(ContentEntityStoreTest, getInstruments) {
   const auto result = subject.getInstruments();
 
   ASSERT_EQ(2, result.size());
 }
 
-TEST_F(ContentStoreTest, getInstrumentsOfLibrary) {
+TEST_F(ContentEntityStoreTest, getInstrumentsOfLibrary) {
   const auto result = subject.getInstrumentsOfLibrary(&library1);
 
   ASSERT_EQ(2, result.size());
 }
 
-TEST_F(ContentStoreTest, getInstrumentsOfLibraryId) {
+TEST_F(ContentEntityStoreTest, getInstrumentsOfLibraryId) {
   const auto result = subject.getInstrumentsOfLibrary(library1.id);
 
   ASSERT_EQ(2, result.size());
 }
 
-TEST_F(ContentStoreTest, getInstrumentsOfTypes) {
+TEST_F(ContentEntityStoreTest, getInstrumentsOfTypes) {
   const auto result = subject.getInstrumentsOfTypes({Instrument::Type::Drum});
 
   ASSERT_EQ(1, result.size());
 }
 
-TEST_F(ContentStoreTest, getInstrumentTypeOfAudioId) {
+TEST_F(ContentEntityStoreTest, getInstrumentTypeOfAudioId) {
   const auto result = subject.getInstrumentTypeOfAudio(instrument1_audio.id);
 
   ASSERT_EQ(Instrument::Type::Drum, result);
 }
 
-TEST_F(ContentStoreTest, getMemesOfProgramId) {
+TEST_F(ContentEntityStoreTest, getMemesOfProgramId) {
   const auto result = subject.getMemesOfProgram(program1.id);
 
   ASSERT_EQ(1, result.size());
 }
 
-TEST_F(ContentStoreTest, getMemesAtBeginning) {
+TEST_F(ContentEntityStoreTest, getMemesAtBeginning) {
   const auto result = subject.getMemesAtBeginning(&program1);
 
   ASSERT_EQ(3, result.size());
 }
 
-TEST_F(ContentStoreTest, getPatternIdOfEventId) {
+TEST_F(ContentEntityStoreTest, getPatternIdOfEventId) {
   const auto result = subject.getPatternIdOfEvent(program2_sequence_pattern1_event1.id);
 
   ASSERT_EQ(program2_sequence_pattern1.id, result);
 }
 
-TEST_F(ContentStoreTest, getPatternsOfSequence) {
+TEST_F(ContentEntityStoreTest, getPatternsOfSequence) {
   const auto result = subject.getPatternsOfSequence(&program2_sequence);
 
   ASSERT_EQ(2, result.size());
 }
 
-TEST_F(ContentStoreTest, getPatternsOfSequenceId) {
+TEST_F(ContentEntityStoreTest, getPatternsOfSequenceId) {
   const auto result = subject.getPatternsOfSequence(program2_sequence.id);
 
   ASSERT_EQ(2, result.size());
 }
 
-TEST_F(ContentStoreTest, getPatternsOfVoice) {
+TEST_F(ContentEntityStoreTest, getPatternsOfVoice) {
   const auto result = subject.getPatternsOfVoice(&program2_voice);
 
   ASSERT_EQ(2, result.size());
 }
 
-TEST_F(ContentStoreTest, getPatternsOfVoiceId) {
+TEST_F(ContentEntityStoreTest, getPatternsOfVoiceId) {
   const auto result = subject.getPatternsOfVoice(program2_voice.id);
 
   ASSERT_EQ(2, result.size());
 }
 
-TEST_F(ContentStoreTest, getProgram) {
+TEST_F(ContentEntityStoreTest, getProgram) {
   const auto result = subject.getProgram(program1.id);
 
   ASSERT_TRUE(result.has_value());
   ASSERT_EQ(program1.id, result.value()->id);
 }
 
-TEST_F(ContentStoreTest, getPrograms) {
+TEST_F(ContentEntityStoreTest, getPrograms) {
   const auto result = subject.getPrograms();
 
   ASSERT_EQ(2, result.size());
 }
 
-TEST_F(ContentStoreTest, getProgramsOfLibrary) {
+TEST_F(ContentEntityStoreTest, getProgramsOfLibrary) {
   const auto result = subject.getProgramsOfLibrary(&library1);
 
   ASSERT_EQ(2, result.size());
 }
 
-TEST_F(ContentStoreTest, getProgramsOfLibraryId) {
+TEST_F(ContentEntityStoreTest, getProgramsOfLibraryId) {
   const auto result = subject.getProgramsOfLibrary(library1.id);
 
   ASSERT_EQ(2, result.size());
 }
 
-TEST_F(ContentStoreTest, getProgramMemes) {
+TEST_F(ContentEntityStoreTest, getProgramMemes) {
   const auto result = subject.getProgramMemes();
 
   ASSERT_EQ(2, result.size());
 }
 
-TEST_F(ContentStoreTest, getProgramSequence) {
+TEST_F(ContentEntityStoreTest, getProgramSequence) {
   const auto result = subject.getProgramSequence(program1_sequence.id);
 
   ASSERT_TRUE(result.has_value());
   ASSERT_EQ(program1_sequence.id, result.value()->id);
 }
 
-TEST_F(ContentStoreTest, getSequenceOfBinding) {
+TEST_F(ContentEntityStoreTest, getSequenceOfBinding) {
   const auto result = subject.getSequenceOfBinding(&program1_sequence_binding1);
 
   ASSERT_TRUE(result.has_value());
   ASSERT_EQ(program1_sequence.id, result.value()->id);
 }
 
-TEST_F(ContentStoreTest, getProgramSequences) {
+TEST_F(ContentEntityStoreTest, getProgramSequences) {
   const auto result = subject.getProgramSequences();
 
   ASSERT_EQ(2, result.size());
 }
 
-TEST_F(ContentStoreTest, getSequencesOfProgramId) {
+TEST_F(ContentEntityStoreTest, getSequencesOfProgramId) {
   const auto result = subject.getSequencesOfProgram(program1.id);
 
   ASSERT_EQ(1, result.size());
 }
 
-TEST_F(ContentStoreTest, getProgramSequenceBinding) {
+TEST_F(ContentEntityStoreTest, getProgramSequenceBinding) {
   const auto result = subject.getProgramSequenceBinding(program1_sequence_binding1.id);
 
   ASSERT_TRUE(result.has_value());
   ASSERT_EQ(program1_sequence_binding1.id, result.value()->id);
 }
 
-TEST_F(ContentStoreTest, getProgramSequenceBindings) {
+TEST_F(ContentEntityStoreTest, getProgramSequenceBindings) {
   const auto result = subject.getProgramSequenceBindings();
 
   ASSERT_EQ(2, result.size());
 }
 
-TEST_F(ContentStoreTest, getSequenceBindingsOfProgram) {
+TEST_F(ContentEntityStoreTest, getSequenceBindingsOfProgram) {
   const auto result = subject.getSequenceBindingsOfProgram(program1.id);
 
   ASSERT_EQ(2, result.size());
 }
 
-TEST_F(ContentStoreTest, getProgramSequenceBindingMemes) {
+TEST_F(ContentEntityStoreTest, getProgramSequenceBindingMemes) {
   const auto result = subject.getProgramSequenceBindingMemes();
 
   ASSERT_EQ(2, result.size());
 }
 
-TEST_F(ContentStoreTest, getMemesOfSequenceBinding) {
+TEST_F(ContentEntityStoreTest, getMemesOfSequenceBinding) {
   const auto result = subject.getMemesOfSequenceBinding(&program1_sequence_binding1);
 
   ASSERT_EQ(2, result.size());
 }
 
-TEST_F(ContentStoreTest, getMemesOfSequenceBindingId) {
+TEST_F(ContentEntityStoreTest, getMemesOfSequenceBindingId) {
   const auto result = subject.getMemesOfSequenceBinding(program1_sequence_binding1.id);
 
   ASSERT_EQ(2, result.size());
 }
 
 
-TEST_F(ContentStoreTest, getProgramSequencePattern) {
+TEST_F(ContentEntityStoreTest, getProgramSequencePattern) {
   const auto result = subject.getProgramSequencePattern(program2_sequence_pattern1.id);
 
   ASSERT_TRUE(result.has_value());
   ASSERT_EQ(program2_sequence_pattern1.id, result.value()->id);
 }
 
-TEST_F(ContentStoreTest, getProgramSequencePatterns) {
+TEST_F(ContentEntityStoreTest, getProgramSequencePatterns) {
   const auto result = subject.getProgramSequencePatterns();
 
   ASSERT_EQ(2, result.size());
 }
 
-TEST_F(ContentStoreTest, getProgramSequencePatternEvent) {
+TEST_F(ContentEntityStoreTest, getProgramSequencePatternEvent) {
   const auto result = subject.getProgramSequencePatternEvent(program2_sequence_pattern1_event1.id);
 
   ASSERT_TRUE(result.has_value());
   ASSERT_EQ(program2_sequence_pattern1_event1.id, result.value()->id);
 }
 
-TEST_F(ContentStoreTest, getProgramSequencePatternEvents) {
+TEST_F(ContentEntityStoreTest, getProgramSequencePatternEvents) {
   const auto result = subject.getProgramSequencePatternEvents();
 
   ASSERT_EQ(2, result.size());
 }
 
-TEST_F(ContentStoreTest, getProgramSequenceChord) {
+TEST_F(ContentEntityStoreTest, getProgramSequenceChord) {
   const auto result = subject.getProgramSequenceChord(program1_sequence_chord0.id);
 
   ASSERT_TRUE(result.has_value());
   ASSERT_EQ(program1_sequence_chord0.id, result.value()->id);
 }
 
-TEST_F(ContentStoreTest, getProgramSequenceChords) {
+TEST_F(ContentEntityStoreTest, getProgramSequenceChords) {
   const auto result = subject.getProgramSequenceChords();
 
   ASSERT_EQ(2, result.size());
 }
 
-TEST_F(ContentStoreTest, testGetProgramSequenceChords) {
+TEST_F(ContentEntityStoreTest, testGetProgramSequenceChords) {
   const auto result = subject.getSequenceChordsOfProgram(program1_sequence.programId);
 
   ASSERT_EQ(2, result.size());
 }
 
-TEST_F(ContentStoreTest, getProgramSequenceChordVoicings) {
+TEST_F(ContentEntityStoreTest, getProgramSequenceChordVoicings) {
   const auto result = subject.getProgramSequenceChordVoicings();
 
   ASSERT_EQ(2, result.size());
 }
 
-TEST_F(ContentStoreTest, getProgramVoice) {
+TEST_F(ContentEntityStoreTest, getProgramVoice) {
   const auto result = subject.getProgramVoice(program1_voice.id);
 
   ASSERT_TRUE(result.has_value());
   ASSERT_EQ(program1_voice.id, result.value()->id);
 }
 
-TEST_F(ContentStoreTest, getProgramVoices) {
+TEST_F(ContentEntityStoreTest, getProgramVoices) {
   const auto result = subject.getProgramVoices();
 
   ASSERT_EQ(2, result.size());
 }
 
-TEST_F(ContentStoreTest, getProgramVoiceTrack) {
+TEST_F(ContentEntityStoreTest, getProgramVoiceTrack) {
   const auto result = subject.getProgramVoiceTrack(program2_voice_track1.id);
 
   ASSERT_TRUE(result.has_value());
   ASSERT_EQ(program2_voice_track1.id, result.value()->id);
 }
 
-TEST_F(ContentStoreTest, getProgramVoiceTracks) {
+TEST_F(ContentEntityStoreTest, getProgramVoiceTracks) {
   const auto result = subject.getProgramVoiceTracks();
 
   ASSERT_EQ(2, result.size());
 }
 
-TEST_F(ContentStoreTest, getTracksOfProgramId) {
+TEST_F(ContentEntityStoreTest, getTracksOfProgramId) {
   const auto result = subject.getTracksOfProgram(program2.id);
 
   ASSERT_EQ(2, result.size());
 }
 
-TEST_F(ContentStoreTest, getTracksOfVoice) {
+TEST_F(ContentEntityStoreTest, getTracksOfVoice) {
   const auto result = subject.getTracksOfVoice(&program2_voice);
 
   ASSERT_EQ(2, result.size());
 }
 
-TEST_F(ContentStoreTest, getTracksOfVoiceId) {
+TEST_F(ContentEntityStoreTest, getTracksOfVoiceId) {
   const auto result = subject.getTracksOfVoice(program2_voice.id);
 
   ASSERT_EQ(2, result.size());
 }
 
-TEST_F(ContentStoreTest, getTemplates) {
+TEST_F(ContentEntityStoreTest, getTemplates) {
   const auto result = subject.getTemplates();
 
   ASSERT_EQ(2, result.size());
 }
 
-TEST_F(ContentStoreTest, getTemplate) {
+TEST_F(ContentEntityStoreTest, getTemplate) {
   const auto result = subject.getTemplate(template1.id);
 
   ASSERT_EQ(template1.id, result.value()->id);
 }
 
-TEST_F(ContentStoreTest, getTemplateBindings) {
+TEST_F(ContentEntityStoreTest, getTemplateBindings) {
   const auto result = subject.getTemplateBindings();
 
   ASSERT_EQ(1, result.size());
 }
 
-TEST_F(ContentStoreTest, getBindingsOfTemplate) {
+TEST_F(ContentEntityStoreTest, getBindingsOfTemplate) {
   const auto result = subject.getBindingsOfTemplate(template1.id);
 
   ASSERT_EQ(1, result.size());
 }
 
-TEST_F(ContentStoreTest, getLibrary) {
+TEST_F(ContentEntityStoreTest, getLibrary) {
   const auto result = subject.getLibrary(library1.id);
 
   ASSERT_EQ(library1.id, result.value()->id);
 }
 
-TEST_F(ContentStoreTest, getLibraries) {
+TEST_F(ContentEntityStoreTest, getLibraries) {
   const auto result = subject.getLibraries();
 
   ASSERT_EQ(1, result.size());
 }
 
-TEST_F(ContentStoreTest, getProject) {
+TEST_F(ContentEntityStoreTest, getProject) {
   const auto result = subject.getProject();
 
   ASSERT_TRUE(result.has_value());
   ASSERT_EQ(project1.id, result.value()->id);
 }
 
-TEST_F(ContentStoreTest, getTrackOfEvent) {
+TEST_F(ContentEntityStoreTest, getTrackOfEvent) {
   const auto result = subject.getTrackOfEvent(&program2_sequence_pattern1_event1);
 
   ASSERT_TRUE(result.has_value());
   ASSERT_EQ(program2_voice_track1.id, result.value()->id);
 }
 
-TEST_F(ContentStoreTest, getTrackNames) {
+TEST_F(ContentEntityStoreTest, getTrackNames) {
   const auto result = subject.getTrackNamesOfVoice(&program2_voice);
 
   ASSERT_EQ(2, result.size());
 }
 
-TEST_F(ContentStoreTest, getVoicingsOfChord) {
+TEST_F(ContentEntityStoreTest, getVoicingsOfChord) {
   const auto result = subject.getVoicingsOfChord(&program1_sequence_chord0);
 
   ASSERT_EQ(1, result.size());
 }
 
-TEST_F(ContentStoreTest, getVoicingsOfChordId) {
+TEST_F(ContentEntityStoreTest, getVoicingsOfChordId) {
   const auto result = subject.getVoicingsOfChord(program1_sequence_chord0.id);
 
   ASSERT_EQ(1, result.size());
 }
 
-TEST_F(ContentStoreTest, getSequenceChordVoicingsOfProgram_dontCountInvalidVoicings) {
+TEST_F(ContentEntityStoreTest, getSequenceChordVoicingsOfProgram_dontCountInvalidVoicings) {
   const auto program1_voice2 = ContentFixtures::buildProgramVoice(&program1, Instrument::Type::Pad, "Birds");
   subject.put(ContentFixtures::buildVoicing(
       &program1_sequence_chord0, &program1_voice2, "(None)")); // No voicing notes- doesn't count!
@@ -743,38 +743,38 @@ TEST_F(ContentStoreTest, getSequenceChordVoicingsOfProgram_dontCountInvalidVoici
   ASSERT_EQ(2, result.size());
 }
 
-TEST_F(ContentStoreTest, getVoicingsOfChordAndVoice) {
+TEST_F(ContentEntityStoreTest, getVoicingsOfChordAndVoice) {
   const auto result = subject.getVoicingsOfChordAndVoice(&program1_sequence_chord0, &program1_voice);
 
   ASSERT_EQ(1, result.size());
 }
 
-TEST_F(ContentStoreTest, getVoicingsOfChordIdAndVoiceId) {
+TEST_F(ContentEntityStoreTest, getVoicingsOfChordIdAndVoiceId) {
   const auto result = subject.getVoicingsOfChordAndVoice(program1_sequence_chord0.id, program1_voice.id);
 
   ASSERT_EQ(1, result.size());
 }
 
-TEST_F(ContentStoreTest, getVoiceOfEvent) {
+TEST_F(ContentEntityStoreTest, getVoiceOfEvent) {
   const auto result = subject.getVoiceOfEvent(&program2_sequence_pattern1_event1);
 
   ASSERT_TRUE(result.has_value());
   ASSERT_EQ(program2_voice.id, result.value()->id);
 }
 
-TEST_F(ContentStoreTest, getVoicesOfProgram) {
+TEST_F(ContentEntityStoreTest, getVoicesOfProgram) {
   const auto result = subject.getVoicesOfProgram(&program2);
 
   ASSERT_EQ(1, result.size());
 }
 
-TEST_F(ContentStoreTest, getVoicesOfProgramId) {
+TEST_F(ContentEntityStoreTest, getVoicesOfProgramId) {
   const auto result = subject.getVoicesOfProgram(program2.id);
 
   ASSERT_EQ(1, result.size());
 }
 
-TEST_F(ContentStoreTest, getTemplateByIdentifier) {
+TEST_F(ContentEntityStoreTest, getTemplateByIdentifier) {
   const auto result1 = subject.getTemplateByIdentifier(template1.name);
   ASSERT_TRUE(result1.has_value());
   ASSERT_EQ(template1.id, result1.value()->id);
@@ -800,97 +800,97 @@ TEST_F(ContentStoreTest, getTemplateByIdentifier) {
   ASSERT_EQ(template2.id, result6.value()->id);
 }
 
-TEST_F(ContentStoreTest, setInstruments) {
+TEST_F(ContentEntityStoreTest, setInstruments) {
   subject.setInstruments({});
 
   ASSERT_TRUE(subject.getInstruments().empty());
 }
 
-TEST_F(ContentStoreTest, setInstrumentAudios) {
+TEST_F(ContentEntityStoreTest, setInstrumentAudios) {
   subject.setInstrumentAudios({});
 
   ASSERT_TRUE(subject.getInstrumentAudios().empty());
 }
 
-TEST_F(ContentStoreTest, setInstrumentMemes) {
+TEST_F(ContentEntityStoreTest, setInstrumentMemes) {
   subject.setInstrumentMemes({});
 
   ASSERT_TRUE(subject.getInstrumentMemes().empty());
 }
 
-TEST_F(ContentStoreTest, setLibraries) {
+TEST_F(ContentEntityStoreTest, setLibraries) {
   subject.setLibraries({});
 
   ASSERT_TRUE(subject.getLibraries().empty());
 }
 
-TEST_F(ContentStoreTest, setPrograms) {
+TEST_F(ContentEntityStoreTest, setPrograms) {
   subject.setPrograms({});
 
   ASSERT_TRUE(subject.getPrograms().empty());
 }
 
-TEST_F(ContentStoreTest, setProgramMemes) {
+TEST_F(ContentEntityStoreTest, setProgramMemes) {
   subject.setProgramMemes({});
 
   ASSERT_TRUE(subject.getProgramMemes().empty());
 }
 
-TEST_F(ContentStoreTest, setProgramSequences) {
+TEST_F(ContentEntityStoreTest, setProgramSequences) {
   subject.setProgramSequences({});
 
   ASSERT_TRUE(subject.getProgramSequences().empty());
 }
 
-TEST_F(ContentStoreTest, setProgramSequenceBindings) {
+TEST_F(ContentEntityStoreTest, setProgramSequenceBindings) {
   subject.setProgramSequenceBindings({});
 
   ASSERT_TRUE(subject.getProgramSequenceBindings().empty());
 }
 
-TEST_F(ContentStoreTest, setProgramSequenceBindingMemes) {
+TEST_F(ContentEntityStoreTest, setProgramSequenceBindingMemes) {
   subject.setProgramSequenceBindingMemes({});
 
   ASSERT_TRUE(subject.getProgramSequenceBindingMemes().empty());
 }
 
-TEST_F(ContentStoreTest, setProgramSequenceChords) {
+TEST_F(ContentEntityStoreTest, setProgramSequenceChords) {
   subject.setProgramSequenceChords({});
 
   ASSERT_TRUE(subject.getProgramSequenceChords().empty());
 }
 
-TEST_F(ContentStoreTest, setProgramSequenceChordVoicings) {
+TEST_F(ContentEntityStoreTest, setProgramSequenceChordVoicings) {
   subject.setProgramSequenceChordVoicings({});
 
   ASSERT_TRUE(subject.getProgramSequenceChordVoicings().empty());
 }
 
-TEST_F(ContentStoreTest, setProgramSequencePatterns) {
+TEST_F(ContentEntityStoreTest, setProgramSequencePatterns) {
   subject.setProgramSequencePatterns({});
 
   ASSERT_TRUE(subject.getProgramSequencePatterns().empty());
 }
 
-TEST_F(ContentStoreTest, setProgramSequencePatternEvents) {
+TEST_F(ContentEntityStoreTest, setProgramSequencePatternEvents) {
   subject.setProgramSequencePatternEvents({});
 
   ASSERT_TRUE(subject.getProgramSequencePatternEvents().empty());
 }
 
-TEST_F(ContentStoreTest, setProgramVoices) {
+TEST_F(ContentEntityStoreTest, setProgramVoices) {
   subject.setProgramVoices({});
 
   ASSERT_TRUE(subject.getProgramVoices().empty());
 }
 
-TEST_F(ContentStoreTest, setProgramVoiceTracks) {
+TEST_F(ContentEntityStoreTest, setProgramVoiceTracks) {
   subject.setProgramVoiceTracks({});
 
   ASSERT_TRUE(subject.getProgramVoiceTracks().empty());
 }
 
-TEST_F(ContentStoreTest, setProjects) {
+TEST_F(ContentEntityStoreTest, setProjects) {
   auto project2 = ContentFixtures::buildProject();
   subject.setProjects({project2});
 
@@ -900,157 +900,157 @@ TEST_F(ContentStoreTest, setProjects) {
   ASSERT_EQ(result.value()->id, project2.id);
 }
 
-TEST_F(ContentStoreTest, setTemplates) {
+TEST_F(ContentEntityStoreTest, setTemplates) {
   subject.setTemplates({});
 
   ASSERT_TRUE(subject.getTemplates().empty());
 }
 
-TEST_F(ContentStoreTest, setTemplateBindings) {
+TEST_F(ContentEntityStoreTest, setTemplateBindings) {
   subject.setTemplateBindings({});
 
   ASSERT_TRUE(subject.getTemplateBindings().empty());
 }
 
 
-TEST_F(ContentStoreTest, getSequencePatternEventsOfProgram) {
+TEST_F(ContentEntityStoreTest, getSequencePatternEventsOfProgram) {
   const auto result = subject.getSequencePatternEventsOfProgram(program2.id);
 
   ASSERT_EQ(2, result.size());
 }
 
-TEST_F(ContentStoreTest, getEventsOfProgramId) {
+TEST_F(ContentEntityStoreTest, getEventsOfProgramId) {
   const auto result = subject.getSequencePatternEventsOfProgram(program2_sequence_pattern1.programId);
 
   ASSERT_EQ(2, result.size());
 }
 
-TEST_F(ContentStoreTest, getSequencePatternsOfProgram) {
+TEST_F(ContentEntityStoreTest, getSequencePatternsOfProgram) {
   const auto result = subject.getSequencePatternsOfProgram(&program2);
 
   ASSERT_EQ(2, result.size());
 }
 
-TEST_F(ContentStoreTest, getPatternsOfProgramId) {
+TEST_F(ContentEntityStoreTest, getPatternsOfProgramId) {
   const auto result = subject.getSequencePatternsOfProgram(program2_sequence_pattern1.programId);
 
   ASSERT_EQ(2, result.size());
 }
 
-TEST_F(ContentStoreTest, getInstrumentsOfType) {
+TEST_F(ContentEntityStoreTest, getInstrumentsOfType) {
   const auto result = subject.getInstrumentsOfType(Instrument::Type::Drum);
 
   ASSERT_EQ(1, result.size());
 }
 
-TEST_F(ContentStoreTest, getInstrumentsOfTypesAndModes) {
+TEST_F(ContentEntityStoreTest, getInstrumentsOfTypesAndModes) {
   const auto result = subject.getInstrumentsOfTypesAndModes({Instrument::Type::Drum}, {Instrument::Mode::Event});
 
   ASSERT_EQ(1, result.size());
 }
 
-TEST_F(ContentStoreTest, getInstrumentTypeOfAudio) {
+TEST_F(ContentEntityStoreTest, getInstrumentTypeOfAudio) {
   const auto result = subject.getInstrumentTypeOfAudio(instrument1_audio.id);
 
   ASSERT_EQ(Instrument::Type::Drum, result);
 }
 
-TEST_F(ContentStoreTest, getMemesOfInstrument) {
+TEST_F(ContentEntityStoreTest, getMemesOfInstrument) {
   const auto result = subject.getMemesOfInstrument(instrument1.id);
 
   ASSERT_EQ(1, result.size());
 }
 
-TEST_F(ContentStoreTest, getPatternIdOfEvent) {
+TEST_F(ContentEntityStoreTest, getPatternIdOfEvent) {
   const auto result = subject.getPatternIdOfEvent(program2_sequence_pattern1_event1.id);
 
   ASSERT_EQ(program2_sequence_pattern1.id, result);
 }
 
-TEST_F(ContentStoreTest, getProgramsOfType) {
+TEST_F(ContentEntityStoreTest, getProgramsOfType) {
   const auto result = subject.getProgramsOfType(Program::Type::Main);
 
   ASSERT_EQ(1, result.size());
 }
 
-TEST_F(ContentStoreTest, getMemesOfProgram) {
+TEST_F(ContentEntityStoreTest, getMemesOfProgram) {
   const auto result = subject.getMemesOfProgram(program1.id);
 
   ASSERT_EQ(1, result.size());
 }
 
-TEST_F(ContentStoreTest, getSequencesOfProgram) {
+TEST_F(ContentEntityStoreTest, getSequencesOfProgram) {
   const auto result = subject.getSequencesOfProgram(program1.id);
 
   ASSERT_EQ(1, result.size());
 }
 
-TEST_F(ContentStoreTest, getSequenceChordsOfProgram) {
+TEST_F(ContentEntityStoreTest, getSequenceChordsOfProgram) {
   const auto result = subject.getSequenceChordsOfProgram(program1.id);
 
   ASSERT_EQ(2, result.size());
 }
 
-TEST_F(ContentStoreTest, getTracksOfProgram) {
+TEST_F(ContentEntityStoreTest, getTracksOfProgram) {
   const auto result = subject.getTracksOfProgram(program2.id);
 
   ASSERT_EQ(2, result.size());
 }
 
-TEST_F(ContentStoreTest, getTracksOfProgramType) {
+TEST_F(ContentEntityStoreTest, getTracksOfProgramType) {
   const auto result = subject.getTracksOfProgramType(Program::Type::Beat);
 
   ASSERT_EQ(2, result.size());
 }
 
-TEST_F(ContentStoreTest, getTemplateBinding) {
+TEST_F(ContentEntityStoreTest, getTemplateBinding) {
   const auto result = subject.getTemplateBinding(template1_binding.id);
 
   ASSERT_TRUE(result.has_value());
   ASSERT_EQ(template1_binding.id, result.value()->id);
 }
 
-TEST_F(ContentStoreTest, getTrackNamesOfVoice) {
+TEST_F(ContentEntityStoreTest, getTrackNamesOfVoice) {
   const auto result = subject.getTrackNamesOfVoice(&program2_voice);
 
   ASSERT_EQ(2, result.size());
 }
 
-TEST_F(ContentStoreTest, getInstrumentMeme) {
+TEST_F(ContentEntityStoreTest, getInstrumentMeme) {
   const auto result = subject.getInstrumentMeme(instrument1_meme.id);
 
   ASSERT_TRUE(result.has_value());
   ASSERT_EQ(instrument1_meme.id, result.value()->id);
 }
 
-TEST_F(ContentStoreTest, getProgramMeme) {
+TEST_F(ContentEntityStoreTest, getProgramMeme) {
   const auto result = subject.getProgramMeme(program1_meme.id);
 
   ASSERT_TRUE(result.has_value());
   ASSERT_EQ(program1_meme.id, result.value()->id);
 }
 
-TEST_F(ContentStoreTest, getProgramSequenceBindingMeme) {
+TEST_F(ContentEntityStoreTest, getProgramSequenceBindingMeme) {
   const auto result = subject.getProgramSequenceBindingMeme(program1_sequence_binding1_meme1.id);
 
   ASSERT_TRUE(result.has_value());
   ASSERT_EQ(program1_sequence_binding1_meme1.id, result.value()->id);
 }
 
-TEST_F(ContentStoreTest, getProgramSequenceChordVoicing) {
+TEST_F(ContentEntityStoreTest, getProgramSequenceChordVoicing) {
   const auto result = subject.getProgramSequenceChordVoicing(program1_sequence_chord0_voicing0.id);
 
   ASSERT_TRUE(result.has_value());
   ASSERT_EQ(program1_sequence_chord0_voicing0.id, result.value()->id);
 }
 
-TEST_F(ContentStoreTest, getPatternsOfSequenceAndVoice) {
+TEST_F(ContentEntityStoreTest, getPatternsOfSequenceAndVoice) {
   ASSERT_EQ(2, subject.getPatternsOfSequenceAndVoice(program2_sequence.id, program2_voice.id).size());
   ASSERT_EQ(0, subject.getPatternsOfSequenceAndVoice(EntityUtils::computeUniqueId(), program2_voice.id).size());
   ASSERT_EQ(0, subject.getPatternsOfSequenceAndVoice(program2_sequence.id, EntityUtils::computeUniqueId()).size());
 }
 
-TEST_F(ContentStoreTest, ForTemplate_BoundToLibrary) {
+TEST_F(ContentEntityStoreTest, ForTemplate_BoundToLibrary) {
   auto result = subject.forTemplate(&template1);
 
   // Assert the correct count of entities in the content store
@@ -1074,7 +1074,7 @@ TEST_F(ContentStoreTest, ForTemplate_BoundToLibrary) {
   ASSERT_EQ(1, result.getTemplateBindings().size());
 }
 
-TEST_F(ContentStoreTest, ForTemplate_BoundToProgram) {
+TEST_F(ContentEntityStoreTest, ForTemplate_BoundToProgram) {
   subject.setTemplateBindings({ContentFixtures::buildTemplateBinding(&template2, &program1)});
 
   auto result = subject.forTemplate(&template2);
@@ -1100,7 +1100,7 @@ TEST_F(ContentStoreTest, ForTemplate_BoundToProgram) {
   ASSERT_EQ(1, result.getTemplateBindings().size());
 }
 
-TEST_F(ContentStoreTest, ForTemplate_BoundToInstrument) {
+TEST_F(ContentEntityStoreTest, ForTemplate_BoundToInstrument) {
   subject.setTemplateBindings({ContentFixtures::buildTemplateBinding(&template2, &instrument1)});
 
   auto result = subject.forTemplate(&template2);
@@ -1126,7 +1126,7 @@ TEST_F(ContentStoreTest, ForTemplate_BoundToInstrument) {
   ASSERT_EQ(1, result.getTemplateBindings().size());
 }
 
-TEST_F(ContentStoreTest, Clear) {
+TEST_F(ContentEntityStoreTest, Clear) {
   subject.clear();
 
   // Assert the correct count of entities in the content store
@@ -1150,7 +1150,7 @@ TEST_F(ContentStoreTest, Clear) {
   ASSERT_EQ(0, subject.getTemplateBindings().size());
 }
 
-TEST_F(ContentStoreTest, PutFromOtherContentEntityStore) {
+TEST_F(ContentEntityStoreTest, PutFromOtherContentEntityStore) {
   auto subject1 = ContentEntityStore();
   subject1.setProjects({project1});
   subject1.setLibraries({library1});
@@ -1195,4 +1195,35 @@ TEST_F(ContentStoreTest, PutFromOtherContentEntityStore) {
   ASSERT_EQ(1, subject3.getProjects().size());
   ASSERT_EQ(2, subject3.getTemplates().size());
   ASSERT_EQ(1, subject3.getTemplateBindings().size());
+}
+
+TEST_F(ContentEntityStoreTest, ToString) {
+  auto subject1 = ContentEntityStore();
+  subject1.setProjects({project1});
+  subject1.setLibraries({library1});
+  subject1.setTemplates({template1, template2});
+  subject1.setTemplateBindings({template1_binding});
+  subject1.setInstruments({instrument1, instrument2});
+  subject1.setInstrumentMemes({instrument1_meme, instrument2_meme});
+  subject1.setInstrumentAudios({instrument1_audio, instrument2_audio});
+  subject1.setPrograms({program1, program2});
+  subject1.setProgramMemes({program1_meme, program2_meme});
+  auto subject2 = ContentEntityStore();
+  subject2.setProgramVoices({program1_voice, program2_voice});
+  subject2.setProgramSequences({program1_sequence, program2_sequence});
+  subject2.setProgramSequenceChords({program1_sequence_chord0, program1_sequence_chord1});
+  subject2.setProgramSequenceChordVoicings({program1_sequence_chord0_voicing0, program1_sequence_chord1_voicing1});
+  subject2.setProgramSequenceBindings({program1_sequence_binding1, program1_sequence_binding2});
+  subject2.setProgramSequenceBindingMemes({program1_sequence_binding1_meme1, program1_sequence_binding1_meme2});
+  subject2.setProgramSequencePatterns({program2_sequence_pattern1, program2_sequence_pattern2});
+  subject2.setProgramVoiceTracks({program2_voice_track1, program2_voice_track2});
+  subject2.setProgramSequencePatternEvents({program2_sequence_pattern1_event1, program2_sequence_pattern1_event2});
+
+  auto subject3 = ContentEntityStore();
+  subject3.put(&subject1);
+  subject3.put(&subject2);
+
+  auto result = subject3.toString();
+
+  ASSERT_FALSE(result.empty());
 }

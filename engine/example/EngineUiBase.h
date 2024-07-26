@@ -34,13 +34,13 @@ protected:
   Component ui_document;
   Component ui_header_elapsed_time;
   std::vector<std::string> ui_tab_values{
-      "Template",
       "Segments",
       "Audio",
+      "Template",
       "Content",
   };
   int ui_tab_selected;
-  std::vector<Element> memeTaxonomyCategories;
+  std::vector<Component> memeTaxonomyCategories;
   std::map<std::string, std::vector<std::string>> memeTaxonomy;
   std::map<std::string, int> memeTaxonomySelection;
 

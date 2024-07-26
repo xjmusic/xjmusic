@@ -978,6 +978,29 @@ void ContentEntityStore::put(const ContentEntityStore *other) {
   }
 }
 
+std::string ContentEntityStore::toString() {
+  // Summarize the contents of the store as a string
+  std::stringstream ss;
+  ss << libraries.size() << " Libraries" << std::endl;
+  ss << instruments.size() << " Instruments" << std::endl;
+  ss << instrumentAudios.size() << " InstrumentAudios" << std::endl;
+  ss << instrumentMemes.size() << " InstrumentMemes" << std::endl;
+  ss << programs.size() << " Programs" << std::endl;
+  ss << programMemes.size() << " ProgramMemes" << std::endl;
+  ss << programVoices.size() << " ProgramVoices" << std::endl;
+  ss << programVoiceTracks.size() << " ProgramVoiceTracks" << std::endl;
+  ss << programSequences.size() << " ProgramSequences" << std::endl;
+  ss << programSequenceBindings.size() << " ProgramSequenceBindings" << std::endl;
+  ss << programSequenceBindingMemes.size() << " ProgramSequenceBindingMemes" << std::endl;
+  ss << programSequenceChords.size() << " ProgramSequenceChords" << std::endl;
+  ss << programSequenceChordVoicings.size() << " ProgramSequenceChordVoicings" << std::endl;
+  ss << programSequencePatterns.size() << " ProgramSequencePatterns" << std::endl;
+  ss << programSequencePatternEvents.size() << " ProgramSequencePatternEvents" << std::endl;
+  ss << templates.size() << " Templates" << std::endl;
+  ss << templateBindings.size() << " TemplateBindings" << std::endl;
+  return ss.str();
+}
+
 ContentEntityStore::~ContentEntityStore() = default;
 
 ContentEntityStore::ContentEntityStore() = default;
@@ -991,3 +1014,4 @@ ContentEntityStore::ContentEntityStore(std::ifstream &input) {
 ContentEntityStore::ContentEntityStore(std::string &input) {
   *this = json::parse(input).get<ContentEntityStore>();
 }
+
