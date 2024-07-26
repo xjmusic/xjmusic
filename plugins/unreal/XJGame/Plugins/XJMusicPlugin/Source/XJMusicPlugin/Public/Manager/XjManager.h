@@ -3,13 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
+#include "UObject/NoExportTypes.h"
 
 #include <xjmusic/work/WorkManager.h>
 #include <xjmusic/fabricator/SegmentUtils.h>
 #include <xjmusic/Engine.h>
 
-#include "PrototypeActor.generated.h"
+#include "XjManager.generated.h"
 
 using namespace XJ;
 
@@ -120,7 +120,7 @@ class FXjRunnable : public FRunnable
 
 public:
 
-	FXjRunnable(const FString& XjProjectFolder, const FString& XjProjectFile, UWorld* World, class UAudioComponent* AudioComponent);
+	FXjRunnable(const FString& XjProjectFolder, const FString& XjProjectFile, UWorld* World);
 	virtual ~FXjRunnable() override;
 
 	virtual bool Init() override;
@@ -139,7 +139,7 @@ private:
 
 		UE_LOG(LogTemp, Error, TEXT("EXCEEDED TEST TIME LIMIT OF %lld SECONDS"), MAXIMUM_TEST_WAIT_SECONDS)
 
-		return false;
+			return false;
 	}
 
 	bool HasSegmentsDubbedPastMinimumOffset() const
@@ -180,29 +180,16 @@ private:
 	TMap<TimeRecord, TArray<FString>> DebugViewTimeToAudio;
 };
 
-
 UCLASS()
-class XJMUSICPLUGIN_API APrototypeActor : public AActor
+class XJMUSICPLUGIN_API UXjManager : public UObject
 {
 	GENERATED_BODY()
-	
-public:	
 
-	APrototypeActor();
+public:
 
-protected:
+	void Setup();
 
-	UPROPERTY(EditInstanceOnly, Category = "XjMusic", meta = (ToolTip = "Path to XJ project folder, with trailing slash"))
-	FString XjProjectFolder;
-	
-	UPROPERTY(EditInstanceOnly, Category = "XjMusic", meta = (ToolTip = "Name of XJ project file"))
-	FString XjProjectFile;
-	
-	virtual void BeginPlay() override;
-
-	virtual void BeginDestroy() override;
-
-	class UAudioComponent* AudioComponent;
+	void BeginDestroy() override;
 
 private:
 	FXjRunnable* XjRunnable = nullptr;

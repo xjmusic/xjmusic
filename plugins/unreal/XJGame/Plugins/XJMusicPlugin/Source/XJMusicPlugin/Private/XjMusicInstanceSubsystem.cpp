@@ -11,6 +11,31 @@
 #include <Misc/FileHelper.h>
 #include <Runtime/Engine/Public/AudioDevice.h>
 #include <Async/Async.h>
+#include <Manager/XjManager.h>
+
+void UXjMusicInstanceSubsystem::Initialize(FSubsystemCollectionBase& Collection)
+{
+	Super::Initialize(Collection);
+}
+
+void UXjMusicInstanceSubsystem::Deinitialize()
+{
+	Super::Deinitialize();
+}
+
+void UXjMusicInstanceSubsystem::SetupXJ()
+{
+	if (IsValid(Manager))
+	{
+		return;
+	}
+
+	Manager = NewObject<UXjManager>(this);
+	if (Manager)
+	{
+		Manager->Setup();
+	}
+}
 
 void UXjMusicInstanceSubsystem::RetrieveProjectsContent(const FString& Directory)
 {

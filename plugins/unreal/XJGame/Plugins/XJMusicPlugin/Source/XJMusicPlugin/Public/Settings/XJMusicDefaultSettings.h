@@ -12,14 +12,12 @@ class XJMUSICPLUGIN_API UXJMusicDefaultSettings : public UObject
 	GENERATED_BODY()
 
 public:
-
-	UXJMusicDefaultSettings(const FObjectInitializer& obj);
-
 	UPROPERTY(Config, EditAnywhere, Category = Settings)
 	FString PathToXjMusicWorkstation;
 
 	UPROPERTY(Config, EditAnywhere, Category = Settings)
-	FString XjWorkDirectory;
+	FString XjProjectFolder = "D:/Dev/vgm/";
 
-	FString GetFullWorkPath() const;
+	UPROPERTY(Config, EditAnywhere, Category = Settings)
+	FString XjProjectFile = "vgm.xj";
 };

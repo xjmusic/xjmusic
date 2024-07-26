@@ -9,6 +9,7 @@
 
 #include <Settings/XJMusicDefaultSettings.h>
 #include <Interfaces/IPluginManager.h>
+#include <XjMusicInstanceSubsystem.h>
 
 static const FName XJMusicPluginTabName("XJMusicPlugin");
 
@@ -38,6 +39,36 @@ void FXJMusicPluginModule::StartupModule()
 			LOCTEXT("RuntimeSettingsDescription", "Configure XJ music plugin settings"),
 			GetMutableDefault<UXJMusicDefaultSettings>());
 	}
+
+    WorldPostInitializeHandle =	FWorldDelegates::OnPostWorldInitialization.AddRaw(this, &FXJMusicPluginModule::OnPostWorldInitialization);
+}
+
+
+void FXJMusicPluginModule::OnPostWorldInitialization(UWorld* World, const UWorld::InitializationValues IVS)
+{
+	if (!World)
+	{
+		return;
+	}
+
+	//TODO Add OnWorldBeginPlay delegate remove after level change
+
+	LastWorld = World;
+    WorldBeginPlayHandle = World->OnWorldBeginPlay.AddRaw(this, &FXJMusicPluginModule::OnLevelBeginPlay);
+}
+
+void FXJMusicPluginModule::OnLevelBeginPlay()
+{
+	if (!LastWorld)
+	{
+		return;
+	}
+
+	UXjMusicInstanceSubsystem* XjSubsystem = LastWorld->GetGameInstance()->GetSubsystem<UXjMusicInstanceSubsystem>();
+	if (XjSubsystem)
+	{
+		XjSubsystem->SetupXJ();
+	}
 }
 
 void FXJMusicPluginModule::ShutdownModule()
@@ -54,6 +85,8 @@ void FXJMusicPluginModule::ShutdownModule()
 	{
 		SettingsModule->UnregisterSettings("Project", "Plugins", "XJSettings");
 	}
+
+	FWorldDelegates::OnPostWorldInitialization.RemoveAll(this);
 }
 
 void FXJMusicPluginModule::PluginButtonClicked()
@@ -70,7 +103,7 @@ void FXJMusicPluginModule::PluginButtonClicked()
 		return;
 	}
 
-	FString DirAbsolute = XjSettings->GetFullWorkPath();
+	FString DirAbsolute = XjSettings->XjProjectFolder;
 
 	FPlatformProcess::CreateProc(*XjSettings->PathToXjMusicWorkstation, *DirAbsolute, true, false, false, nullptr, 0, nullptr, nullptr);
 }

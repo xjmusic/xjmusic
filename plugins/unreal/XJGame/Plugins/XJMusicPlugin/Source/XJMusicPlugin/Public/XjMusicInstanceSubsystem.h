@@ -7,12 +7,14 @@
 #include "Quartz/QuartzSubsystem.h"
 #include "XjMusicInstanceSubsystem.generated.h"
 
-UCLASS()
+UCLASS(DisplayName = "XjSubsystem")
 class XJMUSICPLUGIN_API UXjMusicInstanceSubsystem : public UGameInstanceSubsystem
 {
 	GENERATED_BODY()
 	
 public:
+	void SetupXJ();
+
 	void RetrieveProjectsContent(const FString& Directory);
 
 	//Play audio from loaded tracks. GlobalStartTime in millieseconds
@@ -22,12 +24,20 @@ public:
 
 	bool IsAudioScheduled(const FString& Name, const float Time) const;
 
+	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
+
+	virtual void Deinitialize() override;
+
 private:
+
 	USoundWave* GetSoundWaveByName(const FString& AudioName);
 
 	void InitQuartz();
 
 private:
+
+	class UXjManager* Manager = nullptr;
+
 	FAudioDeviceHandle WorldAudioDeviceHandle;
 
 	const FString AudioExtension = ".wav";

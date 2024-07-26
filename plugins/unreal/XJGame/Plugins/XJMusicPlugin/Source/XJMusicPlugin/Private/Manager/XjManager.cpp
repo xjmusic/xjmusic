@@ -1,15 +1,16 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Test/PrototypeActor.h"
+#include "Manager/XjManager.h"
 #include "Components/AudioComponent.h"
 #include <XjMusicInstanceSubsystem.h>
 #include <Math/UnrealMathUtility.h>
 
 #include <optional>
 #include <set>
+#include <Settings/XJMusicDefaultSettings.h>
 
-FXjRunnable::FXjRunnable(const FString& XjProjectFolder, const FString& XjProjectFile, UWorld* World, class UAudioComponent* AudioComponent)
+FXjRunnable::FXjRunnable(const FString& XjProjectFolder, const FString& XjProjectFile, UWorld* World)
 {
 	check(World);
 
@@ -171,7 +172,7 @@ uint32 FXjRunnable::Run()
 				DebugViewTimeToAudio.Add(StartTime, { Name });
 			}
 		}
-	
+
 		{
 			float EndFrameTime = FPlatformTime::Seconds();
 
@@ -205,18 +206,19 @@ void FXjRunnable::Stop()
 	bShouldStop = true;
 }
 
-APrototypeActor::APrototypeActor()
+void UXjManager::Setup()
 {
-	PrimaryActorTick.bCanEverTick = false;
-}
+	UXJMusicDefaultSettings* XjSettings = GetMutableDefault<UXJMusicDefaultSettings>();
+	if (!XjSettings)
+	{
+		return;
+	}
 
-void APrototypeActor::BeginPlay()
-{
-	XjRunnable = new FXjRunnable(XjProjectFolder, XjProjectFile, GetWorld(), AudioComponent); 
+	XjRunnable = new FXjRunnable(XjSettings->XjProjectFolder, XjSettings->XjProjectFile, GetWorld());
 	XjThread = FRunnableThread::Create(XjRunnable, TEXT("Xj Thread"));
 }
 
-void APrototypeActor::BeginDestroy()
+void UXjManager::BeginDestroy()
 {
 	if (XjThread && XjRunnable)
 	{
