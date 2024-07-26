@@ -193,7 +193,7 @@ std::shared_ptr<ComponentBase> EngineUiBase::BuildRunningUI() {
                                         separatorEmpty(),
                                         vbox({
                                                  text("Memes") | color(Color::GrayDark),
-                                                 vbox(segMemeList),
+                                                 vbox(segMemeList) | size(HEIGHT, EQUAL, segMemeList.size()),
                                              }),
                                         separatorEmpty(),
                                     }),
@@ -208,7 +208,7 @@ std::shared_ptr<ComponentBase> EngineUiBase::BuildRunningUI() {
         segments.push_back(separatorLight());
       }
     }
-    return hbox(segments) | flex;
+    return hbox(segments) | flex | yframe;
   });
 
   ui_tab_content_audio = Renderer([this] {
