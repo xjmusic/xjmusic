@@ -164,15 +164,17 @@ public:
    * @param segmentChoices  from which to filter and display
    * @return  choices display node
    */
-  std::shared_ptr<Node> computeSegmentChoicesNode(
-      const std::vector<const SegmentChoice *> &segmentChoices) const;
+  std::shared_ptr<Node> computeSegmentChoicesNode(const std::vector<const SegmentChoice *> &segmentChoices,
+                                                  long long AtSegmentMicros) const;
 
   /**
    * Compute the node to show all picks for the given segment choice
    * @param pSegmentChoice for which to show picks
    * @return  picks display node
    */
-  std::shared_ptr<Node> computeSegmentPicksNode(const SegmentChoice *&pSegmentChoice) const;
+  std::shared_ptr<Node> computeSegmentPicksNode(const SegmentChoice *&pSegmentChoice, long long AtSegmentMicros) const;
+
+  Element computeSegmentNode(const Segment *&pSegment);
 };
 
 

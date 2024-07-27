@@ -82,7 +82,8 @@ std::shared_ptr<ComponentBase> EngineUiBase::BuildRunningUI() {
   for (const auto& category: memeTaxonomy) {
     memeTaxonomySelection[category.first] = 0;
     std::vector<Element> memeList;
-    for (const auto &meme: category.second) {
+    memeList.reserve(category.second.size());
+for (const auto &meme: category.second) {
       memeList.push_back(text(meme));
     }
     if (!memeTaxonomyCategories.empty()) {
@@ -124,87 +125,7 @@ std::shared_ptr<ComponentBase> EngineUiBase::BuildRunningUI() {
     for (auto &segment: engine->getSegmentStore()->readAllSegments()) {
       if (segment->durationMicros.has_value() && segment->beginAtChainMicros + segment->durationMicros.value() >
                                                  AtChainMicros) {
-
-        std::set < std::string > segMemeNames;
-        for (auto &meme: engine->getSegmentStore()->readAllSegmentMemes(segment->id)) {
-          segMemeNames.emplace(meme->name);
-        }
-        std::vector<std::string> segMemeNamesSorted;
-        segMemeNamesSorted.reserve(segMemeNames.size());
-        for (auto &name: segMemeNames) {
-          segMemeNamesSorted.push_back(name);
-        }
-        std::sort(segMemeNamesSorted.begin(), segMemeNamesSorted.end());
-        std::vector<Element> segMemeList;
-        segMemeList.reserve(segMemeNamesSorted.size());
-        for (auto &name: segMemeNamesSorted) {
-          segMemeList.push_back(text(name) | bold);
-        }
-
-        auto segCol = vbox({
-                               hbox({
-                                        separatorEmpty(),
-                                        vbox({
-                                                 text("[" + std::to_string(segment->id) + "]") | color(Color::GrayDark),
-                                                 text(formatTimeFromMicros(segment->beginAtChainMicros)) |
-                                                 bold,
-                                             }),
-                                        separatorEmpty(),
-                                        separatorEmpty(),
-                                        vbox({
-                                                 text(formatPositionBarBeats(*segment, segment->delta)) |
-                                                 color(Color::GrayDark),
-                                                 text(Segment::toString(segment->type)) | bold,
-                                             }),
-                                        separatorEmpty(),
-                                    }),
-                               separatorEmpty(),
-                               hbox({
-                                        separatorEmpty(),
-                                        vbox({
-                                                 text(formatTotalBars(*segment, segment->total)) |
-                                                 color(Color::GrayDark),
-                                                 text(formatTimeFromMicros(
-                                                     segment->durationMicros.value())) |
-                                                 bold,
-                                             }),
-                                        separatorEmpty(),
-                                        separatorEmpty(),
-                                        vbox({
-                                                 text("Intensity") | color(Color::GrayDark),
-                                                 text(formatDecimal(segment->intensity, 2)) | bold,
-                                             }),
-                                        separatorEmpty(),
-                                        separatorEmpty(),
-                                        vbox({
-                                                 text("Tempo") | color(Color::GrayDark),
-                                                 text(formatMinDecimal(segment->tempo)) | bold,
-                                             }),
-                                        separatorEmpty(),
-                                        separatorEmpty(),
-                                        vbox({
-                                                 text("Key") | color(Color::GrayDark),
-                                                 text(segment->key) | bold,
-                                             }),
-                                        separatorEmpty(),
-                                    }),
-                               separatorEmpty(),
-                               hbox({
-                                        separatorEmpty(),
-                                        vbox({
-                                                 text("Memes") | color(Color::GrayDark),
-                                                 vbox(segMemeList) | size(HEIGHT, EQUAL, segMemeList.size()),
-                                             }),
-                                        separatorEmpty(),
-                                    }),
-                               separatorEmpty(),
-                               hbox({
-                                        separatorEmpty(),
-                                        computeSegmentChoicesNode(segment),
-                                        separatorEmpty(),
-                                    }),
-                           });
-        segments.push_back(segCol);
+        segments.push_back(computeSegmentNode(segment));
         segments.push_back(separatorLight());
       }
     }
@@ -504,6 +425,89 @@ std::optional<int> EngineUiBase::getBarBeats(const Segment &segment) const {
   }
 }
 
+Element EngineUiBase::computeSegmentNode(const Segment *&pSegment) {
+  std::set < std::string > segMemeNames;
+  for (auto &meme: engine->getSegmentStore()->readAllSegmentMemes(pSegment->id)) {
+    segMemeNames.emplace(meme->name);
+  }
+  std::vector<std::string> segMemeNamesSorted;
+  segMemeNamesSorted.reserve(segMemeNames.size());
+  for (auto &name: segMemeNames) {
+    segMemeNamesSorted.push_back(name);
+  }
+  std::sort(segMemeNamesSorted.begin(), segMemeNamesSorted.end());
+  std::vector<Element> segMemeList;
+  segMemeList.reserve(segMemeNamesSorted.size());
+  for (auto &name: segMemeNamesSorted) {
+    segMemeList.push_back(text(name) | bold);
+  }
+
+  auto segCol = vbox({
+                         hbox({
+                                  separatorEmpty(),
+                                  vbox({
+                                           text("[" + std::to_string(pSegment->id) + "]") | color(Color::GrayDark),
+                                           text(formatTimeFromMicros(pSegment->beginAtChainMicros)) |
+                                           bold,
+                                       }),
+                                  separatorEmpty(),
+                                  separatorEmpty(),
+                                  vbox({
+                                           text(formatPositionBarBeats(*pSegment, pSegment->delta)) |
+                                           color(Color::GrayDark),
+                                           text(Segment::toString(pSegment->type)) | bold,
+                                       }),
+                                  separatorEmpty(),
+                              }),
+                         separatorEmpty(),
+                         hbox({
+                                  separatorEmpty(),
+                                  vbox({
+                                           text(formatTotalBars(*pSegment, pSegment->total)) |
+                                           color(Color::GrayDark),
+                                           text(formatTimeFromMicros(
+                                               pSegment->durationMicros.value())) |
+                                           bold,
+                                       }),
+                                  separatorEmpty(),
+                                  separatorEmpty(),
+                                  vbox({
+                                           text("Intensity") | color(Color::GrayDark),
+                                           text(formatDecimal(pSegment->intensity, 2)) | bold,
+                                       }),
+                                  separatorEmpty(),
+                                  separatorEmpty(),
+                                  vbox({
+                                           text("Tempo") | color(Color::GrayDark),
+                                           text(formatMinDecimal(pSegment->tempo)) | bold,
+                                       }),
+                                  separatorEmpty(),
+                                  separatorEmpty(),
+                                  vbox({
+                                           text("Key") | color(Color::GrayDark),
+                                           text(pSegment->key) | bold,
+                                       }),
+                                  separatorEmpty(),
+                              }),
+                         separatorEmpty(),
+                         hbox({
+                                  separatorEmpty(),
+                                  vbox({
+                                           text("Memes") | color(Color::GrayDark),
+                                           vbox(segMemeList) | size(HEIGHT, EQUAL, static_cast<int>(segMemeList.size())),
+                                       }),
+                                  separatorEmpty(),
+                              }),
+                         separatorEmpty(),
+                         hbox({
+                                  separatorEmpty(),
+                                  computeSegmentChoicesNode(pSegment),
+                                  separatorEmpty(),
+                              }),
+                     });
+  return segCol;
+}
+
 std::shared_ptr<Node> EngineUiBase::computeSegmentChoicesNode(const Segment *&pSegment) const {
   std::vector<Element> col;
   col.push_back(text("Choices") | color(Color::GrayDark));
@@ -511,6 +515,7 @@ std::shared_ptr<Node> EngineUiBase::computeSegmentChoicesNode(const Segment *&pS
   std::vector<const SegmentChoice *> mainChoices;
   std::vector<const SegmentChoice *> beatChoices;
   std::vector<const SegmentChoice *> detailChoices;
+  long long AtSegmentMicros = AtChainMicros - pSegment->beginAtChainMicros;
   for (const SegmentChoice *choice: engine->getSegmentStore()->readAllSegmentChoices(pSegment->id)) {
     if (!choice->programId.empty() && Program::Type::Macro == choice->programType) {
       macroChoices.push_back(choice);
@@ -524,18 +529,19 @@ std::shared_ptr<Node> EngineUiBase::computeSegmentChoicesNode(const Segment *&pS
     }
   }
   std::sort(macroChoices.begin(), macroChoices.end());
-  col.push_back(computeSegmentChoicesNode(macroChoices));
+  col.push_back(computeSegmentChoicesNode(macroChoices, AtSegmentMicros));
   std::sort(mainChoices.begin(), mainChoices.end());
-  col.push_back(computeSegmentChoicesNode(mainChoices));
+  col.push_back(computeSegmentChoicesNode(mainChoices, AtSegmentMicros));
   std::sort(beatChoices.begin(), beatChoices.end());
-  col.push_back(computeSegmentChoicesNode(beatChoices));
+  col.push_back(computeSegmentChoicesNode(beatChoices, AtSegmentMicros));
   std::sort(detailChoices.begin(), detailChoices.end());
-  col.push_back(computeSegmentChoicesNode(detailChoices));
+  col.push_back(computeSegmentChoicesNode(detailChoices, AtSegmentMicros));
   return vbox(col);
 }
 
 std::shared_ptr<Node>
-EngineUiBase::computeSegmentChoicesNode(const std::vector<const SegmentChoice *> &segmentChoices) const {
+EngineUiBase::computeSegmentChoicesNode(const std::vector<const SegmentChoice *> &segmentChoices,
+                                        long long AtSegmentMicros) const {
   std::vector<Element> col;
   for (const SegmentChoice *choice: segmentChoices) {
     std::optional<const Instrument *> instrument = engine->getProjectContent()->getInstrument(choice->instrumentId);
@@ -547,7 +553,7 @@ EngineUiBase::computeSegmentChoicesNode(const std::vector<const SegmentChoice *>
           Instrument::toString(instrument.value()->mode) + "]"),
                           separatorEmpty(),
                           text(instrument.value()->name)}));
-      col.push_back(computeSegmentPicksNode(choice));
+      col.push_back(computeSegmentPicksNode(choice, AtSegmentMicros));
     } else if (program.has_value()) {
       col.push_back(hbox({text(
           "[" + Program::toString(program.value()->type) + "]"),
@@ -558,19 +564,22 @@ EngineUiBase::computeSegmentChoicesNode(const std::vector<const SegmentChoice *>
   return vbox(col);
 }
 
-std::shared_ptr<Node> EngineUiBase::computeSegmentPicksNode(const SegmentChoice *&pSegmentChoice) const {
+std::shared_ptr<Node>
+EngineUiBase::computeSegmentPicksNode(const SegmentChoice *&pSegmentChoice, long long AtSegmentMicros) const {
   std::vector<Element> col;
   for (const SegmentChoiceArrangementPick *pick: engine->getSegmentStore()->readAllSegmentChoiceArrangementPicks(
       pSegmentChoice)) {
     std::optional<const InstrumentAudio *> audio = engine->getProjectContent()->getInstrumentAudio(
         pick->instrumentAudioId);
     if (!audio.has_value()) continue;
+    bool bActive = pick->startAtSegmentMicros <= AtSegmentMicros &&
+                   (pick->lengthMicros==0 || pick->startAtSegmentMicros + pick->lengthMicros >= AtSegmentMicros);
     std::vector<Element> row;
     col.push_back(hbox({separatorEmpty(),
                         separatorEmpty(),
-                        text("[" + formatTimeFromMicros(pick->startAtSegmentMicros) + "]") | color(Color::GrayDark),
+                        text("[" + formatTimeFromMicros(pick->startAtSegmentMicros) + "]") | color(bActive ? Color::Green : Color::GrayDark),
                         separatorEmpty(),
-                        text(audio.value()->name) | color(Color::GrayLight)}));
+                        text(audio.value()->name) | color(bActive ? Color::Green : Color::GrayDark--all)}));
   }
   return vbox(col);
 }
