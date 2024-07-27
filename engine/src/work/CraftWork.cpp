@@ -115,7 +115,7 @@ bool CraftWork::isMuted(const SegmentChoiceArrangementPick *pick) const {
       throw std::runtime_error("Failed to get SegmentChoiceArrangement[" + pick->segmentChoiceArrangementId + "]");
 
     const auto choice = store->readSegmentChoice(pick->segmentId, arrangement.value()->segmentChoiceId);
-    return choice.has_value() ? choice.value()->mute : false;
+    return choice.has_value() && choice.value()->mute;
 
   } catch (std::exception &e) {
     std::cerr << "Unable to determine if SegmentChoiceArrangementPick[" << pick->id << "] is muted because " << e.what()
@@ -154,7 +154,7 @@ ContentEntityStore *CraftWork::getSourceMaterial() const {
   return content;
 }
 
-void CraftWork::runCycle(const long atChainMicros) {
+void CraftWork::runCycle(const unsigned long long int atChainMicros) {
   if (!running) return;
 
   try {
@@ -194,7 +194,7 @@ void CraftWork::doNextCycleRewriteUnlessInitialSegment() {
     nextCycleRewrite = true;
 }
 
-void CraftWork::doFabrication(const long craftToChainMicros) {
+void CraftWork::doFabrication(const unsigned long long int craftToChainMicros) {
   if (nextCycleRewrite) {
     doFabricationRewrite(craftToChainMicros, nextCycleOverrideMacroProgram, nextCycleOverrideMemes);
     nextCycleRewrite = false;
@@ -211,7 +211,7 @@ void CraftWork::doFabricationDefault(
     // currently fabricated AT (vs target fabricated TO)
     const long atChainMicros = ChainUtils::computeFabricatedToChainMicros(store->readAllSegments());
     const float aheadSeconds = atChainMicros > toChainMicros
-                               ? (static_cast<float>(atChainMicros - toChainMicros) / ValueUtils::MICROS_PER_SECOND)
+                               ? (static_cast<float>(atChainMicros - toChainMicros) / ValueUtils::MICROS_PER_SECOND_FLOAT)
                                : 0;
     if (aheadSeconds > 0) return;
 
@@ -230,8 +230,7 @@ void CraftWork::doFabricationDefault(
     }
     doFabricationWork(store->put(segment), std::nullopt, overrideMacroProgram, overrideMemes);
 
-  } catch (
-      std::exception e) {
+  } catch (std::exception &e) {
     didFailWhile("fabricating", e);
   }
 }
@@ -261,12 +260,12 @@ void CraftWork::doFabricationRewrite(
     } catch (...) {
       throw FabricationException("Failed to get main program config");
     }
-    const auto subBeats = mainProgramConfig.barBeats * mainProgramConfig.cutoffMinimumBars;
+    const float subBeats = static_cast<float>(mainProgramConfig.barBeats * mainProgramConfig.cutoffMinimumBars);
     const auto dubbedToSegmentMicros = dubbedToChainMicros - lastSegment.value()->beginAtChainMicros;
-    const auto microsPerBeat = static_cast<long>(ValueUtils::MICROS_PER_MINUTE / currentMainProgram.value()->tempo);
+    const auto microsPerBeat = static_cast<long>(ValueUtils::MICROS_PER_MINUTE_FLOAT / currentMainProgram.value()->tempo);
     const auto dubbedToSegmentBeats = dubbedToSegmentMicros / microsPerBeat;
-    const auto cutoffAfterBeats = subBeats * ceil(static_cast<double>(dubbedToSegmentBeats) / subBeats);
-    if (cutoffAfterBeats < lastSegment.value()->total) {
+    const float cutoffAfterBeats = subBeats * ceil(static_cast<float>(dubbedToSegmentBeats) / subBeats);
+    if (cutoffAfterBeats < static_cast<float>(lastSegment.value()->total)) {
       doCutoffLastSegment(lastSegment.value(), cutoffAfterBeats);
     }
 
@@ -288,14 +287,14 @@ void CraftWork::doFabricationRewrite(
     didOverride = true;
 
   } catch (
-      std::exception e) {
+      std::exception &e) {
     didFailWhile("fabricating", e);
   }
 }
 
 void CraftWork::doCutoffLastSegment(const Segment *inputSegment, float cutoffAfterBeats) const {
   try {
-    const long durationMicros = cutoffAfterBeats * ValueUtils::MICROS_PER_MINUTE / inputSegment->tempo;
+    const long durationMicros = static_cast<long>(cutoffAfterBeats * ValueUtils::MICROS_PER_MINUTE_FLOAT / inputSegment->tempo);
     std::cout << "[seg-" << std::to_string(inputSegment->id) << "] Will cut current segment short after "
               << cutoffAfterBeats << " beats." << std::endl;
     Segment updateSegment = *inputSegment;
@@ -348,7 +347,7 @@ void CraftWork::doFabricationWork(
   updateSegmentState(&fabricator, updatedSegment, Segment::State::Crafting, Segment::State::Crafted);
 }
 
-void CraftWork::doSegmentCleanup(const long shippedToChainMicros) const {
+void CraftWork::doSegmentCleanup(const unsigned long long int shippedToChainMicros) const {
   const auto segment = getSegmentAtChainMicros(shippedToChainMicros - persistenceWindowMicros);
   if (segment.has_value())
     store->deleteSegmentsBefore(segment.value()->id);
@@ -379,7 +378,7 @@ Segment CraftWork::buildSegmentFollowing(const Segment *last) const {
   return segment;
 }
 
-void CraftWork::didFailWhile(std::string msgWhile, const std::exception &e) {
+void CraftWork::didFailWhile(const std::string& msgWhile, const std::exception &e) {
   std::cerr << "Failed while " << msgWhile << " because " << e.what() << std::endl;
   running = false;
   finish();

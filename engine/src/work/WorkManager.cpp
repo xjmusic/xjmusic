@@ -174,7 +174,7 @@ std::set<ActiveAudio> WorkManager::runDubCycle(const unsigned long long atChainM
   }
 }
 
-void WorkManager::didFailWhile(std::string msgWhile, const std::exception &e) {
+void WorkManager::didFailWhile(const std::string& msgWhile, const std::exception &e) {
   std::cerr << "Failed while " << msgWhile << ": " << e.what() << std::endl;
   // This will cascade-send the finish() instruction to dub and ship
   updateState(Failed);
@@ -199,3 +199,4 @@ std::string WorkManager::toString(const WorkState state) {
 void WorkManager::updateState(const WorkState fabricationState) {
   state = fabricationState;
 }
+

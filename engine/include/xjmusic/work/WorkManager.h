@@ -129,7 +129,7 @@ namespace XJ {
     @param msgWhile phrased like "Doing work"
     @param e        exception (optional)
     */
-    void didFailWhile(std::string msgWhile, const std::exception &e);
+    void didFailWhile(const std::string& msgWhile, const std::exception &e);
 
     /**
     * Get string representation of the work state
@@ -144,6 +144,7 @@ namespace XJ {
      @param fabricationState work state
      */
     void updateState(WorkState fabricationState);
+
   };
 
 }// namespace XJ

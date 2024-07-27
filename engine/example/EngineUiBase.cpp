@@ -9,6 +9,7 @@
 #include <ftxui/dom/table.hpp>
 
 #include "EngineUiBase.h"
+#include "xjmusic/util/ValueUtils.h"
 
 EngineUiBase::EngineUiBase(
     const std::string &pathToProjectFile,
@@ -198,7 +199,6 @@ std::shared_ptr<ComponentBase> EngineUiBase::BuildRunningUI() {
                                      });
 
   ui_document = Renderer(ui_container, [&] {
-    // TODO why is this sometimes crashing the UI?
     return vbox({
                     hbox({
                              separatorEmpty(),
@@ -239,7 +239,7 @@ std::shared_ptr<ComponentBase> EngineUiBase::BuildRunningUI() {
 
 std::string EngineUiBase::formatMicrosAsFloatingPointSeconds(unsigned long long int micros, int precision) {
   std::stringstream ss;
-  ss << std::fixed << std::setprecision(precision) << static_cast<float>(micros) / 1000000;
+  ss << std::fixed << std::setprecision(precision) << static_cast<float>(micros) / ValueUtils::MICROS_PER_SECOND_FLOAT;
   return ss.str() + "s";
 }
 
@@ -249,8 +249,8 @@ std::string EngineUiBase::formatTimeFromMicros(unsigned long long int micros) {
     return "0s";
   }
 
-  // Round up to the nearest second
-  unsigned long long totalSeconds = (micros + 999999) / 1000000;
+  // Round down to the nearest second
+  unsigned long long totalSeconds = micros / ValueUtils::MICROS_PER_SECOND;
 
   // Get fractional seconds
   float fractionalSeconds = static_cast<float>(micros % 1000000) / 1000000.0f;
@@ -573,12 +573,13 @@ EngineUiBase::computeSegmentPicksNode(const SegmentChoice *&pSegmentChoice, long
     bool bActive = pick->startAtSegmentMicros <= AtSegmentMicros &&
                    (pick->lengthMicros == 0 || pick->startAtSegmentMicros + pick->lengthMicros >= AtSegmentMicros);
     std::vector<Element> row;
+    Color audioColor = pSegmentChoice->mute ? Color::Yellow : (bActive ? Color::Green : Color::GrayDark);
     col.push_back(hbox({separatorEmpty(),
                         separatorEmpty(),
                         text("[" + formatTimeFromMicros(pick->startAtSegmentMicros) + "]") |
-                        color(bActive ? Color::Green : Color::GrayDark),
+                        color(audioColor),
                         separatorEmpty(),
-                        text(audio.value()->name) | color(bActive ? Color::Green : Color::GrayDark)}));
+                        text(audio.value()->name) | color(audioColor)}));
   }
   return vbox(col);
 }

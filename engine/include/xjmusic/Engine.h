@@ -121,7 +121,7 @@ namespace XJ {
      * Get the work settings
      * @return  the settings
      */
-    WorkSettings getSettings() const;
+    [[nodiscard]] WorkSettings getSettings() const;
 
     /**
      * Virtual destructor

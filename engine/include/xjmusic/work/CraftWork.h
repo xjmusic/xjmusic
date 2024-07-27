@@ -62,7 +62,7 @@ namespace XJ {
     /**
     This is the internal cycle that's Run indefinitely
     */
-    void runCycle(long atChainMicros);
+    void runCycle(const unsigned long long int atChainMicros);
 
     /**
      Get the template config, if loaded
@@ -208,7 +208,7 @@ namespace XJ {
      @param msgWhile phrased like "Doing work"
      @param e        exception (optional)
      */
-    void didFailWhile(std::string msgWhile, const std::exception &e);
+    void didFailWhile(const std::string& msgWhile, const std::exception &e);
 
     /**
      Update Segment to Working state
@@ -230,7 +230,7 @@ namespace XJ {
     @param craftToChainMicros  target to craft until
     @throws FabricationFatalException if the chain cannot be fabricated
     */
-    void doFabrication(long craftToChainMicros);
+    void doFabrication(const unsigned long long int craftToChainMicros);
 
     /**
     Default behavior is to fabricate the next segment if we are not crafted enough ahead, otherwise skip
@@ -283,7 +283,7 @@ namespace XJ {
     
      @param shippedToChainMicros the shipped-to chain micros
      */
-    void doSegmentCleanup(long shippedToChainMicros) const;
+    void doSegmentCleanup(const unsigned long long int shippedToChainMicros) const;
 
     /**
      Create the initial template segment
