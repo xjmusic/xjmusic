@@ -858,7 +858,7 @@ bool Fabricator::isInitialSegment() {
 }
 
 
-std::optional<const SegmentChoice *> Fabricator::put(const SegmentChoice entity, const bool force) {
+std::optional<const SegmentChoice *> Fabricator::put(const SegmentChoice &entity, const bool force) {
   const auto memeStack = MemeStack::from(chain->config.memeTaxonomy, SegmentMeme::getNames(getSegmentMemes()));
 
   // For a SegmentChoice, add memes from program, program sequence binding, and instrument if present
@@ -869,27 +869,27 @@ std::optional<const SegmentChoice *> Fabricator::put(const SegmentChoice entity,
 }
 
 
-const SegmentChoiceArrangement *Fabricator::put(const SegmentChoiceArrangement entity) {
+const SegmentChoiceArrangement *Fabricator::put(const SegmentChoiceArrangement &entity) {
   return store->put(entity);
 }
 
 
-const SegmentChoiceArrangementPick *Fabricator::put(const SegmentChoiceArrangementPick entity) {
+const SegmentChoiceArrangementPick *Fabricator::put(const SegmentChoiceArrangementPick &entity) {
   return store->put(entity);
 }
 
 
-const SegmentChord *Fabricator::put(const SegmentChord entity) {
+const SegmentChord *Fabricator::put(const SegmentChord &entity) {
   return store->put(entity);
 }
 
 
-const SegmentChordVoicing *Fabricator::put(const SegmentChordVoicing entity) {
+const SegmentChordVoicing *Fabricator::put(const SegmentChordVoicing &entity) {
   return store->put(entity);
 }
 
 
-std::optional<const SegmentMeme *> Fabricator::put(const SegmentMeme entity, const bool force) {
+std::optional<const SegmentMeme *> Fabricator::put(const SegmentMeme &entity, const bool force) {
   const auto memeStack = MemeStack::from(chain->config.memeTaxonomy, SegmentMeme::getNames(getSegmentMemes()));
 
   // Unless forced, don't put a duplicate of an existing meme
@@ -900,12 +900,12 @@ std::optional<const SegmentMeme *> Fabricator::put(const SegmentMeme entity, con
 }
 
 
-const SegmentMessage *Fabricator::put(const SegmentMessage entity) {
+const SegmentMessage *Fabricator::put(const SegmentMessage &entity) {
   return store->put(entity);
 }
 
 
-const SegmentMeta *Fabricator::put(const SegmentMeta entity) {
+const SegmentMeta *Fabricator::put(const SegmentMeta &entity) {
   return store->put(entity);
 }
 
