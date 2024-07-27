@@ -10,7 +10,14 @@
  * @param name  The name of the application.
  */
 void showUsage(const std::string &name) {
-  std::cout << "Usage: " << name << " <pathToProjectFile> [-template <name>] [-controlMode <mode>] [-craftAheadSeconds <seconds>] [-dubAheadSeconds <seconds>] [-persistenceWindowSeconds <seconds>]" << std::endl;
+  std::cout << "Usage: " << name << " <pathToProjectFile> [-template <name>] [-control <mode>] [-craft <seconds ahead>] [-dub <seconds ahead>] [-persistence <window in seconds>]" << std::endl;
+  std::cout << "  <pathToProjectFile>     (REQUIRED) The path to the XJ music workstation .xj project file." << std::endl;
+  std::cout << "  -template <name>        The name of the template to start with." << std::endl;
+  std::cout << "  -control <mode>         The control mode to use. Options are: auto, manual, or off." << std::endl;
+  std::cout << "  -craft <seconds ahead>  How many seconds ahead to craft." << std::endl;
+  std::cout << "  -dub <seconds ahead>    How many seconds ahead to dub." << std::endl;
+  std::cout << "  -persistence <window in seconds>  How long to keep segments in memory." << std::endl;
+  std::cout << "  -h, --help              Show this help message." << std::endl;
 }
 
 /**
@@ -31,9 +38,9 @@ int main(const int argc, char *argv[]) {
 
   // User can specify the control mode, craft ahead seconds, dub ahead seconds, and persistence window seconds
   Fabricator::ControlMode controlMode = Fabricator::ControlMode::Auto;
-  std::optional craftAheadSeconds = 240;
-  std::optional dubAheadSeconds = 300;
-  std::optional persistenceWindowSeconds = 120;
+  std::optional<int> craftAheadSeconds; // todo  = 240;
+  std::optional<int> dubAheadSeconds; // todo  = 300;
+  std::optional<int> persistenceWindowSeconds; // todo  = 120;
   std::optional<std::string> templateName;
 
   // Parse all remaining arguments to set the control mode, craft ahead seconds, dub ahead seconds, and persistence window seconds
@@ -45,22 +52,22 @@ int main(const int argc, char *argv[]) {
         i++;
       }
     } else
-    if (arg == "-controlMode") {
+    if (arg == "-control") {
       if (i + 1 < argc) {
         controlMode = Fabricator::parseControlMode(argv[i + 1]);
         i++;
       }
-    } else if (arg == "-craftAheadSeconds") {
+    } else if (arg == "-craft") {
       if (i + 1 < argc) {
         craftAheadSeconds = std::stoi(argv[i + 1]);
         i++;
       }
-    } else if (arg == "-dubAheadSeconds") {
+    } else if (arg == "-dub") {
       if (i + 1 < argc) {
         dubAheadSeconds = std::stoi(argv[i + 1]);
         i++;
       }
-    } else if (arg == "-persistenceWindowSeconds") {
+    } else if (arg == "-persistence") {
       if (i + 1 < argc) {
         persistenceWindowSeconds = std::stoi(argv[i + 1]);
         i++;

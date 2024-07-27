@@ -280,6 +280,7 @@ std::shared_ptr<ComponentBase> EngineUiBase::BuildRunningUI() {
                                      });
 
   ui_document = Renderer(ui_container, [&] {
+    // TODO why is this sometimes crashing the UI?
     return vbox({
                     hbox({
                              separatorEmpty(),
