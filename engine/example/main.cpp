@@ -38,9 +38,9 @@ int main(const int argc, char *argv[]) {
 
   // User can specify the control mode, craft ahead seconds, dub ahead seconds, and persistence window seconds
   Fabricator::ControlMode controlMode = Fabricator::ControlMode::Auto;
-  std::optional<int> craftAheadSeconds; // todo  = 240;
-  std::optional<int> dubAheadSeconds; // todo  = 300;
-  std::optional<int> persistenceWindowSeconds; // todo  = 120;
+  std::optional<int> craftAheadSeconds;
+  std::optional<int> dubAheadSeconds;
+  std::optional<int> persistenceWindowSeconds;
   std::optional<std::string> templateName;
 
   // Parse all remaining arguments to set the control mode, craft ahead seconds, dub ahead seconds, and persistence window seconds
