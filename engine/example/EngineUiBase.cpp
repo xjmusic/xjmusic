@@ -134,44 +134,34 @@ std::shared_ptr<ComponentBase> EngineUiBase::BuildRunningUI() {
 
   ui_tab_content_audio = Renderer([this] {
     std::vector<std::vector<std::string>> tableContents;
-    tableContents.emplace_back(std::vector<std::string>{"Audio Name", "Start At", "Stop At"});
+    tableContents.emplace_back(std::vector<std::string>{"Start", "Stop","Audio"});
     for (const auto &[audioId, audio]: ActiveAudios) {
       std::vector<std::string> row = {
-          audio.getAudio()->name,
           formatMicrosAsFloatingPointSeconds(audio.getStartAtChainMicros()),
           audio.getStopAtChainMicros().has_value() ? formatMicrosAsFloatingPointSeconds(
               audio.getStopAtChainMicros().value())
                                                    : "-",
+          audio.getAudio()->name,
       };
       tableContents.emplace_back(row);
     }
 
     auto table = Table(tableContents);
-
-    table.SelectAll().Border(LIGHT);
-
-    // Add border around the first column.
-    table.SelectColumn(0).Border(LIGHT);
+    table.SelectRow(0).Decorate(color(Color::GrayDark));
+    table.SelectAll().SeparatorVertical(EMPTY);
 
     // Make first row bold with a double border.
-    table.SelectRow(0).Decorate(bold);
-    table.SelectRow(0).SeparatorVertical(LIGHT);
-    table.SelectRow(0).Border(DOUBLE);
-
-    // Align right the "Release date" column.
-    table.SelectColumn(2).DecorateCells(align_right);
-
     return hbox({
                     separatorEmpty(),
                     table.Render(),
                     separatorEmpty(),
-                });
+                }) | xframe;
   });
 
   ui_tab_content_engine = Container::Horizontal({
                                                     ui_tab_content_timeline,
                                                     Renderer([] { return separator(); }),
-                                                    ui_tab_content_audio,
+                                                    ui_tab_content_audio | size(WIDTH,EQUAL, 40),
                                                 }) | flex | yframe;
 
   ui_header_elapsed_time = Renderer([this] {
