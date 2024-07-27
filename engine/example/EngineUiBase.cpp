@@ -129,7 +129,7 @@ std::shared_ptr<ComponentBase> EngineUiBase::BuildRunningUI() {
         segments.push_back(separator() | color(Color::GrayDark));
       }
     }
-    return hbox(segments) | flex;
+    return hbox(segments) | flex  | yframe;
   });
 
   ui_tab_content_audio = Renderer([this] {
@@ -155,14 +155,16 @@ std::shared_ptr<ComponentBase> EngineUiBase::BuildRunningUI() {
                     separatorEmpty(),
                     table.Render(),
                     separatorEmpty(),
-                }) | xframe;
+                }) | flex | xframe | yframe;
   });
 
-  ui_tab_content_engine = Container::Horizontal({
-                                                    ui_tab_content_timeline,
-                                                    Renderer([] { return separator(); }),
-                                                    ui_tab_content_audio | size(WIDTH,EQUAL, 40),
-                                                }) | flex | yframe;
+  ResizableSplitOption resizableSplitOption;
+  resizableSplitOption.main = ui_tab_content_audio;
+  resizableSplitOption.back = ui_tab_content_timeline;
+  resizableSplitOption.direction = Direction::Right;
+  resizableSplitOption.main_size = &ui_tab_content_engine_right_size;
+  resizableSplitOption.separator_func = [] { return separatorDouble(); };
+  ui_tab_content_engine = ResizableSplit(resizableSplitOption) | flex;
 
   ui_header_elapsed_time = Renderer([this] {
     return text("Time Elapsed: " + formatTimeFromMicros(AtChainMicros)) | color(Color::Green);

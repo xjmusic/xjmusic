@@ -31,6 +31,7 @@ protected:
   Component ui_tab_content_audio;
   Component ui_tab_content_content;
   Component ui_tab_content_engine;
+  int ui_tab_content_engine_right_size = 50;
   Component ui_tab_content_template;
   Component ui_tab_content_timeline;
   Component ui_tab_toggle;
