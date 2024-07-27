@@ -80,7 +80,8 @@ int main(const int argc, char *argv[]) {
 
   try {
     XJPlayer player(pathToProjectFile,
-                    controlMode, templateName,
+                    controlMode,
+                    templateName,
                     craftAheadSeconds,
                     dubAheadSeconds,
                     persistenceWindowSeconds);
