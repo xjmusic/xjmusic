@@ -24,18 +24,18 @@ protected:
   std::unique_ptr<Engine> engine;
   ScreenInteractive screen;
   std::map<std::string, ActiveAudio> ActiveAudios;
-  Component ui_tab_toggle;
-  Component ui_tab_container;
-  Component ui_tab_content_template;
-  Component ui_tab_content_segments;
-  Component ui_tab_content_audio;
-  Component ui_tab_content_content;
   Component ui_container;
   Component ui_document;
   Component ui_header_elapsed_time;
+  Component ui_tab_container;
+  Component ui_tab_content_audio;
+  Component ui_tab_content_content;
+  Component ui_tab_content_engine;
+  Component ui_tab_content_template;
+  Component ui_tab_content_timeline;
+  Component ui_tab_toggle;
   std::vector<std::string> ui_tab_values{
-      "Segments",
-      "Audio",
+      "Engine",
       "Template",
       "Content",
   };

@@ -79,11 +79,11 @@ const Template *EngineUiBase::SelectTemplate() {
 
 std::shared_ptr<ComponentBase> EngineUiBase::BuildRunningUI() {
   memeTaxonomy = engine->getMemeTaxonomy()->toMap();
-  for (const auto& category: memeTaxonomy) {
+  for (const auto &category: memeTaxonomy) {
     memeTaxonomySelection[category.first] = 0;
     std::vector<Element> memeList;
     memeList.reserve(category.second.size());
-for (const auto &meme: category.second) {
+    for (const auto &meme: category.second) {
       memeList.push_back(text(meme));
     }
     if (!memeTaxonomyCategories.empty()) {
@@ -92,10 +92,10 @@ for (const auto &meme: category.second) {
     memeTaxonomyCategories.push_back(Renderer([] { return separatorEmpty(); }));
     memeTaxonomyCategories.push_back(
         Container::Vertical({
-                               Renderer([&category] { return hbox(separatorEmpty(), text(category.first) | bold); }),
-                               Renderer([] { return separator(); }),
-                               Radiobox(&memeTaxonomy[category.first], &memeTaxonomySelection[category.first]),
-                           }));
+                                Renderer([&category] { return hbox(separatorEmpty(), text(category.first) | bold); }),
+                                Renderer([] { return separator(); }),
+                                Radiobox(&memeTaxonomy[category.first], &memeTaxonomySelection[category.first]),
+                            }));
     memeTaxonomyCategories.push_back(Renderer([] { return separatorEmpty(); }));
   }
 
@@ -120,16 +120,16 @@ for (const auto &meme: category.second) {
                                                       Renderer([] { return separatorEmpty(); }),
                                                   });
 
-  ui_tab_content_segments = Renderer([this] {
+  ui_tab_content_timeline = Renderer([this] {
     std::vector<Element> segments;
     for (auto &segment: engine->getSegmentStore()->readAllSegments()) {
       if (segment->durationMicros.has_value() && segment->beginAtChainMicros + segment->durationMicros.value() >
                                                  AtChainMicros) {
         segments.push_back(computeSegmentNode(segment));
-        segments.push_back(separatorLight());
+        segments.push_back(separator() | color(Color::GrayDark));
       }
     }
-    return hbox(segments) | flex | yframe;
+    return hbox(segments) | flex;
   });
 
   ui_tab_content_audio = Renderer([this] {
@@ -168,6 +168,12 @@ for (const auto &meme: category.second) {
                 });
   });
 
+  ui_tab_content_engine = Container::Horizontal({
+                                                    ui_tab_content_timeline,
+                                                    Renderer([] { return separator(); }),
+                                                    ui_tab_content_audio,
+                                                }) | flex | yframe;
+
   ui_header_elapsed_time = Renderer([this] {
     return text("Time Elapsed: " + formatTimeFromMicros(AtChainMicros)) | color(Color::Green);
   });
@@ -188,8 +194,7 @@ for (const auto &meme: category.second) {
   ui_tab_toggle = Toggle(&ui_tab_values, &ui_tab_selected);
   ui_tab_container = Container::Tab(
       {
-          ui_tab_content_segments,
-          ui_tab_content_audio,
+          ui_tab_content_engine,
           ui_tab_content_template,
           ui_tab_content_content,
       },
@@ -426,7 +431,7 @@ std::optional<int> EngineUiBase::getBarBeats(const Segment &segment) const {
 }
 
 Element EngineUiBase::computeSegmentNode(const Segment *&pSegment) {
-  std::set < std::string > segMemeNames;
+  std::set<std::string> segMemeNames;
   for (auto &meme: engine->getSegmentStore()->readAllSegmentMemes(pSegment->id)) {
     segMemeNames.emplace(meme->name);
   }
@@ -494,7 +499,8 @@ Element EngineUiBase::computeSegmentNode(const Segment *&pSegment) {
                                   separatorEmpty(),
                                   vbox({
                                            text("Memes") | color(Color::GrayDark),
-                                           vbox(segMemeList) | size(HEIGHT, EQUAL, static_cast<int>(segMemeList.size())),
+                                           vbox(segMemeList) |
+                                           size(HEIGHT, EQUAL, static_cast<int>(segMemeList.size())),
                                        }),
                                   separatorEmpty(),
                               }),
@@ -573,11 +579,12 @@ EngineUiBase::computeSegmentPicksNode(const SegmentChoice *&pSegmentChoice, long
         pick->instrumentAudioId);
     if (!audio.has_value()) continue;
     bool bActive = pick->startAtSegmentMicros <= AtSegmentMicros &&
-                   (pick->lengthMicros==0 || pick->startAtSegmentMicros + pick->lengthMicros >= AtSegmentMicros);
+                   (pick->lengthMicros == 0 || pick->startAtSegmentMicros + pick->lengthMicros >= AtSegmentMicros);
     std::vector<Element> row;
     col.push_back(hbox({separatorEmpty(),
                         separatorEmpty(),
-                        text("[" + formatTimeFromMicros(pick->startAtSegmentMicros) + "]") | color(bActive ? Color::Green : Color::GrayDark),
+                        text("[" + formatTimeFromMicros(pick->startAtSegmentMicros) + "]") |
+                        color(bActive ? Color::Green : Color::GrayDark),
                         separatorEmpty(),
                         text(audio.value()->name) | color(bActive ? Color::Green : Color::GrayDark)}));
   }
