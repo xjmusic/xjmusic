@@ -23,7 +23,7 @@ protected:
   const Uint32 CYCLE_MILLISECONDS = 100;
   std::unique_ptr<Engine> engine;
   ScreenInteractive screen;
-  std::set<ActiveAudio> ActiveAudios;
+  std::map<std::string, ActiveAudio> ActiveAudios;
   Component ui_tab_toggle;
   Component ui_tab_container;
   Component ui_tab_content_template;

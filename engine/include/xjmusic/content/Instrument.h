@@ -50,9 +50,9 @@ namespace XJ {
     long long updatedAt{EntityUtils::currentTimeMillis()};
 
     /**
-     * Parse the Instrument Type enum value from a string
+     * Parse the Instrument EType enum value from a string
      * @param value  The string to parse
-     * @return      The Instrument Type enum value
+     * @return      The Instrument EType enum value
      */
     static Type parseType(const std::string &value);
 
@@ -71,9 +71,9 @@ namespace XJ {
     static State parseState(const std::string &value);
 
     /**
-     * Convert an Instrument Type enum value to a string
-     * @param type  The Instrument Type enum value
-     * @return      The string representation of the Instrument Type
+     * Convert an Instrument EType enum value to a string
+     * @param type  The Instrument EType enum value
+     * @return      The string representation of the Instrument EType
      */
     static std::string toString(const Type &type);
 
@@ -92,8 +92,8 @@ namespace XJ {
     static std::string toString(const State &state);
 
     /**
-     * Convert a set of Instrument Type enum values to a set of strings
-     * @param types  The set of Instrument Type enum values
+     * Convert a set of Instrument EType enum values to a set of strings
+     * @param types  The set of Instrument EType enum values
      * @return     The set of strings
      */
     static const std::vector<std::string> &toStrings(std::vector<Type> types);

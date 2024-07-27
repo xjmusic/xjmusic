@@ -15,8 +15,8 @@ namespace XJ {
     const InstrumentAudio *audio;
     unsigned long long startAtChainMicros;
     std::optional<unsigned long long> stopAtChainMicros;
-    float fromAmplitude;
-    float toAmplitude;
+    float fromVolume;
+    float toVolume;
 
   public:
     ActiveAudio(
@@ -25,22 +25,26 @@ namespace XJ {
         const InstrumentAudio *audio,
         unsigned long long startAtChainMicros,
         std::optional<unsigned long long> stopAtChainMicros,
-        float fromIntensityAmplitude,
-        float toIntensityAmplitude);
+        float fromIntensity,
+        float toIntensity);
 
-    UUID getId() const;
+    [[nodiscard]] float getFromVolume() const;
 
-    const SegmentChoiceArrangementPick * getPick() const;
+    [[nodiscard]] float getToVolume() const;
 
-    const Instrument * getInstrument() const;
+    [[nodiscard]] UUID getId() const;
 
-    unsigned long long getStartAtChainMicros() const;
+    [[nodiscard]] const SegmentChoiceArrangementPick *getPick() const;
 
-    std::optional<unsigned long long> getStopAtChainMicros() const;
+    [[nodiscard]] const Instrument *getInstrument() const;
 
-    const InstrumentAudio * getAudio() const;
+    [[nodiscard]] unsigned long long getStartAtChainMicros() const;
 
-    int getReleaseMillis() const;
+    [[nodiscard]] std::optional<unsigned long long> getStopAtChainMicros() const;
+
+    [[nodiscard]] const InstrumentAudio *getAudio() const;
+
+    [[nodiscard]] int getReleaseMillis() const;
 
     /**
      Get the amplitude at a given amplitude position between 0 and 1.
@@ -48,16 +52,49 @@ namespace XJ {
      @param ap amplitude position
      @return amplitude
      */
-    float getAmplitude(const float ap) const;
+    [[nodiscard]] float getAmplitude(float ap) const;
 
     /**
-     * Compare two Active Audio
+     * Compare two Active Audio by startAtChainMicros
      * @param lhs  Active Audio
      * @param rhs  Active Audio
      * @return   true if lhs < rhs
      */
     friend bool operator<(const ActiveAudio &lhs, const ActiveAudio &rhs) {
       return lhs.getStartAtChainMicros() < rhs.getStartAtChainMicros();
+    }
+
+    /**
+     * Compare two Active Audio by startAtChainMicros
+     * @param lhs  Active Audio
+     * @param rhs  Active Audio
+     * @return   true if lhs >rhs
+     */
+    friend bool operator>(const ActiveAudio &lhs, const ActiveAudio &rhs) {
+      return lhs.getStartAtChainMicros() > rhs.getStartAtChainMicros();
+    }
+
+    /**
+     * Compare two Active Audio for equality
+     * @param lhs  Active Audio
+     * @param rhs  Active Audio
+     * @return   true if lhs == rhs
+     */
+    friend bool operator==(const ActiveAudio &lhs, const ActiveAudio &rhs) {
+      return lhs.getStartAtChainMicros() == rhs.getStartAtChainMicros()
+             && lhs.getStopAtChainMicros() == rhs.getStopAtChainMicros()
+             && lhs.getFromVolume() == rhs.getFromVolume()
+             && lhs.getToVolume() == rhs.getToVolume();
+    }
+
+    /**
+     * Compare two Active Audio for equality
+     * @param lhs  Active Audio
+     * @param rhs  Active Audio
+     * @return   true if lhs == rhs
+     */
+    friend bool operator!=(const ActiveAudio &lhs, const ActiveAudio &rhs) {
+      return !(lhs == rhs);
     }
 
   };

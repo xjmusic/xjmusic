@@ -85,8 +85,22 @@ void XJPlayer::RunEngine(const std::string &templateIdentifier) {
 }
 
 void XJPlayer::RunEngineCycle() {
-  // Compute the active audios
-  ActiveAudios = engine->RunCycle(AtChainMicros);
+  for (AudioScheduleEvent event : engine->RunCycle(AtChainMicros)) {
+    switch (event.type) {
+      case AudioScheduleEvent::EType::Create:
+        // TODO: implement XJPlayer creating a new scheduled audio
+        ActiveAudios.emplace(event.audio.getId(), event.audio);
+        break;
+      case AudioScheduleEvent::EType::Update:
+        // TODO: implement XJPlayer updating an existing scheduled audio
+        ActiveAudios.emplace(event.audio.getId(), event.audio);
+        break;
+      case AudioScheduleEvent::EType::Delete:
+        // TODO: implement XJPlayer deleting a scheduled audio
+        ActiveAudios.erase(event.audio.getId());
+        break;
+    }
+  }
 }
 
 

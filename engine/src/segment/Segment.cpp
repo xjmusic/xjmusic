@@ -5,7 +5,7 @@
 using namespace XJ;
 
 
-// Map and reverse-map of Segment::Type enum values to their string representations
+// Map and reverse-map of Segment::EType enum values to their string representations
 static const std::map<Segment::Type, std::string> typeValueNames = {
     {Segment::Pending,   "Pending"},
     {Segment::Initial,   "Initial"},

@@ -38,9 +38,9 @@ namespace XJ {
     long long updatedAt{EntityUtils::currentTimeMillis()};
 
     /**
-     * Parse the Chain Type enum value from a string
+     * Parse the Chain EType enum value from a string
      * @param value  The string to parse
-     * @return      The Chain Type enum value
+     * @return      The Chain EType enum value
      */
     static Type parseType(const std::string &value);
 
@@ -52,9 +52,9 @@ namespace XJ {
     static State parseState(const std::string &value);
 
     /**
-     * Convert an Chain Type enum value to a string
-     * @param type  The Chain Type enum value
-     * @return      The string representation of the Chain Type
+     * Convert an Chain EType enum value to a string
+     * @param type  The Chain EType enum value
+     * @return      The string representation of the Chain EType
      */
     static std::string toString(const Type &type);
 

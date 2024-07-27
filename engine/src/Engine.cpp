@@ -52,7 +52,7 @@ void Engine::finish(const bool cancelled) const {
   work->finish(cancelled);
 }
 
-std::set<ActiveAudio> Engine::RunCycle(const unsigned long long atChainMicros) const {
+std::set<AudioScheduleEvent> Engine::RunCycle(const unsigned long long atChainMicros) const {
   return work->runCycle(atChainMicros);
 }
 

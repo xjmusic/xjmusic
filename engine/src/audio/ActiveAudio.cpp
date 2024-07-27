@@ -5,13 +5,13 @@
 using namespace XJ;
 
 ActiveAudio::ActiveAudio(
-    const SegmentChoiceArrangementPick* pick,
+    const SegmentChoiceArrangementPick *pick,
     const Instrument *instrument,
-    const InstrumentAudio* audio,
+    const InstrumentAudio *audio,
     const unsigned long long startAtChainMicros,
     const std::optional<unsigned long long> stopAtChainMicros,
-    const float fromIntensityAmplitude,
-    const float toIntensityAmplitude) {
+    const float fromIntensity,
+    const float toIntensity) {
   this->pick = pick;
   this->audio = audio;
   this->startAtChainMicros = startAtChainMicros;
@@ -19,19 +19,19 @@ ActiveAudio::ActiveAudio(
   this->instrument = instrument;
 
   // computed
-  this->fromAmplitude = fromIntensityAmplitude * pick->amplitude * instrument->volume * audio->volume;
-  this->toAmplitude = toIntensityAmplitude * pick->amplitude * instrument->volume * audio->volume;
+  this->fromVolume = fromIntensity * pick->amplitude * instrument->volume * audio->volume;
+  this->toVolume = toIntensity * pick->amplitude * instrument->volume * audio->volume;
 }
 
 UUID ActiveAudio::getId() const {
   return pick->id;
 }
 
-const SegmentChoiceArrangementPick * ActiveAudio::getPick() const {
+const SegmentChoiceArrangementPick *ActiveAudio::getPick() const {
   return pick;
 }
 
-const Instrument * ActiveAudio::getInstrument() const {
+const Instrument *ActiveAudio::getInstrument() const {
   return instrument;
 }
 
@@ -43,7 +43,7 @@ std::optional<unsigned long long> ActiveAudio::getStopAtChainMicros() const {
   return stopAtChainMicros;
 }
 
-const InstrumentAudio * ActiveAudio::getAudio() const {
+const InstrumentAudio *ActiveAudio::getAudio() const {
   return audio;
 }
 
@@ -52,6 +52,14 @@ int ActiveAudio::getReleaseMillis() const {
 }
 
 float ActiveAudio::getAmplitude(const float ap) const {
-  if (fromAmplitude == toAmplitude) return fromAmplitude;
-  return fromAmplitude + (toAmplitude - fromAmplitude) * ap;
+  if (fromVolume == toVolume) return fromVolume;
+  return fromVolume + (toVolume - fromVolume) * ap;
+}
+
+float ActiveAudio::getFromVolume() const {
+  return fromVolume;
+}
+
+float ActiveAudio::getToVolume() const {
+  return toVolume;
 }

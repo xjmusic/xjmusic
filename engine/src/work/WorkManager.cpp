@@ -42,8 +42,8 @@ void WorkManager::start() {
       break;
     case Fabricator::ControlMode::Taxonomy: {
       if (memeTaxonomy.has_value()) {
-        std::set < std::string > memes;
-        for (auto category: memeTaxonomy.value().getCategories()) {
+        std::set<std::string> memes;
+        for (const auto &category: memeTaxonomy.value().getCategories()) {
           if (!category.getMemes().empty())
             memes.insert(*category.getMemes().begin());
         }
@@ -69,9 +69,38 @@ void WorkManager::finish(const bool cancelled) {
   updateState(cancelled ? Cancelled : Done);
 }
 
-std::set<ActiveAudio> WorkManager::runCycle(const unsigned long long atChainMicros) {
+std::set<AudioScheduleEvent> WorkManager::runCycle(const unsigned long long atChainMicros) {
   this->runCraftCycle(atChainMicros);
-  return this->runDubCycle(atChainMicros);
+  std::set<AudioScheduleEvent> audioEvents;
+  std::set<std::string> foundAudioIds;
+
+  // check for new or updated audio
+  for (auto audio: this->runDubCycle(atChainMicros)) {
+    foundAudioIds.insert(audio.getId());
+    if (activeAudioMap.find(audio.getId()) != activeAudioMap.end()) {
+      // check if the audio has been modified; if so, update it
+      if (activeAudioMap.at(audio.getId()) != audio) {
+        activeAudioMap.emplace(audio.getId(), audio);
+        audioEvents.emplace(AudioScheduleEvent(AudioScheduleEvent::EType::Update, audio));
+      }
+    } else {
+      // create a new audio
+      activeAudioMap.emplace(audio.getId(), audio);
+      audioEvents.emplace(AudioScheduleEvent(AudioScheduleEvent::EType::Create, audio));
+    }
+  }
+
+  // check for deleted audio
+  for (auto it = activeAudioMap.begin(); it != activeAudioMap.end();) {
+    if (foundAudioIds.find(it->first) == foundAudioIds.end()) {
+      audioEvents.emplace(AudioScheduleEvent(AudioScheduleEvent::EType::Delete, it->second));
+      it = activeAudioMap.erase(it);
+    } else {
+      ++it;
+    }
+  }
+
+  return audioEvents;
 }
 
 WorkState WorkManager::getState() const {

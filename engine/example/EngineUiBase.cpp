@@ -135,7 +135,7 @@ for (const auto &meme: category.second) {
   ui_tab_content_audio = Renderer([this] {
     std::vector<std::vector<std::string>> tableContents;
     tableContents.emplace_back(std::vector<std::string>{"Audio Name", "Start At", "Stop At"});
-    for (const auto &audio: ActiveAudios) {
+    for (const auto &[audioId, audio]: ActiveAudios) {
       std::vector<std::string> row = {
           audio.getAudio()->name,
           formatMicrosAsFloatingPointSeconds(audio.getStartAtChainMicros()),
@@ -579,7 +579,7 @@ EngineUiBase::computeSegmentPicksNode(const SegmentChoice *&pSegmentChoice, long
                         separatorEmpty(),
                         text("[" + formatTimeFromMicros(pick->startAtSegmentMicros) + "]") | color(bActive ? Color::Green : Color::GrayDark),
                         separatorEmpty(),
-                        text(audio.value()->name) | color(bActive ? Color::Green : Color::GrayDark--all)}));
+                        text(audio.value()->name) | color(bActive ? Color::Green : Color::GrayDark)}));
   }
   return vbox(col);
 }

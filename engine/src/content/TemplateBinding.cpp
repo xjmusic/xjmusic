@@ -10,7 +10,7 @@ using json = nlohmann::json;
 using namespace XJ;
 
 
-// Map and reverse-map of TemplateBinding::Type enum values to their string representations
+// Map and reverse-map of TemplateBinding::EType enum values to their string representations
 static const std::map<TemplateBinding::Type, std::string> typeValueNames = {
     {TemplateBinding::Library,    "Library"},
     {TemplateBinding::Program,    "Program"},
