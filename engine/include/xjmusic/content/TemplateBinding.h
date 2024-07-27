@@ -32,16 +32,16 @@ namespace XJ {
     std::string toString() const;
 
     /**
-     * Parse the TemplateBinding EType enum value from a string
+     * Parse the TemplateBinding Type enum value from a string
      * @param value  The string to parse
-     * @return      The TemplateBinding EType enum value
+     * @return      The TemplateBinding Type enum value
      */
     static Type parseType(const std::string &value);
 
     /**
-     * Convert a TemplateBinding EType enum value to a string
-     * @param type  The TemplateBinding EType enum value
-     * @return      The string representation of the TemplateBinding EType
+     * Convert a TemplateBinding Type enum value to a string
+     * @param type  The TemplateBinding Type enum value
+     * @return      The string representation of the TemplateBinding Type
      */
     static std::string toString(const Type &type);
 

@@ -5,7 +5,7 @@
 using namespace XJ;
 
 
-// Map and reverse-map of Instrument::EType enum values to their string representations
+// Map and reverse-map of Instrument::Type enum values to their string representations
 static const std::map<Instrument::Type, std::string> typeValueNames = {
     {Instrument::Drum,       "Drum"},
     {Instrument::Bass,       "Bass"},

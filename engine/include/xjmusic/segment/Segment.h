@@ -48,9 +48,9 @@ namespace XJ {
     long long updatedAt{EntityUtils::currentTimeMillis()};
 
     /**
-     * Parse the Segment EType enum value from a string
+     * Parse the Segment Type enum value from a string
      * @param value  The string to parse
-     * @return      The Segment EType enum value
+     * @return      The Segment Type enum value
      */
     static Type parseType(const std::string &value);
 
@@ -62,9 +62,9 @@ namespace XJ {
     static State parseState(const std::string &value);
 
     /**
-     * Convert an Segment EType enum value to a string
-     * @param type  The Segment EType enum value
-     * @return      The string representation of the Segment EType
+     * Convert an Segment Type enum value to a string
+     * @param type  The Segment Type enum value
+     * @return      The string representation of the Segment Type
      */
     static std::string toString(const Type &type);
 

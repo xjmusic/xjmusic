@@ -5,7 +5,7 @@
 using namespace XJ;
 
 
-// Map and reverse-map of Chain::EType enum values to their string representations
+// Map and reverse-map of Chain::Type enum values to their string representations
 static const std::map<Chain::Type, std::string> typeValueNames = {
     {Chain::Preview,    "Preview"},
     {Chain::Production, "Production"},

@@ -38,9 +38,9 @@ namespace XJ {
     long long updatedAt{EntityUtils::currentTimeMillis()};
 
     /**
-     * Parse the Program EType enum value from a string
+     * Parse the Program Type enum value from a string
      * @param value  The string to parse
-     * @return      The Program EType enum value
+     * @return      The Program Type enum value
      */
     static Type parseType(const std::string &value);
 
@@ -52,9 +52,9 @@ namespace XJ {
     static State parseState(const std::string &value);
 
     /**
-     * Convert a Program EType enum value to a string
-     * @param type  The Program EType enum value
-     * @return      The string representation of the Program EType
+     * Convert a Program Type enum value to a string
+     * @param type  The Program Type enum value
+     * @return      The string representation of the Program Type
      */
     static std::string toString(const Type &type);
 

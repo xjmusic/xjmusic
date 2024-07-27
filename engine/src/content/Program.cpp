@@ -9,7 +9,7 @@ using json = nlohmann::json;
 using namespace XJ;
 
 
-// Map and reverse-map of Program::EType enum values to their string representations
+// Map and reverse-map of Program::Type enum values to their string representations
 static const std::map<Program::Type, std::string> typeValueNames = {
     {Program::Macro,  "Macro"},
     {Program::Main,   "Main"},

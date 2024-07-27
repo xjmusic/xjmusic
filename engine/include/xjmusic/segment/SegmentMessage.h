@@ -27,16 +27,16 @@ namespace XJ {
     std::string body;
 
     /**
-     * Parse the Segment Message EType enum value from a string
+     * Parse the Segment Message Type enum value from a string
      * @param value  The string to parse
-     * @return      The Segment Message EType enum value
+     * @return      The Segment Message Type enum value
      */
     static SegmentMessage::Type parseType(const std::string &value);
 
     /**
-     * Convert an Segment Message EType enum value to a string
-     * @param type  The Segment Message EType enum value
-     * @return      The string representation of the Segment Message EType
+     * Convert an Segment Message Type enum value to a string
+     * @param type  The Segment Message Type enum value
+     * @return      The string representation of the Segment Message Type
      */
     static std::string toString(const SegmentMessage::Type &type);
 
