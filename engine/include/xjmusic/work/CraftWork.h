@@ -122,14 +122,6 @@ namespace XJ {
     const InstrumentAudio *getInstrumentAudio(const SegmentChoiceArrangementPick *pick) const;
 
     /**
-     Check whether the given pick is muted (by its choice)
-
-     @param pick the pick for which to get audio
-     @return true if the given pick is muted
-     */
-    bool isMuted(const SegmentChoiceArrangementPick *pick) const;
-
-    /**
      Get the main program for the given segment
 
      @param segment for which to get main program

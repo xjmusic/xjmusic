@@ -53,7 +53,7 @@ std::set<ActiveAudio> DubWork::runCycle(unsigned long long atChainMicros) {
   }
 }
 
-bool DubWork::isFinished() {
+bool DubWork::isFinished() const {
   return !running;
 }
 

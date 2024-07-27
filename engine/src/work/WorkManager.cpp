@@ -19,7 +19,7 @@ WorkManager::WorkManager(
   this->config = config;
 
   try {
-    const auto templates = getSourceMaterial()->getTemplates();
+    const auto templates = content->getTemplates();
     if (templates.empty()) {
       std::cerr << "No templates found in source material" << std::endl;
       return;
@@ -75,7 +75,8 @@ std::set<AudioScheduleEvent> WorkManager::runCycle(const unsigned long long atCh
   std::set<std::string> foundAudioIds;
 
   // check for new or updated audio
-  for (auto audio: this->runDubCycle(atChainMicros)) {
+  auto audios = this->runDubCycle(atChainMicros);
+  for (auto audio: audios) {
     foundAudioIds.insert(audio.getId());
     if (activeAudioMap.find(audio.getId()) != activeAudioMap.end()) {
       // check if the audio has been modified; if so, update it
@@ -91,6 +92,7 @@ std::set<AudioScheduleEvent> WorkManager::runCycle(const unsigned long long atCh
   }
 
   // check for deleted audio
+  // TODO only delete audio outside of persistence window
   for (auto it = activeAudioMap.begin(); it != activeAudioMap.end();) {
     if (foundAudioIds.find(it->first) == foundAudioIds.end()) {
       audioEvents.emplace(AudioScheduleEvent(AudioScheduleEvent::EType::Delete, it->second));

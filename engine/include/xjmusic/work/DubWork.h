@@ -54,7 +54,7 @@ namespace XJ {
 
     @return true if finished (not running)
     */
-    bool isFinished();
+    bool isFinished() const;
 
     /**
      Run the work cycle

@@ -104,26 +104,6 @@ const InstrumentAudio *CraftWork::getInstrumentAudio(const SegmentChoiceArrangem
   return audio.value();
 }
 
-bool CraftWork::isMuted(const SegmentChoiceArrangementPick *pick) const {
-  try {
-    const auto segment = store->readSegment(pick->segmentId);
-    if (!segment.has_value()) {
-      throw std::runtime_error("Failed to get Segment[" + std::to_string(pick->segmentId) + "]");
-    }
-    const auto arrangement = store->readSegmentChoiceArrangement(pick->segmentId, pick->segmentChoiceArrangementId);
-    if (!arrangement.has_value())
-      throw std::runtime_error("Failed to get SegmentChoiceArrangement[" + pick->segmentChoiceArrangementId + "]");
-
-    const auto choice = store->readSegmentChoice(pick->segmentId, arrangement.value()->segmentChoiceId);
-    return choice.has_value() && choice.value()->mute;
-
-  } catch (std::exception &e) {
-    std::cerr << "Unable to determine if SegmentChoiceArrangementPick[" << pick->id << "] is muted because " << e.what()
-              << std::endl;
-    return false;
-  }
-}
-
 bool CraftWork::isFinished() const {
   return !running;
 }

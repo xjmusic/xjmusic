@@ -15,7 +15,6 @@ namespace XJ {
     std::unique_ptr<ContentEntityStore> projectContent;
     std::unique_ptr<ContentEntityStore> templateContent;
     std::unique_ptr<WorkManager> work;
-    std::string pathToProjectFile;
     std::filesystem::path pathToBuildDirectory;
 
   public:
@@ -28,8 +27,8 @@ namespace XJ {
     * @param persistenceWindowSeconds (optional) how long to keep segments in memory
     */
     explicit Engine(
-        const std::string &pathToProjectFile,
-        Fabricator::ControlMode controlMode,
+        const std::optional<std::string>& pathToProjectFile,
+        std::optional<Fabricator::ControlMode> controlMode,
         std::optional<int> craftAheadSeconds,
         std::optional<int> dubAheadSeconds,
         std::optional<int> persistenceWindowSeconds);
@@ -132,7 +131,7 @@ namespace XJ {
     /**
      * Load the project content
      */
-    void loadProjectContent();
+    void loadProjectContent(const std::basic_string<char>& pathToProjectFile);
   };
 
 }// namespace XJ

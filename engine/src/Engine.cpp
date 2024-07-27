@@ -8,17 +8,13 @@
 
 using namespace XJ;
 
-// Step 1: Define an array of audio file extensions
-const std::array<std::string, 7> audioExtensions = {"mp3", "wav", "flac", "aac", "ogg", "aif", "aiff"};
-
 Engine::Engine(
-    const std::string &pathToProjectFile,
-    const Fabricator::ControlMode controlMode,
+    const std::optional<std::string> &pathToProjectFile,
+    const std::optional<Fabricator::ControlMode> controlMode,
     const std::optional<int> craftAheadSeconds,
     const std::optional<int> dubAheadSeconds,
     const std::optional<int> persistenceWindowSeconds) {
-  this->pathToProjectFile = pathToProjectFile;
-  settings.controlMode = controlMode;
+  settings.controlMode = controlMode.has_value() ? controlMode.value() : Fabricator::ControlMode::Auto;
   if (craftAheadSeconds.has_value()) settings.craftAheadSeconds = craftAheadSeconds.value();
   if (dubAheadSeconds.has_value()) settings.dubAheadSeconds = dubAheadSeconds.value();
   if (persistenceWindowSeconds.has_value()) settings.persistenceWindowSeconds = persistenceWindowSeconds.value();
@@ -27,17 +23,16 @@ Engine::Engine(
   templateContent = std::make_unique<ContentEntityStore>();
 
   // Load the project content before creating the WorkManager
-  loadProjectContent();
+  if (pathToProjectFile.has_value()) loadProjectContent(pathToProjectFile.value());
   templateContent->put(projectContent.get());
-
-  work = std::make_unique<WorkManager>(store.get(), projectContent.get(), settings);
 }
 
 
 void Engine::start(const std::optional<std::string> &templateIdentifier) {
+  work = std::make_unique<WorkManager>(store.get(), projectContent.get(), settings);
   const std::optional<const Template *> tmpl = templateIdentifier.has_value()
-                                                   ? projectContent->getTemplateByIdentifier(templateIdentifier.value())
-                                                   : projectContent->getFirstTemplate();
+                                               ? projectContent->getTemplateByIdentifier(templateIdentifier.value())
+                                               : projectContent->getFirstTemplate();
   templateContent->clear();
   if (tmpl.has_value()) {
     const auto content = work->getSourceMaterial()->forTemplate(tmpl.value());
@@ -49,10 +44,12 @@ void Engine::start(const std::optional<std::string> &templateIdentifier) {
 }
 
 void Engine::finish(const bool cancelled) const {
+  if (!work) return;
   work->finish(cancelled);
 }
 
 std::set<AudioScheduleEvent> Engine::RunCycle(const unsigned long long atChainMicros) const {
+  if (!work) return {};
   return work->runCycle(atChainMicros);
 }
 
@@ -69,6 +66,7 @@ ContentEntityStore *Engine::getTemplateContent() const {
 }
 
 WorkState Engine::getWorkState() const {
+  if (!work) return WorkState::Standby;
   return work->getState();
 }
 
@@ -77,19 +75,23 @@ std::optional<MemeTaxonomy> Engine::getMemeTaxonomy() const {
 }
 
 std::vector<const Program *> Engine::getAllMacroPrograms() const {
+  if (!work) return {};
   return work->getAllMacroPrograms();
 }
 
 void Engine::doOverrideMacro(const Program *macroProgram) const {
-  return work->doOverrideMacro(macroProgram);
+  if (!work) return;
+  work->doOverrideMacro(macroProgram);
 }
 
 void Engine::doOverrideMemes(const std::set<std::string> &memes) const {
-  return work->doOverrideMemes(memes);
+  if (!work) return;
+  work->doOverrideMemes(memes);
 }
 
 void Engine::setIntensityOverride(const std::optional<float> intensity) const {
-  return work->setIntensityOverride(intensity);
+  if (!work) return;
+  work->setIntensityOverride(intensity);
 }
 
 std::filesystem::path Engine::getPathToBuildDirectory() {
@@ -102,7 +104,7 @@ WorkSettings Engine::getSettings() const {
 
 Engine::~Engine() = default;
 
-void Engine::loadProjectContent() {
+void Engine::loadProjectContent(const std::string &pathToProjectFile) {
   projectContent->clear();
 
   // Assert that pathToProjectFile ends in .xj
@@ -141,7 +143,7 @@ void Engine::loadProjectContent() {
           // If file is a .json file, load it into the content entity store
           std::ifstream jsonFile(entry.path());
           auto subFileContent = ContentEntityStore(jsonFile);
-          projectContent.get()->put(&subFileContent);
+          projectContent->put(&subFileContent);
           std::cout << "Loaded content from JSON file: " << entry.path().string() << std::endl;
         }
       }
