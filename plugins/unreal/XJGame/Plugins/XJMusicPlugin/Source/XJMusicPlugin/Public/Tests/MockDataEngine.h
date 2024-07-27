@@ -8,7 +8,7 @@
 #include "MockDataEngine.generated.h"
 
 USTRUCT(BlueprintType)
-struct FMockAudioInfo : public FTableRowBase
+struct FMockAudioTableRow : public FTableRowBase
 {
 	GENERATED_BODY()
 
@@ -24,14 +24,25 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int64 EndTimeAtChainMicros = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int64 SchedulePastCertainChainMicros = 0;
 };
 
 class TMockDataEngine : public TEngineBase
 {
 public:
-	virtual void Setup(const FString& PathToProject) override;
-
-	virtual void Shutdown() override;
 
 	virtual TSet<FAudioPlayer> RunCycle(const uint64 ChainMicros) override;
+
+	void SetMockData(class UDataTable* DataTable);
+
+	int MaxAudiosOutputPerCycle = 0;
+
+	float LatencyBetweenCyclesInSeconds = 0.0f;
+
+private:
+	TArray<FMockAudioTableRow> ScheduledAudios;
+
+	int64 LastMicros = 0;
 };

@@ -6,6 +6,7 @@
 #include <XjMusicInstanceSubsystem.h>
 #include <Math/UnrealMathUtility.h>
 #include <Engine/XjMainEngine.h>
+#include <Tests/MockDataEngine.h>
 #include <Settings/XJMusicDefaultSettings.h>
 
 FXjRunnable::FXjRunnable(const FString& XjProjectFolder, const FString& XjProjectFile, UWorld* World)
@@ -32,7 +33,11 @@ FXjRunnable::FXjRunnable(const FString& XjProjectFolder, const FString& XjProjec
 
 	XjStartTime.SetInSeconds(FPlatformTime::Seconds());
 
-	Engine = MakeUnique<TXjMainEngine>();
+	if (!TryInitMockEngine())
+	{
+		Engine = MakeUnique<TXjMainEngine>();
+	}
+
 	if (Engine)
 	{
 		Engine->Setup(PathToProject);
@@ -102,6 +107,26 @@ void FXjRunnable::Stop()
 	bShouldStop = true;
 }
 
+bool FXjRunnable::TryInitMockEngine()
+{
+	UXJMusicDefaultSettings* XjSettings = GetMutableDefault<UXJMusicDefaultSettings>();
+	if (XjSettings && XjSettings->bDevelopmentMode)
+	{
+		Engine = MakeUnique<TMockDataEngine>();
+
+		if (TMockDataEngine* MockEngine = (TMockDataEngine*)Engine.Get())
+		{
+			MockEngine->SetMockData(XjSettings->MockDataDT);
+			MockEngine->MaxAudiosOutputPerCycle = XjSettings->MaxAudiosOutputPerCycle;
+			MockEngine->LatencyBetweenCyclesInSeconds = XjSettings->LatencyBetweenCyclesInSeconds;
+		}
+
+		return true;
+	}
+
+	return false;
+}
+
 void UXjManager::Setup()
 {
 	UXJMusicDefaultSettings* XjSettings = GetMutableDefault<UXJMusicDefaultSettings>();
@@ -120,6 +145,7 @@ void UXjManager::BeginDestroy()
 	{
 		XjRunnable->Stop();
 		XjThread->WaitForCompletion();
+
 		delete XjThread;
 		delete XjRunnable;
 	}

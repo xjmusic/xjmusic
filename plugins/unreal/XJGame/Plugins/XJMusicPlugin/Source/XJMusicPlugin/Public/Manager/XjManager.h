@@ -21,16 +21,13 @@ public:
 	virtual void Stop() override;
 
 private:
+	bool TryInitMockEngine();
+
+private:
 
 	FThreadSafeBool bShouldStop = false;
 
 	int RunCycleFrequency = 3;
-
-	int MILLIS_PER_SECOND = 1000;
-	int MICROS_PER_MILLI = 1000;
-	int GENERATED_FIXTURE_COMPLEXITY = 3;
-
-	uint64 MICROS_PER_SECOND = MICROS_PER_MILLI * MILLIS_PER_SECOND;
 
 	TimeRecord XjStartTime;
 
