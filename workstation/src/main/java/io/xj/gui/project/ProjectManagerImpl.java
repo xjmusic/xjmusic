@@ -619,7 +619,7 @@ public class ProjectManagerImpl implements ProjectManager {
 
   @Override
   public String getProjectFilename() {
-    return projectName.get() + ".xj";
+    return StringUtils.toAlphanumericHyphenated(projectName.get()) + ".xj";
   }
 
   @Override
