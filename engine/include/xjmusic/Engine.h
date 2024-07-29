@@ -24,6 +24,7 @@ namespace XJ {
     * @param controlMode      the fabrication control mode
     * @param craftAheadSeconds (optional) how many seconds ahead to craft
     * @param dubAheadSeconds  (optional) how many seconds ahead to dub
+    * @param deadlineSeconds  (optional) audio scheduling deadline in seconds
     * @param persistenceWindowSeconds (optional) how long to keep segments in memory
     */
     explicit Engine(
@@ -31,6 +32,7 @@ namespace XJ {
         std::optional<Fabricator::ControlMode> controlMode,
         std::optional<int> craftAheadSeconds,
         std::optional<int> dubAheadSeconds,
+        std::optional<int> deadlineSeconds,
         std::optional<int> persistenceWindowSeconds);
 
     /**

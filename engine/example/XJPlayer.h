@@ -21,6 +21,7 @@ public:
   * @param templateName     (optional) the name of the template to start with
   * @param craftAheadSeconds (optional) how many seconds ahead to craft
   * @param dubAheadSeconds  (optional) how many seconds ahead to dub
+  * @param deadlineSeconds  (optional) audio scheduling deadline in seconds
   * @param persistenceWindowSeconds (optional) how long to keep segments in memory
   */
   explicit XJPlayer(
@@ -29,6 +30,7 @@ public:
       std::optional<std::string> templateName,
       std::optional<int> craftAheadSeconds,
       std::optional<int> dubAheadSeconds,
+      std::optional<int> deadlineSeconds,
       std::optional<int> persistenceWindowSeconds);
 
   /**

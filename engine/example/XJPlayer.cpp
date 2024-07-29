@@ -19,10 +19,12 @@ XJPlayer::XJPlayer(
     std::optional<std::string> templateName,
     std::optional<int> craftAheadSeconds,
     std::optional<int> dubAheadSeconds,
+    std::optional<int> deadlineSeconds,
     std::optional<int> persistenceWindowSeconds) : EngineUiBase(pathToProjectFile,
                                                                 controlMode,
                                                                 craftAheadSeconds,
                                                                 dubAheadSeconds,
+                                                                deadlineSeconds,
                                                                 persistenceWindowSeconds
 ) {
   this->templateName = std::move(templateName);

@@ -24,6 +24,7 @@ protected:
 	std::string			  ENGINE_TEST_PROJECT_PATH = "_data/test_project/TestProject.xj";
 	int					  craftAheadSeconds = 15;
 	int					  dubAheadSeconds = 30;
+	int					  deadlineSeconds = 1;
 	int					  persistenceWindowSeconds = 60;
 	int					  MARATHON_NUMBER_OF_SEGMENTS = 50;
 	long				  MICROS_PER_CYCLE = 1000000;
@@ -61,6 +62,7 @@ TEST_F(XJEngineTest, ReadsAndRunsProjectFromDisk)
 		Fabricator::ControlMode::Taxonomy,
 		craftAheadSeconds,
 		dubAheadSeconds,
+		deadlineSeconds,
 		persistenceWindowSeconds);
 
 	auto memeTaxonomy = subject->getMemeTaxonomy();
@@ -99,6 +101,7 @@ TEST_F(XJEngineTest, CorrectlyDubsAudio)
 		Fabricator::ControlMode::Taxonomy,
 		craftAheadSeconds,
 		dubAheadSeconds,
+		deadlineSeconds,
 		persistenceWindowSeconds);
 	// Project, library, template
 	const auto pProject = subject->getProjectContent()->put(ContentFixtures::buildProject());

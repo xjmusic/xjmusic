@@ -10,7 +10,8 @@ WorkManager::WorkManager(
     const WorkSettings &config) : craftWork(CraftWork(store,
                                                       content,
                                                       config.persistenceWindowSeconds,
-                                                      config.craftAheadSeconds)),
+                                                      config.craftAheadSeconds,
+                                                      config.deadlineSeconds)),
                                   dubWork(DubWork(
                                       &craftWork,
                                       config.dubAheadSeconds)) {
