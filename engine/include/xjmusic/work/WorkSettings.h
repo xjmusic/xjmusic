@@ -6,17 +6,20 @@
 #include "xjmusic/fabricator/Fabricator.h"
 #include "xjmusic/content/Template.h"
 
-namespace XJ {
+namespace XJ
+{
 
-  class WorkSettings {
-  public:
-    Fabricator::ControlMode controlMode = Fabricator::ControlMode::Auto;
-    int craftAheadSeconds = 20;
-    int dubAheadSeconds = 10;
-    long persistenceWindowSeconds = 3600;
-    std::string toString() const;
-  };
+	class WorkSettings
+	{
+	public:
+		Fabricator::ControlMode controlMode = Fabricator::ControlMode::Auto;
+		int						craftAheadSeconds = 20;
+		int						dubAheadSeconds = 10;
+		int						deadlineSeconds = 1;
+		long					persistenceWindowSeconds = 3600;
+		std::string				toString() const;
+	};
 
-}// namespace XJ
+} // namespace XJ
 
-#endif// XJMUSIC_WORK_FABRICATION_SETTINGS_H
+#endif // XJMUSIC_WORK_FABRICATION_SETTINGS_H

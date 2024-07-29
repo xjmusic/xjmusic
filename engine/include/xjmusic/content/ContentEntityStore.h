@@ -635,6 +635,12 @@ namespace XJ {
     void put(const ContentEntityStore *other);
 
     /**
+     * Summarize the contents of the store as a string
+     * @return  string formatted summary of content in the store
+     */
+    std::string toString();
+
+    /**
      * Virtual destructor
      */
     ~ContentEntityStore();

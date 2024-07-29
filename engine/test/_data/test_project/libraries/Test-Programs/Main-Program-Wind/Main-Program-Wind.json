@@ -1,1 +1,54 @@
-{"demo":false,"programs":[{"id":"3ef6d6b2-df6f-4b0b-bb5c-dc8fd581ff64","libraryId":"d12e5e9f-de60-4cd7-988e-80ca2eda1a3f","state":"Published","key":"F","tempo":120.0,"type":"Main","name":"Main Program Wind","config":"barBeats = 4\ncutoffMinimumBars = 2\ndoPatternRestartOnChord = false\n","isDeleted":false}],"programSequenceBindings":[{"id":"e11962b5-c84e-4f86-96b5-4dd29be5b925","programId":"3ef6d6b2-df6f-4b0b-bb5c-dc8fd581ff64","programSequenceId":"f5c08bcd-9da4-4d31-886d-e57573f64d47","offset":0},{"id":"d492c904-5573-4911-826e-bf8e87ea9c17","programId":"3ef6d6b2-df6f-4b0b-bb5c-dc8fd581ff64","programSequenceId":"f5c08bcd-9da4-4d31-886d-e57573f64d47","offset":2},{"id":"ae477ed2-52ae-4015-82a0-fab0ed936a13","programId":"3ef6d6b2-df6f-4b0b-bb5c-dc8fd581ff64","programSequenceId":"f5c08bcd-9da4-4d31-886d-e57573f64d47","offset":1}],"programSequenceChords":[{"id":"08856f2b-a556-47b6-baf9-87dedbd30d69","programId":"3ef6d6b2-df6f-4b0b-bb5c-dc8fd581ff64","programSequenceId":"f5c08bcd-9da4-4d31-886d-e57573f64d47","name":"F","position":0.0}],"programMemes":[{"id":"6ecf5362-8736-408e-89c7-0c1cdf287e36","name":"HOT","programId":"3ef6d6b2-df6f-4b0b-bb5c-dc8fd581ff64"},{"id":"d3bdd817-5e79-41d5-bafb-d6829a4227d5","name":"WIND","programId":"3ef6d6b2-df6f-4b0b-bb5c-dc8fd581ff64"}],"programSequences":[{"id":"f5c08bcd-9da4-4d31-886d-e57573f64d47","programId":"3ef6d6b2-df6f-4b0b-bb5c-dc8fd581ff64","name":"Wind","key":"F","intensity":1.0,"total":4}]}
+{
+  "demo" : false,
+  "programs" : [ {
+    "id" : "3ef6d6b2-df6f-4b0b-bb5c-dc8fd581ff64",
+    "libraryId" : "d12e5e9f-de60-4cd7-988e-80ca2eda1a3f",
+    "state" : "Published",
+    "key" : "F",
+    "tempo" : 120.0,
+    "type" : "Main",
+    "name" : "Main Program Wind",
+    "config" : "barBeats = 4\ncutoffMinimumBars = 2\ndoPatternRestartOnChord = false\n",
+    "isDeleted" : false
+  } ],
+  "programSequenceBindings" : [ {
+    "id" : "e11962b5-c84e-4f86-96b5-4dd29be5b925",
+    "programId" : "3ef6d6b2-df6f-4b0b-bb5c-dc8fd581ff64",
+    "programSequenceId" : "f5c08bcd-9da4-4d31-886d-e57573f64d47",
+    "offset" : 0
+  }, {
+    "id" : "d492c904-5573-4911-826e-bf8e87ea9c17",
+    "programId" : "3ef6d6b2-df6f-4b0b-bb5c-dc8fd581ff64",
+    "programSequenceId" : "f5c08bcd-9da4-4d31-886d-e57573f64d47",
+    "offset" : 2
+  }, {
+    "id" : "ae477ed2-52ae-4015-82a0-fab0ed936a13",
+    "programId" : "3ef6d6b2-df6f-4b0b-bb5c-dc8fd581ff64",
+    "programSequenceId" : "f5c08bcd-9da4-4d31-886d-e57573f64d47",
+    "offset" : 1
+  } ],
+  "programSequenceChords" : [ {
+    "id" : "08856f2b-a556-47b6-baf9-87dedbd30d69",
+    "programId" : "3ef6d6b2-df6f-4b0b-bb5c-dc8fd581ff64",
+    "programSequenceId" : "f5c08bcd-9da4-4d31-886d-e57573f64d47",
+    "name" : "F",
+    "position" : 0.0
+  } ],
+  "programMemes" : [ {
+    "id" : "6ecf5362-8736-408e-89c7-0c1cdf287e36",
+    "name" : "HOT",
+    "programId" : "3ef6d6b2-df6f-4b0b-bb5c-dc8fd581ff64"
+  }, {
+    "id" : "d3bdd817-5e79-41d5-bafb-d6829a4227d5",
+    "name" : "WIND",
+    "programId" : "3ef6d6b2-df6f-4b0b-bb5c-dc8fd581ff64"
+  } ],
+  "programSequences" : [ {
+    "id" : "f5c08bcd-9da4-4d31-886d-e57573f64d47",
+    "programId" : "3ef6d6b2-df6f-4b0b-bb5c-dc8fd581ff64",
+    "name" : "Wind",
+    "key" : "F",
+    "intensity" : 1.0,
+    "total" : 4
+  } ]
+}

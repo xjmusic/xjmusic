@@ -690,7 +690,7 @@ namespace XJ {
      @return choice if successfully put
      @ on failure
      */
-    virtual std::optional<const SegmentChoice *> put(SegmentChoice entity, bool force);
+    virtual std::optional<const SegmentChoice *> put(const SegmentChoice &entity, const bool force);
 
     /**
      Put a SegmentChoiceArrangement in the store
@@ -699,7 +699,7 @@ namespace XJ {
      @return Arrangement successfully put
      @ on failure
      */
-    virtual const SegmentChoiceArrangement *put(SegmentChoiceArrangement entity);
+    virtual const SegmentChoiceArrangement *put(const SegmentChoiceArrangement &entity);
 
     /**
      Put a SegmentChoiceArrangementPick in the store
@@ -708,7 +708,7 @@ namespace XJ {
      @return ChoiceArrangementPick successfully put
      @ on failure
      */
-    virtual const SegmentChoiceArrangementPick *put(SegmentChoiceArrangementPick entity);
+    virtual const SegmentChoiceArrangementPick *put(const SegmentChoiceArrangementPick &entity);
 
     /**
      Put a SegmentChord in the store
@@ -717,7 +717,7 @@ namespace XJ {
      @return Chord successfully put
      @ on failure
      */
-    virtual const SegmentChord *put(SegmentChord entity);
+    virtual const SegmentChord *put(const SegmentChord &entity);
 
     /**
      Put a SegmentChordVoicing in the store
@@ -726,7 +726,7 @@ namespace XJ {
      @return ChordVoicing successfully put
      @ on failure
      */
-    virtual const SegmentChordVoicing *put(SegmentChordVoicing entity);
+    virtual const SegmentChordVoicing *put(const SegmentChordVoicing &entity);
 
     /**
      Put a SegmentMeme in the store
@@ -736,7 +736,7 @@ namespace XJ {
      @return Meme successfully put
      @ on failure
      */
-    virtual std::optional<const SegmentMeme *> put(SegmentMeme entity, bool force);
+    virtual std::optional<const SegmentMeme *> put(const SegmentMeme &entity, bool force);
 
     /**
      Put a SegmentMessage in the store
@@ -745,7 +745,7 @@ namespace XJ {
      @return Message successfully put
      @ on failure
      */
-    virtual const SegmentMessage *put(SegmentMessage entity);
+    virtual const SegmentMessage *put(const SegmentMessage &entity);
 
     /**
      Put a SegmentMeta in the store
@@ -754,7 +754,7 @@ namespace XJ {
      @return Meta successfully put
      @ on failure
      */
-    virtual const SegmentMeta *put(SegmentMeta entity);
+    virtual const SegmentMeta *put(const SegmentMeta &entity);
 
     /**
      Set the preferred audio for a key

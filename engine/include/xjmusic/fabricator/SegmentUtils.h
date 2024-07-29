@@ -81,7 +81,7 @@ namespace XJ {
      @param voicing to test
      @return true if contains any valid notes
      */
-    static bool containsAnyValidNotes(const SegmentChordVoicing * voicing);
+    static bool containsAnyValidNotes(const SegmentChordVoicing *voicing);
 
     /**
      Whether the segment is spanning a given time frame.
@@ -92,7 +92,9 @@ namespace XJ {
      @param toChainMicros   to test frame to
      @return true if segment is spanning time frame
      */
-    static bool isSpanning(const Segment *segment, const long long fromChainMicros, const long long toChainMicros);
+    static bool isSpanning(const Segment *segment,
+                           unsigned long long fromChainMicros,
+                           unsigned long long toChainMicros);
 
     /**
      Whether the segment is intersecting a given time.
@@ -105,7 +107,9 @@ namespace XJ {
      @param thresholdMicros to test threshold
      @return true if segment is spanning time
      */
-    static bool isIntersecting(const Segment * segment, const long long atChainMicros,const  long long thresholdMicros);
+    static bool isIntersecting(const Segment *segment,
+                               unsigned long long atChainMicros,
+                               unsigned long long thresholdMicros);
 
     /**
      Get the storage filename for a Segment

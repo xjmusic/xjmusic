@@ -70,7 +70,7 @@ bool SegmentUtils::containsAnyValidNotes(const SegmentChordVoicing *voicing) {
 }
 
 
-bool SegmentUtils::isSpanning(const Segment *segment, const long long fromChainMicros, const long long toChainMicros) {
+bool SegmentUtils::isSpanning(const Segment *segment, const unsigned long long fromChainMicros, const unsigned long long toChainMicros) {
   if (segment->durationMicros.has_value()) {
     return segment->beginAtChainMicros + segment->durationMicros.value() > fromChainMicros &&
            segment->beginAtChainMicros <= toChainMicros;
@@ -79,7 +79,7 @@ bool SegmentUtils::isSpanning(const Segment *segment, const long long fromChainM
 }
 
 
-bool SegmentUtils::isIntersecting(const Segment *segment, const long long atChainMicros, const long long thresholdMicros) {
+bool SegmentUtils::isIntersecting(const Segment *segment, const unsigned long long atChainMicros, const unsigned long long thresholdMicros) {
   if (segment->durationMicros.has_value() && atChainMicros) {
     return segment->beginAtChainMicros + segment->durationMicros.value() + thresholdMicros > atChainMicros &&
            segment->beginAtChainMicros - thresholdMicros <= atChainMicros;

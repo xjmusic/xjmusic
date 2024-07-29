@@ -18,7 +18,18 @@ XJ includes the [XJ music workstation](workstation/README.md), a DAW dedicated t
 Download and install the XJ music workstation on your computer to start creating adaptive music for video games. The latest version of the XJ music workstation can be downloaded from [xjmusic.com/download](https://xjmusic.com/download).
 
 ![XJ music workstation in action](workstation/design/xjmusic-workstation-screenshot-fabrication.png)
-  
+
+
+## Getting started
+
+First, [Download the XJ music workstation](https://xjmusic.com/download) and follow the [installation instructions](https://docs.xjmusic.com/installation/).
+
+Then, read the [getting started documentation](https://docs.xjmusic.com/getting-started/) which will show you how to create one of our Demo projects to get started checking out the workstation right away.
+
+The source files for the demos are hosted [here](https://github.com/xjmusic/xjmusic-demos)
+
+When you're ready to integrate XJ music into your game, check out the [C++ playback engine](https://github.com/xjmusic/xjmusic/tree/main/engine/) and [its documentation](https://engine-docs.xjmusic.com/).
+
 
 ## Patented technology, open source codebase
 
