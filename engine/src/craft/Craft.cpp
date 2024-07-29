@@ -564,7 +564,7 @@ void Craft::craftChordParts(const float tempo, const Instrument *instrument, con
     pick.startAtSegmentMicros = startAtSegmentMicros;
     pick.tones = chord->name;
     pick.event = StringUtils::toEvent(Instrument::toString(instrument->type));
-    pick.lengthMicros = lengthMicros.has_value() ? lengthMicros.value() : audio.value()->lengthSeconds * ValueUtils::MICROS_PER_SECOND;
+    if (lengthMicros.has_value()) pick.lengthMicros = lengthMicros.value();
     pick.amplitude = volRatio;
     fabricator->put(pick);
   }
@@ -722,10 +722,10 @@ void Craft::pickNotesAndInstrumentAudioForEvent(
   // Pick attributes are expressed "rendered" as actual seconds
   const long startAtSegmentMicros = fabricator->getSegmentMicrosAtPosition(tempo, segmentPosition);
   const std::optional<long> lengthMicros = fabricator->isOneShot(instrument, fabricator->getTrackName(event))
-                                               ? std::nullopt
-                                               : std::optional(
-                                                     fabricator->getSegmentMicrosAtPosition(tempo, segmentPosition + duration) -
-                                                     startAtSegmentMicros);
+                                           ? std::nullopt
+                                           : std::optional(
+          fabricator->getSegmentMicrosAtPosition(tempo, segmentPosition + duration) -
+          startAtSegmentMicros);
 
   // pick an audio for each note
   for (auto &note: notes)
@@ -904,7 +904,7 @@ void Craft::pickInstrumentAudio(
   pick.programSequencePatternEventId = event->id;
   pick.event = fabricator->getTrackName(event);
   pick.startAtSegmentMicros = startAtSegmentMicros;
-  pick.lengthMicros = lengthMicros.has_value() ? lengthMicros.value() : audio.value()->lengthSeconds * ValueUtils::MICROS_PER_SECOND;
+  if (lengthMicros.has_value()) pick.lengthMicros = lengthMicros.value();
   pick.amplitude = event->velocity * volRatio;
   pick.tones = instrument->config.isTonal ? note : Note::ATONAL;
   if (segmentChordVoicingId.has_value()) pick.segmentChordVoicingId = segmentChordVoicingId.value();
