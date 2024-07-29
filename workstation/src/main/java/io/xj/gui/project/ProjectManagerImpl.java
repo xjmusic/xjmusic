@@ -1581,7 +1581,7 @@ public class ProjectManagerImpl implements ProjectManager {
    @throws IOException if the content could not be written to the file
    */
   private String writeContentToJsonFile(HubContent content, String writePath) throws IOException {
-    var json = jsonProvider.getMapper().writeValueAsString(content);
+    var json = jsonProvider.getMapper().writerWithDefaultPrettyPrinter().writeValueAsString(content);
     Path path = Path.of(writePath);
     Files.writeString(path, json);
     LOG.info("Did write {} bytes of content to {}", json.length(), path);
