@@ -62,13 +62,13 @@ public class DubWorkImpl implements DubWork {
   private final AtomicReference<Double> prevIntensity = new AtomicReference<>(1.0);
 
   public DubWorkImpl(
-      Telemetry telemetry,
-      CraftWork craftWork,
-      MixerFactory mixerFactory,
-      int mixerSeconds,
-      int dubAheadSeconds,
-      double outputFrameRate,
-      int outputChannels
+    Telemetry telemetry,
+    CraftWork craftWork,
+    MixerFactory mixerFactory,
+    int mixerSeconds,
+    int dubAheadSeconds,
+    double outputFrameRate,
+    int outputChannels
   ) {
     this.telemetry = telemetry;
     this.craftWork = craftWork;
@@ -135,7 +135,7 @@ public class DubWorkImpl implements DubWork {
       telemetry.record(TIMER_SECTION_DUB, System.currentTimeMillis() - startedAtMillis);
 
     } catch (
-        Exception e) {
+      Exception e) {
       didFailWhile("running dub work", e);
     }
   }
@@ -234,51 +234,56 @@ public class DubWorkImpl implements DubWork {
     InstrumentAudio audio;
     long transientMicros;
     long startAtMixerMicros;
-    @Nullable Long lengthMicros;
-    @Nullable Long stopAtMixerMicros;
+    long lengthMicros;
+    long stopAtMixerMicros;
     try {
       List<SegmentChoiceArrangementPick> picks =
-          craftWork.getPicks(segments).stream().filter(pick -> !craftWork.isMuted(pick)).toList();
+        craftWork.getPicks(segments).stream().filter(pick -> !craftWork.isMuted(pick)).toList();
       List<ActiveAudio> activeAudios = new ArrayList<>();
       for (SegmentChoiceArrangementPick pick : picks) {
         audio = craftWork.getInstrumentAudio(pick);
         if (StringUtils.isNullOrEmpty(audio.getWaveformKey())) {
           continue;
         }
-        transientMicros = Objects.nonNull(audio.getTransientSeconds()) ? (long) (audio.getTransientSeconds() * MICROS_PER_SECOND) : 0; // audio transient microseconds (to start audio before picked time)
-        lengthMicros = Objects.nonNull(pick.getLengthMicros()) ? pick.getLengthMicros() : null; // pick length microseconds, or empty if infinite
+        // audio transient microseconds (to start audio before picked time)
+        transientMicros = 0 < audio.getTransientSeconds() ? (long) (audio.getTransientSeconds() * MICROS_PER_SECOND) : 0;
+        // pick length microseconds
+        lengthMicros = 0 < pick.getLengthMicros() ? pick.getLengthMicros() : (long) (audio.getLengthSeconds() * MICROS_PER_SECOND);
         startAtMixerMicros =
-            segmentById.get(pick.getSegmentId())
-                .getBeginAtChainMicros() // segment begin at chain microseconds
-                + pick.getStartAtSegmentMicros()  // plus pick start microseconds
-                - transientMicros // minus transient microseconds
-                - atChainMicros; // relative to beginning of this chunk
+          // segment begin at chain microseconds
+          segmentById.get(pick.getSegmentId()).getBeginAtChainMicros()
+            // plus pick start microseconds
+            + pick.getStartAtSegmentMicros()
+            // minus transient microseconds
+            - transientMicros
+            // relative to beginning of this chunk
+            - atChainMicros;
         stopAtMixerMicros =
-            Objects.nonNull(lengthMicros) ?
-                startAtMixerMicros // from start of this active audio
-                    + transientMicros // revert transient microseconds from previous computation
-                    + lengthMicros
-                : null; // add length of pick in microseconds
-        if (startAtMixerMicros <= mixerLengthMicros && (Objects.isNull(stopAtMixerMicros) || stopAtMixerMicros >= 0)) {
+          // from start of this active audio
+          startAtMixerMicros
+            // revert transient microseconds from previous computation
+            + transientMicros
+            + lengthMicros;
+        if (startAtMixerMicros <= mixerLengthMicros && stopAtMixerMicros >= 0) {
           var instrument = craftWork.getInstrument(audio);
           activeAudios.add(new ActiveAudio(
-              pick,
-              instrument,
+            pick,
+            instrument,
+            audio,
+            startAtMixerMicros,
+            stopAtMixerMicros,
+            AudioMathUtils.computeIntensityAmplitude(
               audio,
-              startAtMixerMicros,
-              Objects.nonNull(stopAtMixerMicros) ? stopAtMixerMicros : null,
-              AudioMathUtils.computeIntensityAmplitude(
-                  audio,
-                  templateConfig.getIntensityLayers(instrument.getType()),
-                  templateConfig.getIntensityThreshold(instrument.getType()),
-                  false, prevIntensity.get()
-              ),
-              AudioMathUtils.computeIntensityAmplitude(
-                  audio,
-                  templateConfig.getIntensityLayers(instrument.getType()),
-                  templateConfig.getIntensityThreshold(instrument.getType()),
-                  false, nextIntensity.get()
-              )
+              templateConfig.getIntensityLayers(instrument.getType()),
+              templateConfig.getIntensityThreshold(instrument.getType()),
+              false, prevIntensity.get()
+            ),
+            AudioMathUtils.computeIntensityAmplitude(
+              audio,
+              templateConfig.getIntensityLayers(instrument.getType()),
+              templateConfig.getIntensityThreshold(instrument.getType()),
+              false, nextIntensity.get()
+            )
           ));
         }
       }
@@ -311,18 +316,18 @@ public class DubWorkImpl implements DubWork {
     int frameSize = outputChannels * sampleBits / BITS_PER_BYTE;
     AudioFormat audioFormat = new AudioFormat(encoding, (float) outputFrameRate, sampleBits, outputChannels, frameSize, (float) outputFrameRate, false);
     MixerConfig config = new MixerConfig(audioFormat)
-        .setTotalSeconds(mixerLengthSeconds)
-        .setTotalBuses(InstrumentType.values().length)
-        .setCompressAheadSeconds((float) templateConfig.getMixerCompressAheadSeconds())
-        .setCompressDecaySeconds((float) templateConfig.getMixerCompressDecaySeconds())
-        .setCompressRatioMax((float) templateConfig.getMixerCompressRatioMax())
-        .setCompressRatioMin((float) templateConfig.getMixerCompressRatioMin())
-        .setCompressToAmplitude((float) templateConfig.getMixerCompressToAmplitude())
-        .setDSPBufferSize(templateConfig.getMixerDspBufferSize())
-        .setHighpassThresholdHz((float) templateConfig.getMixerHighpassThresholdHz())
-        .setLowpassThresholdHz((float) templateConfig.getMixerLowpassThresholdHz())
-        .setNormalizationBoostThreshold((float) templateConfig.getMixerNormalizationBoostThreshold())
-        .setNormalizationCeiling((float) templateConfig.getMixerNormalizationCeiling());
+      .setTotalSeconds(mixerLengthSeconds)
+      .setTotalBuses(InstrumentType.values().length)
+      .setCompressAheadSeconds((float) templateConfig.getMixerCompressAheadSeconds())
+      .setCompressDecaySeconds((float) templateConfig.getMixerCompressDecaySeconds())
+      .setCompressRatioMax((float) templateConfig.getMixerCompressRatioMax())
+      .setCompressRatioMin((float) templateConfig.getMixerCompressRatioMin())
+      .setCompressToAmplitude((float) templateConfig.getMixerCompressToAmplitude())
+      .setDSPBufferSize(templateConfig.getMixerDspBufferSize())
+      .setHighpassThresholdHz((float) templateConfig.getMixerHighpassThresholdHz())
+      .setLowpassThresholdHz((float) templateConfig.getMixerLowpassThresholdHz())
+      .setNormalizationBoostThreshold((float) templateConfig.getMixerNormalizationBoostThreshold())
+      .setNormalizationCeiling((float) templateConfig.getMixerNormalizationCeiling());
 
     var M = mixerFactory.createMixer(config);
     LOG.info("Created mixer with config {}", config);

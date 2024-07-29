@@ -1,6 +1,7 @@
 package io.xj.gui.project;
 
 import io.xj.engine.FabricationException;
+import io.xj.engine.audio.AudioLoader;
 import io.xj.engine.http.HttpClientProvider;
 import io.xj.engine.hub_client.HubClientException;
 import io.xj.engine.hub_client.HubClientFactory;
@@ -103,6 +104,7 @@ public class ProjectManagerImpl implements ProjectManager {
   private final JsonProvider jsonProvider;
   private final EntityFactory entityFactory;
   private final HubClientFactory hubClientFactory;
+  private final AudioLoader audioLoader;
   private final HttpClientProvider httpClientProvider;
 
   @Nullable
@@ -124,12 +126,14 @@ public class ProjectManagerImpl implements ProjectManager {
     JsonProvider jsonProvider,
     EntityFactory entityFactory,
     HttpClientProvider httpClientProvider,
-    HubClientFactory hubClientFactory
+    HubClientFactory hubClientFactory,
+    AudioLoader audioLoader
   ) {
     this.httpClientProvider = httpClientProvider;
     this.jsonProvider = jsonProvider;
     this.entityFactory = entityFactory;
     this.hubClientFactory = hubClientFactory;
+    this.audioLoader = audioLoader;
     this.content.set(new HubContent());
   }
 
@@ -467,7 +471,7 @@ public class ProjectManagerImpl implements ProjectManager {
    Resample the given audio file if the target file doesn't already exist with the expected format
 
    @param sourcePath       the path to the source audio file
-   @param targetPath  the path to the destination audio file
+   @param targetPath       the path to the destination audio file
    @param targetFrameRate  the target frame rate
    @param targetSampleBits the target sample bits
    @param targetChannels   the target channels
@@ -980,7 +984,7 @@ public class ProjectManagerImpl implements ProjectManager {
     audio.setWaveformKey(LocalFileUtils.computeWaveformKey(instrument, audio, matcher.group(3)));
 
     // Import the audio waveform
-    importAudio(audio, audioFilePath);
+    audio.setLengthSeconds(importAudio(audio, audioFilePath));
 
     content.get().put(audio);
     return audio;
@@ -1333,12 +1337,18 @@ public class ProjectManagerImpl implements ProjectManager {
 
    @param audio         for which to import the waveform
    @param audioFilePath path to the audio file on disk
+   @return the length of the audio in seconds
    @throws IOException if the audio file could not be imported
    */
-  private void importAudio(InstrumentAudio audio, String audioFilePath) throws IOException {
+  private float importAudio(InstrumentAudio audio, String audioFilePath) throws IOException {
     var targetPath = getPathToInstrumentAudio(audio, null);
     FileUtils.createParentDirectories(new File(targetPath));
     FileUtils.copyFile(new File(audioFilePath), new File(targetPath));
+    try {
+      return audioLoader.load(audio).lengthSeconds();
+    } catch (UnsupportedAudioFileException e) {
+      throw new IOException("Failed to load audio file! " + e.getMessage(), e);
+    }
   }
 
   /**

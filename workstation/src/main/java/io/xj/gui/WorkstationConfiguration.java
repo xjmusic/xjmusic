@@ -88,9 +88,10 @@ public class WorkstationConfiguration {
       JsonProvider jsonProvider,
       EntityFactory entityFactory,
       HttpClientProvider httpClientProvider,
-      HubClientFactory hubClientFactory
+      HubClientFactory hubClientFactory,
+      AudioLoader audioLoader
   ) {
-    return new ProjectManagerImpl(jsonProvider, entityFactory, httpClientProvider, hubClientFactory);
+    return new ProjectManagerImpl(jsonProvider, entityFactory, httpClientProvider, hubClientFactory, audioLoader);
   }
 
   @Bean

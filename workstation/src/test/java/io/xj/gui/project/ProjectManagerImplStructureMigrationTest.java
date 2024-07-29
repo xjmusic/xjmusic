@@ -1,5 +1,6 @@
 package io.xj.gui.project;
 
+import io.xj.engine.audio.AudioLoader;
 import io.xj.model.HubContent;
 import io.xj.model.HubTopology;
 import io.xj.model.entity.EntityFactory;
@@ -43,6 +44,9 @@ class ProjectManagerImplStructureMigrationTest {
   @Mock
   HttpClientProvider httpClientProvider;
 
+  @Mock
+  AudioLoader audioLoader;
+
   @Spy
   Consumer<Double> onProgress;
 
@@ -59,7 +63,7 @@ class ProjectManagerImplStructureMigrationTest {
     HubTopology.buildHubApiTopology(entityFactory);
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     HubClientFactory hubClientFactory = new HubClientFactoryImpl(httpClientProvider, jsonProvider, jsonapiPayloadFactory, 3);
-    subject = new ProjectManagerImpl(jsonProvider, entityFactory, httpClientProvider, hubClientFactory);
+    subject = new ProjectManagerImpl(jsonProvider, entityFactory, httpClientProvider, hubClientFactory, audioLoader);
     subject.openProjectFromLocalFile(dest + File.separator + "LegacyExampleProject.xj");
   }
 
@@ -125,13 +129,13 @@ class ProjectManagerImplStructureMigrationTest {
 
   /**
    Only cleanup unused .xj files in the root of the project, and all unused files inside the "libraries" and "templates" folders.
-   E.g. this should ignore the "render" folder in the root of the project and any other files or folders the developers want to create in their project
+   E.g. this should ignore the "render" folder in the root of the project and any other files or folders the developers want to create in their project.
    Project file structure is conducive to version control https://github.com/xjmusic/xjmusic/issues/335
    */
   @Test
   void saveProjectCleansUpUnusedJson() throws IOException {
     subject.setOnProgress(onProgress);
-    // Should cleanup these unused project content files
+    // Should clean up these unused project content files
     var unusedProjectFile = Path.of(subject.getProjectPathPrefix() + "unused.xj");
     Files.writeString(unusedProjectFile, "test");
     Files.createDirectory(Path.of(subject.getProjectPathPrefix() + "libraries"));
@@ -144,10 +148,10 @@ class ProjectManagerImplStructureMigrationTest {
     Files.createDirectory(Path.of(subject.getProjectPathPrefix() + "libraries", "Legacy-Instruments", "Test-Instrument"));
     var unusedInstrumentAudioFile = Path.of(subject.getProjectPathPrefix() + "libraries", "Legacy-Instruments", "Test-Instrument", "unused.wav");
     Files.writeString(unusedInstrumentAudioFile, "test");
-    // Should cleanup this legacy folder name
+    // Should clean up this legacy folder name
     var legacyInstrumentFolder = Path.of(subject.getProjectPathPrefix() + "instrument");
     assertTrue(Files.exists(legacyInstrumentFolder));
-    // Should not cleanup any of the following files or folders
+    // Should not clean up any of the following files or folders
     var ignoredRenderFolder = Path.of(subject.getProjectPathPrefix() + "render");
     Files.createDirectory(ignoredRenderFolder);
     var ignoredRenderFile = Path.of(subject.getProjectPathPrefix() + "file.wav");

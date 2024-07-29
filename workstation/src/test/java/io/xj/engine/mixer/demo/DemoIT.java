@@ -104,9 +104,11 @@ public class DemoIT {
   private final ProjectManager projectManager;
   private MixerFactory mixerFactory;
   private AudioCache audioCache;
+  private AudioLoader audioLoader;
 
   @Mock
   private HttpClientProvider httpClientProvider;
+
 
   public DemoIT() throws IOException {
     String contentStoragePathPrefix = Files.createTempDirectory("xj_demo").toFile().getAbsolutePath() + File.separator;
@@ -116,7 +118,7 @@ public class DemoIT {
     EntityFactory entityFactory = new EntityFactoryImpl(jsonProvider);
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     HubClientFactory hubClientFactory = new HubClientFactoryImpl(httpClientProvider, jsonProvider, jsonapiPayloadFactory, 3);
-    projectManager = new ProjectManagerImpl(jsonProvider, entityFactory, httpClientProvider, hubClientFactory);
+    projectManager = new ProjectManagerImpl(jsonProvider, entityFactory, httpClientProvider, hubClientFactory, audioLoader);
     projectManager.setProjectPathPrefix(contentStoragePathPrefix);
     projectManager.getContent().put(instrument);
     projectManager.getContent().put(library);
@@ -135,7 +137,7 @@ public class DemoIT {
   @BeforeEach
   public void beforeEach() {
     EnvelopeProvider envelopeProvider = new EnvelopeProviderImpl();
-    AudioLoader audioLoader = new AudioLoaderImpl(projectManager);
+    audioLoader = new AudioLoaderImpl(projectManager);
     audioCache = new AudioCacheImpl(projectManager, audioLoader);
     this.mixerFactory = new MixerFactoryImpl(envelopeProvider, audioCache);
   }

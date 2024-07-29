@@ -1,6 +1,10 @@
 package io.xj.gui.project;
 
 import io.xj.engine.ContentFixtures;
+import io.xj.engine.audio.AudioLoader;
+import io.xj.engine.http.HttpClientProvider;
+import io.xj.engine.hub_client.HubClientFactory;
+import io.xj.engine.hub_client.HubClientFactoryImpl;
 import io.xj.model.HubTopology;
 import io.xj.model.InstrumentConfig;
 import io.xj.model.ProgramConfig;
@@ -25,9 +29,6 @@ import io.xj.model.pojos.ProgramSequenceChordVoicing;
 import io.xj.model.pojos.ProgramSequencePattern;
 import io.xj.model.pojos.ProgramSequencePatternEvent;
 import io.xj.model.pojos.ProgramVoiceTrack;
-import io.xj.engine.http.HttpClientProvider;
-import io.xj.engine.hub_client.HubClientFactory;
-import io.xj.engine.hub_client.HubClientFactoryImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -41,9 +42,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-import static io.xj.engine.ContentFixtures.buildInstrument;
-import static io.xj.engine.ContentFixtures.buildProgram;
-import static io.xj.engine.ContentFixtures.buildProject;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -59,6 +57,9 @@ class ProjectManagerImplTest {
   @Mock
   HttpClientProvider httpClientProvider;
 
+  @Mock
+  AudioLoader audioLoader;
+
   public ProjectManagerImplTest() throws URISyntaxException {
     baseDir = new File(Objects.requireNonNull(getClass().getClassLoader().getResource("project")).toURI()).getAbsolutePath();
     pathToProjectFile = baseDir + File.separator + "test-project.xj";
@@ -72,7 +73,7 @@ class ProjectManagerImplTest {
     HubTopology.buildHubApiTopology(entityFactory);
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     HubClientFactory hubClientFactory = new HubClientFactoryImpl(httpClientProvider, jsonProvider, jsonapiPayloadFactory, 3);
-    subject = new ProjectManagerImpl(jsonProvider, entityFactory, httpClientProvider, hubClientFactory);
+    subject = new ProjectManagerImpl(jsonProvider, entityFactory, httpClientProvider, hubClientFactory, audioLoader);
     subject.openProjectFromLocalFile(pathToProjectFile);
   }
 
