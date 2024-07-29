@@ -234,7 +234,7 @@ public class DubWorkImpl implements DubWork {
     InstrumentAudio audio;
     long transientMicros;
     long startAtMixerMicros;
-    long lengthMicros;
+    @Nullable Long lengthMicros;
     long stopAtMixerMicros;
     try {
       List<SegmentChoiceArrangementPick> picks =
@@ -245,10 +245,8 @@ public class DubWorkImpl implements DubWork {
         if (StringUtils.isNullOrEmpty(audio.getWaveformKey())) {
           continue;
         }
-        // audio transient microseconds (to start audio before picked time)
-        transientMicros = 0 < audio.getTransientSeconds() ? (long) (audio.getTransientSeconds() * MICROS_PER_SECOND) : 0;
-        // pick length microseconds
-        lengthMicros = 0 < pick.getLengthMicros() ? pick.getLengthMicros() : (long) (audio.getLengthSeconds() * MICROS_PER_SECOND);
+        transientMicros = Objects.nonNull(audio.getTransientSeconds()) ? (long) (audio.getTransientSeconds() * MICROS_PER_SECOND) : 0; // audio transient microseconds (to start audio before picked time)
+        lengthMicros = Objects.nonNull(pick.getLengthMicros()) ? pick.getLengthMicros() : null; // pick length microseconds, or empty if infinite
         startAtMixerMicros =
           // segment begin at chain microseconds
           segmentById.get(pick.getSegmentId()).getBeginAtChainMicros()
@@ -259,12 +257,16 @@ public class DubWorkImpl implements DubWork {
             // relative to beginning of this chunk
             - atChainMicros;
         stopAtMixerMicros =
-          // from start of this active audio
-          startAtMixerMicros
-            // revert transient microseconds from previous computation
-            + transientMicros
-            + lengthMicros;
-        if (startAtMixerMicros <= mixerLengthMicros && stopAtMixerMicros >= 0) {
+          Objects.nonNull(lengthMicros) ?
+            // from start of this active audio
+            startAtMixerMicros
+              // revert transient microseconds from previous computation
+              + transientMicros
+              // add length of pick in microseconds
+              + lengthMicros
+            : (long) (startAtMixerMicros
+            + audio.getLengthSeconds() * MICROS_PER_SECOND);
+        if (startAtMixerMicros <= mixerLengthMicros && (stopAtMixerMicros >= 0)) {
           var instrument = craftWork.getInstrument(audio);
           activeAudios.add(new ActiveAudio(
             pick,
