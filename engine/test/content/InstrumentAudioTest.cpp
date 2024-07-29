@@ -15,6 +15,7 @@ TEST(InstrumentAudioTest, FieldValues) {
   subject.name = "Test Audio";
   subject.waveformKey = "test-audio.wav";
   subject.transientSeconds = 0.057f;
+  subject.lengthSeconds = 0.0f;
   subject.loopBeats = 4;
   subject.tempo = 120.0f;
   subject.intensity = 1.0f;
@@ -26,6 +27,7 @@ TEST(InstrumentAudioTest, FieldValues) {
   ASSERT_EQ("Test Audio", subject.name);
   ASSERT_EQ("test-audio.wav", subject.waveformKey);
   ASSERT_EQ(0.057f, subject.transientSeconds);
+  ASSERT_EQ(0.0f, subject.lengthSeconds);
   ASSERT_EQ(4, subject.loopBeats);
   ASSERT_EQ(120.0f, subject.tempo);
   ASSERT_EQ(1.0f, subject.intensity);

@@ -5,20 +5,20 @@
 
 #include <string>
 
-#include "xjmusic/util/EntityUtils.h"
 #include "ContentEntity.h"
+#include "xjmusic/util/EntityUtils.h"
 
 namespace XJ {
 
   class InstrumentAudio : public ContentEntity {
   public:
-
     InstrumentAudio() = default;
 
     UUID instrumentId;
     std::string name;
     std::string waveformKey;
     float transientSeconds{};
+    float lengthSeconds{};
     float loopBeats{};
     float tempo{};
     float intensity{};
@@ -38,6 +38,7 @@ namespace XJ {
     EntityUtils::setIfNotNull(json, "name", entity.name);
     EntityUtils::setIfNotNull(json, "waveformKey", entity.waveformKey);
     EntityUtils::setIfNotNull(json, "transientSeconds", entity.transientSeconds);
+    EntityUtils::setIfNotNull(json, "lengthSeconds", entity.lengthSeconds);
     EntityUtils::setIfNotNull(json, "loopBeats", entity.loopBeats);
     EntityUtils::setIfNotNull(json, "tempo", entity.tempo);
     EntityUtils::setIfNotNull(json, "intensity", entity.intensity);
