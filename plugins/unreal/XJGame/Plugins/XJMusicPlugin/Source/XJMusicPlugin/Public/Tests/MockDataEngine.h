@@ -44,7 +44,7 @@ public:
 private:
 	TArray<FMockAudioTableRow> ScheduledAudios;
 
-	int64 LastMicros = 0;
+	uint64 LastMicros = 0;
 
 	int LastItr = 0;
 };

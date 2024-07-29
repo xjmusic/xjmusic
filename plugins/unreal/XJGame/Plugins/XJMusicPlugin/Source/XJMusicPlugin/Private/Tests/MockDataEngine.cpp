@@ -8,13 +8,14 @@ TSet<FAudioPlayer> TMockDataEngine::RunCycle(const uint64 ChainMicros)
 {
     if (LatencyBetweenCyclesInSeconds > 0.0f)
     {
-        float Difference = ChainMicros - LastMicros;
-        LastMicros = ChainMicros;
-
-        if (Difference < LatencyBetweenCyclesInSeconds * 1000000.0f && LastMicros != 0)
+        float Difference = (ChainMicros - LastMicros) / 1000000.0f;
+        
+        if (Difference < LatencyBetweenCyclesInSeconds)
         {
             return {};
         }
+
+        LastMicros = ChainMicros;
     }
 
     TSet<FAudioPlayer> OutputPlayers;
