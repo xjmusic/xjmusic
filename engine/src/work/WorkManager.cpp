@@ -75,7 +75,7 @@ std::set<AudioScheduleEvent> WorkManager::runCycle(const unsigned long long atCh
   std::set<std::string> foundAudioIds;
 
   // check for new or updated audio
-  auto audios = this->runDubCycle(atChainMicros);
+  const auto audios = this->runDubCycle(atChainMicros);
   for (auto audio: audios) {
     foundAudioIds.insert(audio.getId());
     if (activeAudioMap.find(audio.getId()) != activeAudioMap.end()) {
