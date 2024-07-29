@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class AudioLoaderImplTest {
   private final String pathToAudioFile;
   private InstrumentAudio audio;
-  private AudioLoaderImpl subject;
+  private AudioLoader subject;
 
   public AudioLoaderImplTest() throws URISyntaxException {
     String baseDir = new File(Objects.requireNonNull(getClass().getClassLoader().getResource("project")).toURI()).getAbsolutePath();

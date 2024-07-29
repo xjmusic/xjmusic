@@ -57,8 +57,13 @@ public class ValueUtilsTest {
   }
 
   @Test
-  public void limitDecimalPrecision() {
-    assertEquals(1.25, ValueUtils.limitDecimalPrecision(1.2545897987), 0.0000001);
+  public void limitDecimalPrecision2() {
+    assertEquals(1.25, ValueUtils.limitDecimalPrecision2(1.2545897987), 0.0000001);
+  }
+
+  @Test
+  public void limitDecimalPrecision6() {
+    assertEquals(1.254589, ValueUtils.limitDecimalPrecision6(1.2545897987f), 0.0000001);
   }
 
   @Test

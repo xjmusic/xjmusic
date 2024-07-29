@@ -20,8 +20,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public interface ValueUtils {
-  double entityPositionDecimalPlaces = 2.0;
-  double roundPositionMultiplier = StrictMath.pow(10.0, entityPositionDecimalPlaces);
+  double roundPositionMultiplier2 = StrictMath.pow(10.0, 2.0);
+  double roundPositionMultiplier6 = StrictMath.pow(10.0, 6.0);
   String K = "k";
   long MILLIS_PER_SECOND = 1000;
   long MICROS_PER_MILLI = 1000;
@@ -180,14 +180,25 @@ public interface ValueUtils {
   }
 
   /**
-   Round a value to N decimal places.
+   Round a value to 2 decimal places.
    Limit the floating point precision of chord and event position, in order to limit obsession over the position of things. https://github.com/xjmusic/xjmusic/issues/223
 
    @param value to round
    @return rounded position
    */
-  static Double limitDecimalPrecision(Double value) {
-    return Math.floor(value * roundPositionMultiplier) / roundPositionMultiplier;
+  static Double limitDecimalPrecision2(Double value) {
+    return Math.floor(value * roundPositionMultiplier2) / roundPositionMultiplier2;
+  }
+
+  /**
+   Round a value to 6 decimal places.
+   InstrumentAudio requires known length of audio https://github.com/xjmusic/xjmusic/issues/450
+
+   @param value to round
+   @return rounded position
+   */
+  static Float limitDecimalPrecision6(Float value) {
+    return (float) (Math.floor(value * roundPositionMultiplier6) / roundPositionMultiplier6);
   }
 
   /**

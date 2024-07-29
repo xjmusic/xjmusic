@@ -200,6 +200,7 @@ public class InstrumentAudioEditorController extends BrowserController {
     fieldTempo.textProperty().bindBidirectional(tempo, new NumberStringConverter());
     fieldIntensity.textProperty().bindBidirectional(intensity, new NumberStringConverter());
     fieldTransientSeconds.textProperty().bindBidirectional(transientSeconds, new NumberStringConverter());
+    fieldLengthSeconds.textProperty().bindBidirectional(lengthSeconds, new NumberStringConverter());
     fieldLoopBeats.textProperty().bindBidirectional(loopBeats, new NumberStringConverter());
     labelAudioFileName.textProperty().bind(Bindings.createStringBinding(
       () -> audioFileNotFound.not().get() && audioInMemory.isNotNull().get() ? ProjectPathUtils.getFilename(audioInMemory.get().pathToAudioFile()) : "",
@@ -245,12 +246,6 @@ public class InstrumentAudioEditorController extends BrowserController {
     fieldTransientSeconds.focusedProperty().addListener((o, ov, v) -> {
       if (!v) {
         update("transientSeconds", transientSeconds.get());
-        renderWaveform();
-      }
-    });
-    fieldLengthSeconds.focusedProperty().addListener((o, ov, v) -> {
-      if (!v) {
-        update("lengthSeconds", lengthSeconds.get());
         renderWaveform();
       }
     });

@@ -72,8 +72,8 @@
     <Separator HBox.hgrow="ALWAYS"/>
 
     <VBox>
-      <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Length"/>
-      <TextField fx:id="fieldLengthSeconds" prefHeight="25.0"/>
+      <Label alignment="CENTER_RIGHT" contentDisplay="TEXT_ONLY" text="Length" disable="true"/>
+      <TextField fx:id="fieldLengthSeconds" prefHeight="25.0" disable="true"/>
     </VBox>
 
     <VBox>
