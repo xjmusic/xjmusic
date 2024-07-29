@@ -1488,6 +1488,15 @@ public class ProjectManagerImpl implements ProjectManager {
               }
           }
           filesInProject.add(idealAudioPath);
+          try {
+            // InstrumentAudio requires known length of audio https://github.com/xjmusic/xjmusic/issues/450
+            // Project migration includes reading audio length from all files found on disk and updating the lengthSeconds value for that instrument audio
+            content.get().update(InstrumentAudio.class, audio.getId(), "lengthSeconds", audioLoader.load(audio, idealAudioPath).lengthSeconds());
+          } catch (UnsupportedAudioFileException e) {
+            LOG.error("Failed to load audio file! {}\n{}", e, StringUtils.formatStackTrace(e));
+          } catch (Exception e) {
+            LOG.error("Failed to update audio length seconds! {}\n{}", e, StringUtils.formatStackTrace(e));
+          }
           updateProgress((double) ++savedItems / totalItems);
         }
 

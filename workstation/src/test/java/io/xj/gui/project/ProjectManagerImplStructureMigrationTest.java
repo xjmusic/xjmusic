@@ -1,5 +1,6 @@
 package io.xj.gui.project;
 
+import io.xj.engine.audio.AudioInMemory;
 import io.xj.engine.audio.AudioLoader;
 import io.xj.model.HubContent;
 import io.xj.model.HubTopology;
@@ -21,6 +22,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -34,6 +36,8 @@ import java.util.function.Consumer;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class ProjectManagerImplStructureMigrationTest {
@@ -47,16 +51,24 @@ class ProjectManagerImplStructureMigrationTest {
   @Mock
   AudioLoader audioLoader;
 
+  @Mock
+  AudioInMemory audioInMemory;
+
   @Spy
   Consumer<Double> onProgress;
 
   @BeforeEach
-  void setUp() throws URISyntaxException, IOException {
+  void setUp() throws URISyntaxException, IOException, UnsupportedAudioFileException {
     // create temporary directory
     String dest = Files.createTempDirectory("LegacyExampleProject").toAbsolutePath().toString();
     String source = new File(Objects.requireNonNull(getClass().getClassLoader().getResource("LegacyExampleProject")).toURI()).getAbsolutePath();
     // copy recursive the testSource into the tempDir
     LocalFileUtils.copyRecursively(Paths.get(source), Paths.get(dest));
+
+    // InstrumentAudio requires known length of audio https://github.com/xjmusic/xjmusic/issues/450
+    // Project migration includes reading audio length from all files found on disk and updating the lengthSeconds value for that instrument audio
+    when(audioLoader.load(any(), any())).thenReturn(audioInMemory);
+    when(audioInMemory.lengthSeconds()).thenReturn(2.0f);
 
     jsonProvider = new JsonProviderImpl();
     EntityFactory entityFactory = new EntityFactoryImpl(jsonProvider);
@@ -97,6 +109,10 @@ class ProjectManagerImplStructureMigrationTest {
     HubContent instrumentOnDisk = jsonProvider.getMapper().readValue(Files.readString(Path.of(subject.getProjectPathPrefix(), "libraries", "Legacy-Instruments", "Test-Instrument", "Test-Instrument.json")), HubContent.class);
     assertEquals("Test-Instrument-Test-Ambience-Loop-X.wav", instrumentOnDisk.getInstrumentAudio(UUID.fromString("ded34218-788b-408a-8f8a-3f9cd3eab5eb")).orElseThrow().getWaveformKey());
     assertEquals("Test-Instrument-Test-Percussion-Loop-X.wav", instrumentOnDisk.getInstrumentAudio(UUID.fromString("1e6e1f31-40c0-4ae4-bb62-faebfdda25b5")).orElseThrow().getWaveformKey());
+    // InstrumentAudio requires known length of audio https://github.com/xjmusic/xjmusic/issues/450
+    // Project migration includes reading audio length from all files found on disk and updating the lengthSeconds value for that instrument audio
+    assertEquals(2.0f, instrumentOnDisk.getInstrumentAudio(UUID.fromString("ded34218-788b-408a-8f8a-3f9cd3eab5eb")).orElseThrow().getLengthSeconds(), 0.01);
+    assertEquals(2.0f, instrumentOnDisk.getInstrumentAudio(UUID.fromString("1e6e1f31-40c0-4ae4-bb62-faebfdda25b5")).orElseThrow().getLengthSeconds(), 0.01);
   }
 
   /**
@@ -125,6 +141,10 @@ class ProjectManagerImplStructureMigrationTest {
     HubContent instrumentOnDisk = jsonProvider.getMapper().readValue(Files.readString(Path.of(subject.getProjectPathPrefix(), "libraries", "Legacy-Instruments", "Test-Instrument", "Test-Instrument.json")), HubContent.class);
     assertEquals("Test-Instrument-Test-Ambience-Loop-X.wav", instrumentOnDisk.getInstrumentAudio(UUID.fromString("ded34218-788b-408a-8f8a-3f9cd3eab5eb")).orElseThrow().getWaveformKey());
     assertEquals("Test-Instrument-Test-Percussion-Loop-X.wav", instrumentOnDisk.getInstrumentAudio(UUID.fromString("1e6e1f31-40c0-4ae4-bb62-faebfdda25b5")).orElseThrow().getWaveformKey());
+    // InstrumentAudio requires known length of audio https://github.com/xjmusic/xjmusic/issues/450
+    // Project migration includes reading audio length from all files found on disk and updating the lengthSeconds value for that instrument audio
+    assertEquals(2.0f, instrumentOnDisk.getInstrumentAudio(UUID.fromString("ded34218-788b-408a-8f8a-3f9cd3eab5eb")).orElseThrow().getLengthSeconds(), 0.01);
+    assertEquals(2.0f, instrumentOnDisk.getInstrumentAudio(UUID.fromString("1e6e1f31-40c0-4ae4-bb62-faebfdda25b5")).orElseThrow().getLengthSeconds(), 0.01);
   }
 
   /**
