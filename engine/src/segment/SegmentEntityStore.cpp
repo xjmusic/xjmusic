@@ -81,7 +81,7 @@ const Segment *SegmentEntityStore::put(const Segment &segment) {
   return &this->segments.at(segment.id);
 }
 
-std::optional<const Segment *> SegmentEntityStore::readSegmentAtChainMicros(const long chainMicros) {
+std::optional<const Segment *> SegmentEntityStore::readSegmentAtChainMicros(const unsigned long long int chainMicros) {
   for (auto &[_, segment]: segments) {
     if (SegmentUtils::isSpanning(&segment, chainMicros, chainMicros)) {
       return {&segment};
@@ -169,7 +169,7 @@ std::set<const SegmentEntity *> SegmentEntityStore::readAllSegmentEntities(const
 
 
 std::vector<const Segment *>
-SegmentEntityStore::readAllSegmentsSpanning(const long fromChainMicros, const long toChainMicros) {
+SegmentEntityStore::readAllSegmentsSpanning(const unsigned long long int fromChainMicros, const unsigned long long int toChainMicros) {
   std::vector<const Segment *> result;
   for (auto &[id, segment]: segments) {
     if (SegmentUtils::isSpanning(&segment, fromChainMicros, toChainMicros)) {

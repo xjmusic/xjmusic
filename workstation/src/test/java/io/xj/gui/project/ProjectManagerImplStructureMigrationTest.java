@@ -1,5 +1,7 @@
 package io.xj.gui.project;
 
+import io.xj.engine.audio.AudioInMemory;
+import io.xj.engine.audio.AudioLoader;
 import io.xj.model.HubContent;
 import io.xj.model.HubTopology;
 import io.xj.model.entity.EntityFactory;
@@ -20,6 +22,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -33,6 +36,8 @@ import java.util.function.Consumer;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class ProjectManagerImplStructureMigrationTest {
@@ -43,23 +48,34 @@ class ProjectManagerImplStructureMigrationTest {
   @Mock
   HttpClientProvider httpClientProvider;
 
+  @Mock
+  AudioLoader audioLoader;
+
+  @Mock
+  AudioInMemory audioInMemory;
+
   @Spy
   Consumer<Double> onProgress;
 
   @BeforeEach
-  void setUp() throws URISyntaxException, IOException {
+  void setUp() throws URISyntaxException, IOException, UnsupportedAudioFileException {
     // create temporary directory
     String dest = Files.createTempDirectory("LegacyExampleProject").toAbsolutePath().toString();
     String source = new File(Objects.requireNonNull(getClass().getClassLoader().getResource("LegacyExampleProject")).toURI()).getAbsolutePath();
     // copy recursive the testSource into the tempDir
     LocalFileUtils.copyRecursively(Paths.get(source), Paths.get(dest));
 
+    // InstrumentAudio requires known length of audio https://github.com/xjmusic/xjmusic/issues/450
+    // Project migration includes reading audio length from all files found on disk and updating the lengthSeconds value for that instrument audio
+    when(audioLoader.load(any(), any())).thenReturn(audioInMemory);
+    when(audioInMemory.lengthSeconds()).thenReturn(2.0f);
+
     jsonProvider = new JsonProviderImpl();
     EntityFactory entityFactory = new EntityFactoryImpl(jsonProvider);
     HubTopology.buildHubApiTopology(entityFactory);
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     HubClientFactory hubClientFactory = new HubClientFactoryImpl(httpClientProvider, jsonProvider, jsonapiPayloadFactory, 3);
-    subject = new ProjectManagerImpl(jsonProvider, entityFactory, httpClientProvider, hubClientFactory);
+    subject = new ProjectManagerImpl(jsonProvider, entityFactory, httpClientProvider, hubClientFactory, audioLoader);
     subject.openProjectFromLocalFile(dest + File.separator + "LegacyExampleProject.xj");
   }
 
@@ -93,6 +109,10 @@ class ProjectManagerImplStructureMigrationTest {
     HubContent instrumentOnDisk = jsonProvider.getMapper().readValue(Files.readString(Path.of(subject.getProjectPathPrefix(), "libraries", "Legacy-Instruments", "Test-Instrument", "Test-Instrument.json")), HubContent.class);
     assertEquals("Test-Instrument-Test-Ambience-Loop-X.wav", instrumentOnDisk.getInstrumentAudio(UUID.fromString("ded34218-788b-408a-8f8a-3f9cd3eab5eb")).orElseThrow().getWaveformKey());
     assertEquals("Test-Instrument-Test-Percussion-Loop-X.wav", instrumentOnDisk.getInstrumentAudio(UUID.fromString("1e6e1f31-40c0-4ae4-bb62-faebfdda25b5")).orElseThrow().getWaveformKey());
+    // InstrumentAudio requires known length of audio https://github.com/xjmusic/xjmusic/issues/450
+    // Project migration includes reading audio length from all files found on disk and updating the lengthSeconds value for that instrument audio
+    assertEquals(2.0f, instrumentOnDisk.getInstrumentAudio(UUID.fromString("ded34218-788b-408a-8f8a-3f9cd3eab5eb")).orElseThrow().getLengthSeconds(), 0.01);
+    assertEquals(2.0f, instrumentOnDisk.getInstrumentAudio(UUID.fromString("1e6e1f31-40c0-4ae4-bb62-faebfdda25b5")).orElseThrow().getLengthSeconds(), 0.01);
   }
 
   /**
@@ -121,17 +141,21 @@ class ProjectManagerImplStructureMigrationTest {
     HubContent instrumentOnDisk = jsonProvider.getMapper().readValue(Files.readString(Path.of(subject.getProjectPathPrefix(), "libraries", "Legacy-Instruments", "Test-Instrument", "Test-Instrument.json")), HubContent.class);
     assertEquals("Test-Instrument-Test-Ambience-Loop-X.wav", instrumentOnDisk.getInstrumentAudio(UUID.fromString("ded34218-788b-408a-8f8a-3f9cd3eab5eb")).orElseThrow().getWaveformKey());
     assertEquals("Test-Instrument-Test-Percussion-Loop-X.wav", instrumentOnDisk.getInstrumentAudio(UUID.fromString("1e6e1f31-40c0-4ae4-bb62-faebfdda25b5")).orElseThrow().getWaveformKey());
+    // InstrumentAudio requires known length of audio https://github.com/xjmusic/xjmusic/issues/450
+    // Project migration includes reading audio length from all files found on disk and updating the lengthSeconds value for that instrument audio
+    assertEquals(2.0f, instrumentOnDisk.getInstrumentAudio(UUID.fromString("ded34218-788b-408a-8f8a-3f9cd3eab5eb")).orElseThrow().getLengthSeconds(), 0.01);
+    assertEquals(2.0f, instrumentOnDisk.getInstrumentAudio(UUID.fromString("1e6e1f31-40c0-4ae4-bb62-faebfdda25b5")).orElseThrow().getLengthSeconds(), 0.01);
   }
 
   /**
    Only cleanup unused .xj files in the root of the project, and all unused files inside the "libraries" and "templates" folders.
-   E.g. this should ignore the "render" folder in the root of the project and any other files or folders the developers want to create in their project
+   E.g. this should ignore the "render" folder in the root of the project and any other files or folders the developers want to create in their project.
    Project file structure is conducive to version control https://github.com/xjmusic/xjmusic/issues/335
    */
   @Test
   void saveProjectCleansUpUnusedJson() throws IOException {
     subject.setOnProgress(onProgress);
-    // Should cleanup these unused project content files
+    // Should clean up these unused project content files
     var unusedProjectFile = Path.of(subject.getProjectPathPrefix() + "unused.xj");
     Files.writeString(unusedProjectFile, "test");
     Files.createDirectory(Path.of(subject.getProjectPathPrefix() + "libraries"));
@@ -144,10 +168,10 @@ class ProjectManagerImplStructureMigrationTest {
     Files.createDirectory(Path.of(subject.getProjectPathPrefix() + "libraries", "Legacy-Instruments", "Test-Instrument"));
     var unusedInstrumentAudioFile = Path.of(subject.getProjectPathPrefix() + "libraries", "Legacy-Instruments", "Test-Instrument", "unused.wav");
     Files.writeString(unusedInstrumentAudioFile, "test");
-    // Should cleanup this legacy folder name
+    // Should clean up this legacy folder name
     var legacyInstrumentFolder = Path.of(subject.getProjectPathPrefix() + "instrument");
     assertTrue(Files.exists(legacyInstrumentFolder));
-    // Should not cleanup any of the following files or folders
+    // Should not clean up any of the following files or folders
     var ignoredRenderFolder = Path.of(subject.getProjectPathPrefix() + "render");
     Files.createDirectory(ignoredRenderFolder);
     var ignoredRenderFile = Path.of(subject.getProjectPathPrefix() + "file.wav");

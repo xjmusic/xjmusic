@@ -184,3 +184,9 @@ TEST(StringUtilsTest, ToUpperSlug) {
   EXPECT_EQ("P", StringUtils::toUpperSlug("%&(#p"));
   EXPECT_EQ("", StringUtils::toUpperSlug("%&(#"));
 }
+
+TEST(StringUtilsTest, ZeroPadded) {
+  EXPECT_EQ("0000000001", StringUtils::zeroPadded(1, 10));
+  EXPECT_EQ("1", StringUtils::zeroPadded(1, 1));
+  EXPECT_EQ("01", StringUtils::zeroPadded(1, 2));
+}

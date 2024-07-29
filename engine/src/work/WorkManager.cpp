@@ -10,7 +10,8 @@ WorkManager::WorkManager(
     const WorkSettings &config) : craftWork(CraftWork(store,
                                                       content,
                                                       config.persistenceWindowSeconds,
-                                                      config.craftAheadSeconds)),
+                                                      config.craftAheadSeconds,
+                                                      config.deadlineSeconds)),
                                   dubWork(DubWork(
                                       &craftWork,
                                       config.dubAheadSeconds)) {
@@ -19,7 +20,7 @@ WorkManager::WorkManager(
   this->config = config;
 
   try {
-    const auto templates = getSourceMaterial()->getTemplates();
+    const auto templates = content->getTemplates();
     if (templates.empty()) {
       std::cerr << "No templates found in source material" << std::endl;
       return;
@@ -42,8 +43,8 @@ void WorkManager::start() {
       break;
     case Fabricator::ControlMode::Taxonomy: {
       if (memeTaxonomy.has_value()) {
-        std::set < std::string > memes;
-        for (auto category: memeTaxonomy.value().getCategories()) {
+        std::set<std::string> memes;
+        for (const auto &category: memeTaxonomy.value().getCategories()) {
           if (!category.getMemes().empty())
             memes.insert(*category.getMemes().begin());
         }
@@ -69,9 +70,39 @@ void WorkManager::finish(const bool cancelled) {
   updateState(cancelled ? Cancelled : Done);
 }
 
-std::set<ActiveAudio> WorkManager::runCycle(const unsigned long long atChainMicros) {
+std::set<AudioScheduleEvent> WorkManager::runCycle(const unsigned long long atChainMicros) {
   this->runCraftCycle(atChainMicros);
-  return this->runDubCycle(atChainMicros);
+  std::set<AudioScheduleEvent> audioEvents;
+  std::set<std::string> foundAudioIds;
+
+  // check for new or updated audio
+  const auto audios = this->runDubCycle(atChainMicros);
+  for (auto audio: audios) {
+    foundAudioIds.insert(audio.getId());
+    if (activeAudioMap.find(audio.getId()) != activeAudioMap.end()) {
+      // check if the audio has been modified; if so, update it
+      if (activeAudioMap.at(audio.getId()) != audio) {
+        activeAudioMap.emplace(audio.getId(), audio);
+        audioEvents.emplace(AudioScheduleEvent(AudioScheduleEvent::EType::Update, audio));
+      }
+    } else {
+      // create a new audio
+      activeAudioMap.emplace(audio.getId(), audio);
+      audioEvents.emplace(AudioScheduleEvent(AudioScheduleEvent::EType::Create, audio));
+    }
+  }
+
+  // check for deleted audio
+  for (auto it = activeAudioMap.begin(); it != activeAudioMap.end();) {
+    if (foundAudioIds.find(it->first) == foundAudioIds.end()) {
+      audioEvents.emplace(AudioScheduleEvent(AudioScheduleEvent::EType::Delete, it->second));
+      it = activeAudioMap.erase(it);
+    } else {
+      ++it;
+    }
+  }
+
+  return audioEvents;
 }
 
 WorkState WorkManager::getState() const {
@@ -145,7 +176,7 @@ std::set<ActiveAudio> WorkManager::runDubCycle(const unsigned long long atChainM
   }
 }
 
-void WorkManager::didFailWhile(std::string msgWhile, const std::exception &e) {
+void WorkManager::didFailWhile(const std::string& msgWhile, const std::exception &e) {
   std::cerr << "Failed while " << msgWhile << ": " << e.what() << std::endl;
   // This will cascade-send the finish() instruction to dub and ship
   updateState(Failed);
@@ -170,3 +201,4 @@ std::string WorkManager::toString(const WorkState state) {
 void WorkManager::updateState(const WorkState fabricationState) {
   state = fabricationState;
 }
+

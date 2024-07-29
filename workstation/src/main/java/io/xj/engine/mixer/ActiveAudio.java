@@ -16,20 +16,19 @@ public class ActiveAudio {
   private final SegmentChoiceArrangementPick pick;
   private final InstrumentAudio audio;
   private final Long startAtMixerMicros;
-  @Nullable
   private final Long stopAtMixerMicros;
   private final Instrument instrument;
   private final float fromAmplitude;
   private final float toAmplitude;
 
   public ActiveAudio(
-      SegmentChoiceArrangementPick pick,
-      Instrument instrument,
-      InstrumentAudio audio,
-      Long startAtMixerMicros,
-      @Nullable Long stopAtMixerMicros,
-      float fromIntensityAmplitude,
-      float toIntensityAmplitude
+    SegmentChoiceArrangementPick pick,
+    Instrument instrument,
+    InstrumentAudio audio,
+    Long startAtMixerMicros,
+    Long stopAtMixerMicros,
+    float fromIntensityAmplitude,
+    float toIntensityAmplitude
   ) {
     this.pick = pick;
     this.audio = audio;
@@ -59,8 +58,8 @@ public class ActiveAudio {
     return startAtMixerMicros;
   }
 
-  public Optional<Long> getStopAtMixerMicros() {
-    return Optional.ofNullable(stopAtMixerMicros);
+  public Long getStopAtMixerMicros() {
+    return stopAtMixerMicros;
   }
 
   public InstrumentAudio getAudio() {

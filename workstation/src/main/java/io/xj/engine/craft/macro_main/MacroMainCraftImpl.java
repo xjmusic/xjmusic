@@ -213,7 +213,7 @@ public class MacroMainCraftImpl extends CraftImpl implements MacroMainCraft {
   private double computeSegmentIntensity(Integer delta, @Nullable ProgramSequence macroSequence, @Nullable ProgramSequence mainSequence) throws FabricationException {
     return fabricator.getTemplateConfig().isIntensityAutoCrescendoEnabled()
       ?
-      ValueUtils.limitDecimalPrecision(ValueUtils.interpolate(
+      ValueUtils.limitDecimalPrecision2(ValueUtils.interpolate(
         fabricator.getTemplateConfig().getIntensityAutoCrescendoMinimum(),
         fabricator.getTemplateConfig().getIntensityAutoCrescendoMaximum(),
         (double) delta / fabricator.getTemplateConfig().getMainProgramLengthMaxDelta(),

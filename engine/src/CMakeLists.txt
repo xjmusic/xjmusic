@@ -6,6 +6,7 @@ add_library(xjmusic
         Engine.cpp
         audio/ActiveAudio.cpp
         audio/AudioMathUtils.cpp
+        audio/AudioScheduleEvent.cpp
         content/ContentEntityStore.cpp
         content/EntityUtils.cpp
         content/Instrument.cpp

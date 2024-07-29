@@ -9,6 +9,7 @@ add_executable(xjmusic_test
         _helper/SegmentFixtures.cpp
         _helper/TestHelpers.cpp
         _helper/YamlTest.cpp
+        audio/ActiveAudioTest.cpp
         audio/AudioMathUtilsTest.cpp
         content/ContentEntityStoreTest.cpp
         content/InstrumentAudioTest.cpp
