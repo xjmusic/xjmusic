@@ -92,7 +92,6 @@ std::set<AudioScheduleEvent> WorkManager::runCycle(const unsigned long long atCh
   }
 
   // check for deleted audio
-  // TODO only delete audio outside of persistence window
   for (auto it = activeAudioMap.begin(); it != activeAudioMap.end();) {
     if (foundAudioIds.find(it->first) == foundAudioIds.end()) {
       audioEvents.emplace(AudioScheduleEvent(AudioScheduleEvent::EType::Delete, it->second));

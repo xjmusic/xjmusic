@@ -162,7 +162,7 @@ TEST_F(ActiveAudioTest, GetStartAtChainMicros) {
 }
 
 TEST_F(ActiveAudioTest, GetStopAtChainMicros) {
-  EXPECT_EQ(528000000, subject->getStopAtChainMicros().value());
+  EXPECT_EQ(528000000, subject->getStopAtChainMicros());
 }
 
 TEST_F(ActiveAudioTest, GetAudio) {
