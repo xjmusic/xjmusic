@@ -14,7 +14,7 @@ namespace XJ {
     const Instrument *instrument;
     const InstrumentAudio *audio;
     unsigned long long startAtChainMicros;
-    std::optional<unsigned long long> stopAtChainMicros;
+    unsigned long long stopAtChainMicros;
     float fromAmplitude;
     float toAmplitude;
 
@@ -24,7 +24,7 @@ namespace XJ {
         const Instrument *instrument,
         const InstrumentAudio *audio,
         unsigned long long startAtChainMicros,
-        std::optional<unsigned long long> stopAtChainMicros,
+        unsigned long long stopAtChainMicros,
         float fromIntensityAmplitude,
         float toIntensityAmplitude);
 
@@ -36,7 +36,7 @@ namespace XJ {
 
     unsigned long long getStartAtChainMicros() const;
 
-    std::optional<unsigned long long> getStopAtChainMicros() const;
+    unsigned long long getStopAtChainMicros() const;
 
     const InstrumentAudio * getAudio() const;
 

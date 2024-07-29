@@ -224,9 +224,7 @@ class MixerImpl implements Mixer {
       // determine the theoretical frame in the mixing buffer at which the source audio will be added
       // these numbers may be below zero or past the limit of the mixing buffer
       int sourceBeginsAtMixerFrame = (int) (active.getStartAtMixerMicros() / microsPerFrame);
-      int sourceEndsAtMixerFrame = active.getStopAtMixerMicros().isPresent() ?
-          (int) (active.getStopAtMixerMicros().get() / microsPerFrame) :
-          sourceBeginsAtMixerFrame + cached.data().length;
+      int sourceEndsAtMixerFrame = (int) (active.getStopAtMixerMicros() / microsPerFrame);
 
       // reusable variables
       int tc; // target channel

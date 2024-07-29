@@ -9,7 +9,7 @@ ActiveAudio::ActiveAudio(
     const Instrument *instrument,
     const InstrumentAudio* audio,
     const unsigned long long startAtChainMicros,
-    const std::optional<unsigned long long> stopAtChainMicros,
+    const unsigned long long stopAtChainMicros,
     const float fromIntensityAmplitude,
     const float toIntensityAmplitude) {
   this->pick = pick;
@@ -39,7 +39,7 @@ unsigned long long ActiveAudio::getStartAtChainMicros() const {
   return startAtChainMicros;
 }
 
-std::optional<unsigned long long> ActiveAudio::getStopAtChainMicros() const {
+unsigned long long ActiveAudio::getStopAtChainMicros() const {
   return stopAtChainMicros;
 }
 
