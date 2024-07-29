@@ -105,11 +105,11 @@ struct FAudioPlayer
 
 	bool operator == (const FAudioPlayer& Other) const
 	{
-		return Id == Other.Id;
+		return Id == Other.Id && Name == Other.Name;
 	}
 };
 
 static uint32 GetTypeHash(const FAudioPlayer& Player)
 {
-	return GetTypeHash(Player.Id);
+	return GetTypeHash(Player.Name);
 }

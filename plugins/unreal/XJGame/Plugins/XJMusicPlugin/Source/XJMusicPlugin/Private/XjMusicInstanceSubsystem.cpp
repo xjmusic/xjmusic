@@ -72,6 +72,11 @@ void UXjMusicInstanceSubsystem::RetrieveProjectsContent(const FString& Directory
 bool UXjMusicInstanceSubsystem::PlayAudioByName(const FString& Name, const float StartTime, const float Duration)
 {
 	volatile float DurationSeconds = Duration  / 1000.0f;
+
+	if (StartTime == 0.0f)
+	{
+		return false;
+	}
 	
 	AsyncTask(ENamedThreads::GameThread, [this, StartTime, DurationSeconds, Name]()
 		{
@@ -101,21 +106,23 @@ bool UXjMusicInstanceSubsystem::PlayAudioByName(const FString& Name, const float
 			{
 				if (OverrideStartBars)
 				{
+					float PredictedStartTime = ActualCurrentTime + (PlanAheadMs / 1000.0f);
+
 					FQuartzQuantizationBoundary Boundary;
 					Boundary.Quantization = EQuartzCommandQuantization::ThirtySecondNote;
 					Boundary.CountingReferencePoint = EQuarztQuantizationReference::CurrentTimeRelative;
-					Boundary.Multiplier = OverrideStartBars;
+					Boundary.Multiplier = PredictedStartTime;
 					
-					NewAudioComponent->PlayQuantized(GetWorld(), QuartzClockHandle, Boundary, {}, ActualCurrentTime + (PlanAheadMs / 1000.0f));
+					NewAudioComponent->PlayQuantized(GetWorld(), QuartzClockHandle, Boundary, {}, PredictedStartTime);
 				}
 				else
 				{
 					FQuartzQuantizationBoundary Boundary;
 					Boundary.Quantization = EQuartzCommandQuantization::ThirtySecondNote;
 					Boundary.CountingReferencePoint = EQuarztQuantizationReference::TransportRelative;
-					Boundary.Multiplier = OverrideStartBars == 0 ? StartTime : OverrideStartBars;
+					Boundary.Multiplier = StartTime;
 
-					NewAudioComponent->PlayQuantized(GetWorld(), QuartzClockHandle, Boundary, {}, 0.0f);
+					NewAudioComponent->PlayQuantized(GetWorld(), QuartzClockHandle, Boundary, {});
 				}
 
 				NewAudioComponent->StopDelayed(DurationSeconds);
