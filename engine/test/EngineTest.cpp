@@ -177,10 +177,10 @@ TEST_F(XJEngineTest, CorrectlyDubsAudio)
 			pLibrary, Instrument::Type::Drum, Instrument::Mode::Event, Instrument::State::Published, "Drum Event 1"));
 	subject->getProjectContent()->put(
 		ContentFixtures::buildInstrumentAudio(
-		pInstrumentDrumEvent, "Kick", "drum-event-kick.wav", 0, 2, 60, 1, "KICK", "X", 1));
+			pInstrumentDrumEvent, "Kick", "drum-event-kick.wav", 0, 2, 60, 1, "KICK", "X", 1));
 	subject->getProjectContent()->put(
 		ContentFixtures::buildInstrumentAudio(
-		pInstrumentDrumEvent, "Snare", "drum-event-snare.wav", 0, 2, 60, 1, "SNARE", "X", 1));
+			pInstrumentDrumEvent, "Snare", "drum-event-snare.wav", 0, 2, 60, 1, "SNARE", "X", 1));
 
 	subject->start("Test Template");
 	unsigned long long atChainMicros = 0;
@@ -250,23 +250,21 @@ TEST_F(XJEngineTest, CorrectlyDubsAudio)
 	EXPECT_TRUE(seenAudioSchedulingEventKeys.find("000025000000_Delete_HookLoop1Audio_at[000020000000,000024000000]_vol[100,100]") != seenAudioSchedulingEventKeys.end());
 	EXPECT_TRUE(seenAudioSchedulingEventKeys.find("000029000000_Delete_HookLoop1Audio_at[000024000000,000028000000]_vol[100,100]") != seenAudioSchedulingEventKeys.end());
 	EXPECT_TRUE(seenAudioSchedulingEventKeys.find("000033000000_Delete_HookLoop1Audio_at[000028000000,000032000000]_vol[100,100]") != seenAudioSchedulingEventKeys.end());
-// Check that the beat program was dubbed correctly with the drum instrument
-EXPECT_TRUE(seenAudioSchedulingEventKeys.find( "000000000000_Create_Kick_at[000000000000,000001000000]_vol[100,100]")!= seenAudioSchedulingEventKeys.end());
-EXPECT_TRUE(seenAudioSchedulingEventKeys.find( "000000000000_Create_Kick_at[000002000000,000003000000]_vol[100,100]")!= seenAudioSchedulingEventKeys.end());
-EXPECT_TRUE(seenAudioSchedulingEventKeys.find( "000000000000_Create_Kick_at[000004000000,000005000000]_vol[100,100]")!= seenAudioSchedulingEventKeys.end());
-EXPECT_TRUE(seenAudioSchedulingEventKeys.find( "000000000000_Create_Kick_at[000006000000,000007000000]_vol[100,100]")!= seenAudioSchedulingEventKeys.end());
-EXPECT_TRUE(seenAudioSchedulingEventKeys.find( "000000000000_Create_Snare_at[000001000000,000002000000]_vol[100,100]")!= seenAudioSchedulingEventKeys.end());
-EXPECT_TRUE(seenAudioSchedulingEventKeys.find( "000000000000_Create_Snare_at[000003000000,000004000000]_vol[100,100]")!= seenAudioSchedulingEventKeys.end());
-EXPECT_TRUE(seenAudioSchedulingEventKeys.find( "000000000000_Create_Snare_at[000005000000,000006000000]_vol[100,100]")!= seenAudioSchedulingEventKeys.end());
-EXPECT_TRUE(seenAudioSchedulingEventKeys.find( "000000000000_Create_Snare_at[000007000000,000008000000]_vol[100,100]")!= seenAudioSchedulingEventKeys.end());
-EXPECT_TRUE(seenAudioSchedulingEventKeys.find( "000002000000_Delete_Kick_at[000000000000,000001000000]_vol[100,100]")!= seenAudioSchedulingEventKeys.end());
-EXPECT_TRUE(seenAudioSchedulingEventKeys.find( "000003000000_Delete_Snare_at[000001000000,000002000000]_vol[100,100]")!= seenAudioSchedulingEventKeys.end());
-EXPECT_TRUE(seenAudioSchedulingEventKeys.find( "000004000000_Delete_Kick_at[000002000000,000003000000]_vol[100,100]")!= seenAudioSchedulingEventKeys.end());
-EXPECT_TRUE(seenAudioSchedulingEventKeys.find( "000005000000_Delete_Snare_at[000003000000,000004000000]_vol[100,100]")!= seenAudioSchedulingEventKeys.end());
-EXPECT_TRUE(seenAudioSchedulingEventKeys.find( "000006000000_Delete_Kick_at[000004000000,000005000000]_vol[100,100]")!= seenAudioSchedulingEventKeys.end());
-EXPECT_TRUE(seenAudioSchedulingEventKeys.find( "000007000000_Delete_Snare_at[000005000000,000006000000]_vol[100,100]")!= seenAudioSchedulingEventKeys.end());
-EXPECT_TRUE(seenAudioSchedulingEventKeys.find( "000008000000_Delete_Kick_at[000006000000,000007000000]_vol[100,100]")!= seenAudioSchedulingEventKeys.end());
-EXPECT_TRUE(seenAudioSchedulingEventKeys.find( "000009000000_Delete_Snare_at[000007000000,000008000000]_vol[100,100]")!= seenAudioSchedulingEventKeys.end());
-
-
+	// Check that the beat program was dubbed correctly with the drum instrument
+	EXPECT_TRUE(seenAudioSchedulingEventKeys.find("000000000000_Create_Kick_at[000000000000,000001000000]_vol[100,100]") != seenAudioSchedulingEventKeys.end());
+	EXPECT_TRUE(seenAudioSchedulingEventKeys.find("000000000000_Create_Kick_at[000002000000,000003000000]_vol[100,100]") != seenAudioSchedulingEventKeys.end());
+	EXPECT_TRUE(seenAudioSchedulingEventKeys.find("000000000000_Create_Kick_at[000004000000,000005000000]_vol[100,100]") != seenAudioSchedulingEventKeys.end());
+	EXPECT_TRUE(seenAudioSchedulingEventKeys.find("000000000000_Create_Kick_at[000006000000,000007000000]_vol[100,100]") != seenAudioSchedulingEventKeys.end());
+	EXPECT_TRUE(seenAudioSchedulingEventKeys.find("000000000000_Create_Snare_at[000001000000,000002000000]_vol[100,100]") != seenAudioSchedulingEventKeys.end());
+	EXPECT_TRUE(seenAudioSchedulingEventKeys.find("000000000000_Create_Snare_at[000003000000,000004000000]_vol[100,100]") != seenAudioSchedulingEventKeys.end());
+	EXPECT_TRUE(seenAudioSchedulingEventKeys.find("000000000000_Create_Snare_at[000005000000,000006000000]_vol[100,100]") != seenAudioSchedulingEventKeys.end());
+	EXPECT_TRUE(seenAudioSchedulingEventKeys.find("000000000000_Create_Snare_at[000007000000,000008000000]_vol[100,100]") != seenAudioSchedulingEventKeys.end());
+	EXPECT_TRUE(seenAudioSchedulingEventKeys.find("000002000000_Delete_Kick_at[000000000000,000001000000]_vol[100,100]") != seenAudioSchedulingEventKeys.end());
+	EXPECT_TRUE(seenAudioSchedulingEventKeys.find("000003000000_Delete_Snare_at[000001000000,000002000000]_vol[100,100]") != seenAudioSchedulingEventKeys.end());
+	EXPECT_TRUE(seenAudioSchedulingEventKeys.find("000004000000_Delete_Kick_at[000002000000,000003000000]_vol[100,100]") != seenAudioSchedulingEventKeys.end());
+	EXPECT_TRUE(seenAudioSchedulingEventKeys.find("000005000000_Delete_Snare_at[000003000000,000004000000]_vol[100,100]") != seenAudioSchedulingEventKeys.end());
+	EXPECT_TRUE(seenAudioSchedulingEventKeys.find("000006000000_Delete_Kick_at[000004000000,000005000000]_vol[100,100]") != seenAudioSchedulingEventKeys.end());
+	EXPECT_TRUE(seenAudioSchedulingEventKeys.find("000007000000_Delete_Snare_at[000005000000,000006000000]_vol[100,100]") != seenAudioSchedulingEventKeys.end());
+	EXPECT_TRUE(seenAudioSchedulingEventKeys.find("000008000000_Delete_Kick_at[000006000000,000007000000]_vol[100,100]") != seenAudioSchedulingEventKeys.end());
+	EXPECT_TRUE(seenAudioSchedulingEventKeys.find("000009000000_Delete_Snare_at[000007000000,000008000000]_vol[100,100]") != seenAudioSchedulingEventKeys.end());
 }
