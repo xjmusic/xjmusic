@@ -1,11 +1,9 @@
 package io.xj.engine.audio;
 
-import io.xj.gui.project.ProjectManager;
 import io.xj.model.pojos.InstrumentAudio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
@@ -15,20 +13,16 @@ import java.net.URISyntaxException;
 import java.util.Objects;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.isNull;
-import static org.mockito.ArgumentMatchers.same;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(MockitoExtension.class)
 class AudioLoaderImplTest {
   private final String pathToAudioFile;
   private InstrumentAudio audio;
   private AudioLoaderImpl subject;
-
-
-  @Mock
-  private ProjectManager projectManager;
 
   public AudioLoaderImplTest() throws URISyntaxException {
     String baseDir = new File(Objects.requireNonNull(getClass().getClassLoader().getResource("project")).toURI()).getAbsolutePath();
@@ -41,13 +35,12 @@ class AudioLoaderImplTest {
     audio.setId(UUID.randomUUID());
     audio.setInstrumentId(UUID.randomUUID());
     audio.setWaveformKey("test-audio.wav");
-    subject = new AudioLoaderImpl(projectManager);
-    when(projectManager.getPathToInstrumentAudio(same(audio), isNull())).thenReturn(pathToAudioFile);
+    subject = new AudioLoaderImpl();
   }
 
   @Test
   void load() throws UnsupportedAudioFileException, IOException {
-    var result = subject.load(audio);
+    var result = subject.load(audio, pathToAudioFile);
 
     // Assert successful loading
     assertNotNull(result);

@@ -1345,7 +1345,7 @@ public class ProjectManagerImpl implements ProjectManager {
     FileUtils.createParentDirectories(new File(targetPath));
     FileUtils.copyFile(new File(audioFilePath), new File(targetPath));
     try {
-      return audioLoader.load(audio).lengthSeconds();
+      return audioLoader.load(audio, targetPath).lengthSeconds();
     } catch (UnsupportedAudioFileException e) {
       throw new IOException("Failed to load audio file! " + e.getMessage(), e);
     }

@@ -285,7 +285,7 @@ class ProjectManagerImplTest {
   @Test
   void createInstrumentAudio() throws Exception {
     var instrument = subject.getContent().getInstruments().stream().findFirst().orElseThrow();
-    when(audioLoader.load(any())).thenReturn(audioInMemory);
+    when(audioLoader.load(any(), any())).thenReturn(audioInMemory);
     when(audioInMemory.lengthSeconds()).thenReturn(1.0f);
 
     var result = subject.createInstrumentAudio(instrument, pathToAudioFile);
@@ -317,7 +317,7 @@ class ProjectManagerImplTest {
     var otherInstrument = ContentFixtures.buildInstrument(otherLibrary, InstrumentType.Pad, InstrumentMode.Event, InstrumentState.Draft, "Other Instrument");
     var otherAudio = ContentFixtures.buildInstrumentAudio(otherInstrument, "Other Audio", "other-audio.wav", 0.1f, 4.2f, 130.0f, 0.9f, "HIT", "D3", 0.9f);
     subject.getContent().putAll(List.of(project, library, instrument, audio, otherLibrary, otherInstrument, otherAudio));
-    when(audioLoader.load(any())).thenReturn(audioInMemory);
+    when(audioLoader.load(any(), any())).thenReturn(audioInMemory);
     when(audioInMemory.lengthSeconds()).thenReturn(1.0f);
 
     var result = subject.createInstrumentAudio(instrument, pathToAudioFile);
@@ -351,7 +351,7 @@ class ProjectManagerImplTest {
     var otherInstrument = ContentFixtures.buildInstrument(otherLibrary, InstrumentType.Pad, InstrumentMode.Event, InstrumentState.Draft, "Other Instrument");
     var otherAudio = ContentFixtures.buildInstrumentAudio(otherInstrument, "Other Audio", "other-audio.wav", 0.1f, 4.2f, 130.0f, 0.9f, "HIT", "D3", 0.9f);
     subject.getContent().putAll(List.of(project, library, instrument, instrument2, audio, otherLibrary, otherInstrument, otherAudio));
-    when(audioLoader.load(any())).thenReturn(audioInMemory);
+    when(audioLoader.load(any(), any())).thenReturn(audioInMemory);
     when(audioInMemory.lengthSeconds()).thenReturn(1.0f);
 
     var result = subject.createInstrumentAudio(instrument, pathToAudioFile);
@@ -385,7 +385,7 @@ class ProjectManagerImplTest {
     var otherInstrument = ContentFixtures.buildInstrument(otherLibrary, InstrumentType.Pad, InstrumentMode.Event, InstrumentState.Draft, "Other Instrument");
     var otherAudio = ContentFixtures.buildInstrumentAudio(otherInstrument, "Other Audio", "other-audio.wav", 0.1f, 4.2f, 130.0f, 0.9f, "HIT", "D3", 0.9f);
     subject.getContent().putAll(List.of(project, library, instrument, program, otherLibrary, otherInstrument, otherAudio));
-    when(audioLoader.load(any())).thenReturn(audioInMemory);
+    when(audioLoader.load(any(), any())).thenReturn(audioInMemory);
     when(audioInMemory.lengthSeconds()).thenReturn(1.0f);
 
     var result = subject.createInstrumentAudio(instrument, pathToAudioFile);
@@ -414,7 +414,7 @@ class ProjectManagerImplTest {
     var otherInstrument = ContentFixtures.buildInstrument(otherLibrary, InstrumentType.Pad, InstrumentMode.Event, InstrumentState.Draft, "Other Instrument");
     var otherAudio = ContentFixtures.buildInstrumentAudio(otherInstrument, "Other Audio", "other-audio.wav", 0.1f, 4.2f, 130.0f, 0.9f, "HIT", "D3", 0.9f);
     subject.getContent().putAll(List.of(project, library, instrument, otherLibrary, otherInstrument, otherAudio));
-    when(audioLoader.load(any())).thenReturn(audioInMemory);
+    when(audioLoader.load(any(), any())).thenReturn(audioInMemory);
     when(audioInMemory.lengthSeconds()).thenReturn(1.0f);
 
     var result = subject.createInstrumentAudio(instrument, pathToAudioFile);
@@ -448,7 +448,7 @@ class ProjectManagerImplTest {
     var otherLibrary = ContentFixtures.buildLibrary(project, "Other Library");
     var otherProgram = ContentFixtures.buildProgram(otherLibrary, ProgramType.Beat, ProgramState.Published, "Lorem Ipsum Program", "C", 150);
     subject.getContent().putAll(List.of(project, library, instrument, otherProgram, otherLibrary));
-    when(audioLoader.load(any())).thenReturn(audioInMemory);
+    when(audioLoader.load(any(), any())).thenReturn(audioInMemory);
     when(audioInMemory.lengthSeconds()).thenReturn(1.0f);
 
     var result = subject.createInstrumentAudio(instrument, pathToAudioFile);

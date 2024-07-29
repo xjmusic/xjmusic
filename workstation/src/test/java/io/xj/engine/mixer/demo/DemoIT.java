@@ -137,7 +137,7 @@ public class DemoIT {
   @BeforeEach
   public void beforeEach() {
     EnvelopeProvider envelopeProvider = new EnvelopeProviderImpl();
-    audioLoader = new AudioLoaderImpl(projectManager);
+    audioLoader = new AudioLoaderImpl();
     audioCache = new AudioCacheImpl(projectManager, audioLoader);
     this.mixerFactory = new MixerFactoryImpl(envelopeProvider, audioCache);
   }
