@@ -163,7 +163,7 @@ public class ProjectCreationModalController extends ProjectModalController {
 
   @FXML
   void handlePressOK() {
-    var projectName = fieldProjectName.getText().replaceAll("[^a-zA-Z0-9 ]", "");
+    var projectName = StringUtils.toAlphanumericHyphenated(fieldProjectName.getText());
 
     if (Objects.equals(mode.get(), ProjectCreationMode.DEMO_PROJECT)
       && Objects.isNull(demoSelection.getSelectedToggle())
@@ -212,28 +212,28 @@ public class ProjectCreationModalController extends ProjectModalController {
   @FXML
   void handleDemoPressedVgm(MouseEvent ignored) {
     if (StringUtils.isNullOrEmpty(fieldProjectName.getText()))
-      fieldProjectName.setText("Video Game Demo");
+      fieldProjectName.setText("Video-Game-Demo");
     buttonDemoVgm.setSelected(true);
   }
 
   @FXML
   void handleDemoPressedBump(MouseEvent ignored) {
     if (StringUtils.isNullOrEmpty(fieldProjectName.getText()))
-      fieldProjectName.setText("Deep House Demo");
+      fieldProjectName.setText("Deep-House-Demo");
     buttonDemoBump.setSelected(true);
   }
 
   @FXML
   void handleDemoPressedSlaps(MouseEvent ignored) {
     if (StringUtils.isNullOrEmpty(fieldProjectName.getText()))
-      fieldProjectName.setText("Lofi Hip Hop Demo");
+      fieldProjectName.setText("Lofi-Hip-Hop-Demo");
     buttonDemoSlaps.setSelected(true);
   }
 
   @FXML
   void handleDemoPressedSpace(MouseEvent ignored) {
     if (StringUtils.isNullOrEmpty(fieldProjectName.getText()))
-      fieldProjectName.setText("Ambient Flow Demo");
+      fieldProjectName.setText("Ambient-Flow-Demo");
     buttonDemoSpace.setSelected(true);
   }
 }
