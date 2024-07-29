@@ -68,7 +68,9 @@ uint32 FXjRunnable::Run()
 
 		for (const FAudioPlayer& Audio : ReceivedAudios)
 		{
-			if (XjMusicSubsystem->PlayAudioByName(Audio.Id, Audio.StartTime.GetMillie(), Audio.EndTime.GetMillie()))
+			float Duration = Audio.EndTime.GetMillie() - AtChainMicros.GetMillie();
+
+			if (XjMusicSubsystem->PlayAudioByName(Audio.Id, Audio.StartTime.GetMillie(), Duration))
 			{
 				PlayingAudios += FString::Printf(TEXT("%s start: %f end: %f\n"), *Audio.Name, Audio.StartTime.GetSeconds(), Audio.EndTime.GetSeconds());
 			}
@@ -94,8 +96,8 @@ uint32 FXjRunnable::Run()
 			DebugInfo = FString("Chain micros: ") + AtChainMicros.ToString();
 			DebugInfo += FString::Printf(TEXT("\n %f ms"), SleepInterval);
 
-			GEngine->AddOnScreenDebugMessage(-1, SleepInterval, FColor::Green, DebugInfo);
-			GEngine->AddOnScreenDebugMessage(-1, SleepInterval, FColor::Magenta, PlayingAudios);
+			GEngine->AddOnScreenDebugMessage(-1, SleepInterval + 0.5f, FColor::Green, DebugInfo);
+			GEngine->AddOnScreenDebugMessage(-1, SleepInterval + 0.5f, FColor::Magenta, PlayingAudios);
 		}
 	}
 

@@ -69,9 +69,9 @@ void UXjMusicInstanceSubsystem::RetrieveProjectsContent(const FString& Directory
 	}
 }
 
-bool UXjMusicInstanceSubsystem::PlayAudioByName(const FString& Name, const float StartTime, const float GlobalEndTime)
-{	
-	float DurationSeconds = (GlobalEndTime - StartTime) / 1000.0f;
+bool UXjMusicInstanceSubsystem::PlayAudioByName(const FString& Name, const float StartTime, const float Duration)
+{
+	volatile float DurationSeconds = Duration  / 1000.0f;
 	
 	AsyncTask(ENamedThreads::GameThread, [this, StartTime, DurationSeconds, Name]()
 		{
@@ -95,8 +95,6 @@ bool UXjMusicInstanceSubsystem::PlayAudioByName(const FString& Name, const float
 			{
 				OverrideStartBars = true;
 			}
-
-			SoundWave->Duration = DurationSeconds;
 			
 			UAudioComponent* NewAudioComponent = UGameplayStatics::CreateSound2D(GetWorld(), SoundWave);
 			if (NewAudioComponent)
