@@ -69,9 +69,11 @@ void UXjMusicInstanceSubsystem::RetrieveProjectsContent(const FString& Directory
 	}
 }
 
-bool UXjMusicInstanceSubsystem::PlayAudioByName(const FString& Name, const float StartTime)
+bool UXjMusicInstanceSubsystem::PlayAudioByName(const FString& Name, const float StartTime, const float GlobalEndTime)
 {	
-	AsyncTask(ENamedThreads::GameThread, [this, StartTime, Name]()
+	float DurationSeconds = (GlobalEndTime - StartTime) / 1000.0f;
+	
+	AsyncTask(ENamedThreads::GameThread, [this, StartTime, DurationSeconds, Name]()
 		{
 			if (IsAudioScheduled(Name, StartTime))
 			{
@@ -94,6 +96,8 @@ bool UXjMusicInstanceSubsystem::PlayAudioByName(const FString& Name, const float
 				OverrideStartBars = true;
 			}
 
+			SoundWave->Duration = DurationSeconds;
+			
 			UAudioComponent* NewAudioComponent = UGameplayStatics::CreateSound2D(GetWorld(), SoundWave);
 			if (NewAudioComponent)
 			{
@@ -103,7 +107,7 @@ bool UXjMusicInstanceSubsystem::PlayAudioByName(const FString& Name, const float
 					Boundary.Quantization = EQuartzCommandQuantization::ThirtySecondNote;
 					Boundary.CountingReferencePoint = EQuarztQuantizationReference::CurrentTimeRelative;
 					Boundary.Multiplier = OverrideStartBars;
-
+					
 					NewAudioComponent->PlayQuantized(GetWorld(), QuartzClockHandle, Boundary, {}, ActualCurrentTime + (PlanAheadMs / 1000.0f));
 				}
 				else
@@ -113,8 +117,10 @@ bool UXjMusicInstanceSubsystem::PlayAudioByName(const FString& Name, const float
 					Boundary.CountingReferencePoint = EQuarztQuantizationReference::TransportRelative;
 					Boundary.Multiplier = OverrideStartBars == 0 ? StartTime : OverrideStartBars;
 
-					NewAudioComponent->PlayQuantized(GetWorld(), QuartzClockHandle, Boundary, {});
+					NewAudioComponent->PlayQuantized(GetWorld(), QuartzClockHandle, Boundary, {}, 0.0f);
 				}
+
+				NewAudioComponent->StopDelayed(DurationSeconds);
 
 				SoundsMapCriticalSection.Lock();
 
@@ -192,7 +198,7 @@ USoundWave* UXjMusicInstanceSubsystem::GetSoundWaveByName(const FString& AudioNa
 	SoundWave->RawData.SetBulkDataFlags(BULKDATA_ForceInlinePayload);
 	SoundWave->InvalidateCompressedData();
 	//SoundWave->bNeedsThumbnailGeneration = true;
-
+	
 	return SoundWave;
 }
 

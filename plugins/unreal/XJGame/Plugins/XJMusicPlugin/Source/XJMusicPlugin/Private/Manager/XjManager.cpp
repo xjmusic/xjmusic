@@ -68,7 +68,7 @@ uint32 FXjRunnable::Run()
 
 		for (const FAudioPlayer& Audio : ReceivedAudios)
 		{
-			if (XjMusicSubsystem->PlayAudioByName(Audio.Id, Audio.StartTime.GetMillie()))
+			if (XjMusicSubsystem->PlayAudioByName(Audio.Id, Audio.StartTime.GetMillie(), Audio.EndTime.GetMillie()))
 			{
 				PlayingAudios += FString::Printf(TEXT("%s start: %f end: %f\n"), *Audio.Name, Audio.StartTime.GetSeconds(), Audio.EndTime.GetSeconds());
 			}

@@ -8,30 +8,40 @@ TSet<FAudioPlayer> TMockDataEngine::RunCycle(const uint64 ChainMicros)
 {
     if (LatencyBetweenCyclesInSeconds > 0.0f)
     {
-        float Difference = (ChainMicros - LastMicros) / 1000000.0f;
+        float Difference = ChainMicros - LastMicros;
         LastMicros = ChainMicros;
 
-        if (Difference < LatencyBetweenCyclesInSeconds && LastMicros != 0)
+        if (Difference < LatencyBetweenCyclesInSeconds * 1000000.0f && LastMicros != 0)
         {
             return {};
         }
     }
 
-    if (MaxAudiosOutputPerCycle > 0)
-    {
-        Algo::RandomShuffle(ScheduledAudios);
-    }
-
     TSet<FAudioPlayer> OutputPlayers;
 
-    int Itr = 1;
+    int Itr;
 
-    for (const FMockAudioTableRow& Element : ScheduledAudios)
+    if (MaxAudiosOutputPerCycle > 0 && LastItr < ScheduledAudios.Num())
     {
-        if (MaxAudiosOutputPerCycle > 0 && Itr > MaxAudiosOutputPerCycle)
+        Itr = LastItr;
+    }
+    else
+    {
+        Itr = 0;
+    }
+
+    int LocalItr = 0;
+
+    for (; Itr < ScheduledAudios.Num(); ++Itr)
+    {
+        const FMockAudioTableRow& Element = ScheduledAudios[Itr];
+
+        if (MaxAudiosOutputPerCycle > 0 && LocalItr >= MaxAudiosOutputPerCycle)
         {
             break;
         }
+
+        ++LocalItr;
 
         if ((uint64)Element.SchedulePastCertainChainMicros > ChainMicros)
         {
@@ -45,9 +55,9 @@ TSet<FAudioPlayer> TMockDataEngine::RunCycle(const uint64 ChainMicros)
         Player.EndTime.SetInMicros(Element.EndTimeAtChainMicros);
 
         OutputPlayers.Add(Player);
-
-        ++Itr;
     }
+
+    LastItr = Itr;
 
     return OutputPlayers;
 }

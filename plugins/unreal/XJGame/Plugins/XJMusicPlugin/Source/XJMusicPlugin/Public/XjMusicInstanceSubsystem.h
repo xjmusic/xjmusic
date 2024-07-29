@@ -17,8 +17,8 @@ public:
 
 	void RetrieveProjectsContent(const FString& Directory);
 
-	//Play audio from loaded tracks. GlobalStartTime in millieseconds
-	bool PlayAudioByName(const FString& Name, const float GlobalStartTime);
+	//Play audio from loaded tracks. GlobalStartTime and GlobalEndTime in millieseconds
+	bool PlayAudioByName(const FString& Name, const float GlobalStartTime, const float GlobalEndTime);
 
 	void StopAudioByName(const FString& Name);
 
