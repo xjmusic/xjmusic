@@ -71,6 +71,7 @@ public class ContentFixtures {
     instrumentAudio.setName(name);
     instrumentAudio.setWaveformKey(waveformKey);
     instrumentAudio.setTransientSeconds(start);
+    instrumentAudio.setLengthSeconds(length * 60.0f / tempo);
     instrumentAudio.setLoopBeats(length);
     instrumentAudio.setTempo(tempo);
     instrumentAudio.setIntensity(intensity);
@@ -87,6 +88,7 @@ public class ContentFixtures {
     instrumentAudio.setName(name);
     instrumentAudio.setWaveformKey("test123");
     instrumentAudio.setTransientSeconds(0.0f);
+    instrumentAudio.setLengthSeconds(0.5f);
     instrumentAudio.setLoopBeats(1.0f);
     instrumentAudio.setTempo(120.0f);
     instrumentAudio.setIntensity(1.0f);
@@ -306,6 +308,7 @@ public class ContentFixtures {
     instrumentAudio.setName(name);
     instrumentAudio.setWaveformKey(waveformKey);
     instrumentAudio.setTransientSeconds(start);
+    instrumentAudio.setLengthSeconds(length * 60.0f / tempo);
     instrumentAudio.setLoopBeats(length);
     instrumentAudio.setTempo(tempo);
     instrumentAudio.setIntensity(intensity);

@@ -54,6 +54,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.xj.model.pojos.Segment.DELTA_UNLIMITED;
+import static io.xj.model.util.ValueUtils.MICROS_PER_SECOND;
 
 /**
  Arrangement of Segment Events is a common foundation for all craft
@@ -232,7 +233,7 @@ public class CraftImpl extends FabricationWrapperImpl {
 
       // Pick attributes are expressed "rendered" as actual seconds
       long startAtSegmentMicros = fabricator.getSegmentMicrosAtPosition(tempo, section.fromPos);
-      @Nullable Long lengthMicros = fabricator.isOneShot(instrument) ? null : fabricator.getSegmentMicrosAtPosition(tempo, section.toPos) - startAtSegmentMicros;
+      long lengthMicros = fabricator.isOneShot(instrument) ? (long) (audio.get().getLengthSeconds() * MICROS_PER_SECOND) : fabricator.getSegmentMicrosAtPosition(tempo, section.toPos) - startAtSegmentMicros;
 
       // Volume ratio
       var volRatio = computeVolumeRatioForPickedNote(choice, section.fromPos);

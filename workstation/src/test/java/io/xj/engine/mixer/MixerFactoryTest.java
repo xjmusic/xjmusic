@@ -27,7 +27,7 @@ public class MixerFactoryTest {
   @BeforeEach
   public void setUp() {
     EnvelopeProvider envelopeProvider = new EnvelopeProviderImpl();
-    AudioLoader audioLoader = new AudioLoaderImpl(projectManager);
+    AudioLoader audioLoader = new AudioLoaderImpl();
     AudioCache audioCache = new AudioCacheImpl(projectManager, audioLoader);
     mixerFactory = new MixerFactoryImpl(envelopeProvider, audioCache);
   }

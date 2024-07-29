@@ -68,6 +68,7 @@ public class InstrumentAudioEditorController extends BrowserController {
   private final FloatProperty tempo = new SimpleFloatProperty(0.0f);
   private final FloatProperty intensity = new SimpleFloatProperty(0.0f);
   private final FloatProperty transientSeconds = new SimpleFloatProperty(0.0f);
+  private final FloatProperty lengthSeconds = new SimpleFloatProperty(0.0f);
   private final FloatProperty loopBeats = new SimpleFloatProperty(0.0f);
   private final BooleanProperty isSettingTransient = new SimpleBooleanProperty(false);
   private final BooleanProperty audioFileNotFound = new SimpleBooleanProperty(false);
@@ -119,6 +120,9 @@ public class InstrumentAudioEditorController extends BrowserController {
 
   @FXML
   TextField fieldTransientSeconds;
+
+  @FXML
+  TextField fieldLengthSeconds;
 
   @FXML
   Button setTransientButton;
@@ -196,6 +200,7 @@ public class InstrumentAudioEditorController extends BrowserController {
     fieldTempo.textProperty().bindBidirectional(tempo, new NumberStringConverter());
     fieldIntensity.textProperty().bindBidirectional(intensity, new NumberStringConverter());
     fieldTransientSeconds.textProperty().bindBidirectional(transientSeconds, new NumberStringConverter());
+    fieldLengthSeconds.textProperty().bindBidirectional(lengthSeconds, new NumberStringConverter());
     fieldLoopBeats.textProperty().bindBidirectional(loopBeats, new NumberStringConverter());
     labelAudioFileName.textProperty().bind(Bindings.createStringBinding(
       () -> audioFileNotFound.not().get() && audioInMemory.isNotNull().get() ? ProjectPathUtils.getFilename(audioInMemory.get().pathToAudioFile()) : "",
@@ -344,6 +349,7 @@ public class InstrumentAudioEditorController extends BrowserController {
     tempo.set(instrumentAudio.getTempo());
     intensity.set(instrumentAudio.getIntensity());
     transientSeconds.set(instrumentAudio.getTransientSeconds());
+    lengthSeconds.set(instrumentAudio.getLengthSeconds());
     loopBeats.set(instrumentAudio.getLoopBeats());
     zoomRatio.set(1.0f);
     audioFileNotFound.set(false);
@@ -453,7 +459,7 @@ public class InstrumentAudioEditorController extends BrowserController {
       return;
     }
     if (audioInMemory.isNull().get() || audioInMemory.get().isDifferent(audio)) try {
-      audioInMemory.set(audioLoader.load(audio));
+      audioInMemory.set(audioLoader.load(audio, projectService.getPathToInstrumentAudioWaveform(audio)));
       LOG.info("Loaded audio file \"{}\" with {} channels and {} frames", audioInMemory.get().format(), audioInMemory.get().format().getChannels(), audioInMemory.get().data().length);
     } catch (FileNotFoundException e) {
       waveform.setImage(null);

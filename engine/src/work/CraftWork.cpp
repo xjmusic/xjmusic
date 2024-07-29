@@ -309,7 +309,7 @@ void CraftWork::doCutoffLastSegment(const Segment *inputSegment, float cutoffAft
         else if (0 < pick->lengthMicros &&
                  pick->startAtSegmentMicros + pick->lengthMicros > durationMicros) {
           SegmentChoiceArrangementPick updatePick = *pick;
-          updatePick.lengthMicros = static_cast<long>(durationMicros - pick->startAtSegmentMicros);
+          updatePick.lengthMicros = durationMicros - pick->startAtSegmentMicros;
           store->put(updatePick);
         }
       } catch (std::exception &e) {

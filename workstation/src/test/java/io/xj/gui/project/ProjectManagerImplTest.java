@@ -1,6 +1,11 @@
 package io.xj.gui.project;
 
 import io.xj.engine.ContentFixtures;
+import io.xj.engine.audio.AudioInMemory;
+import io.xj.engine.audio.AudioLoader;
+import io.xj.engine.http.HttpClientProvider;
+import io.xj.engine.hub_client.HubClientFactory;
+import io.xj.engine.hub_client.HubClientFactoryImpl;
 import io.xj.model.HubTopology;
 import io.xj.model.InstrumentConfig;
 import io.xj.model.ProgramConfig;
@@ -25,29 +30,27 @@ import io.xj.model.pojos.ProgramSequenceChordVoicing;
 import io.xj.model.pojos.ProgramSequencePattern;
 import io.xj.model.pojos.ProgramSequencePatternEvent;
 import io.xj.model.pojos.ProgramVoiceTrack;
-import io.xj.engine.http.HttpClientProvider;
-import io.xj.engine.hub_client.HubClientFactory;
-import io.xj.engine.hub_client.HubClientFactoryImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.File;
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-import static io.xj.engine.ContentFixtures.buildInstrument;
-import static io.xj.engine.ContentFixtures.buildProgram;
-import static io.xj.engine.ContentFixtures.buildProject;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class ProjectManagerImplTest {
@@ -59,6 +62,12 @@ class ProjectManagerImplTest {
   @Mock
   HttpClientProvider httpClientProvider;
 
+  @Mock
+  AudioLoader audioLoader;
+
+  @Mock
+  AudioInMemory audioInMemory;
+
   public ProjectManagerImplTest() throws URISyntaxException {
     baseDir = new File(Objects.requireNonNull(getClass().getClassLoader().getResource("project")).toURI()).getAbsolutePath();
     pathToProjectFile = baseDir + File.separator + "test-project.xj";
@@ -66,13 +75,13 @@ class ProjectManagerImplTest {
   }
 
   @BeforeEach
-  void setUp() {
+  void setUp() throws UnsupportedAudioFileException, IOException {
     JsonProvider jsonProvider = new JsonProviderImpl();
     EntityFactory entityFactory = new EntityFactoryImpl(jsonProvider);
     HubTopology.buildHubApiTopology(entityFactory);
     JsonapiPayloadFactory jsonapiPayloadFactory = new JsonapiPayloadFactoryImpl(entityFactory);
     HubClientFactory hubClientFactory = new HubClientFactoryImpl(httpClientProvider, jsonProvider, jsonapiPayloadFactory, 3);
-    subject = new ProjectManagerImpl(jsonProvider, entityFactory, httpClientProvider, hubClientFactory);
+    subject = new ProjectManagerImpl(jsonProvider, entityFactory, httpClientProvider, hubClientFactory, audioLoader);
     subject.openProjectFromLocalFile(pathToProjectFile);
   }
 
@@ -276,6 +285,8 @@ class ProjectManagerImplTest {
   @Test
   void createInstrumentAudio() throws Exception {
     var instrument = subject.getContent().getInstruments().stream().findFirst().orElseThrow();
+    when(audioLoader.load(any(), any())).thenReturn(audioInMemory);
+    when(audioInMemory.lengthSeconds()).thenReturn(1.0f);
 
     var result = subject.createInstrumentAudio(instrument, pathToAudioFile);
 
@@ -306,6 +317,8 @@ class ProjectManagerImplTest {
     var otherInstrument = ContentFixtures.buildInstrument(otherLibrary, InstrumentType.Pad, InstrumentMode.Event, InstrumentState.Draft, "Other Instrument");
     var otherAudio = ContentFixtures.buildInstrumentAudio(otherInstrument, "Other Audio", "other-audio.wav", 0.1f, 4.2f, 130.0f, 0.9f, "HIT", "D3", 0.9f);
     subject.getContent().putAll(List.of(project, library, instrument, audio, otherLibrary, otherInstrument, otherAudio));
+    when(audioLoader.load(any(), any())).thenReturn(audioInMemory);
+    when(audioInMemory.lengthSeconds()).thenReturn(1.0f);
 
     var result = subject.createInstrumentAudio(instrument, pathToAudioFile);
 
@@ -338,6 +351,8 @@ class ProjectManagerImplTest {
     var otherInstrument = ContentFixtures.buildInstrument(otherLibrary, InstrumentType.Pad, InstrumentMode.Event, InstrumentState.Draft, "Other Instrument");
     var otherAudio = ContentFixtures.buildInstrumentAudio(otherInstrument, "Other Audio", "other-audio.wav", 0.1f, 4.2f, 130.0f, 0.9f, "HIT", "D3", 0.9f);
     subject.getContent().putAll(List.of(project, library, instrument, instrument2, audio, otherLibrary, otherInstrument, otherAudio));
+    when(audioLoader.load(any(), any())).thenReturn(audioInMemory);
+    when(audioInMemory.lengthSeconds()).thenReturn(1.0f);
 
     var result = subject.createInstrumentAudio(instrument, pathToAudioFile);
 
@@ -370,6 +385,8 @@ class ProjectManagerImplTest {
     var otherInstrument = ContentFixtures.buildInstrument(otherLibrary, InstrumentType.Pad, InstrumentMode.Event, InstrumentState.Draft, "Other Instrument");
     var otherAudio = ContentFixtures.buildInstrumentAudio(otherInstrument, "Other Audio", "other-audio.wav", 0.1f, 4.2f, 130.0f, 0.9f, "HIT", "D3", 0.9f);
     subject.getContent().putAll(List.of(project, library, instrument, program, otherLibrary, otherInstrument, otherAudio));
+    when(audioLoader.load(any(), any())).thenReturn(audioInMemory);
+    when(audioInMemory.lengthSeconds()).thenReturn(1.0f);
 
     var result = subject.createInstrumentAudio(instrument, pathToAudioFile);
 
@@ -397,6 +414,8 @@ class ProjectManagerImplTest {
     var otherInstrument = ContentFixtures.buildInstrument(otherLibrary, InstrumentType.Pad, InstrumentMode.Event, InstrumentState.Draft, "Other Instrument");
     var otherAudio = ContentFixtures.buildInstrumentAudio(otherInstrument, "Other Audio", "other-audio.wav", 0.1f, 4.2f, 130.0f, 0.9f, "HIT", "D3", 0.9f);
     subject.getContent().putAll(List.of(project, library, instrument, otherLibrary, otherInstrument, otherAudio));
+    when(audioLoader.load(any(), any())).thenReturn(audioInMemory);
+    when(audioInMemory.lengthSeconds()).thenReturn(1.0f);
 
     var result = subject.createInstrumentAudio(instrument, pathToAudioFile);
 
@@ -429,6 +448,8 @@ class ProjectManagerImplTest {
     var otherLibrary = ContentFixtures.buildLibrary(project, "Other Library");
     var otherProgram = ContentFixtures.buildProgram(otherLibrary, ProgramType.Beat, ProgramState.Published, "Lorem Ipsum Program", "C", 150);
     subject.getContent().putAll(List.of(project, library, instrument, otherProgram, otherLibrary));
+    when(audioLoader.load(any(), any())).thenReturn(audioInMemory);
+    when(audioInMemory.lengthSeconds()).thenReturn(1.0f);
 
     var result = subject.createInstrumentAudio(instrument, pathToAudioFile);
 

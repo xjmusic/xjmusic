@@ -82,6 +82,7 @@ InstrumentAudio ContentFixtures::buildAudio(
   instrumentAudio.name = std::move(name);
   instrumentAudio.waveformKey = std::move(waveformKey);
   instrumentAudio.transientSeconds = start;
+  instrumentAudio.lengthSeconds = length*60.0f/tempo;
   instrumentAudio.loopBeats = length;
   instrumentAudio.tempo = tempo;
   instrumentAudio.intensity = intensity;
@@ -101,6 +102,7 @@ InstrumentAudio ContentFixtures::buildAudio(
   instrumentAudio.name = std::move(name);
   instrumentAudio.waveformKey = "test123";
   instrumentAudio.transientSeconds = 0.0f;
+  instrumentAudio.lengthSeconds = 0.5f;
   instrumentAudio.loopBeats = 1.0f;
   instrumentAudio.tempo = 120.0f;
   instrumentAudio.intensity = 1.0f;
@@ -377,6 +379,7 @@ InstrumentAudio ContentFixtures::buildInstrumentAudio(
   instrumentAudio.name = std::move(name);
   instrumentAudio.waveformKey = std::move(waveformKey);
   instrumentAudio.transientSeconds = start;
+  instrumentAudio.lengthSeconds = length*60.0f/tempo;
   instrumentAudio.loopBeats = length;
   instrumentAudio.tempo = tempo;
   instrumentAudio.intensity = intensity;
