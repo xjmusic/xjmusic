@@ -1,9 +1,8 @@
 package io.xj.engine.audio;
 
-import io.xj.model.pojos.InstrumentAudio;
 import io.xj.engine.mixer.AudioSampleFormat;
 import io.xj.engine.mixer.FormatException;
-import io.xj.gui.project.ProjectManager;
+import io.xj.model.pojos.InstrumentAudio;
 import org.apache.commons.io.FileUtils;
 
 import javax.sound.sampled.AudioFormat;
@@ -17,17 +16,13 @@ public class AudioLoaderImpl implements AudioLoader {
 
   private static final int MAX_INT_LENGTH_ARRAY_SIZE = 2147483647;
   private static final int READ_BUFFER_BYTE_SIZE = 1024;
-  private final ProjectManager projectManager;
 
   public AudioLoaderImpl(
-    ProjectManager projectManager
   ) {
-    this.projectManager = projectManager;
   }
 
   @Override
-  public AudioInMemory load(InstrumentAudio audio) throws IOException, UnsupportedAudioFileException {
-    String path = projectManager.getPathToInstrumentAudio(audio, null);
+  public AudioInMemory load(InstrumentAudio audio, String path) throws IOException, UnsupportedAudioFileException {
     AudioFormat format = AudioSystem.getAudioFileFormat(new File(path)).getFormat();
     return load(audio, path, format);
   }

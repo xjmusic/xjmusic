@@ -165,6 +165,7 @@ abstract public class ContentTest {
     instrumentAudio.setName(name);
     instrumentAudio.setWaveformKey(waveformKey);
     instrumentAudio.setTransientSeconds(start);
+    instrumentAudio.setLengthSeconds(length * 60 / tempo);
     instrumentAudio.setLoopBeats(length);
     instrumentAudio.setTempo(tempo);
     instrumentAudio.setIntensity(intensity);

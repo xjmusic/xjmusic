@@ -15,6 +15,8 @@ public class InstrumentAudio implements Serializable {
   private String name;
   private String waveformKey;
   private Float transientSeconds;
+  private Float lengthSeconds;
+  private Float legngthSeconds;
   private Float loopBeats;
   private Float tempo;
   private Float intensity;
@@ -31,6 +33,7 @@ public class InstrumentAudio implements Serializable {
     this.name = value.name;
     this.waveformKey = value.waveformKey;
     this.transientSeconds = value.transientSeconds;
+    this.lengthSeconds = value.lengthSeconds;
     this.loopBeats = value.loopBeats;
     this.tempo = value.tempo;
     this.intensity = value.intensity;
@@ -45,6 +48,7 @@ public class InstrumentAudio implements Serializable {
     String name,
     String waveformKey,
     Float transientSeconds,
+    Float lengthSeconds,
     Float loopBeats,
     Float tempo,
     Float intensity,
@@ -57,6 +61,7 @@ public class InstrumentAudio implements Serializable {
     this.name = name;
     this.waveformKey = waveformKey;
     this.transientSeconds = transientSeconds;
+    this.lengthSeconds = lengthSeconds;
     this.loopBeats = loopBeats;
     this.tempo = tempo;
     this.intensity = intensity;
@@ -133,6 +138,20 @@ public class InstrumentAudio implements Serializable {
    */
   public void setTransientSeconds(Float transientSeconds) {
     this.transientSeconds = transientSeconds;
+  }
+
+  /**
+   Getter for <code>xj.instrument_audio.length_seconds</code>.
+   */
+  public Float getLengthSeconds() {
+    return this.lengthSeconds;
+  }
+
+  /**
+   Setter for <code>xj.instrument_audio.length_seconds</code>.
+   */
+  public void setLengthSeconds(Float lengthSeconds) {
+    this.lengthSeconds = lengthSeconds;
   }
 
   /**
@@ -228,6 +247,7 @@ public class InstrumentAudio implements Serializable {
     sb.append(", ").append(name);
     sb.append(", ").append(waveformKey);
     sb.append(", ").append(transientSeconds);
+    sb.append(", ").append(lengthSeconds);
     sb.append(", ").append(loopBeats);
     sb.append(", ").append(tempo);
     sb.append(", ").append(intensity);
