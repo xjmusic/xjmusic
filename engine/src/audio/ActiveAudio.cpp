@@ -9,7 +9,7 @@ ActiveAudio::ActiveAudio(
     const Instrument *instrument,
     const InstrumentAudio* audio,
     const unsigned long long startAtChainMicros,
-    unsigned long long stopAtChainMicros,
+    const unsigned long long stopAtChainMicros,
     const float fromIntensityAmplitude,
     const float toIntensityAmplitude) {
   this->pick = pick;
