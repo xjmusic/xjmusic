@@ -6,11 +6,12 @@ import io.xj.model.enums.InstrumentState;
 import io.xj.model.enums.InstrumentType;
 
 import java.io.Serializable;
+import java.util.Objects;
 import java.util.UUID;
 
 
 @SuppressWarnings({"all", "unchecked", "rawtypes"})
-public class Instrument implements Serializable {
+public class Instrument implements Serializable, Comparable<Instrument> {
 
   private static final long serialVersionUID = 1L;
 
@@ -222,5 +223,12 @@ public class Instrument implements Serializable {
 
     sb.append(")");
     return sb.toString();
+  }
+
+  @Override
+  public int compareTo(Instrument o) {
+    if (!Objects.equals(name, o.name))
+      return name.compareTo(o.name);
+    return id.compareTo(o.id);
   }
 }

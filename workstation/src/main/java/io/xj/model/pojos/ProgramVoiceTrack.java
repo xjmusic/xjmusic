@@ -2,11 +2,12 @@ package io.xj.model.pojos;
 
 
 import java.io.Serializable;
+import java.util.Objects;
 import java.util.UUID;
 
 
 @SuppressWarnings({"all", "unchecked", "rawtypes"})
-public class ProgramVoiceTrack implements Serializable {
+public class ProgramVoiceTrack implements Serializable, Comparable<ProgramVoiceTrack> {
 
   private static final long serialVersionUID = 1L;
 
@@ -123,5 +124,16 @@ public class ProgramVoiceTrack implements Serializable {
 
     sb.append(")");
     return sb.toString();
+  }
+
+  @Override
+  public int compareTo(ProgramVoiceTrack o) {
+    if (!Objects.equals(programId, o.programId))
+      return programId.compareTo(o.programId);
+    if (!Objects.equals(programVoiceId, o.programVoiceId))
+      return programVoiceId.compareTo(o.programVoiceId);
+    if (!Objects.equals(name, o.name))
+      return name.compareTo(o.name);
+    return id.compareTo(o.id);
   }
 }

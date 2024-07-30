@@ -3,16 +3,19 @@
 package io.xj.model;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.xj.model.enums.InstrumentMode;
 import io.xj.model.enums.InstrumentType;
 import io.xj.model.enums.ProgramType;
+import io.xj.model.json.JsonProvider;
+import io.xj.model.json.JsonProviderImpl;
 import io.xj.model.pojos.Program;
 import io.xj.model.pojos.ProgramSequencePatternEvent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -23,9 +26,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class HubContentTest extends ContentTest {
   HubContent subject;
+  JsonProvider jsonProvider;
 
   @BeforeEach
   public void setUp() throws Exception {
+    jsonProvider = new JsonProviderImpl();
     subject = buildHubContent();
   }
 
@@ -60,12 +65,29 @@ public class HubContentTest extends ContentTest {
 
   @Test
   public void serialize_deserialize() throws JsonProcessingException {
-    final ObjectMapper mapper = new ObjectMapper();
-
-    var serialized = mapper.writeValueAsString(subject);
-    var deserialized = mapper.readValue(serialized, HubContent.class);
+    var serialized = jsonProvider.getMapper().writeValueAsString(subject);
+    var deserialized = jsonProvider.getMapper().readValue(serialized, HubContent.class);
 
     assertEquals(subject.toString(), deserialized.toString());
+  }
+
+  /**
+   Workstation JSON should serialize in stable order https://github.com/xjmusic/xjmusic/issues/456
+   */
+  @Test
+  public void serialize_stable_order() throws JsonProcessingException {
+    var serialized = jsonProvider.getMapper().writerWithDefaultPrettyPrinter().writeValueAsString(subject);
+    for (int i = 0; i < 1000; i++) {
+      HubContent other = new HubContent();
+      other.setDemo(subject.getDemo());
+      var entities = subject.getAll();
+      other.setErrors(subject.getErrors());
+      List<Object> entityList = new ArrayList<>(entities);
+      Collections.shuffle(entityList);
+      other.putAll(entityList);
+      var otherSerialized = jsonProvider.getMapper().writerWithDefaultPrettyPrinter().writeValueAsString(other);
+      assertEquals(serialized, otherSerialized);
+    }
   }
 
   @Test

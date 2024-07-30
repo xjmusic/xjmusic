@@ -9,7 +9,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 
-public class SegmentMessage {
+public class SegmentMessage implements Comparable<SegmentMessage> {
 
   UUID id;
   Integer segmentId;
@@ -127,6 +127,13 @@ public class SegmentMessage {
       return "null";
     }
     return o.toString().replace("\n", "\n    ");
+  }
+
+  @Override
+  public int compareTo(SegmentMessage o) {
+    if (!Objects.equals(segmentId, o.segmentId))
+      return segmentId.compareTo(o.segmentId);
+    return id.compareTo(o.id);
   }
 }
 

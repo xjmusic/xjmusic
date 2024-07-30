@@ -2,11 +2,12 @@ package io.xj.model.pojos;
 
 
 import java.io.Serializable;
+import java.util.Objects;
 import java.util.UUID;
 
 
 @SuppressWarnings({"all", "unchecked", "rawtypes"})
-public class InstrumentAudio implements Serializable {
+public class InstrumentAudio implements Serializable, Comparable<InstrumentAudio> {
 
   private static final long serialVersionUID = 1L;
 
@@ -257,5 +258,12 @@ public class InstrumentAudio implements Serializable {
 
     sb.append(")");
     return sb.toString();
+  }
+
+  @Override
+  public int compareTo(InstrumentAudio o) {
+    if (!Objects.equals(name, o.name))
+      return name.compareTo(o.name);
+    return id.compareTo(o.id);
   }
 }
