@@ -33,7 +33,7 @@ class TMockDataEngine : public TEngineBase
 {
 public:
 
-	virtual TSet<FAudioPlayer> RunCycle(const uint64 ChainMicros) override;
+	virtual TArray<FAudioPlayer> RunCycle(const uint64 ChainMicros) override;
 
 	void SetMockData(class UDataTable* DataTable);
 

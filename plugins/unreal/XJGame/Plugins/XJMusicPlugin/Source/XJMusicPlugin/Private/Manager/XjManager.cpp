@@ -64,41 +64,60 @@ uint32 FXjRunnable::Run()
 			continue;
 		}
 
-		TSet<FAudioPlayer> ReceivedAudios = Engine->RunCycle(AtChainMicros.GetMicros());
+		TArray<FAudioPlayer> ReceivedAudios = Engine->RunCycle(AtChainMicros.GetMicros());
 
 		for (const FAudioPlayer& Audio : ReceivedAudios)
 		{
-			float Duration = Audio.EndTime.GetMillie() - AtChainMicros.GetMillie();
+			float Duration = 0;
 
-			if (XjMusicSubsystem->PlayAudioByName(Audio.Id, Audio.StartTime.GetMillie(), Duration))
+			switch (Audio.Event)
 			{
-				PlayingAudios += FString::Printf(TEXT("%s start: %f end: %f\n"), *Audio.Name, Audio.StartTime.GetSeconds(), Audio.EndTime.GetSeconds());
+			case EAudioEventType::Create:
+
+				Duration = Audio.EndTime.GetMillie() - AtChainMicros.GetMillie();
+
+				if (XjMusicSubsystem->PlayAudioByName(Audio.Id, Audio.StartTime.GetMillie(), Duration))
+				{
+					PlayingAudios += FString::Printf(TEXT("%s start: %f end: %f\n"),
+													*Audio.Name, 
+													 Audio.StartTime.GetSeconds(), 
+													 Audio.EndTime.GetSeconds());
+				}
+
+				break;
+
+			case EAudioEventType::Update:
+				//checkf(false, TEXT("Update event"));
+				break;
+
+			case EAudioEventType::Delete:
+				//checkf(false, TEXT("Delete event"));
+				break;
+
 			}
 		}
 
+		float EndFrameTime = FPlatformTime::Seconds();
+
+		float DeltaTime = EndFrameTime - StartFrameTime;
+		float SleepInterval = 1.0f / RunCycleFrequency - (EndFrameTime - StartFrameTime);
+		SleepInterval = FMath::Max(SleepInterval, 0.0f);
+
+		FPlatformProcess::Sleep(SleepInterval);
+
+		if (SleepInterval == 0.0f)
 		{
-			float EndFrameTime = FPlatformTime::Seconds();
-
-			float DeltaTime = EndFrameTime - StartFrameTime;
-			float SleepInterval = 1.0f / RunCycleFrequency - (EndFrameTime - StartFrameTime);
-			SleepInterval = FMath::Max(SleepInterval, 0.0f);
-
-			FPlatformProcess::Sleep(SleepInterval);
-
-			if (SleepInterval == 0.0f)
-			{
-				SleepInterval = DeltaTime;
-			}
-
-			AtChainMicros.SetInSeconds(AtChainMicros.GetSeconds() + SleepInterval);
-
-
-			DebugInfo = FString("Chain micros: ") + AtChainMicros.ToString();
-			DebugInfo += FString::Printf(TEXT("\n %f ms"), SleepInterval);
-
-			GEngine->AddOnScreenDebugMessage(-1, SleepInterval + 0.5f, FColor::Green, DebugInfo);
-			GEngine->AddOnScreenDebugMessage(-1, SleepInterval + 0.5f, FColor::Magenta, PlayingAudios);
+			SleepInterval = DeltaTime;
 		}
+
+		AtChainMicros.SetInSeconds(AtChainMicros.GetSeconds() + SleepInterval);
+
+
+		DebugInfo = FString("Chain micros: ") + AtChainMicros.ToString();
+		DebugInfo += FString::Printf(TEXT("\n %f ms"), SleepInterval);
+
+		GEngine->AddOnScreenDebugMessage(-1, SleepInterval + 0.5f, FColor::Green, DebugInfo);
+		GEngine->AddOnScreenDebugMessage(-1, SleepInterval + 0.5f, FColor::Magenta, PlayingAudios);
 	}
 
 	return 0;

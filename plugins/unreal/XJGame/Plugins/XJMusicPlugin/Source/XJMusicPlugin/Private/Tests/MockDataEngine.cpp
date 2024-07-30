@@ -4,7 +4,7 @@
 #include "Engine/DataTable.h"
 #include "Algo/RandomShuffle.h"
 
-TSet<FAudioPlayer> TMockDataEngine::RunCycle(const uint64 ChainMicros)
+TArray<FAudioPlayer> TMockDataEngine::RunCycle(const uint64 ChainMicros)
 {
     if (LatencyBetweenCyclesInSeconds > 0.0f)
     {
@@ -18,7 +18,7 @@ TSet<FAudioPlayer> TMockDataEngine::RunCycle(const uint64 ChainMicros)
         LastMicros = ChainMicros;
     }
 
-    TSet<FAudioPlayer> OutputPlayers;
+    TArray<FAudioPlayer> OutputPlayers;
 
     int Itr;
 
@@ -54,6 +54,7 @@ TSet<FAudioPlayer> TMockDataEngine::RunCycle(const uint64 ChainMicros)
         Player.Id = Element.Id;
         Player.StartTime.SetInMicros(Element.StartTimeAtChainMicros);
         Player.EndTime.SetInMicros(Element.EndTimeAtChainMicros);
+        Player.Event = EAudioEventType::Create;
 
         OutputPlayers.Add(Player);
     }

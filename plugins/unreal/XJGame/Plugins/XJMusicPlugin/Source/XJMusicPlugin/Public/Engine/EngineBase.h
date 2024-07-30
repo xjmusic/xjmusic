@@ -23,7 +23,7 @@ public:
 
 	virtual void Shutdown() {}
 
-	virtual TSet<FAudioPlayer> RunCycle(const uint64 ChainMicros) { return {}; }
+	virtual TArray<FAudioPlayer> RunCycle(const uint64 ChainMicros) { return {}; }
 
 	virtual EngineSettings GetSettings() const { return {}; }
 };

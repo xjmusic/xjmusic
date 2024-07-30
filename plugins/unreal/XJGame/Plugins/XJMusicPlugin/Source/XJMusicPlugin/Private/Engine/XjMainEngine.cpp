@@ -4,24 +4,31 @@
 #include <XjMusicInstanceSubsystem.h>
 
 void TXjMainEngine::Setup(const FString& PathToProject)
-{
-	WorkSettings DefaultSettings;
-	
+{	
 	std::string PathToProjectStr = TCHAR_TO_UTF8(*PathToProject);
+
+	Fabricator::ControlMode	   ControlMode = Fabricator::ControlMode::Auto;
+	std::optional<int>		   CraftAheadSeconds;
+	std::optional<int>		   DubAheadSeconds;
+	std::optional<int>		   DeadlineSeconds;
+	std::optional<int>		   PersistenceWindowSeconds;
 
 	try
 	{
 		XjEngine = MakeUnique<Engine>(PathToProjectStr,
-			DefaultSettings.controlMode,
-			DefaultSettings.craftAheadSeconds,
-			DefaultSettings.dubAheadSeconds,
-			DefaultSettings.persistenceWindowSeconds);
+			ControlMode,
+			CraftAheadSeconds,
+			DubAheadSeconds,
+			DeadlineSeconds,
+			PersistenceWindowSeconds);
 
 		if (!XjEngine)
 		{
 			UE_LOG(LogTemp, Error, TEXT("Cannot instantiate XJ Engine"));
 			return;
 		}
+
+		volatile WorkSettings craft = XjEngine->getSettings();
 
 		std::set<const Template*> TemplatesInfo = XjEngine->getProjectContent()->getTemplates();
 
@@ -38,33 +45,6 @@ void TXjMainEngine::Setup(const FString& PathToProject)
 			return;
 		}
 
-		MemeTaxonomy Taxonomy = XjEngine->getMemeTaxonomy().value();
-		std::set<MemeCategory> Categories = Taxonomy.getCategories();
-
-		std::set<std::string> Memes;
-
-		for (MemeCategory Category : Categories)
-		{
-			if (Category.hasMemes())
-			{
-				std::string Meme = *Category.getMemes().begin();
-				Memes.insert(Meme);
-			}
-		}
-
-		FString MemesStr = "Activated memes: \n";
-
-		for (std::string Meme : Memes)
-		{
-			FString MemeStr = Meme.c_str();
-			MemesStr += MemeStr + "\n";
-		}
-
-		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, MemesStr);
-
-		XjEngine->doOverrideMemes(Memes);
-
-
 		const Template* FirstTemplate = *TemplatesInfo.begin();
 
 		XjEngine->start(FirstTemplate->id);
@@ -74,36 +54,32 @@ void TXjMainEngine::Setup(const FString& PathToProject)
 		FString ErrorStr(Exception.what());
 		UE_LOG(LogTemp, Error, TEXT("%s"), *ErrorStr);
 	}
-
-	FPlatformProcess::Sleep(5.0f);
 }
 
 void TXjMainEngine::Shutdown()
 {
 }
 
-TSet<FAudioPlayer> TXjMainEngine::RunCycle(const uint64 ChainMicros)
+TArray<FAudioPlayer> TXjMainEngine::RunCycle(const uint64 ChainMicros)
 {
-	std::set<ActiveAudio> ReceivedAudios = XjEngine->RunCycle(ChainMicros);
+	std::vector<AudioScheduleEvent> ReceivedAudioEvents = XjEngine->RunCycle(ChainMicros);
 
-	TSet<FAudioPlayer> Output;
+	TArray<FAudioPlayer> Output;
 
-	for (const ActiveAudio& Audio : ReceivedAudios)
+	for (const AudioScheduleEvent& Event : ReceivedAudioEvents)
 	{
-		FString WaveKey = Audio.getAudio()->waveformKey.c_str();
-		FString Name = Audio.getAudio()->name.c_str();
+		FString WaveKey = Event.audio.getAudio()->waveformKey.c_str();
+		FString Name = Event.audio.getAudio()->name.c_str();
 
-		long TransientMicros = Audio.getAudio()->transientSeconds * MICROS_PER_SECOND;
-		long LengthMicros = Audio.getPick()->lengthMicros;
-
-		TimeRecord StartTime = Audio.getStartAtChainMicros();
-		TimeRecord EndTime = Audio.getStopAtChainMicros().value();
+		TimeRecord StartTime = Event.getStartAtChainMicros();
+		TimeRecord EndTime = Event.audio.getStopAtChainMicros();
 
 		FAudioPlayer AudioPlayer;
 		AudioPlayer.StartTime = StartTime;
 		AudioPlayer.EndTime = EndTime;
 		AudioPlayer.Name = Name;
 		AudioPlayer.Id = WaveKey;
+		AudioPlayer.Event = (EAudioEventType)Event.type;
 
 		Output.Add(AudioPlayer);
 	}
@@ -121,8 +97,8 @@ EngineSettings TXjMainEngine::GetSettings() const
 	WorkSettings XjSettings = XjEngine->getSettings();
 
 	EngineSettings Settings;
-	Settings.CraftAheadSeconds = XjSettings.craftAheadSeconds;
-	Settings.DubAheadSeconds = XjSettings.dubAheadSeconds;
+	Settings.CraftAheadSeconds = XjSettings.craftAheadMicros;
+	Settings.DubAheadSeconds = XjSettings.dubAheadMicros;
 	Settings.PersistenceWindowSeconds = XjSettings.persistenceWindowSeconds;
 
 	return Settings;

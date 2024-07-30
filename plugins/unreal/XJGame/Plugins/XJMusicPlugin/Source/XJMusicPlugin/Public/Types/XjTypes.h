@@ -93,6 +93,13 @@ static uint32 GetTypeHash(const TimeRecord& Record)
 	return GetTypeHash(Record.GetMicros());
 }
 
+enum class EAudioEventType
+{
+	Create,
+	Update,
+	Delete
+};
+
 struct FAudioPlayer
 {
 	TimeRecord StartTime;
@@ -102,6 +109,8 @@ struct FAudioPlayer
 
 	FString Name;
 	FString Id;
+
+	EAudioEventType Event;
 
 	bool operator == (const FAudioPlayer& Other) const
 	{

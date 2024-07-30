@@ -19,7 +19,7 @@ public:
 
 	void Shutdown() override;
 
-	TSet<FAudioPlayer> RunCycle(const uint64 ChainMicros) override;
+	TArray<FAudioPlayer> RunCycle(const uint64 ChainMicros) override;
 
 	EngineSettings GetSettings() const override;
 
