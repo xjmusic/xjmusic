@@ -21,7 +21,7 @@ class EngineUiBase
 protected:
 	const Uint32					   MICROS_PER_MILLI = 1000;
 	const Uint32					   MICROS_PER_SECOND = 1000000;
-	const Uint32					   CYCLE_MILLISECONDS = 100;
+	const Uint32					   CYCLE_MILLISECONDS = 382;
 	std::unique_ptr<Engine>			   engine;
 	ScreenInteractive				   screen;
 	std::map<std::string, ActiveAudio> ActiveAudios;
@@ -182,7 +182,13 @@ public:
 	 * @param pSegment  to display
 	 * @return  segment display node
 	 */
-	Element computeSegmentNode(const Segment*& pSegment);
+	Element computeSegmentNode(const Segment*& pSegment) const;
+
+	/**
+	 * Compute the node to display the audio mixer
+	 * @return the  audio mixer display node
+	 */
+	Element computeAudioMixerNode();
 
 	/**
 	 * Engage the engine's meme override with the currently selected memes

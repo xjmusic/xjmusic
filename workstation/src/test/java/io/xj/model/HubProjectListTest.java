@@ -1,7 +1,8 @@
 package io.xj.model;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import io.xj.model.json.JsonProvider;
+import io.xj.model.json.JsonProviderImpl;
 import io.xj.model.pojos.Project;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,11 +18,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class HubProjectListTest {
   private HubProjectList subject;
+  private JsonProvider jsonProvider;
   private Project project1;
   private Project project2;
 
   @BeforeEach
   void setUp() {
+    jsonProvider = new JsonProviderImpl();
     project1 = new Project();
     project1.setId(UUID.randomUUID());
     project1.setName("Test Project 1");
@@ -85,13 +88,12 @@ class HubProjectListTest {
 
   @Test
   public void serialize_deserialize() throws JsonProcessingException {
-    final ObjectMapper mapper = new ObjectMapper();
     subject.add(project1);
     subject.add(project2);
     subject.addError(new Error("test"));
 
-    var serialized = mapper.writeValueAsString(subject);
-    var deserialized = mapper.readValue(serialized, HubProjectList.class);
+    var serialized = jsonProvider.getMapper().writeValueAsString(subject);
+    var deserialized = jsonProvider.getMapper().readValue(serialized, HubProjectList.class);
 
     assertEquals(subject.size(), deserialized.size());
     assertEquals(subject.getErrors().size(), deserialized.getErrors().size());

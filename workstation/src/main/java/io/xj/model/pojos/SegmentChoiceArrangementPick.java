@@ -8,7 +8,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 
-public class SegmentChoiceArrangementPick {
+public class SegmentChoiceArrangementPick implements Comparable<SegmentChoiceArrangementPick> {
 
   UUID id;
   Integer segmentId;
@@ -264,6 +264,13 @@ public class SegmentChoiceArrangementPick {
       return "null";
     }
     return o.toString().replace("\n", "\n    ");
+  }
+
+  @Override
+  public int compareTo(SegmentChoiceArrangementPick o) {
+    if (!Objects.equals(segmentId, o.segmentId))
+      return segmentId.compareTo(o.segmentId);
+    return id.compareTo(o.id);
   }
 }
 

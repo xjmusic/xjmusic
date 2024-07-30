@@ -138,7 +138,7 @@ public class SegmentRetrospectiveImplTest {
    Failure requiring a chain restart https://github.com/xjmusic/xjmusic/issues/263
    */
   @Test
-  public void failureToReadMainChoiceIsFatal() throws FabricationException {
+  public void failureToReadMainChoiceIsFatal() {
     for (SegmentChoice c : store.readAll(segment0.getId(), SegmentChoice.class))
       if (c.getProgramType().equals(ProgramType.Main))
         store.delete(segment0.getId(), SegmentChoice.class, c.getId());

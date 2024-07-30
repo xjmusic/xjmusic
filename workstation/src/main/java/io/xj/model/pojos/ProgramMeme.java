@@ -2,11 +2,12 @@ package io.xj.model.pojos;
 
 
 import java.io.Serializable;
+import java.util.Objects;
 import java.util.UUID;
 
 
 @SuppressWarnings({"all", "unchecked", "rawtypes"})
-public class ProgramMeme implements Serializable {
+public class ProgramMeme implements Serializable, Comparable<ProgramMeme> {
 
   private static final long serialVersionUID = 1L;
 
@@ -85,5 +86,12 @@ public class ProgramMeme implements Serializable {
 
     sb.append(")");
     return sb.toString();
+  }
+
+  @Override
+  public int compareTo(ProgramMeme o) {
+    if (!Objects.equals(name, o.name))
+      return name.compareTo(o.name);
+    return id.compareTo(o.id);
   }
 }

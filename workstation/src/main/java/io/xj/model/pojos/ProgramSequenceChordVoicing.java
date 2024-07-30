@@ -2,11 +2,12 @@ package io.xj.model.pojos;
 
 
 import java.io.Serializable;
+import java.util.Objects;
 import java.util.UUID;
 
 
 @SuppressWarnings({"all", "unchecked", "rawtypes"})
-public class ProgramSequenceChordVoicing implements Serializable {
+public class ProgramSequenceChordVoicing implements Serializable, Comparable<ProgramSequenceChordVoicing> {
 
   private static final long serialVersionUID = 1L;
 
@@ -127,5 +128,14 @@ public class ProgramSequenceChordVoicing implements Serializable {
 
     sb.append(")");
     return sb.toString();
+  }
+
+  @Override
+  public int compareTo(ProgramSequenceChordVoicing o) {
+    if (!Objects.equals(programSequenceChordId, o.programSequenceChordId))
+      return programSequenceChordId.compareTo(o.programSequenceChordId);
+    if (!Objects.equals(programVoiceId, o.programVoiceId))
+      return programVoiceId.compareTo(o.programVoiceId);
+    return id.compareTo(o.id);
   }
 }

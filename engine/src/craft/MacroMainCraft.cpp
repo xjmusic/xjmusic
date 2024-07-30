@@ -335,7 +335,6 @@ const Program *MacroMainCraft::chooseMacroProgram() const {
     throw FabricationException("Failed to choose any next macro program. No candidates available!");
 
   // report and pick
-  fabricator->putReport("macroChoice", bag.toString());
   auto program = fabricator->getSourceMaterial()->getProgram(bag.pick());
   if (!program.has_value()) {
     auto message = "Unable to choose macro program for Segment[" + std::to_string(fabricator->getSegment()->id) + "]";
@@ -406,7 +405,6 @@ const Program *MacroMainCraft::chooseMainProgram() const {
   }
 
   // report and pick
-  fabricator->putReport("mainChoice", bag.toString());
   auto program = fabricator->getSourceMaterial()->getProgram(bag.pick());
   if (!program.has_value()) {
     auto message = "Unable to choose main program for Segment[" + std::to_string(fabricator->getSegment()->id) + "]";

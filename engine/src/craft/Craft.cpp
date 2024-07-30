@@ -182,11 +182,6 @@ Craft::chooseFreshProgram(const Program::Type programType, const std::optional<I
     if (iso.isAllowed(memes)) bag.add(2, program->id, 1 + iso.score(memes));
   }
 
-  // report
-  fabricator->putReport("choiceOf" + (voicingType.has_value() ? Instrument::toString(voicingType.value()) : "") +
-                            Program::toString(programType) + "Program",
-                        bag.toString());
-
   // (4) return the top choice
   if (bag.empty()) return std::nullopt;
   return fabricator->getSourceMaterial()->getProgram(bag.pick());
@@ -219,9 +214,6 @@ Craft::chooseFreshInstrument(const Instrument::Type type, const std::set<std::st
     memes = InstrumentMeme::getNames(fabricator->getSourceMaterial()->getMemesOfInstrument(instrument->id));
     if (iso.isAllowed(memes)) bag.add(2, instrument->id, 1 + iso.score(memes));
   }
-
-  // report
-  fabricator->putReport("choiceOf" + Instrument::toString(type) + "Instrument", bag.toString());
 
   // (4) return the top choice
   if (bag.empty()) return std::nullopt;
@@ -279,7 +271,6 @@ Craft::chooseFreshInstrumentAudio(
     }
     modeNames += Instrument::toString(mode);
   }
-  fabricator->putReport("choice" + typeNames + modeNames, bag.toString());
 
   // (4) return the top choice
   if (bag.empty()) return std::nullopt;

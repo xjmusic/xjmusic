@@ -2,11 +2,12 @@ package io.xj.model.pojos;
 
 
 import java.io.Serializable;
+import java.util.Objects;
 import java.util.UUID;
 
 
 @SuppressWarnings({"all", "unchecked", "rawtypes"})
-public class User implements Serializable {
+public class User implements Serializable, Comparable<User> {
 
   private static final long serialVersionUID = 1L;
 
@@ -123,5 +124,14 @@ public class User implements Serializable {
 
     sb.append(")");
     return sb.toString();
+  }
+
+  @Override
+  public int compareTo(User o) {
+    if (!Objects.equals(name, o.name))
+      return name.compareTo(o.name);
+    if (!Objects.equals(email, o.email))
+      return email.compareTo(o.email);
+    return this.id.compareTo(o.id);
   }
 }

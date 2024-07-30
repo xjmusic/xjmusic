@@ -14,7 +14,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 
-public class Segment {
+public class Segment implements Comparable<Segment> {
   @JsonIgnore
   public static final int DELTA_UNLIMITED = -1;
   @JsonIgnore
@@ -367,6 +367,13 @@ public class Segment {
 
   String computeAtNow() {
     return ValueUtils.formatIso8601UTC(Instant.now());
+  }
+
+  @Override
+  public int compareTo(Segment o) {
+    if (!Objects.equals(chainId, o.chainId))
+      return chainId.compareTo(o.chainId);
+    return id.compareTo(o.id);
   }
 }
 

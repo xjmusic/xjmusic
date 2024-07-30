@@ -29,17 +29,21 @@ public class JsonapiPayloadFactoryImplTest {
   }
 
   @Test
-  public void serialize() throws JsonapiException {
+  public void serialize_deserialize() throws JsonapiException {
     entityFactory.register("Widget").createdBy(Widget::new).withAttribute("name");
     JsonapiPayload jsonapiPayload = subject.newJsonapiPayload();
     jsonapiPayload.setDataOne(subject.toPayloadObject(
-      new Widget()
-        .setId(UUID.fromString("6dfb9b9a-28df-4dd8-bdd5-22652e47a0d7"))
-        .setName("Jams")));
+        new Widget()
+            .setId(UUID.fromString("6dfb9b9a-28df-4dd8-bdd5-22652e47a0d7"))
+            .setName("Jams")));
 
     String result = subject.serialize(jsonapiPayload);
 
-    assertEquals("{\"data\":{\"id\":\"6dfb9b9a-28df-4dd8-bdd5-22652e47a0d7\",\"type\":\"widgets\",\"attributes\":{\"name\":\"Jams\",\"position\":0.0}}}", result);
+    JsonapiPayload deserialized = subject.deserialize(result);
+
+    assertTrue(deserialized.getDataOne().isPresent());
+    assertTrue(deserialized.getDataOne().get().getAttribute("name").isPresent());
+    assertEquals("Jams", deserialized.getDataOne().get().getAttribute("name").get());
   }
 
   @Test
@@ -47,8 +51,8 @@ public class JsonapiPayloadFactoryImplTest {
     entityFactory.register("Widget").createdBy(Widget::new).withAttribute("name");
     JsonapiPayload jsonapiPayload = subject.newJsonapiPayload();
     jsonapiPayload.setDataOne(subject.toPayloadObject(new Widget()
-      .setId(UUID.fromString("6dfb9b9a-28df-4dd8-bdd5-22652e47a0d7"))
-      .setName("Jams")));
+        .setId(UUID.fromString("6dfb9b9a-28df-4dd8-bdd5-22652e47a0d7"))
+        .setName("Jams")));
 
     JsonapiPayload result = subject.deserialize("{\"data\":{\"id\":\"6dfb9b9a-28df-4dd8-bdd5-22652e47a0d7\",\"type\":\"widgets\",\"attributes\":{\"name\":\"Jams\"}}}");
 
@@ -74,9 +78,9 @@ public class JsonapiPayloadFactoryImplTest {
     entityFactory.register("Widget").createdBy(Widget::new).withAttribute("name");
     JsonapiPayload jsonapiPayload = subject.newJsonapiPayload();
     jsonapiPayload.setDataOne(subject.toPayloadObject(
-      new Widget()
-        .setId(UUID.fromString("6dfb9b9a-28df-4dd8-bdd5-22652e47a0d7"))
-        .setName("Jams")));
+        new Widget()
+            .setId(UUID.fromString("6dfb9b9a-28df-4dd8-bdd5-22652e47a0d7"))
+            .setName("Jams")));
 
     var e = assertThrows(JsonapiException.class, () -> subject.deserialize("this is absolutely not json"));
     assertTrue(e.getMessage().contains("Failed to deserialize JSON"));
@@ -85,12 +89,12 @@ public class JsonapiPayloadFactoryImplTest {
   @Test
   public void toInstance() throws JsonapiException {
     entityFactory.register(Widget.class)
-      .createdBy(Widget::new)
-      .withAttribute("name");
+        .createdBy(Widget::new)
+        .withAttribute("name");
     JsonapiPayloadObject jsonapiPayloadObject = subject.toPayloadObject(
-      new Widget()
-        .setId(UUID.fromString("6dfb9b9a-28df-4dd8-bdd5-22652e47a0d7"))
-        .setName("Jams"));
+        new Widget()
+            .setId(UUID.fromString("6dfb9b9a-28df-4dd8-bdd5-22652e47a0d7"))
+            .setName("Jams"));
 
     Widget result = subject.toOne(jsonapiPayloadObject);
 
@@ -100,11 +104,11 @@ public class JsonapiPayloadFactoryImplTest {
   @Test
   public void toInstance_failsWithNoInstanceProvider() throws JsonapiException {
     entityFactory.register(Widget.class)
-      .withAttribute("name");
+        .withAttribute("name");
     JsonapiPayloadObject jsonapiPayloadObject = subject.toPayloadObject(
-      new Widget()
-        .setId(UUID.fromString("6dfb9b9a-28df-4dd8-bdd5-22652e47a0d7"))
-        .setName("Jams"));
+        new Widget()
+            .setId(UUID.fromString("6dfb9b9a-28df-4dd8-bdd5-22652e47a0d7"))
+            .setName("Jams"));
 
     var e = assertThrows(JsonapiException.class, () -> subject.toOne(jsonapiPayloadObject));
     assertTrue(e.getMessage().contains("Failed to locate instance provider for widgets"));

@@ -108,7 +108,7 @@ namespace XJ {
      @param chainMicros the chain microseconds for which to get the segment
      @return the segment at the given chain microseconds, or an empty optional if the segment is not ready
      */
-    std::optional<const Segment *> readSegmentAtChainMicros(long chainMicros);
+    std::optional<const Segment *> readSegmentAtChainMicros(const unsigned long long int chainMicros);
 
     /**
     Get all segments for a chain id
@@ -151,7 +151,7 @@ namespace XJ {
      @param toChainMicros   for which to get segments
      @return segments that span the given instant, empty if none found
      */
-    std::vector<const Segment *> readAllSegmentsSpanning(long fromChainMicros, long toChainMicros);
+    std::vector<const Segment *> readAllSegmentsSpanning(const unsigned long long int fromChainMicros, const unsigned long long int toChainMicros);
 
     /**
      Get the last known segment id
