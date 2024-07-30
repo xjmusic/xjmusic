@@ -39,7 +39,16 @@ public class JsonapiPayloadFactoryImplTest {
 
     String result = subject.serialize(jsonapiPayload);
 
-    assertEquals("{\"data\":{\"id\":\"6dfb9b9a-28df-4dd8-bdd5-22652e47a0d7\",\"type\":\"widgets\",\"attributes\":{\"name\":\"Jams\",\"position\":0.0}}}", result);
+    assertEquals("{\n" +
+      "  \"data\" : {\n" +
+      "    \"id\" : \"6dfb9b9a-28df-4dd8-bdd5-22652e47a0d7\",\n" +
+      "    \"type\" : \"widgets\",\n" +
+      "    \"attributes\" : {\n" +
+      "      \"name\" : \"Jams\",\n" +
+      "      \"position\" : 0.0\n" +
+      "    }\n" +
+      "  }\n" +
+      "}", result);
   }
 
   @Test

@@ -190,7 +190,7 @@ public class HubContent {
 
    @param errors to add
    */
-  public void setErrors(List<Error> errors) {
+  public void setErrors(Collection<Error> errors) {
     try {
       this.errors.clear();
       this.errors.addAll(errors);

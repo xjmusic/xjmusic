@@ -12,7 +12,9 @@ import io.xj.model.pojos.ProgramSequencePatternEvent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -66,6 +68,27 @@ public class HubContentTest extends ContentTest {
     var deserialized = mapper.readValue(serialized, HubContent.class);
 
     assertEquals(subject.toString(), deserialized.toString());
+  }
+
+  /**
+   Workstation JSON should serialize in stable order https://github.com/xjmusic/xjmusic/issues/456
+   */
+  @Test
+  public void serialize_stable_order() throws JsonProcessingException {
+    final ObjectMapper mapper = new ObjectMapper();
+
+    var serialized = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(subject);
+    for (int i = 0; i < 1000; i++) {
+      HubContent other = new HubContent();
+      other.setDemo(subject.getDemo());
+      var entities = subject.getAll();
+      other.setErrors(subject.getErrors());
+      List<Object> entityList = new ArrayList<>(entities);
+      Collections.shuffle(entityList);
+      other.putAll(entityList);
+      var otherSerialized = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(other);
+      assertEquals(serialized, otherSerialized);
+    }
   }
 
   @Test
