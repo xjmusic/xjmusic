@@ -10,11 +10,11 @@ WorkManager::WorkManager(
     const WorkSettings &config) : craftWork(CraftWork(store,
                                                       content,
                                                       config.persistenceWindowSeconds,
-                                                      config.craftAheadSeconds,
-                                                      config.deadlineSeconds)),
+                                                      config.craftAheadMicros,
+                                                      config.deadlineMicros)),
                                   dubWork(DubWork(
                                       &craftWork,
-                                      config.dubAheadSeconds)) {
+                                      config.dubAheadMicros)) {
   this->store = store;
   this->content = content;
   this->config = config;
@@ -66,13 +66,14 @@ void WorkManager::start() {
   dubWork.start();
 }
 
-void WorkManager::finish(const bool cancelled) {
-  updateState(cancelled ? Cancelled : Done);
+void WorkManager::finish(const bool cancelled)
+{
+	updateState(cancelled ? Cancelled : Done);
 }
 
-std::set<AudioScheduleEvent> WorkManager::runCycle(const unsigned long long atChainMicros) {
+std::vector<AudioScheduleEvent> WorkManager::runCycle(const unsigned long long atChainMicros) {
   this->runCraftCycle(atChainMicros);
-  std::set<AudioScheduleEvent> audioEvents;
+  std::vector<AudioScheduleEvent> audioEvents;
   std::set<std::string> foundAudioIds;
 
   // check for new or updated audio
@@ -83,19 +84,19 @@ std::set<AudioScheduleEvent> WorkManager::runCycle(const unsigned long long atCh
       // check if the audio has been modified; if so, update it
       if (activeAudioMap.at(audio.getId()) != audio) {
         activeAudioMap.emplace(audio.getId(), audio);
-        audioEvents.emplace(AudioScheduleEvent(AudioScheduleEvent::EType::Update, audio));
+        audioEvents.emplace_back(AudioScheduleEvent(AudioScheduleEvent::EType::Update, audio));
       }
     } else {
       // create a new audio
       activeAudioMap.emplace(audio.getId(), audio);
-      audioEvents.emplace(AudioScheduleEvent(AudioScheduleEvent::EType::Create, audio));
+      audioEvents.emplace_back(AudioScheduleEvent(AudioScheduleEvent::EType::Create, audio));
     }
   }
 
   // check for deleted audio
   for (auto it = activeAudioMap.begin(); it != activeAudioMap.end();) {
     if (foundAudioIds.find(it->first) == foundAudioIds.end()) {
-      audioEvents.emplace(AudioScheduleEvent(AudioScheduleEvent::EType::Delete, it->second));
+      audioEvents.emplace_back(AudioScheduleEvent(AudioScheduleEvent::EType::Delete, it->second));
       it = activeAudioMap.erase(it);
     } else {
       ++it;

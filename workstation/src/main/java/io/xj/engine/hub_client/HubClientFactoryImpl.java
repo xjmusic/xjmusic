@@ -2,12 +2,11 @@
 
 package io.xj.engine.hub_client;
 
-import io.xj.model.HubContent;
-import io.xj.model.HubContentPayload;
-import io.xj.model.json.JsonProvider;
-import io.xj.model.jsonapi.JsonapiPayloadFactory;
 import io.xj.engine.FabricationException;
 import io.xj.engine.http.HttpClientProvider;
+import io.xj.model.HubContent;
+import io.xj.model.json.JsonProvider;
+import io.xj.model.jsonapi.JsonapiPayloadFactory;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
@@ -63,7 +62,7 @@ public class HubClientFactoryImpl implements HubClientFactory {
 
       String json = IOUtils.toString(response.getEntity().getContent(), Charset.defaultCharset());
       LOG.debug("Did load content; will read bytes of JSON");
-      var content = HubContent.from(jsonProvider.getMapper().readValue(json, HubContentPayload.class));
+      var content = jsonProvider.getMapper().readValue(json, HubContent.class);
       content.setDemo(true);
       return content;
 

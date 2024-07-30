@@ -217,7 +217,7 @@ public class EntityFactoryImpl implements EntityFactory {
   @Override
   public String serialize(Object obj) throws EntityException {
     try {
-      return jsonProvider.getMapper().writeValueAsString(obj);
+      return jsonProvider.getMapper().writerWithDefaultPrettyPrinter().writeValueAsString(obj);
     } catch (Exception e) {
       throw new EntityException("Failed to serialize JSON", e);
     }

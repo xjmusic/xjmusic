@@ -19,6 +19,7 @@ namespace XJ
 		unsigned long long					stopAtChainMicros;
 		float								fromVolume;
 		float								toVolume;
+		UUID								id;
 
 	public:
 		ActiveAudio(
@@ -86,7 +87,8 @@ namespace XJ
 		 */
 		friend bool operator==(const ActiveAudio& lhs, const ActiveAudio& rhs)
 		{
-			return lhs.getStartAtChainMicros() == rhs.getStartAtChainMicros()
+			return lhs.getId() == rhs.getId()
+				&& lhs.getStartAtChainMicros() == rhs.getStartAtChainMicros()
 				&& lhs.getStopAtChainMicros() == rhs.getStopAtChainMicros()
 				&& lhs.getFromVolume() == rhs.getFromVolume()
 				&& lhs.getToVolume() == rhs.getToVolume();

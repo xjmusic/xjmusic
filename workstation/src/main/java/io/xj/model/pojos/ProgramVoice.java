@@ -4,11 +4,12 @@ package io.xj.model.pojos;
 import io.xj.model.enums.InstrumentType;
 
 import java.io.Serializable;
+import java.util.Objects;
 import java.util.UUID;
 
 
 @SuppressWarnings({"all", "unchecked", "rawtypes"})
-public class ProgramVoice implements Serializable {
+public class ProgramVoice implements Serializable, Comparable<ProgramVoice> {
 
   private static final long serialVersionUID = 1L;
 
@@ -125,5 +126,14 @@ public class ProgramVoice implements Serializable {
 
     sb.append(")");
     return sb.toString();
+  }
+
+  @Override
+  public int compareTo(ProgramVoice o) {
+    if (!Objects.equals(programId, o.programId))
+      return programId.compareTo(o.programId);
+    if (!Objects.equals(name, o.name))
+      return name.compareTo(o.name);
+    return id.compareTo(o.id);
   }
 }

@@ -55,7 +55,7 @@ namespace XJ {
     * (1-3 times per second)
     * This returns the list of audio that should be queued up for playback in a structured way
     */
-    [[nodiscard]] std::set<AudioScheduleEvent> RunCycle(unsigned long long atChainMicros) const;
+    [[nodiscard]] std::vector<AudioScheduleEvent> RunCycle(unsigned long long atChainMicros) const;
 
     /**
      Get the entity store
@@ -127,9 +127,9 @@ namespace XJ {
     /**
      * Virtual destructor
      */
-    ~Engine();
+    ~	Engine();
 
-  private:
+private:
     /**
      * Load the project content
      */

@@ -3,11 +3,12 @@ package io.xj.model.pojos;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.Objects;
 import java.util.UUID;
 
 
 @SuppressWarnings({"all", "unchecked", "rawtypes"})
-public class TemplatePublication implements Serializable {
+public class TemplatePublication implements Serializable, Comparable<TemplatePublication> {
 
   private static final long serialVersionUID = 1L;
 
@@ -105,5 +106,14 @@ public class TemplatePublication implements Serializable {
 
     sb.append(")");
     return sb.toString();
+  }
+
+  @Override
+  public int compareTo(TemplatePublication o) {
+    if (!Objects.equals(templateId, o.templateId))
+      return templateId.compareTo(o.templateId);
+    if (!Objects.equals(userId, o.userId))
+      return userId.compareTo(o.userId);
+    return id.compareTo(o.id);
   }
 }

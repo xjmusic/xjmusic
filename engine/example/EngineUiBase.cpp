@@ -74,16 +74,16 @@ const Template* EngineUiBase::SelectTemplate()
 	MenuOption option;
 	option.on_enter = screen.ExitLoopClosure();
 
-	auto header_text = Renderer([] {
-		return text("Select a template and press ENTER") | bold;
-	});
-	auto template_menu = Menu(&templateNames, &selected, option);
-	auto container = Container::Vertical({
+	auto	   header_text = Renderer([] {
+		  return text("Select a template and press ENTER") | bold;
+	  });
+	auto	   template_menu = Menu(&templateNames, &selected, option);
+	const auto container = Container::Vertical({
 		header_text,
 		template_menu,
 	});
 
-	auto document = Renderer(container, [&] {
+	const auto document = Renderer(container, [&] {
 		return vbox({
 				   header_text->Render(),
 				   separator(),
@@ -170,29 +170,7 @@ std::shared_ptr<ComponentBase> EngineUiBase::BuildRunningUI()
 	});
 
 	ui_tab_content_audio = Renderer([this] {
-		std::vector<std::vector<std::string>> tableContents;
-		tableContents.emplace_back(std::vector<std::string>{ "Start", "Stop", "Audio" });
-		for (const auto& [audioId, audio] : ActiveAudios)
-		{
-			std::vector<std::string> row = {
-				formatTimeFromMicros(audio.getStartAtChainMicros()),
-				formatTimeFromMicros(audio.getStopAtChainMicros()),
-				audio.getAudio()->name,
-			};
-			tableContents.emplace_back(row);
-		}
-
-		auto table = Table(tableContents);
-		table.SelectRow(0).Decorate(color(Color::GrayDark));
-		table.SelectAll().SeparatorVertical(EMPTY);
-
-		// Make first row bold with a double border.
-		return hbox({
-				   separatorEmpty(),
-				   table.Render(),
-				   separatorEmpty(),
-			   })
-			| flex | xframe | yframe;
+		return computeAudioMixerNode();
 	});
 
 	ResizableSplitOption resizableSplitOption;
@@ -251,15 +229,15 @@ std::shared_ptr<ComponentBase> EngineUiBase::BuildRunningUI()
 					   separatorEmpty(),
 					   separator(),
 					   separatorEmpty(),
-					   text("Deadline " + std::to_string(engine->getSettings().deadlineSeconds) + "s") | color(Color::GrayLight),
+					   text("Deadline " + formatTimeFromMicros(engine->getSettings().deadlineMicros)) | color(Color::GrayLight),
 					   separatorEmpty(),
 					   separator(),
 					   separatorEmpty(),
-					   text("Dub ahead " + std::to_string(engine->getSettings().dubAheadSeconds) + "s") | color(Color::GrayLight),
+					   text("Dub ahead " + formatTimeFromMicros(engine->getSettings().dubAheadMicros)) | color(Color::GrayLight),
 					   separatorEmpty(),
 					   separator(),
 					   separatorEmpty(),
-					   text("Craft ahead " + std::to_string(engine->getSettings().craftAheadSeconds) + "s") | color(Color::GrayLight),
+					   text("Craft ahead " + formatTimeFromMicros(engine->getSettings().craftAheadMicros)) | color(Color::GrayLight),
 					   separatorEmpty(),
 					   separator(),
 					   filler(),
@@ -291,16 +269,16 @@ std::string EngineUiBase::formatTimeFromMicros(unsigned long long int micros)
 	}
 
 	// Round down to the nearest second
-	unsigned long long totalSeconds = micros / ValueUtils::MICROS_PER_SECOND;
+	const unsigned long long totalSeconds = micros / ValueUtils::MICROS_PER_SECOND;
 
 	// Get fractional seconds
-	float fractionalSeconds = static_cast<float>(micros % 1000000) / 1000000.0f;
+	const float fractionalSeconds = static_cast<float>(micros % 1000000) / 1000000.0f;
 
 	// Calculate hours, minutes, and remaining seconds
-	unsigned long long hours = totalSeconds / 3600;
-	unsigned long long remainingSeconds = totalSeconds % 3600;
-	unsigned long long minutes = remainingSeconds / 60;
-	unsigned long long seconds = remainingSeconds % 60;
+	const unsigned long long hours = totalSeconds / 3600;
+	const unsigned long long remainingSeconds = totalSeconds % 3600;
+	const unsigned long long minutes = remainingSeconds / 60;
+	const unsigned long long seconds = remainingSeconds % 60;
 
 	// Build the readable string
 	std::stringstream readableTime;
@@ -331,7 +309,7 @@ std::string EngineUiBase::formatTotalBars(const Segment& segment, std::optional<
 {
 	if (!beats.has_value())
 		return "N/A";
-	auto barBeats = getBarBeats(segment);
+	const auto barBeats = getBarBeats(segment);
 	if (!barBeats.has_value())
 		return "N/A";
 	return std::to_string(beats.value() / barBeats.value()) + formatFractionalSuffix(static_cast<double>(beats.value() % barBeats.value()) / barBeats.value()) + " " + (beats.value() == 1 ? "bar" : "bars");
@@ -344,13 +322,13 @@ std::string EngineUiBase::formatPositionBarBeats(const Segment& segment, double 
 		return "N/A";
 	}
 
-	auto barBeatsOpt = getBarBeats(segment);
+	const auto barBeatsOpt = getBarBeats(segment);
 	if (barBeatsOpt.has_value())
 	{
-		int	   barBeats = barBeatsOpt.value();
-		int	   bars = floor(position / barBeats);
-		int	   beats = floor(fmod(position, barBeats));
-		double remaining = beats > 0 ? fmod(fmod(position, barBeats), beats) : 0;
+		const int	 barBeats = barBeatsOpt.value();
+		const int	 bars = floor(position / barBeats);
+		const int	 beats = floor(fmod(position, barBeats));
+		const double remaining = beats > 0 ? fmod(fmod(position, barBeats), beats) : 0;
 
 		std::ostringstream ss;
 		ss << (bars + 1) << '.' << (beats + 1) << formatDecimalSuffix(remaining);
@@ -469,14 +447,14 @@ std::optional<int> EngineUiBase::getBarBeats(const Segment& segment) const
 {
 	try
 	{
-		auto choice = engine->getSegmentStore()->readChoice(segment.id, Program::Main);
+		const auto choice = engine->getSegmentStore()->readChoice(segment.id, Program::Main);
 		if (!choice.has_value())
 		{
 			// Failed to retrieve main program choice to determine beats for Segment
 			return std::nullopt;
 		}
 
-		auto program = engine->getProjectContent()->getProgram(choice.value()->programId);
+		const auto program = engine->getProjectContent()->getProgram(choice.value()->programId);
 		if (!program.has_value())
 		{
 			// "Failed to retrieve main program to determine beats for Segment
@@ -492,7 +470,7 @@ std::optional<int> EngineUiBase::getBarBeats(const Segment& segment) const
 	}
 }
 
-Element EngineUiBase::computeSegmentNode(const Segment*& pSegment)
+Element EngineUiBase::computeSegmentNode(const Segment*& pSegment) const
 {
 	std::set<std::string> segMemeNames;
 	for (auto& meme : engine->getSegmentStore()->readAllSegmentMemes(pSegment->id))
@@ -508,7 +486,7 @@ Element EngineUiBase::computeSegmentNode(const Segment*& pSegment)
 	std::sort(segMemeNamesSorted.begin(), segMemeNamesSorted.end());
 	std::vector<Element> segMemeList;
 	segMemeList.reserve(segMemeNamesSorted.size());
-	for (auto& name : segMemeNamesSorted)
+	for (const auto& name : segMemeNamesSorted)
 	{
 		segMemeList.push_back(text(name) | bold);
 	}
@@ -575,6 +553,38 @@ Element EngineUiBase::computeSegmentNode(const Segment*& pSegment)
 	});
 	return segCol;
 }
+
+Element EngineUiBase::computeAudioMixerNode()
+{
+	std::vector<std::vector<Element>> tableContents;
+	tableContents.emplace_back(std::vector{ text("Start"), text("Stop"), text("Audio") });
+	for (const auto& [audioId, audio] : ActiveAudios)
+	{
+		const unsigned long long dubbedToMicros = AtChainMicros + engine->getSettings().dubAheadMicros;
+		const bool				 bDubbed = dubbedToMicros >= audio.getStartAtChainMicros() && dubbedToMicros <= audio.getStopAtChainMicros();
+		const bool				 bActive = AtChainMicros >= audio.getStartAtChainMicros() && AtChainMicros <= audio.getStopAtChainMicros();
+		const Color				 audioColor = bActive ? Color::GreenLight : (bDubbed ? Color::Green : Color::GrayDark);
+		std::vector				 row = {
+			 text(formatTimeFromMicros(audio.getStartAtChainMicros())),
+			 text(formatTimeFromMicros(audio.getStopAtChainMicros())),
+			 text(audio.getAudio()->name) | color(audioColor),
+		};
+		tableContents.emplace_back(row);
+	}
+
+	auto table = Table(tableContents);
+	table.SelectRow(0).Decorate(color(Color::GrayDark));
+	table.SelectAll().SeparatorVertical(EMPTY);
+
+	// Make first row bold with a double border.
+	return hbox({
+			   separatorEmpty(),
+			   table.Render(),
+			   separatorEmpty(),
+		   })
+		| flex | xframe | yframe;
+}
+
 void EngineUiBase::engageMemeOverride()
 {
 	std::set<std::string> memes;
@@ -598,7 +608,7 @@ std::shared_ptr<Node> EngineUiBase::computeSegmentChoicesNode(const Segment*& pS
 	std::vector<const SegmentChoice*> mainChoices;
 	std::vector<const SegmentChoice*> beatChoices;
 	std::vector<const SegmentChoice*> detailChoices;
-	long long						  AtSegmentMicros = AtChainMicros - pSegment->beginAtChainMicros;
+	const long long					  AtSegmentMicros = AtChainMicros - pSegment->beginAtChainMicros;
 	for (const SegmentChoice* choice : engine->getSegmentStore()->readAllSegmentChoices(pSegment->id))
 	{
 		if (!choice->programId.empty() && Program::Type::Macro == choice->programType)
@@ -665,13 +675,18 @@ EngineUiBase::computeSegmentPicksNode(const SegmentChoice*& pSegmentChoice, long
 	for (const SegmentChoiceArrangementPick* pick : engine->getSegmentStore()->readAllSegmentChoiceArrangementPicks(
 			 pSegmentChoice))
 	{
-		std::optional<const InstrumentAudio*> audio = engine->getProjectContent()->getInstrumentAudio(
-			pick->instrumentAudioId);
+		std::optional<const InstrumentAudio*> audio = engine->getProjectContent()->getInstrumentAudio(pick->instrumentAudioId);
 		if (!audio.has_value())
 			continue;
-		bool				 bActive = pick->startAtSegmentMicros <= AtSegmentMicros && (pick->lengthMicros == 0 || pick->startAtSegmentMicros + pick->lengthMicros >= AtSegmentMicros);
-		std::vector<Element> row;
-		Color				 audioColor = pSegmentChoice->mute ? Color::Yellow : (bActive ? Color::Green : Color::GrayDark);
+		const unsigned long long audioTransientMicros = audio.value()->transientSeconds * MICROS_PER_SECOND;
+		const unsigned long long audioLengthMicros = audio.value()->lengthSeconds * MICROS_PER_SECOND;
+		const unsigned long long thresholdActiveFrom = pick->startAtSegmentMicros - audioTransientMicros;
+		const unsigned long long thresholdActiveTo = pick->lengthMicros == 0 ? pick->startAtSegmentMicros - audioTransientMicros + audioLengthMicros : pick->startAtSegmentMicros + pick->lengthMicros;
+		const unsigned long long dubbedToMicros = AtSegmentMicros + engine->getSettings().dubAheadMicros;
+		const bool				 bDubbed = dubbedToMicros >= thresholdActiveFrom && dubbedToMicros <= thresholdActiveTo;
+		const bool				 bActive = AtSegmentMicros >= thresholdActiveFrom && AtSegmentMicros <= thresholdActiveTo;
+		std::vector<Element>	 row;
+		const Color				 audioColor = pSegmentChoice->mute ? Color::Yellow : (bActive ? Color::GreenLight : (bDubbed ? Color::Green : Color::GrayDark));
 		col.push_back(hbox({ separatorEmpty(),
 			separatorEmpty(),
 			text("[" + formatTimeFromMicros(pick->startAtSegmentMicros) + "]") | color(audioColor),
