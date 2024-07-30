@@ -17,15 +17,15 @@ using namespace XJ;
 CraftWork::CraftWork(
 	SegmentEntityStore* store,
 	ContentEntityStore* content,
-	const int			persistenceWindowSeconds,
-	const int			craftAheadSeconds,
-	const int			deadlineSeconds)
+	const int			persistenceWindowMicros,
+	const int			craftAheadMicros,
+	const int			deadlineMicros)
 {
 	this->store = store;
 
-	craftAheadMicros = craftAheadSeconds * ValueUtils::MICROS_PER_SECOND;
-	deadlineMicros = deadlineSeconds * ValueUtils::MICROS_PER_SECOND;
-	persistenceWindowMicros = persistenceWindowSeconds * ValueUtils::MICROS_PER_SECOND;
+	this->craftAheadMicros = craftAheadMicros;
+	this->deadlineMicros = deadlineMicros;
+	this->persistenceWindowMicros = persistenceWindowMicros;
 	this->content = content;
 }
 

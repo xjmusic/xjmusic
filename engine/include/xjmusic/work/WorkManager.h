@@ -53,7 +53,7 @@ namespace XJ {
     * (1-3 times per second)
     * This returns the list of audio that should be queued up for playback in a structured way
     */
-    std::set<AudioScheduleEvent> runCycle(unsigned long long atChainMicros);
+    std::vector<AudioScheduleEvent> runCycle(unsigned long long atChainMicros);
 
     /**
      Get the entity store

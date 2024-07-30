@@ -17,11 +17,11 @@ Engine::Engine(
 {
 	settings.controlMode = controlMode.has_value() ? controlMode.value() : Fabricator::ControlMode::Auto;
 	if (craftAheadSeconds.has_value())
-		settings.craftAheadSeconds = craftAheadSeconds.value();
+		settings.craftAheadMicros = craftAheadSeconds.value() * ValueUtils::MICROS_PER_SECOND;
 	if (dubAheadSeconds.has_value())
-		settings.dubAheadSeconds = dubAheadSeconds.value();
+		settings.dubAheadMicros = dubAheadSeconds.value() * ValueUtils::MICROS_PER_SECOND;
 	if (deadlineSeconds.has_value())
-		settings.deadlineSeconds = deadlineSeconds.value();
+		settings.deadlineMicros = deadlineSeconds.value() * ValueUtils::MICROS_PER_SECOND;
 	if (persistenceWindowSeconds.has_value())
 		settings.persistenceWindowSeconds = persistenceWindowSeconds.value();
 	store = std::make_unique<SegmentEntityStore>();
@@ -60,7 +60,7 @@ void Engine::finish(const bool cancelled) const
 	work->finish(cancelled);
 }
 
-std::set<AudioScheduleEvent> Engine::RunCycle(const unsigned long long atChainMicros) const
+std::vector<AudioScheduleEvent> Engine::RunCycle(const unsigned long long atChainMicros) const
 {
 	if (!work)
 		return {};

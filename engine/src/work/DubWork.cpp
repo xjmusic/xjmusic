@@ -9,10 +9,10 @@ using namespace XJ;
 
 DubWork::DubWork(
 	CraftWork* craftWork,
-	const int  dubAheadSeconds)
+	const int  dubAheadMicros)
 {
 	this->craftWork = craftWork;
-	dubAheadMicros = dubAheadSeconds * ValueUtils::MICROS_PER_SECOND;
+	this->dubAheadMicros = dubAheadMicros;
 }
 
 void DubWork::start()

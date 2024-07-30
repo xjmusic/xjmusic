@@ -98,7 +98,7 @@ TEST_F(XJEngineTest, CorrectlyDubsAudio)
 {
 	const std::unique_ptr<Engine> subject = std::make_unique<Engine>(
 		std::nullopt,
-		Fabricator::ControlMode::Taxonomy,
+		Fabricator::ControlMode::Auto,
 		craftAheadSeconds,
 		dubAheadSeconds,
 		deadlineSeconds,
@@ -189,14 +189,12 @@ TEST_F(XJEngineTest, CorrectlyDubsAudio)
 		auto audios = subject->RunCycle(atChainMicros);
 		for (const auto& audio : audios)
 		{
-			seenAudioSchedulingEventKeys.insert(computeKey(atChainMicros, audio));
+			seenAudioSchedulingEventKeys.emplace(computeKey(atChainMicros, audio));
 		}
 		std::cout << "Ran cycle at " << std::to_string(atChainMicros) << std::endl;
 		atChainMicros += MICROS_PER_CYCLE;
 	}
 	subject->finish(false);
-
-	// TODO why are we missing many audios? NOTE: Each of these individual groups of tests (for one instrument type) are passing, but when all instrument types are present, the test fails.
 
 	// Check that Perc Loop 1 was dubbed correctly
 	EXPECT_TRUE(seenAudioSchedulingEventKeys.find("000000000000_Create_PercLoop1Audio_at[000000000000,000002000000]_vol[100,100]") != seenAudioSchedulingEventKeys.end());
