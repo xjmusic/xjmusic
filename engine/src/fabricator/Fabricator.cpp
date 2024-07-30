@@ -919,16 +919,6 @@ void Fabricator::putPreferredAudio(
 }
 
 
-void Fabricator::putReport(const std::string &key, const std::map<std::string, std::string> &value) {
-  addMessage(SegmentMessage::Type::Debug, "Report[" + key + "]:" + CsvUtils::from(value));
-}
-
-
-void Fabricator::putReport(const std::string &key, const std::string &value) {
-  addMessage(SegmentMessage::Type::Debug, "Report[" + key + "]:" + value);
-}
-
-
 const Segment *Fabricator::updateSegment(Segment segment) {
   try {
     return store->updateSegment(segment);

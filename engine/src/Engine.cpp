@@ -165,6 +165,13 @@ void Engine::loadProjectContent(const std::string& pathToProjectFile)
 	const std::filesystem::path folderContainingProject = projectPath.parent_path();
 	// get the "build" folder path
 	pathToBuildDirectory = folderContainingProject / "build";
+
+	// if the build folder does not exist, throw an error that you need to build the project before playing it
+	if (!exists(pathToBuildDirectory))
+	{
+		throw std::runtime_error("Build folder does not exist. Please build the project before playing it.");
+	}
+
 	try
 	{
 		for (const auto& entry : std::filesystem::recursive_directory_iterator(pathToBuildDirectory))
