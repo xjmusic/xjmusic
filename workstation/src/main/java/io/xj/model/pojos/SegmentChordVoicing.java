@@ -8,7 +8,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 
-public class SegmentChordVoicing {
+public class SegmentChordVoicing implements Comparable<SegmentChordVoicing> {
 
   UUID id;
   Integer segmentId;
@@ -146,6 +146,13 @@ public class SegmentChordVoicing {
       return "null";
     }
     return o.toString().replace("\n", "\n    ");
+  }
+
+  @Override
+  public int compareTo(SegmentChordVoicing o) {
+    if (!Objects.equals(segmentId, o.segmentId))
+      return segmentId.compareTo(o.segmentId);
+    return id.compareTo(o.id);
   }
 }
 

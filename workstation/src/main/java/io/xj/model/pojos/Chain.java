@@ -11,7 +11,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 
-public class Chain {
+public class Chain implements Comparable<Chain> {
   @JsonIgnore
   public static final String EXTENSION_SEPARATOR = ".";
   UUID id;
@@ -207,6 +207,13 @@ public class Chain {
       return "null";
     }
     return o.toString().replace("\n", "\n    ");
+  }
+
+  @Override
+  public int compareTo(Chain o) {
+    if (!Objects.equals(name, o.name))
+      return name.compareTo(o.name);
+    return id.compareTo(o.id);
   }
 }
 

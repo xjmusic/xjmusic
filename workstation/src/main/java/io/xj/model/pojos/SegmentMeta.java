@@ -10,7 +10,7 @@ import java.util.UUID;
 /**
  Segment has metadata for XJ to persist "notes in the margin" of the composition for itself to read https://github.com/xjmusic/xjmusic/issues/222
  */
-public class SegmentMeta {
+public class SegmentMeta implements Comparable<SegmentMeta> {
 
   UUID id;
   Integer segmentId;
@@ -127,6 +127,13 @@ public class SegmentMeta {
       return "null";
     }
     return o.toString().replace("\n", "\n    ");
+  }
+
+  @Override
+  public int compareTo(SegmentMeta o) {
+    if (!Objects.equals(segmentId, o.segmentId))
+      return segmentId.compareTo(o.segmentId);
+    return id.compareTo(o.id);
   }
 }
 

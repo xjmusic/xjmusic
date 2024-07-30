@@ -291,7 +291,7 @@ class ProjectManagerImplTest {
     var result = subject.createInstrumentAudio(instrument, pathToAudioFile);
 
     assertEquals("test-audio", subject.getContent().getInstrumentAudio(result.getId()).orElseThrow().getName());
-    assertEquals("Pad-test-audio-F-A-C.wav", subject.getContent().getInstrumentAudio(result.getId()).orElseThrow().getWaveformKey());
+    assertEquals("808-Drums-test-audio-Eb.wav", subject.getContent().getInstrumentAudio(result.getId()).orElseThrow().getWaveformKey());
   }
 
   /**

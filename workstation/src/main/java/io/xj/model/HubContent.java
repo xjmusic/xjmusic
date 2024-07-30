@@ -3,7 +3,6 @@ package io.xj.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.xj.model.entity.EntityFactory;
 import io.xj.model.entity.EntityUtils;
 import io.xj.model.enums.InstrumentMode;
 import io.xj.model.enums.InstrumentType;
@@ -34,14 +33,13 @@ import io.xj.model.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -53,7 +51,7 @@ import java.util.stream.Collectors;
  */
 public class HubContent {
   final Map<Class<?>/*Type*/, Map<UUID/*ID*/, Object>> store = new ConcurrentHashMap<>();
-  final Set<Error> errors = new HashSet<>();
+  final List<Error> errors = new ArrayList<>();
   boolean demo = false;
 
   /**
@@ -83,7 +81,7 @@ public class HubContent {
    @throws RuntimeException on failure
    */
   public HubContent(
-    Collection<?> entities,
+    List<?> entities,
     boolean demo
   ) throws RuntimeException {
     try {
@@ -181,7 +179,7 @@ public class HubContent {
    @return all errors
    */
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
-  public Collection<Error> getErrors() {
+  public List<Error> getErrors() {
     return errors;
   }
 
@@ -190,7 +188,7 @@ public class HubContent {
 
    @param errors to add
    */
-  public void setErrors(Collection<Error> errors) {
+  public void setErrors(List<Error> errors) {
     try {
       this.errors.clear();
       this.errors.addAll(errors);
@@ -205,7 +203,7 @@ public class HubContent {
    @return Users
    */
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
-  public Collection<User> getUsers() {
+  public List<User> getUsers() {
     return getAll(User.class);
   }
 
@@ -214,7 +212,7 @@ public class HubContent {
 
    @param users to set
    */
-  public void setUsers(Collection<User> users) throws Exception {
+  public void setUsers(List<User> users) throws Exception {
     setAll(User.class, users);
   }
 
@@ -224,7 +222,7 @@ public class HubContent {
    @return Project Users
    */
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
-  public Collection<ProjectUser> getProjectUsers() {
+  public List<ProjectUser> getProjectUsers() {
     return getAll(ProjectUser.class);
   }
 
@@ -233,7 +231,7 @@ public class HubContent {
 
    @param projectUsers to set
    */
-  public void setProjectUsers(Collection<ProjectUser> projectUsers) throws Exception {
+  public void setProjectUsers(List<ProjectUser> projectUsers) throws Exception {
     setAll(ProjectUser.class, projectUsers);
   }
 
@@ -243,7 +241,7 @@ public class HubContent {
    @return Instruments
    */
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
-  public Collection<Instrument> getInstruments() {
+  public List<Instrument> getInstruments() {
     return getAll(Instrument.class);
   }
 
@@ -252,7 +250,7 @@ public class HubContent {
 
    @param instruments to set
    */
-  public void setInstruments(Collection<Instrument> instruments) throws Exception {
+  public void setInstruments(List<Instrument> instruments) throws Exception {
     setAll(Instrument.class, instruments);
   }
 
@@ -262,7 +260,7 @@ public class HubContent {
    @return InstrumentAudios
    */
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
-  public Collection<InstrumentAudio> getInstrumentAudios() {
+  public List<InstrumentAudio> getInstrumentAudios() {
     return getAll(InstrumentAudio.class);
   }
 
@@ -271,7 +269,7 @@ public class HubContent {
 
    @param instrumentAudios to set
    */
-  public void setInstrumentAudios(Collection<InstrumentAudio> instrumentAudios) throws Exception {
+  public void setInstrumentAudios(List<InstrumentAudio> instrumentAudios) throws Exception {
     setAll(InstrumentAudio.class, instrumentAudios);
   }
 
@@ -281,7 +279,7 @@ public class HubContent {
    @return InstrumentMemes
    */
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
-  public Collection<InstrumentMeme> getInstrumentMemes() {
+  public List<InstrumentMeme> getInstrumentMemes() {
     return getAll(InstrumentMeme.class);
   }
 
@@ -290,7 +288,7 @@ public class HubContent {
 
    @param instrumentMemes to set
    */
-  public void setInstrumentMemes(Collection<InstrumentMeme> instrumentMemes) throws Exception {
+  public void setInstrumentMemes(List<InstrumentMeme> instrumentMemes) throws Exception {
     setAll(InstrumentMeme.class, instrumentMemes);
   }
 
@@ -300,7 +298,7 @@ public class HubContent {
    @return Programs
    */
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
-  public Collection<Program> getPrograms() {
+  public List<Program> getPrograms() {
     return getAll(Program.class);
   }
 
@@ -309,7 +307,7 @@ public class HubContent {
 
    @param programs to set
    */
-  public void setPrograms(Collection<Program> programs) throws Exception {
+  public void setPrograms(List<Program> programs) throws Exception {
     setAll(Program.class, programs);
   }
 
@@ -319,7 +317,7 @@ public class HubContent {
    @return memes of program
    */
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
-  public Collection<ProgramMeme> getProgramMemes() {
+  public List<ProgramMeme> getProgramMemes() {
     return getAll(ProgramMeme.class);
   }
 
@@ -328,7 +326,7 @@ public class HubContent {
 
    @param programMemes to set
    */
-  public void setProgramMemes(Collection<ProgramMeme> programMemes) throws Exception {
+  public void setProgramMemes(List<ProgramMeme> programMemes) throws Exception {
     setAll(ProgramMeme.class, programMemes);
   }
 
@@ -338,7 +336,7 @@ public class HubContent {
    @return ProgramSequences
    */
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
-  public Collection<ProgramSequence> getProgramSequences() {
+  public List<ProgramSequence> getProgramSequences() {
     return getAll(ProgramSequence.class);
   }
 
@@ -347,7 +345,7 @@ public class HubContent {
 
    @param programSequences to set
    */
-  public void setProgramSequences(Collection<ProgramSequence> programSequences) throws Exception {
+  public void setProgramSequences(List<ProgramSequence> programSequences) throws Exception {
     setAll(ProgramSequence.class, programSequences);
   }
 
@@ -357,7 +355,7 @@ public class HubContent {
    @return ProgramSequenceBindings
    */
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
-  public Collection<ProgramSequenceBinding> getProgramSequenceBindings() {
+  public List<ProgramSequenceBinding> getProgramSequenceBindings() {
     return getAll(ProgramSequenceBinding.class);
   }
 
@@ -366,7 +364,7 @@ public class HubContent {
 
    @param programSequenceBindings to set
    */
-  public void setProgramSequenceBindings(Collection<ProgramSequenceBinding> programSequenceBindings) throws Exception {
+  public void setProgramSequenceBindings(List<ProgramSequenceBinding> programSequenceBindings) throws Exception {
     setAll(ProgramSequenceBinding.class, programSequenceBindings);
   }
 
@@ -376,7 +374,7 @@ public class HubContent {
    @return ProgramSequenceBindingMemes
    */
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
-  public Collection<ProgramSequenceBindingMeme> getProgramSequenceBindingMemes() {
+  public List<ProgramSequenceBindingMeme> getProgramSequenceBindingMemes() {
     return getAll(ProgramSequenceBindingMeme.class);
   }
 
@@ -385,7 +383,7 @@ public class HubContent {
 
    @param programSequenceBindingMemes to set
    */
-  public void setProgramSequenceBindingMemes(Collection<ProgramSequenceBindingMeme> programSequenceBindingMemes) throws Exception {
+  public void setProgramSequenceBindingMemes(List<ProgramSequenceBindingMeme> programSequenceBindingMemes) throws Exception {
     setAll(ProgramSequenceBindingMeme.class, programSequenceBindingMemes);
   }
 
@@ -395,7 +393,7 @@ public class HubContent {
    @return ProgramSequencePatterns
    */
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
-  public Collection<ProgramSequencePattern> getProgramSequencePatterns() {
+  public List<ProgramSequencePattern> getProgramSequencePatterns() {
     return getAll(ProgramSequencePattern.class);
   }
 
@@ -404,7 +402,7 @@ public class HubContent {
 
    @param programSequencePatterns to set
    */
-  public void setProgramSequencePatterns(Collection<ProgramSequencePattern> programSequencePatterns) throws Exception {
+  public void setProgramSequencePatterns(List<ProgramSequencePattern> programSequencePatterns) throws Exception {
     setAll(ProgramSequencePattern.class, programSequencePatterns);
   }
 
@@ -414,7 +412,7 @@ public class HubContent {
    @return ProgramSequencePatterns for sequence and voice
    */
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
-  public Collection<ProgramSequencePattern> getPatternsOfSequenceAndVoice(UUID programSequenceId, UUID programVoiceId) {
+  public List<ProgramSequencePattern> getPatternsOfSequenceAndVoice(UUID programSequenceId, UUID programVoiceId) {
     return getProgramSequencePatterns().stream()
       .filter(p -> programSequenceId.equals(p.getProgramSequenceId()) && programVoiceId.equals(p.getProgramVoiceId()))
       .collect(Collectors.toList());
@@ -426,7 +424,7 @@ public class HubContent {
    @return ProgramEvents
    */
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
-  public Collection<ProgramSequencePatternEvent> getProgramSequencePatternEvents() {
+  public List<ProgramSequencePatternEvent> getProgramSequencePatternEvents() {
     return getAll(ProgramSequencePatternEvent.class);
   }
 
@@ -435,7 +433,7 @@ public class HubContent {
 
    @param programSequencePatternEvents to set
    */
-  public void setProgramSequencePatternEvents(Collection<ProgramSequencePatternEvent> programSequencePatternEvents) throws Exception {
+  public void setProgramSequencePatternEvents(List<ProgramSequencePatternEvent> programSequencePatternEvents) throws Exception {
     setAll(ProgramSequencePatternEvent.class, programSequencePatternEvents);
   }
 
@@ -445,7 +443,7 @@ public class HubContent {
    @return ProgramSequenceChords
    */
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
-  public Collection<ProgramSequenceChord> getProgramSequenceChords() {
+  public List<ProgramSequenceChord> getProgramSequenceChords() {
     return getAll(ProgramSequenceChord.class);
   }
 
@@ -454,7 +452,7 @@ public class HubContent {
 
    @param programSequenceChords to set
    */
-  public void setProgramSequenceChords(Collection<ProgramSequenceChord> programSequenceChords) throws Exception {
+  public void setProgramSequenceChords(List<ProgramSequenceChord> programSequenceChords) throws Exception {
     setAll(ProgramSequenceChord.class, programSequenceChords);
   }
 
@@ -464,7 +462,7 @@ public class HubContent {
    @return ProgramSequencePatternEvents
    */
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
-  public Collection<ProgramSequenceChordVoicing> getProgramSequenceChordVoicings() {
+  public List<ProgramSequenceChordVoicing> getProgramSequenceChordVoicings() {
     return getAll(ProgramSequenceChordVoicing.class);
   }
 
@@ -473,7 +471,7 @@ public class HubContent {
 
    @param programSequenceChordVoicings to set
    */
-  public void setProgramSequenceChordVoicings(Collection<ProgramSequenceChordVoicing> programSequenceChordVoicings) throws Exception {
+  public void setProgramSequenceChordVoicings(List<ProgramSequenceChordVoicing> programSequenceChordVoicings) throws Exception {
     setAll(ProgramSequenceChordVoicing.class, programSequenceChordVoicings);
   }
 
@@ -483,7 +481,7 @@ public class HubContent {
    @return ProgramVoices
    */
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
-  public Collection<ProgramVoice> getProgramVoices() {
+  public List<ProgramVoice> getProgramVoices() {
     return getAll(ProgramVoice.class);
   }
 
@@ -492,7 +490,7 @@ public class HubContent {
 
    @param programVoices to set
    */
-  public void setProgramVoices(Collection<ProgramVoice> programVoices) throws Exception {
+  public void setProgramVoices(List<ProgramVoice> programVoices) throws Exception {
     setAll(ProgramVoice.class, programVoices);
   }
 
@@ -502,7 +500,7 @@ public class HubContent {
    @return tracks for program
    */
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
-  public Collection<ProgramVoiceTrack> getProgramVoiceTracks() {
+  public List<ProgramVoiceTrack> getProgramVoiceTracks() {
     return getAll(ProgramVoiceTrack.class);
   }
 
@@ -511,7 +509,7 @@ public class HubContent {
 
    @param programVoiceTracks to set
    */
-  public void setProgramVoiceTracks(Collection<ProgramVoiceTrack> programVoiceTracks) throws Exception {
+  public void setProgramVoiceTracks(List<ProgramVoiceTrack> programVoiceTracks) throws Exception {
     setAll(ProgramVoiceTrack.class, programVoiceTracks);
   }
 
@@ -521,7 +519,7 @@ public class HubContent {
    @return libraries
    */
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
-  public Collection<Library> getLibraries() {
+  public List<Library> getLibraries() {
     return getAll(Library.class);
   }
 
@@ -530,7 +528,7 @@ public class HubContent {
 
    @param libraries to set
    */
-  public void setLibraries(Collection<Library> libraries) throws Exception {
+  public void setLibraries(List<Library> libraries) throws Exception {
     setAll(Library.class, libraries);
   }
 
@@ -540,7 +538,7 @@ public class HubContent {
    @return templates
    */
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
-  public Collection<Template> getTemplates() {
+  public List<Template> getTemplates() {
     return getAll(Template.class);
   }
 
@@ -549,7 +547,7 @@ public class HubContent {
 
    @param templates to set
    */
-  public void setTemplates(Collection<Template> templates) throws Exception {
+  public void setTemplates(List<Template> templates) throws Exception {
     setAll(Template.class, templates);
   }
 
@@ -578,7 +576,7 @@ public class HubContent {
    @return all template bindings
    */
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
-  public Collection<TemplateBinding> getTemplateBindings() {
+  public List<TemplateBinding> getTemplateBindings() {
     return getAll(TemplateBinding.class);
   }
 
@@ -587,7 +585,7 @@ public class HubContent {
 
    @param templateBindings to set
    */
-  public void setTemplateBindings(Collection<TemplateBinding> templateBindings) throws Exception {
+  public void setTemplateBindings(List<TemplateBinding> templateBindings) throws Exception {
     setAll(TemplateBinding.class, templateBindings);
   }
 
@@ -596,7 +594,7 @@ public class HubContent {
 
    @return template bindings
    */
-  public Collection<TemplateBinding> getBindingsOfTemplate(UUID templateId) {
+  public List<TemplateBinding> getBindingsOfTemplate(UUID templateId) {
     return getAll(TemplateBinding.class).stream()
       .filter(binding -> binding.getTemplateId().equals(templateId))
       .toList();
@@ -608,7 +606,7 @@ public class HubContent {
    @param sequenceBinding for which to get available sequence pattern offsets
    @return collection of available sequence pattern offsets
    */
-  public Collection<Integer> getAvailableOffsets(ProgramSequenceBinding sequenceBinding) {
+  public List<Integer> getAvailableOffsets(ProgramSequenceBinding sequenceBinding) {
     return getProgramSequenceBindings().stream()
       .filter(psb -> psb.getProgramId().equals(sequenceBinding.getProgramId()))
       .map(ProgramSequenceBinding::getOffset)
@@ -623,7 +621,7 @@ public class HubContent {
    @param id of instrument for which to get audios
    @return audios of instrument id
    */
-  public Collection<InstrumentAudio> getAudiosOfInstrument(UUID id) {
+  public List<InstrumentAudio> getAudiosOfInstrument(UUID id) {
     return getInstrumentAudios().stream()
       .filter(a -> id.equals(a.getInstrumentId()))
       .collect(Collectors.toList());
@@ -635,7 +633,7 @@ public class HubContent {
    @param instrument for which to get audios
    @return audios for instrument
    */
-  public Collection<InstrumentAudio> getAudiosOfInstrument(Instrument instrument) {
+  public List<InstrumentAudio> getAudiosOfInstrument(Instrument instrument) {
     return getAudiosOfInstrument(instrument.getId());
   }
 
@@ -645,7 +643,7 @@ public class HubContent {
    @param sequence for which to get bindings
    @return bindings of sequence
    */
-  public Collection<ProgramSequenceBinding> getBindingsOfSequence(ProgramSequence sequence) {
+  public List<ProgramSequenceBinding> getBindingsOfSequence(ProgramSequence sequence) {
     return getBindingsOfSequence(sequence.getId());
   }
 
@@ -655,7 +653,7 @@ public class HubContent {
    @param sequenceId for which to get bindings
    @return bindings of sequence
    */
-  public Collection<ProgramSequenceBinding> getBindingsOfSequence(UUID sequenceId) {
+  public List<ProgramSequenceBinding> getBindingsOfSequence(UUID sequenceId) {
     return getProgramSequenceBindings().stream()
       .filter(b -> sequenceId.equals(b.getProgramSequenceId()))
       .collect(Collectors.toList());
@@ -667,7 +665,7 @@ public class HubContent {
    @param program for which to get sequence binding memes
    @return sequence binding memes of program
    */
-  public Collection<ProgramSequenceBindingMeme> getSequenceBindingMemesOfProgram(Program program) {
+  public List<ProgramSequenceBindingMeme> getSequenceBindingMemesOfProgram(Program program) {
     return getSequenceBindingMemesOfProgram(program.getId());
   }
 
@@ -677,7 +675,7 @@ public class HubContent {
    @param programId for which to get sequence binding memes
    @return sequence binding memes of program
    */
-  public Collection<ProgramSequenceBindingMeme> getSequenceBindingMemesOfProgram(UUID programId) {
+  public List<ProgramSequenceBindingMeme> getSequenceBindingMemesOfProgram(UUID programId) {
     return getProgramSequenceBindingMemes().stream()
       .filter(m -> programId.equals(m.getProgramId()))
       .collect(Collectors.toList());
@@ -695,7 +693,7 @@ public class HubContent {
    @param includeNearest whether to include the nearest offset if the target offset is not found
    @return sequence bindings at offset
    */
-  public Collection<ProgramSequenceBinding> getBindingsAtOffsetOfProgram(Program program, Integer offset, boolean includeNearest) {
+  public List<ProgramSequenceBinding> getBindingsAtOffsetOfProgram(Program program, Integer offset, boolean includeNearest) {
     return getBindingsAtOffsetOfProgram(program.getId(), offset, includeNearest);
   }
 
@@ -711,7 +709,7 @@ public class HubContent {
    @param includeNearest whether to include the nearest offset if the target offset is not found
    @return sequence bindings at offset
    */
-  public Collection<ProgramSequenceBinding> getBindingsAtOffsetOfProgram(UUID programId, Integer offset, boolean includeNearest) {
+  public List<ProgramSequenceBinding> getBindingsAtOffsetOfProgram(UUID programId, Integer offset, boolean includeNearest) {
     if (includeNearest) {
       var candidates = getProgramSequenceBindings().stream()
         .filter(psb -> Objects.equals(psb.getProgramId(), programId)).toList();
@@ -736,7 +734,7 @@ public class HubContent {
    @param sequence for which to get chords
    @return chords of sequence
    */
-  public Collection<ProgramSequenceChord> getChordsOfSequence(ProgramSequence sequence) {
+  public List<ProgramSequenceChord> getChordsOfSequence(ProgramSequence sequence) {
     return getChordsOfSequence(sequence.getId());
   }
 
@@ -746,7 +744,7 @@ public class HubContent {
    @param programSequenceId for which to get chords
    @return chords of sequence
    */
-  public Collection<ProgramSequenceChord> getChordsOfSequence(UUID programSequenceId) {
+  public List<ProgramSequenceChord> getChordsOfSequence(UUID programSequenceId) {
     return getProgramSequenceChords().stream()
       .filter(e -> programSequenceId.equals(e.getProgramSequenceId()))
       .collect(Collectors.toList());
@@ -758,7 +756,7 @@ public class HubContent {
    @param programId for which to get patterns
    @return patterns for given program
    */
-  public Collection<ProgramSequencePattern> getSequencePatternsOfProgram(UUID programId) {
+  public List<ProgramSequencePattern> getSequencePatternsOfProgram(UUID programId) {
     return getProgramSequencePatterns().stream()
       .filter(m -> programId.equals(m.getProgramId()))
       .collect(Collectors.toList());
@@ -770,7 +768,7 @@ public class HubContent {
    @param program for which to get patterns
    @return patterns for given program pattern
    */
-  public Collection<ProgramSequencePattern> getSequencePatternsOfProgram(Program program) {
+  public List<ProgramSequencePattern> getSequencePatternsOfProgram(Program program) {
     return getSequencePatternsOfProgram(program.getId());
   }
 
@@ -895,7 +893,7 @@ public class HubContent {
    @param modes of instrument
    @return all audios for instrument type
    */
-  public Collection<InstrumentAudio> getAudiosOfInstrumentTypesAndModes(Collection<InstrumentType> types, Collection<InstrumentMode> modes) {
+  public List<InstrumentAudio> getAudiosOfInstrumentTypesAndModes(Collection<InstrumentType> types, Collection<InstrumentMode> modes) {
     return getInstrumentsOfTypesAndModes(types, modes).stream()
       .flatMap(instrument -> getAudiosOfInstrument(instrument.getId()).stream())
       .toList();
@@ -907,7 +905,7 @@ public class HubContent {
    @param types of instrument
    @return all audios for instrument type
    */
-  public Collection<InstrumentAudio> getAudiosOfInstrumentTypes(Collection<InstrumentType> types) {
+  public List<InstrumentAudio> getAudiosOfInstrumentTypes(List<InstrumentType> types) {
     return getInstrumentsOfTypes(types).stream()
       .flatMap(instrument -> getAudiosOfInstrument(instrument.getId()).stream())
       .toList();
@@ -919,7 +917,7 @@ public class HubContent {
    @param library for which to get instruments
    @return collection of instruments
    */
-  public Collection<Instrument> getInstrumentsOfLibrary(Library library) {
+  public List<Instrument> getInstrumentsOfLibrary(Library library) {
     return getInstrumentsOfLibrary(library.getId());
   }
 
@@ -929,7 +927,7 @@ public class HubContent {
    @param libraryId for which to get instruments
    @return collection of instruments
    */
-  public Collection<Instrument> getInstrumentsOfLibrary(UUID libraryId) {
+  public List<Instrument> getInstrumentsOfLibrary(UUID libraryId) {
     return getInstruments().stream()
       .filter(instrument -> libraryId.equals(instrument.getLibraryId()))
       .collect(Collectors.toList());
@@ -940,7 +938,7 @@ public class HubContent {
 
    @return collection of instruments
    */
-  public Collection<Instrument> getInstrumentsOfType(InstrumentType type) {
+  public List<Instrument> getInstrumentsOfType(InstrumentType type) {
     return getInstruments().stream()
       .filter(instrument -> type.equals(instrument.getType()))
       .collect(Collectors.toList());
@@ -953,7 +951,7 @@ public class HubContent {
    @param modes of instrument; empty list is a wildcard
    @return collection of instruments
    */
-  public Collection<Instrument> getInstrumentsOfTypesAndModes(Collection<InstrumentType> types, Collection<InstrumentMode> modes) {
+  public List<Instrument> getInstrumentsOfTypesAndModes(Collection<InstrumentType> types, Collection<InstrumentMode> modes) {
     return getInstruments().stream()
       .filter(instrument -> modes.isEmpty() || modes.contains(instrument.getMode()))
       .filter(instrument -> types.isEmpty() || types.contains(instrument.getType()))
@@ -966,7 +964,7 @@ public class HubContent {
    @param types of instrument; empty list is a wildcard
    @return collection of instruments
    */
-  public Collection<Instrument> getInstrumentsOfTypes(Collection<InstrumentType> types) {
+  public List<Instrument> getInstrumentsOfTypes(Collection<InstrumentType> types) {
     return getInstruments().stream()
       .filter(instrument -> types.isEmpty() || types.contains(instrument.getType()))
       .collect(Collectors.toList());
@@ -1008,7 +1006,7 @@ public class HubContent {
    @param instrumentId for which to get memes
    @return memes of instrument
    */
-  public Collection<InstrumentMeme> getMemesOfInstrument(UUID instrumentId) {
+  public List<InstrumentMeme> getMemesOfInstrument(UUID instrumentId) {
     return getInstrumentMemes().stream()
       .filter(m -> instrumentId.equals(m.getInstrumentId()))
       .collect(Collectors.toList());
@@ -1020,7 +1018,7 @@ public class HubContent {
    @param programSequenceBinding for which to get memes
    @return memes
    */
-  public Collection<ProgramSequenceBindingMeme> getMemesOfSequenceBinding(ProgramSequenceBinding programSequenceBinding) {
+  public List<ProgramSequenceBindingMeme> getMemesOfSequenceBinding(ProgramSequenceBinding programSequenceBinding) {
     return getMemesOfSequenceBinding(programSequenceBinding.getId());
   }
 
@@ -1030,7 +1028,7 @@ public class HubContent {
    @param programSequenceBindingId for which to get memes
    @return memes
    */
-  public Collection<ProgramSequenceBindingMeme> getMemesOfSequenceBinding(UUID programSequenceBindingId) {
+  public List<ProgramSequenceBindingMeme> getMemesOfSequenceBinding(UUID programSequenceBindingId) {
     return getProgramSequenceBindingMemes().stream()
       .filter(m -> programSequenceBindingId.equals(m.getProgramSequenceBindingId()))
       .collect(Collectors.toList());
@@ -1041,7 +1039,7 @@ public class HubContent {
 
    @return collection of sequence memes
    */
-  public Collection<String> getMemesAtBeginning(Program program) {
+  public List<String> getMemesAtBeginning(Program program) {
     Map<String, Boolean> memes = new HashMap<>();
 
     // add sequence memes
@@ -1053,7 +1051,9 @@ public class HubContent {
       for (ProgramSequenceBindingMeme meme : getMemesOfSequenceBinding(sequenceBinding.getId()))
         memes.put(meme.getName(), true);
 
-    return memes.keySet();
+    List<String> memeList = new ArrayList<>(memes.keySet());
+    Collections.sort(memeList);
+    return memeList;
   }
 
   /**
@@ -1074,7 +1074,7 @@ public class HubContent {
    @param sequence for which to get patterns
    @return patterns of sequence
    */
-  public Collection<ProgramSequencePattern> getPatternsOfSequence(ProgramSequence sequence) {
+  public List<ProgramSequencePattern> getPatternsOfSequence(ProgramSequence sequence) {
     return getPatternsOfSequence(sequence.getId());
   }
 
@@ -1084,7 +1084,7 @@ public class HubContent {
    @param sequence for which to get patterns
    @return patterns of sequence
    */
-  public Collection<ProgramSequencePattern> getPatternsOfSequence(UUID sequence) {
+  public List<ProgramSequencePattern> getPatternsOfSequence(UUID sequence) {
     return getProgramSequencePatterns().stream()
       .filter(p -> sequence.equals(p.getProgramSequenceId()))
       .collect(Collectors.toList());
@@ -1096,7 +1096,7 @@ public class HubContent {
    @param voice for which to get patterns
    @return patterns of voice
    */
-  public Collection<ProgramSequencePattern> getPatternsOfVoice(ProgramVoice voice) {
+  public List<ProgramSequencePattern> getPatternsOfVoice(ProgramVoice voice) {
     return getPatternsOfVoice(voice.getId());
   }
 
@@ -1106,7 +1106,7 @@ public class HubContent {
    @param voice for which to get patterns
    @return patterns of voice
    */
-  public Collection<ProgramSequencePattern> getPatternsOfVoice(UUID voice) {
+  public List<ProgramSequencePattern> getPatternsOfVoice(UUID voice) {
     return getProgramSequencePatterns().stream()
       .filter(p -> voice.equals(p.getProgramVoiceId()))
       .collect(Collectors.toList());
@@ -1138,7 +1138,7 @@ public class HubContent {
    @param library for which to get programs
    @return collection of programs
    */
-  public Collection<Program> getProgramsOfLibrary(Library library) {
+  public List<Program> getProgramsOfLibrary(Library library) {
     return getProgramsOfLibrary(library.getId());
   }
 
@@ -1148,7 +1148,7 @@ public class HubContent {
    @param libraryId for which to get programs
    @return collection of programs
    */
-  public Collection<Program> getProgramsOfLibrary(UUID libraryId) {
+  public List<Program> getProgramsOfLibrary(UUID libraryId) {
     return getPrograms().stream()
       .filter(program -> libraryId.equals(program.getLibraryId()))
       .collect(Collectors.toList());
@@ -1159,7 +1159,7 @@ public class HubContent {
 
    @return collection of sequences
    */
-  public Collection<Program> getProgramsOfType(ProgramType type) {
+  public List<Program> getProgramsOfType(ProgramType type) {
     return getPrograms().stream()
       .filter(program -> program.getType().equals(type))
       .collect(Collectors.toList());
@@ -1171,7 +1171,7 @@ public class HubContent {
    @param programId for which to get memes
    @return memes of program
    */
-  public Collection<ProgramMeme> getMemesOfProgram(UUID programId) {
+  public List<ProgramMeme> getMemesOfProgram(UUID programId) {
     return getAll(ProgramMeme.class).stream()
       .filter(m -> programId.equals(m.getProgramId()))
       .collect(Collectors.toList());
@@ -1203,7 +1203,7 @@ public class HubContent {
    @param programId to search for sequences
    @return ProgramSequences
    */
-  public Collection<ProgramSequence> getSequencesOfProgram(UUID programId) {
+  public List<ProgramSequence> getSequencesOfProgram(UUID programId) {
     return getAll(ProgramSequence.class).stream().filter(s -> programId.equals(s.getProgramId())).toList();
   }
 
@@ -1233,8 +1233,8 @@ public class HubContent {
    @param programId for which to get bindings
    @return sequence bindings
    */
-  public Collection<ProgramSequenceBinding> getSequenceBindingsOfProgram(UUID programId) {
-    return getAll(ProgramSequenceBinding.class).stream().filter(b -> programId.equals(b.getProgramId())).collect(Collectors.toSet());
+  public List<ProgramSequenceBinding> getSequenceBindingsOfProgram(UUID programId) {
+    return getAll(ProgramSequenceBinding.class).stream().filter(b -> programId.equals(b.getProgramId())).sorted().collect(Collectors.toList());
   }
 
   /**
@@ -1282,7 +1282,7 @@ public class HubContent {
 
    @return ProgramSequenceChords
    */
-  public Collection<ProgramSequenceChord> getSequenceChordsOfProgram(UUID programId) {
+  public List<ProgramSequenceChord> getSequenceChordsOfProgram(UUID programId) {
     return getAll(ProgramSequenceChord.class).stream().filter(s -> programId.equals(s.getProgramId())).toList();
   }
 
@@ -1292,7 +1292,7 @@ public class HubContent {
    @param programId to get sequence chord voicings of
    @return sequence chord voicings for program
    */
-  public Collection<ProgramSequenceChordVoicing> getSequenceChordVoicingsOfProgram(UUID programId) {
+  public List<ProgramSequenceChordVoicing> getSequenceChordVoicingsOfProgram(UUID programId) {
     return getAll(ProgramSequenceChordVoicing.class).stream()
       .filter(v -> v.getProgramId().equals(programId))
       .filter(v -> Note.containsAnyValidNotes(v.getNotes()))
@@ -1325,7 +1325,7 @@ public class HubContent {
    @param programId for which to get tracks
    @return tracks for program
    */
-  public Collection<ProgramVoiceTrack> getTracksOfProgram(UUID programId) {
+  public List<ProgramVoiceTrack> getTracksOfProgram(UUID programId) {
     return getAll(ProgramVoiceTrack.class).stream()
       .filter(track -> Objects.equals(programId, track.getProgramId()))
       .toList();
@@ -1337,7 +1337,7 @@ public class HubContent {
    @param type of program
    @return all voice tracks for program type
    */
-  public Collection<ProgramVoiceTrack> getTracksOfProgramType(ProgramType type) {
+  public List<ProgramVoiceTrack> getTracksOfProgramType(ProgramType type) {
     return getProgramsOfType(type).stream()
       .flatMap(program -> getTracksOfProgram(program.getId()).stream())
       .toList();
@@ -1349,7 +1349,7 @@ public class HubContent {
    @param voice for which to get tracks
    @return tracks for voice
    */
-  public Collection<ProgramVoiceTrack> getTracksOfVoice(ProgramVoice voice) {
+  public List<ProgramVoiceTrack> getTracksOfVoice(ProgramVoice voice) {
     return getTracksOfVoice(voice.getId());
   }
 
@@ -1359,7 +1359,7 @@ public class HubContent {
    @param voiceId for which to get tracks
    @return tracks for voice
    */
-  public Collection<ProgramVoiceTrack> getTracksOfVoice(UUID voiceId) {
+  public List<ProgramVoiceTrack> getTracksOfVoice(UUID voiceId) {
     return getAll(ProgramVoiceTrack.class).stream()
       .filter(track -> Objects.equals(voiceId, track.getProgramVoiceId()))
       .toList();
@@ -1408,7 +1408,7 @@ public class HubContent {
    @param voice for which to get track names
    @return names of tracks for the given voice
    */
-  public Collection<String> getTrackNamesOfVoice(ProgramVoice voice) {
+  public List<String> getTrackNamesOfVoice(ProgramVoice voice) {
     return getAll(ProgramVoiceTrack.class).stream()
       .filter(t -> voice.getId().equals(t.getProgramVoiceId()))
       .map(ProgramVoiceTrack::getName)
@@ -1421,7 +1421,7 @@ public class HubContent {
    @param chord for which to get voicings
    @return chords of sequence
    */
-  public Collection<ProgramSequenceChordVoicing> getVoicingsOfChord(ProgramSequenceChord chord) {
+  public List<ProgramSequenceChordVoicing> getVoicingsOfChord(ProgramSequenceChord chord) {
     return getVoicingsOfChord(chord.getId());
   }
 
@@ -1431,7 +1431,7 @@ public class HubContent {
    @param chordId for which to get voicings
    @return chords of sequence
    */
-  public Collection<ProgramSequenceChordVoicing> getVoicingsOfChord(UUID chordId) {
+  public List<ProgramSequenceChordVoicing> getVoicingsOfChord(UUID chordId) {
     return getAll(ProgramSequenceChordVoicing.class).stream()
       .filter(e -> chordId.equals(e.getProgramSequenceChordId()))
       .collect(Collectors.toList());
@@ -1444,7 +1444,7 @@ public class HubContent {
    @param voice for which to get voicings
    @return chords of sequence
    */
-  public Collection<ProgramSequenceChordVoicing> getVoicingsOfChordAndVoice(ProgramSequenceChord chord, ProgramVoice voice) {
+  public List<ProgramSequenceChordVoicing> getVoicingsOfChordAndVoice(ProgramSequenceChord chord, ProgramVoice voice) {
     return getVoicingsOfChordAndVoice(chord.getId(), voice.getId());
   }
 
@@ -1455,7 +1455,7 @@ public class HubContent {
    @param voiceId for which to get voicings
    @return chords of sequence
    */
-  public Collection<ProgramSequenceChordVoicing> getVoicingsOfChordAndVoice(UUID chordId, UUID voiceId) {
+  public List<ProgramSequenceChordVoicing> getVoicingsOfChordAndVoice(UUID chordId, UUID voiceId) {
     return getAll(ProgramSequenceChordVoicing.class).stream()
       .filter(e -> chordId.equals(e.getProgramSequenceChordId()) && voiceId.equals(e.getProgramVoiceId()))
       .collect(Collectors.toList());
@@ -1479,7 +1479,7 @@ public class HubContent {
    @param program for which to get program voices
    @return program voices for the given program
    */
-  public Collection<ProgramVoice> getVoicesOfProgram(Program program) {
+  public List<ProgramVoice> getVoicesOfProgram(Program program) {
     return getVoicesOfProgram(program.getId());
   }
 
@@ -1489,7 +1489,7 @@ public class HubContent {
    @param programId for which to get program voices
    @return program voices for the given program
    */
-  public Collection<ProgramVoice> getVoicesOfProgram(UUID programId) {
+  public List<ProgramVoice> getVoicesOfProgram(UUID programId) {
     return getProgramVoices().stream()
       .filter(m -> m.getProgramId().equals(programId))
       .collect(Collectors.toList());
@@ -1549,7 +1549,7 @@ public class HubContent {
    @param entities to store
    @throws RuntimeException on failure
    */
-  public <N> void setAll(Class<N> type, Collection<N> entities) throws Exception {
+  public <N> void setAll(Class<N> type, List<N> entities) throws Exception {
     store.putIfAbsent(type, new ConcurrentHashMap<>());
     store.get(type).clear();
     for (N entity : entities)
@@ -1572,7 +1572,7 @@ public class HubContent {
 
    @param projects of which to set the first one as the project
    */
-  public void setProjects(Collection<Project> projects) {
+  public void setProjects(List<Project> projects) {
     var project = projects.stream().findFirst();
     project.ifPresent(this::setProject);
   }
@@ -1598,7 +1598,7 @@ public class HubContent {
       .forEach((Object obj) -> entityHistogram.add(StringUtils.getSimpleName(obj)));
     List<String> descriptors = new ArrayList<>();
 
-    Collection<String> names = entityHistogram.elementSet().stream()
+    List<String> names = entityHistogram.elementSet().stream()
       .sorted(String.CASE_INSENSITIVE_ORDER)
       .toList();
 
@@ -1634,10 +1634,10 @@ public class HubContent {
    @param <E>  class
    @return entity
    */
-  public <E> Collection<E> getAll(Class<E> type) {
+  public <E> List<E> getAll(Class<E> type) {
     if (store.containsKey(type))
       //noinspection unchecked
-      return (Collection<E>) store.get(type).values();
+      return (List<E>) store.get(type).values().stream().sorted().toList();
     return List.of();
   }
 
@@ -1647,7 +1647,7 @@ public class HubContent {
    @return all entities in the store
    */
   @JsonIgnore
-  public Collection<Object> getAll() {
+  public List<Object> getAll() {
     return store.values().stream()
       .flatMap(map -> map.values().stream())
       .toList();
