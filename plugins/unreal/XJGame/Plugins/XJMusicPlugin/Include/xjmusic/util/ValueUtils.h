@@ -32,6 +32,7 @@ namespace XJ {
     static long NANOS_PER_SECOND;
     static long SECONDS_PER_MINUTE;
     static long MICROS_PER_MINUTE;
+    static float MICROS_PER_MINUTE_FLOAT;
     static long MINUTES_PER_HOUR;
     static long HOURS_PER_DAY;
     static long SECONDS_PER_HOUR;

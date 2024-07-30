@@ -7,62 +7,105 @@
 #include "xjmusic/content/InstrumentConfig.h"
 #include "xjmusic/segment/SegmentChoiceArrangementPick.h"
 
-namespace XJ {
+namespace XJ
+{
 
-  class ActiveAudio {
-    const SegmentChoiceArrangementPick *pick;
-    const Instrument *instrument;
-    const InstrumentAudio *audio;
-    unsigned long long startAtChainMicros;
-    std::optional<unsigned long long> stopAtChainMicros;
-    float fromAmplitude;
-    float toAmplitude;
+	class ActiveAudio
+	{
+		const SegmentChoiceArrangementPick* pick;
+		const Instrument*					instrument;
+		const InstrumentAudio*				audio;
+		unsigned long long					startAtChainMicros;
+		unsigned long long					stopAtChainMicros;
+		float								fromVolume;
+		float								toVolume;
+		UUID								id;
 
-  public:
-    ActiveAudio(
-        const SegmentChoiceArrangementPick *pick,
-        const Instrument *instrument,
-        const InstrumentAudio *audio,
-        unsigned long long startAtChainMicros,
-        std::optional<unsigned long long> stopAtChainMicros,
-        float fromIntensityAmplitude,
-        float toIntensityAmplitude);
+	public:
+		ActiveAudio(
+			const SegmentChoiceArrangementPick* pick,
+			const Instrument*					instrument,
+			const InstrumentAudio*				audio,
+			unsigned long long					startAtChainMicros,
+			unsigned long long					stopAtChainMicros,
+			float								fromIntensity,
+			float								toIntensity);
 
-    UUID getId() const;
+		[[nodiscard]] float getFromVolume() const;
 
-    const SegmentChoiceArrangementPick * getPick() const;
+		[[nodiscard]] float getToVolume() const;
 
-    const Instrument * getInstrument() const;
+		[[nodiscard]] UUID getId() const;
 
-    unsigned long long getStartAtChainMicros() const;
+		[[nodiscard]] const SegmentChoiceArrangementPick* getPick() const;
 
-    std::optional<unsigned long long> getStopAtChainMicros() const;
+		[[nodiscard]] const Instrument* getInstrument() const;
 
-    const InstrumentAudio * getAudio() const;
+		[[nodiscard]] unsigned long long getStartAtChainMicros() const;
 
-    int getReleaseMillis() const;
+		[[nodiscard]] unsigned long long getStopAtChainMicros() const;
 
-    /**
-     Get the amplitude at a given amplitude position between 0 and 1.
+		[[nodiscard]] const InstrumentAudio* getAudio() const;
 
-     @param ap amplitude position
-     @return amplitude
-     */
-    float getAmplitude(const float ap) const;
+		[[nodiscard]] int getReleaseMillis() const;
 
-    /**
-     * Compare two Active Audio
-     * @param lhs  Active Audio
-     * @param rhs  Active Audio
-     * @return   true if lhs < rhs
-     */
-    friend bool operator<(const ActiveAudio &lhs, const ActiveAudio &rhs) {
-      return lhs.getStartAtChainMicros() < rhs.getStartAtChainMicros();
-    }
+		/**
+		 Get the amplitude at a given amplitude position between 0 and 1.
 
-  };
+		 @param ap amplitude position
+		 @return amplitude
+		 */
+		[[nodiscard]] float getAmplitude(float ap) const;
 
-}// namespace XJ
+		/**
+		 * Compare two Active Audio by startAtChainMicros
+		 * @param lhs  Active Audio
+		 * @param rhs  Active Audio
+		 * @return   true if lhs < rhs
+		 */
+		friend bool operator<(const ActiveAudio& lhs, const ActiveAudio& rhs)
+		{
+			return lhs.getId() < rhs.getId();
+		}
 
-#endif //XJMUSIC_WORK_ACTIVE_AUDIO_H
+		/**
+		 * Compare two Active Audio by startAtChainMicros
+		 * @param lhs  Active Audio
+		 * @param rhs  Active Audio
+		 * @return   true if lhs >rhs
+		 */
+		friend bool operator>(const ActiveAudio& lhs, const ActiveAudio& rhs)
+		{
+			return lhs.getId() > rhs.getId();
+		}
 
+		/**
+		 * Compare two Active Audio for equality
+		 * @param lhs  Active Audio
+		 * @param rhs  Active Audio
+		 * @return   true if lhs == rhs
+		 */
+		friend bool operator==(const ActiveAudio& lhs, const ActiveAudio& rhs)
+		{
+			return lhs.getId() == rhs.getId()
+				&& lhs.getStartAtChainMicros() == rhs.getStartAtChainMicros()
+				&& lhs.getStopAtChainMicros() == rhs.getStopAtChainMicros()
+				&& lhs.getFromVolume() == rhs.getFromVolume()
+				&& lhs.getToVolume() == rhs.getToVolume();
+		}
+
+		/**
+		 * Compare two Active Audio for equality
+		 * @param lhs  Active Audio
+		 * @param rhs  Active Audio
+		 * @return   true if lhs == rhs
+		 */
+		friend bool operator!=(const ActiveAudio& lhs, const ActiveAudio& rhs)
+		{
+			return !(lhs == rhs);
+		}
+	};
+
+} // namespace XJ
+
+#endif // XJMUSIC_WORK_ACTIVE_AUDIO_H

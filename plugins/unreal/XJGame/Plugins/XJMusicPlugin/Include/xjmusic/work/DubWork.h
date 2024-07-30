@@ -54,7 +54,7 @@ namespace XJ {
 
     @return true if finished (not running)
     */
-    bool isFinished();
+    bool isFinished() const;
 
     /**
      Run the work cycle
@@ -117,7 +117,7 @@ namespace XJ {
     @param msgWhile phrased like "Doing work"
     @param e        exception (optional)
     */
-    void didFailWhile(std::string msgWhile, const std::exception &e);
+    void didFailWhile(const std::string &msgWhile, const std::exception &e);
   };
 
 }// namespace XJ
