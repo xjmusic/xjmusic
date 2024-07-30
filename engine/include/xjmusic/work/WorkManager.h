@@ -11,6 +11,7 @@
 #include "DubWork.h"
 #include "WorkSettings.h"
 #include "WorkState.h"
+#include "xjmusic/audio/AudioScheduleEvent.h"
 
 namespace XJ {
   class WorkManager {
@@ -21,6 +22,7 @@ namespace XJ {
     DubWork dubWork;
     std::optional<MemeTaxonomy> memeTaxonomy{};
     WorkState state = Standby;
+    std::map<std::string, ActiveAudio> activeAudioMap;
     bool isAudioLoaded = false;
     long long startedAtMillis = 0;
 
@@ -51,24 +53,24 @@ namespace XJ {
     * (1-3 times per second)
     * This returns the list of audio that should be queued up for playback in a structured way
     */
-    std::set<ActiveAudio> runCycle(unsigned long long atChainMicros);
+    std::vector<AudioScheduleEvent> runCycle(unsigned long long atChainMicros);
 
     /**
      Get the entity store
      */
-    SegmentEntityStore *getEntityStore() const;
+    [[nodiscard]] SegmentEntityStore *getEntityStore() const;
 
     /**
      Get the Hub content source material
 
      @return source material
      */
-    ContentEntityStore *getSourceMaterial() const;
+    [[nodiscard]] ContentEntityStore *getSourceMaterial() const;
 
     /**
      @return the current work state
      */
-    WorkState getState() const;
+    [[nodiscard]] WorkState getState() const;
 
     /**
      Go to the given macro program right away
@@ -81,12 +83,12 @@ namespace XJ {
     /**
      @return the meme taxonomy from the current template configuration
      */
-    std::optional<MemeTaxonomy> getMemeTaxonomy() const;
+    [[nodiscard]] std::optional<MemeTaxonomy> getMemeTaxonomy() const;
 
     /**
      * @return all macro programs in alphabetical order
      */
-    std::vector<const Program *> getAllMacroPrograms() const;
+    [[nodiscard]] std::vector<const Program *> getAllMacroPrograms() const;
 
     /**
      Manually go to a specific taxonomy category meme, and force until reset
@@ -127,7 +129,7 @@ namespace XJ {
     @param msgWhile phrased like "Doing work"
     @param e        exception (optional)
     */
-    void didFailWhile(std::string msgWhile, const std::exception &e);
+    void didFailWhile(const std::string& msgWhile, const std::exception &e);
 
     /**
     * Get string representation of the work state
@@ -142,6 +144,7 @@ namespace XJ {
      @param fabricationState work state
      */
     void updateState(WorkState fabricationState);
+
   };
 
 }// namespace XJ

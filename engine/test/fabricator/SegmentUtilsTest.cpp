@@ -77,7 +77,7 @@ protected:
     segments = {&seg0, &seg1, &seg2, &seg3};
   }
 
-  Segment createSameSegment(const long long updatedAt, const Segment::State state) const {
+  Segment createSameSegment(const unsigned long long updatedAt, const Segment::State state) const {
     Segment s = SegmentFixtures::buildSegment(
         &chain,
         Segment::Type::Continue,

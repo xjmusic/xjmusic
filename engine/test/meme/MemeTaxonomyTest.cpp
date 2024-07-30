@@ -64,8 +64,7 @@ TEST(MemeTaxonomyTest, FromSetToList) {
 
   const std::set<MapStringToOneOrManyString> expected = {
       {{"name", "COLOR"}, {"memes", std::set<std::string>{"RED", "GREEN", "BLUE"}}},
-      {{"name", "SIZE"}, {"memes", std::set<std::string>{"LARGE", "MEDIUM", "SMALL"}}}
-  };
+      {{"name", "SIZE"}, {"memes", std::set<std::string>{"LARGE", "MEDIUM", "SMALL"}}}};
 
   ASSERT_EQ(expected, subject.toList());
 }
@@ -110,3 +109,12 @@ TEST(MemeTaxonomyTest, IsAllowed_alreadyPresentFromTaxonomy) {
   ASSERT_TRUE(MemeTaxonomy("CITY[ABERDEEN,NAGOYA]").isAllowed({"ABERDEEN", "ABERDEEN"}));
 }
 
+TEST(MemeTaxonomyTest, ToMap) {
+  const MemeTaxonomy subject("COLOR[RED,GREEN,BLUE];SIZE[LARGE,MEDIUM,SMALL]");
+
+  const std::map<std::string, std::vector<std::string>> expected = {
+      {"COLOR", {"BLUE", "GREEN", "RED"}},
+      {"SIZE", {"LARGE", "MEDIUM", "SMALL"}}};
+
+  ASSERT_EQ(expected, subject.toMap());
+}

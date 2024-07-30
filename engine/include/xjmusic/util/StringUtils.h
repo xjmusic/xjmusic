@@ -38,21 +38,21 @@ namespace XJ {
      * @param delimiter  The delimiter
      * @return           The joined string
      */
-   static std::string join(const std::vector<std::string> &input, const std::string &delimiter);
+    static std::string join(const std::vector<std::string> &input, const std::string &delimiter);
 
     /**
      * Function to trim whitespace from the start and end of a string
      * @param str  The string to trim
      * @return     The trimmed string
      */
-   static std::string trim(const std::string &str);
+    static std::string trim(const std::string &str);
 
     /**
      * Conform to Upper-slug including some special characters, e.g. "BUN!"
      * @param   raw input
      * @return  purified
      */
-   static std::string toMeme(const std::string &raw);
+    static std::string toMeme(const std::string &raw);
 
     /**
      * Conform to Upper-slug (e.g. "BUN"), else default value
@@ -218,6 +218,22 @@ namespace XJ {
     * @return     vector of strings
     */
     static std::vector<std::string> sort(const std::set<std::string> &items);
+
+    /**
+     Pad the value with zeros to the given number of digits
+
+     @param value  to pad
+     @param digits total after padding
+     @return padded value
+     */
+    static std::string zeroPadded(unsigned long long value, int digits) {
+      std::string result = std::to_string(value);
+      while (result.length() < digits) {
+        result.insert(result.begin(), '0');
+      }
+      return result;
+    }
+
   };
 
 

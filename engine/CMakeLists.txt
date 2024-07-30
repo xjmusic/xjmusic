@@ -36,10 +36,45 @@ if (CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     endif ()
 endif ()
 
+# Function to add a vendor external project
+function(add_vendor_external_project PARENT NAME ARCHIVE_FILE HASH_MD5 INSTALLED_BUILD_BYPRODUCTS COPY_TO_RUNTIME_LOCATION)
+    set(INSTALLED_DIR ${CMAKE_BINARY_DIR}/vendor/installed)
+
+    set(BUILD_BYPRODUCTS "")
+    foreach (BYPRODUCT ${INSTALLED_BUILD_BYPRODUCTS})
+        list(APPEND BUILD_BYPRODUCTS "${INSTALLED_DIR}/${BYPRODUCT}")
+    endforeach ()
+
+    ExternalProject_Add(${NAME}
+            PREFIX "${CMAKE_BINARY_DIR}/vendor"
+            URL "${CMAKE_SOURCE_DIR}/vendor/${ARCHIVE_FILE}"
+            URL_HASH MD5=${HASH_MD5}
+            CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${INSTALLED_DIR}
+            BUILD_BYPRODUCTS ${BUILD_BYPRODUCTS}
+    )
+
+    include_directories(${INSTALLED_DIR}/include)
+    set_target_properties(${NAME} PROPERTIES EXCLUDE_FROM_ALL TRUE)
+    add_dependencies(${PARENT} ${NAME})
+
+    foreach (BYPRODUCT ${BUILD_BYPRODUCTS})
+        target_link_libraries(${PARENT} PRIVATE ${BYPRODUCT})
+    endforeach ()
+
+    foreach (BYPRODUCT ${COPY_TO_RUNTIME_LOCATION})
+        set(RUNTIME_LOCATION $<TARGET_FILE_DIR:${PARENT}>)
+        add_custom_command(TARGET ${PARENT} POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy
+                ${INSTALLED_DIR}/${BYPRODUCT}
+                ${RUNTIME_LOCATION})
+        message(STATUS "Copying ${BYPRODUCT} to runtime location ${RUNTIME_LOCATION}")
+    endforeach ()
+endfunction()
+
 # FetchContent added in CMake 3.11, downloads during the configure step
 include(FetchContent)
 
-# The compiled library code is here
+# The compiled library code is here`
 add_subdirectory(src)
 
 # The executable code is here
@@ -51,3 +86,4 @@ if ((CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME OR MODERN_CMAKE_BUILD_TESTING)
         AND BUILD_TESTING)
     add_subdirectory(test)
 endif ()
+

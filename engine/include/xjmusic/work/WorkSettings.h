@@ -4,19 +4,23 @@
 #define XJMUSIC_WORK_FABRICATION_SETTINGS_H
 
 #include "xjmusic/fabricator/Fabricator.h"
-#include "xjmusic/content/Template.h"
 
-namespace XJ {
+#include <xjmusic/util/ValueUtils.h>
 
-  class WorkSettings {
-  public:
-    Fabricator::ControlMode controlMode = Fabricator::ControlMode::Auto;
-    int craftAheadSeconds = 20;
-    int dubAheadSeconds = 10;
-    long persistenceWindowSeconds = 3600;
-    std::string toString() const;
-  };
+namespace XJ
+{
 
-}// namespace XJ
+	class WorkSettings
+	{
+	public:
+		Fabricator::ControlMode controlMode = Fabricator::ControlMode::Auto;
+		int						craftAheadMicros = 20 * ValueUtils::MICROS_PER_SECOND;
+		int						dubAheadMicros = 10 * ValueUtils::MICROS_PER_SECOND;
+		int						deadlineMicros = 1 * ValueUtils::MICROS_PER_SECOND;
+		long					persistenceWindowSeconds = 3600;
+		std::string				toString() const;
+	};
 
-#endif// XJMUSIC_WORK_FABRICATION_SETTINGS_H
+} // namespace XJ
+
+#endif // XJMUSIC_WORK_FABRICATION_SETTINGS_H

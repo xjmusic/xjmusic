@@ -231,3 +231,4 @@ std::vector<std::string> StringUtils::sort(const std::set<std::string> &items) {
   std::sort(sorted.begin(), sorted.end());
   return sorted;
 }
+

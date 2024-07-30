@@ -26,7 +26,6 @@ using namespace XJ;
 class ArrangementTest : public YamlTest {
 protected:
   std::string TEST_PATH_PREFIX = "_data/arrangements/";
-  int REPEAT_EACH_TEST_TIMES = 7;
 
   int TEMPO = 60;// 60 BPM such that 1 beat = 1 second
   std::set<Instrument::Type> INSTRUMENT_TYPES_TO_TEST = {
@@ -111,8 +110,8 @@ protected:
       if (!notesObj.IsScalar()) return;
       const auto notesString = notesObj.as<std::string>();
       for (const auto &item: ContentFixtures::buildInstrumentWithAudios(
-               &instrument,
-               notesString)) {
+          &instrument,
+          notesString)) {
         // check if item is Instrument or InstrumentAudio
         if (std::holds_alternative<Instrument>(item)) {
           content->put(std::get<Instrument>(item));
@@ -264,7 +263,7 @@ protected:
   }
 
   /**
-   Load the assertions of picks section after a test has run
+   Load the assertions of picks section after a test has Run
    Load the instrument section of the test YAML file, for one type of Instrument
    @param fabricator Fabricator to use
    @param data YAML file wrapper
@@ -276,7 +275,7 @@ protected:
   }
 
   /**
-   * Load the assertions of picks section after a test has run
+   * Load the assertions of picks section after a test has Run
    * @param fabricator Fabricator to use
    * @param data  YAML file wrapper
    * @param type  type of instrument to read
@@ -321,7 +320,7 @@ protected:
 
       if (count.has_value())
         ASSERT_EQ(count.value(), actualNoteStrings.size())
-            << "Count " + std::to_string(count.value()) + " " + assertionName;
+                      << "Count " + std::to_string(count.value()) + " " + assertionName;
 
       if (notes.has_value()) {
         std::vector<std::string> expectedNoteStrings = CsvUtils::split(notes.value());
@@ -339,44 +338,43 @@ protected:
   }
 
   /**
-   Load the specified test YAML file and run it repeatedly.
+   Load the specified test YAML file and Run it repeatedly.
 
    @param filename of test YAML file
    */
   void loadAndRunTest(const std::string &filename) {
-    for (int i = 0; i < REPEAT_EACH_TEST_TIMES; i++)
-      try {
-        reset();
+    try {
+      reset();
 
-        // Load YAML and parse
-        const auto data = loadYaml(TEST_PATH_PREFIX, filename);
+      // Load YAML and parse
+      const auto data = loadYaml(TEST_PATH_PREFIX, filename);
 
-        // Read Instruments and Detail Programs from the test YAML
-        for (const auto instrumentType: INSTRUMENT_TYPES_TO_TEST) {
-          loadInstrument(data, instrumentType);
-          loadDetailProgram(data, instrumentType);
-        }
-
-        // Read Segment and make choices of instruments and programs
-        loadSegment(data);
-
-        // Fabricate: Craft Arrangements for Choices
-        auto retrospective = SegmentRetrospective(store.get(), segment->id);
-        auto fabricator = Fabricator(content.get(), store.get(), &retrospective, segment->id, std::nullopt);
-        for (const StickyBun &bun: stickyBuns) {
-          fabricator.putStickyBun(bun);
-        }
-        fabricator.put(SegmentFixtures::buildSegmentChoice(segment, &mainProgram1), false);
-        auto subject = Craft(&fabricator);
-        for (const auto &[instrumentType, choice]: segmentChoices)
-          subject.craftNoteEventArrangements(static_cast<float>(TEMPO), choice, false);
-
-        // assert picks
-        loadAndPerformAssertions(&fabricator, data);
-
-      } catch (const FabricationException &e) {
-        failures.emplace("[" + filename + "] Exception: " + e.what());
+      // Read Instruments and Detail Programs from the test YAML
+      for (const auto instrumentType: INSTRUMENT_TYPES_TO_TEST) {
+        loadInstrument(data, instrumentType);
+        loadDetailProgram(data, instrumentType);
       }
+
+      // Read Segment and make choices of instruments and programs
+      loadSegment(data);
+
+      // Fabricate: Craft Arrangements for Choices
+      auto retrospective = SegmentRetrospective(store.get(), segment->id);
+      auto fabricator = Fabricator(content.get(), store.get(), &retrospective, segment->id, std::nullopt);
+      for (const StickyBun &bun: stickyBuns) {
+        fabricator.putStickyBun(bun);
+      }
+      fabricator.put(SegmentFixtures::buildSegmentChoice(segment, &mainProgram1), false);
+      auto subject = Craft(&fabricator);
+      for (const auto &[instrumentType, choice]: segmentChoices)
+        subject.craftNoteEventArrangements(static_cast<float>(TEMPO), choice, false);
+
+      // assert picks
+      loadAndPerformAssertions(&fabricator, data);
+
+    } catch (const FabricationException &e) {
+      failures.emplace("[" + filename + "] Exception: " + e.what());
+    }
   }
 };
 

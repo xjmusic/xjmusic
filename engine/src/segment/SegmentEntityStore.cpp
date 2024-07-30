@@ -72,7 +72,7 @@ SEGMENT_STORE_CORE_METHODS(SegmentMeta, SegmentMetas, segmentMetas)
 
 
 Chain *SegmentEntityStore::put(const Chain &c) {
-  this->chain = std::move(c);
+  this->chain = c;
   return &this->chain.value();
 }
 
@@ -81,7 +81,7 @@ const Segment *SegmentEntityStore::put(const Segment &segment) {
   return &this->segments.at(segment.id);
 }
 
-std::optional<const Segment *> SegmentEntityStore::readSegmentAtChainMicros(const long chainMicros) {
+std::optional<const Segment *> SegmentEntityStore::readSegmentAtChainMicros(const unsigned long long int chainMicros) {
   for (auto &[_, segment]: segments) {
     if (SegmentUtils::isSpanning(&segment, chainMicros, chainMicros)) {
       return {&segment};
@@ -101,6 +101,7 @@ std::optional<const Segment *> SegmentEntityStore::readSegment(const int segment
 
 std::vector<const Segment *> SegmentEntityStore::readAllSegments() {
   std::vector<const Segment *> result;
+  result.reserve(segments.size());
   for (auto &[_, segment]: segments) {
     result.emplace_back(&segment);
   }
@@ -167,7 +168,8 @@ std::set<const SegmentEntity *> SegmentEntityStore::readAllSegmentEntities(const
 }
 
 
-std::vector<const Segment *> SegmentEntityStore::readAllSegmentsSpanning(const long fromChainMicros, const long toChainMicros) {
+std::vector<const Segment *>
+SegmentEntityStore::readAllSegmentsSpanning(const unsigned long long int fromChainMicros, const unsigned long long int toChainMicros) {
   std::vector<const Segment *> result;
   for (auto &[id, segment]: segments) {
     if (SegmentUtils::isSpanning(&segment, fromChainMicros, toChainMicros)) {
@@ -212,6 +214,7 @@ std::string SegmentEntityStore::readChoiceHash(const Segment &segment) {
   const std::set<const SegmentEntity *> entities = readAllSegmentEntities({segment.id});
   std::vector<std::string> ids;
 
+  ids.reserve(entities.size());
   for (const auto &entity: entities) {
     ids.push_back(entity->id);
   }
@@ -221,9 +224,9 @@ std::string SegmentEntityStore::readChoiceHash(const Segment &segment) {
 }
 
 std::set<const SegmentChoiceArrangementPick *>
-SegmentEntityStore::readAllSegmentChoiceArrangementPicks(const std::vector<const Segment *> &segments) {
+SegmentEntityStore::readAllSegmentChoiceArrangementPicks(const std::vector<const Segment *> &forSegments) {
   std::set<const SegmentChoiceArrangementPick *> picks;
-  for (auto &segment: segments) {
+  for (auto &segment: forSegments) {
     for (auto &pick: readAllSegmentChoiceArrangementPicks(segment->id)) {
       picks.emplace(pick);
     }
@@ -231,14 +234,30 @@ SegmentEntityStore::readAllSegmentChoiceArrangementPicks(const std::vector<const
   return picks;
 }
 
+std::set<const SegmentChoiceArrangementPick *>
+SegmentEntityStore::readAllSegmentChoiceArrangementPicks(const SegmentChoice *segmentChoice) {
+  std::set<const SegmentChoiceArrangementPick *> picks;
+  const auto allPicks = readAllSegmentChoiceArrangementPicks(segmentChoice->segmentId);
+  for (auto &arrangement: readAllSegmentChoiceArrangements(segmentChoice->segmentId)) {
+    if (arrangement->segmentChoiceId == segmentChoice->id) {
+      for (auto &pick: allPicks) {
+        if (pick->segmentChoiceArrangementId == arrangement->id) {
+          picks.emplace(pick);
+        }
+      }
+    }
+  }
+  return picks;
+}
+
 std::vector<const SegmentChord *> SegmentEntityStore::readOrderedSegmentChords(const int segmentId) {
-    auto chords = readAllSegmentChords(segmentId);
-    auto sortedChords = std::vector(chords.begin(), chords.end());
-    std::sort(sortedChords.begin(), sortedChords.end(),
-              [](const SegmentChord *a, const SegmentChord *b) {
-                return a->position < b->position;
-              });
-    return sortedChords;
+  auto chords = readAllSegmentChords(segmentId);
+  auto sortedChords = std::vector(chords.begin(), chords.end());
+  std::sort(sortedChords.begin(), sortedChords.end(),
+            [](const SegmentChord *a, const SegmentChord *b) {
+              return a->position < b->position;
+            });
+  return sortedChords;
 }
 
 

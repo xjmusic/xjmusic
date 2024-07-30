@@ -46,7 +46,7 @@ void MacroMainCraft::doWork() const {
   // 3. Chords and voicings
   for (const auto sequenceChord: fabricator->getProgramSequenceChords(mainSequence)) {
     // don't of chord past end of Segment
-    if (sequenceChord->position < static_cast<int>(mainSequence->total)) {
+    if (sequenceChord->position < static_cast<float>(mainSequence->total)) {
       // delta the chord name
       const std::string name = Chord(sequenceChord->name).getName();
       // of the chord
@@ -171,7 +171,7 @@ float MacroMainCraft::computeSegmentIntensity(
       fabricator->getTemplateConfig().intensityAutoCrescendoMinimum +
       (fabricator->getTemplateConfig().intensityAutoCrescendoMaximum -
        fabricator->getTemplateConfig().intensityAutoCrescendoMinimum) * programmaticIntensity,
-      delta / fabricator->getTemplateConfig().mainProgramLengthMaxDelta);
+      static_cast<float>(delta) / static_cast<float>(fabricator->getTemplateConfig().mainProgramLengthMaxDelta));
 }
 
 float MacroMainCraft::computeIntensity(
@@ -335,7 +335,6 @@ const Program *MacroMainCraft::chooseMacroProgram() const {
     throw FabricationException("Failed to choose any next macro program. No candidates available!");
 
   // report and pick
-  fabricator->putReport("macroChoice", bag.toString());
   auto program = fabricator->getSourceMaterial()->getProgram(bag.pick());
   if (!program.has_value()) {
     auto message = "Unable to choose macro program for Segment[" + std::to_string(fabricator->getSegment()->id) + "]";
@@ -406,7 +405,6 @@ const Program *MacroMainCraft::chooseMainProgram() const {
   }
 
   // report and pick
-  fabricator->putReport("mainChoice", bag.toString());
   auto program = fabricator->getSourceMaterial()->getProgram(bag.pick());
   if (!program.has_value()) {
     auto message = "Unable to choose main program for Segment[" + std::to_string(fabricator->getSegment()->id) + "]";

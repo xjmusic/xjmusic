@@ -610,7 +610,12 @@ namespace XJ {
       * Get the first template from the content
       * @return  the template if any exist in the content
       */
-     std::optional<const Template *> getFirstTemplate();
+    std::optional<const Template *> getFirstTemplate();
+
+    /**
+     * Get meme taxonomy for the current template, if present, else empty meme taxonomy
+     */
+    MemeTaxonomy getMemeTaxonomy();
 
     /**
      * Get a new ContentEntityStore object for a specific template
@@ -628,6 +633,12 @@ namespace XJ {
     * Put all the content from another ContentEntityStore
     */
     void put(const ContentEntityStore *other);
+
+    /**
+     * Summarize the contents of the store as a string
+     * @return  string formatted summary of content in the store
+     */
+    std::string toString();
 
     /**
      * Virtual destructor

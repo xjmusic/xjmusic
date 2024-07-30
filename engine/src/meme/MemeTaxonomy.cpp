@@ -89,7 +89,7 @@ std::string MemeCategory::getName() const {
 }
 
 
-std::set<std::string> MemeCategory::getMemes() {
+std::set<std::string> MemeCategory::getMemes() const {
   return memes;
 }
 
@@ -170,6 +170,17 @@ std::set<MapStringToOneOrManyString> MemeTaxonomy::toList() const {
   return data;
 }
 
+std::map<std::string, std::vector<std::string>> MemeTaxonomy::toMap() const {
+  std::map<std::string, std::vector<std::string>> data;
+  for (const auto &category: categories) {
+    data[category.getName()] = {};
+    for (const auto &meme: category.getMemes()) {
+      data[category.getName()].push_back(meme);
+    }
+    std::sort(data[category.getName()].begin(), data[category.getName()].end());
+  }
+  return data;
+}
 
 std::set<MemeCategory> MemeTaxonomy::getCategories() {
   return categories;

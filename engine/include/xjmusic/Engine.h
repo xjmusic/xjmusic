@@ -15,23 +15,24 @@ namespace XJ {
     std::unique_ptr<ContentEntityStore> projectContent;
     std::unique_ptr<ContentEntityStore> templateContent;
     std::unique_ptr<WorkManager> work;
-    std::string pathToProjectFile;
     std::filesystem::path pathToBuildDirectory;
 
   public:
     /**
-    * Construct a new WorkManager
+    * Construct a new Engine
     * @param pathToProjectFile     path to the .xj project file from which to load content
     * @param controlMode      the fabrication control mode
     * @param craftAheadSeconds (optional) how many seconds ahead to craft
     * @param dubAheadSeconds  (optional) how many seconds ahead to dub
+    * @param deadlineSeconds  (optional) audio scheduling deadline in seconds
     * @param persistenceWindowSeconds (optional) how long to keep segments in memory
     */
     explicit Engine(
-        const std::string &pathToProjectFile,
-        Fabricator::ControlMode controlMode,
+        const std::optional<std::string>& pathToProjectFile,
+        std::optional<Fabricator::ControlMode> controlMode,
         std::optional<int> craftAheadSeconds,
         std::optional<int> dubAheadSeconds,
+        std::optional<int> deadlineSeconds,
         std::optional<int> persistenceWindowSeconds);
 
     /**
@@ -42,8 +43,7 @@ namespace XJ {
      4. Begin fabrication work
      @param templateIdentifier identify the template to fabricate
      */
-    void start(
-        const std::optional<std::string> &templateIdentifier);
+    void start(const std::optional<std::string> &templateIdentifier);
 
     /**
      Stop work
@@ -55,40 +55,40 @@ namespace XJ {
     * (1-3 times per second)
     * This returns the list of audio that should be queued up for playback in a structured way
     */
-    std::set<ActiveAudio> runCycle(unsigned long long atChainMicros) const;
+    [[nodiscard]] std::vector<AudioScheduleEvent> RunCycle(unsigned long long atChainMicros) const;
 
     /**
      Get the entity store
      */
-    SegmentEntityStore *getSegmentStore() const;
+    [[nodiscard]] SegmentEntityStore *getSegmentStore() const;
 
     /**
      Get all the content loaded for the project
 
      @return source material
      */
-    ContentEntityStore *getProjectContent() const;
+    [[nodiscard]] ContentEntityStore *getProjectContent() const;
 
     /**
      Get all the content for the working template
      * @return
      */
-    ContentEntityStore *getTemplateContent() const;
+    [[nodiscard]] ContentEntityStore *getTemplateContent() const;
 
     /**
      @return the current work state
      */
-    WorkState getWorkState() const;
+    [[nodiscard]] WorkState getWorkState() const;
 
     /**
      @return the meme taxonomy from the current template configuration
      */
-    std::optional<MemeTaxonomy> getMemeTaxonomy() const;
+    [[nodiscard]] std::optional<MemeTaxonomy> getMemeTaxonomy() const;
 
     /**
      * @return all macro programs in alphabetical order
      */
-    std::vector<const Program *> getAllMacroPrograms() const;
+    [[nodiscard]] std::vector<const Program *> getAllMacroPrograms() const;
 
     /**
      Go to the given macro program right away
@@ -119,15 +119,21 @@ namespace XJ {
     std::filesystem::path getPathToBuildDirectory();
 
     /**
+     * Get the work settings
+     * @return  the settings
+     */
+    [[nodiscard]] WorkSettings getSettings() const;
+
+    /**
      * Virtual destructor
      */
-    ~Engine();
+    ~	Engine();
 
-  private:
+private:
     /**
      * Load the project content
      */
-    void loadProjectContent();
+    void loadProjectContent(const std::basic_string<char>& pathToProjectFile);
   };
 
 }// namespace XJ

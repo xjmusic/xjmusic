@@ -108,7 +108,7 @@ namespace XJ {
      @param chainMicros the chain microseconds for which to get the segment
      @return the segment at the given chain microseconds, or an empty optional if the segment is not ready
      */
-    std::optional<const Segment *> readSegmentAtChainMicros(long chainMicros);
+    std::optional<const Segment *> readSegmentAtChainMicros(const unsigned long long int chainMicros);
 
     /**
     Get all segments for a chain id
@@ -134,7 +134,7 @@ namespace XJ {
      @param toOffset   to read segments to
      @return list of segments as JSON
      */
-    std::vector<const Segment*> readSegmentsFromToOffset(int fromOffset, int toOffset);
+    std::vector<const Segment *> readSegmentsFromToOffset(int fromOffset, int toOffset);
 
     /**
      Read all sub-entities records for many parent segments by id
@@ -151,7 +151,7 @@ namespace XJ {
      @param toChainMicros   for which to get segments
      @return segments that span the given instant, empty if none found
      */
-    std::vector<const Segment*> readAllSegmentsSpanning(long fromChainMicros, long toChainMicros);
+    std::vector<const Segment *> readAllSegmentsSpanning(const unsigned long long int fromChainMicros, const unsigned long long int toChainMicros);
 
     /**
      Get the last known segment id
@@ -165,7 +165,7 @@ namespace XJ {
 
      @return Last Segment in Chain
      */
-    std::optional<const Segment*> readSegmentLast();
+    std::optional<const Segment *> readSegmentLast();
 
     /**
      Read a choice for a given segment id and program type
@@ -186,11 +186,18 @@ namespace XJ {
 
     /**
     * Read all choices for the set of segments
-    * @param segments    of segments
+    * @param forSegments    of segments
     * @return        list of choices
     */
     std::set<const SegmentChoiceArrangementPick *>
-    readAllSegmentChoiceArrangementPicks(const std::vector<const Segment *> &segments);
+    readAllSegmentChoiceArrangementPicks(const std::vector<const Segment *> &forSegments);
+
+    /**
+    * Read all arrangement picks for the given segment choice
+    * @param segmentChoice
+    * @return
+    */
+    std::set<const SegmentChoiceArrangementPick *> readAllSegmentChoiceArrangementPicks(const SegmentChoice *segmentChoice);
 
     /**
      * Read all segment chords in order of position for the given segmefnt
