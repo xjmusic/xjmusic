@@ -110,3 +110,20 @@ TSet<FAudioPlayer> TXjMainEngine::RunCycle(const uint64 ChainMicros)
 
 	return Output;
 }
+
+EngineSettings TXjMainEngine::GetSettings() const
+{
+	if (!XjEngine)
+	{
+		return {};
+	}
+
+	WorkSettings XjSettings = XjEngine->getSettings();
+
+	EngineSettings Settings;
+	Settings.CraftAheadSeconds = XjSettings.craftAheadSeconds;
+	Settings.DubAheadSeconds = XjSettings.dubAheadSeconds;
+	Settings.PersistenceWindowSeconds = XjSettings.persistenceWindowSeconds;
+
+	return Settings;
+}

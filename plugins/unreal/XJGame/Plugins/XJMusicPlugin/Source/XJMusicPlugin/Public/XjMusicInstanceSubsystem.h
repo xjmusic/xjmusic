@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "Quartz/QuartzSubsystem.h"
+#include "Widgets/DebugChainView.h"
+
 #include "XjMusicInstanceSubsystem.generated.h"
 
 UCLASS(DisplayName = "XjSubsystem")
@@ -34,6 +36,8 @@ private:
 
 	void InitQuartz();
 
+	void OnEnabledShowDebugChain(class IConsoleVariable* Var);
+
 private:
 
 	class UXjManager* Manager = nullptr;
@@ -51,4 +55,6 @@ private:
 	UQuartzClockHandle* QuartzClockHandle;
 
 	float PlanAheadMs = 64;
+
+	TSharedPtr<SDebugChainView> DebugChainViewWidget;
 };

@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "EngineBase.h"
-
 #include <xjmusic/work/WorkManager.h>
 #include <xjmusic/fabricator/SegmentUtils.h>
 #include <xjmusic/Engine.h>
@@ -16,11 +15,13 @@ class TXjMainEngine : public TEngineBase
 
 public:
 
-	virtual void Setup(const FString& PathToProject) override;
+	void Setup(const FString& PathToProject) override;
 
-	virtual void Shutdown() override;
+	void Shutdown() override;
 
-	virtual TSet<FAudioPlayer> RunCycle(const uint64 ChainMicros) override;
+	TSet<FAudioPlayer> RunCycle(const uint64 ChainMicros) override;
+
+	EngineSettings GetSettings() const override;
 
 private:
 	TUniquePtr<Engine> XjEngine;

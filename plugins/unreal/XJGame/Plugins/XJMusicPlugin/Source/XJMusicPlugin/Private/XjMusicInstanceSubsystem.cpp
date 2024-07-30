@@ -12,10 +12,19 @@
 #include <Runtime/Engine/Public/AudioDevice.h>
 #include <Async/Async.h>
 #include <Manager/XjManager.h>
+#include <Widgets/SWeakWidget.h>
+
+static TAutoConsoleVariable<int32> CVarShowDebugChain(
+	TEXT("xj.showdebug"), 
+	0, 
+	TEXT("Show debug view of the chain schedule"), 
+	ECVF_Default);
 
 void UXjMusicInstanceSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
+
+	CVarShowDebugChain->SetOnChangedCallback(FConsoleVariableDelegate::CreateUObject(this, &UXjMusicInstanceSubsystem::OnEnabledShowDebugChain));
 }
 
 void UXjMusicInstanceSubsystem::Deinitialize()
@@ -71,12 +80,7 @@ void UXjMusicInstanceSubsystem::RetrieveProjectsContent(const FString& Directory
 
 bool UXjMusicInstanceSubsystem::PlayAudioByName(const FString& Name, const float StartTime, const float Duration)
 {
-	volatile float DurationSeconds = Duration  / 1000.0f;
-
-	if (StartTime == 0.0f)
-	{
-		return false;
-	}
+	float DurationSeconds = Duration  / 1000.0f;
 	
 	AsyncTask(ENamedThreads::GameThread, [this, StartTime, DurationSeconds, Name]()
 		{
@@ -225,6 +229,45 @@ void UXjMusicInstanceSubsystem::InitQuartz()
 			QuartzClockHandle->SetThirtySecondNotesPerMinute(GetWorld(), {}, {}, QuartzClockHandle, 60000);
 		
 			QuartzClockHandle->StartClock(GetWorld(), QuartzClockHandle);
+		}
+	}
+}
+
+void UXjMusicInstanceSubsystem::OnEnabledShowDebugChain(IConsoleVariable* Var)
+{
+	if (!Var)
+	{
+		return;
+	}
+
+	int Value = Var->GetInt();
+
+	if (Value <= 0)
+	{
+		if (DebugChainViewWidget)
+		{
+			DebugChainViewWidget->SetVisibility(EVisibility::Hidden);
+		}
+	}
+	else
+	{
+		if (DebugChainViewWidget)
+		{
+			DebugChainViewWidget->SetVisibility(EVisibility::Visible);
+		}
+		else
+		{
+			DebugChainViewWidget = SNew(SDebugChainView);
+
+			if (!GEngine)
+			{
+				return;
+			}
+
+			GEngine->GameViewport->AddViewportWidgetContent(
+				SNew(SWeakWidget).PossiblyNullContent(DebugChainViewWidget.ToSharedRef()));
+
+			DebugChainViewWidget->SetVisibility(EVisibility::Visible);
 		}
 	}
 }
