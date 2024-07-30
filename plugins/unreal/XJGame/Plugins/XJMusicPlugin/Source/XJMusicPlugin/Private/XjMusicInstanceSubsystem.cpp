@@ -78,6 +78,11 @@ void UXjMusicInstanceSubsystem::RetrieveProjectsContent(const FString& Directory
 	}
 }
 
+void UXjMusicInstanceSubsystem::SetActiveEngine(const TWeakPtr<TEngineBase>& Engine)
+{
+	ActiveEngine = Engine;
+}
+
 bool UXjMusicInstanceSubsystem::PlayAudioByName(const FString& Name, const float StartTime, const float Duration)
 {
 	float DurationSeconds = Duration  / 1000.0f;
@@ -257,7 +262,7 @@ void UXjMusicInstanceSubsystem::OnEnabledShowDebugChain(IConsoleVariable* Var)
 		}
 		else
 		{
-			DebugChainViewWidget = SNew(SDebugChainView);
+			DebugChainViewWidget = SNew(SDebugChainView).Engine(ActiveEngine);
 
 			if (!GEngine)
 			{

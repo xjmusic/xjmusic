@@ -21,25 +21,24 @@ FXjRunnable::FXjRunnable(const FString& XjProjectFolder, const FString& XjProjec
 	UE_LOG(LogTemp, Display, TEXT("Path to build folder: %s"), *PathToBuildFolder);
 
 	XjMusicSubsystem = World->GetGameInstance()->GetSubsystem<UXjMusicInstanceSubsystem>();
-	if (XjMusicSubsystem)
-	{
-		XjMusicSubsystem->RetrieveProjectsContent(PathToBuildFolder);
-	}
-	else
+	if (!XjMusicSubsystem)
 	{
 		UE_LOG(LogTemp, Error, TEXT("Cannot find XjMusicInstanceSubsystem"));
 		return;
 	}
 
+	XjMusicSubsystem->RetrieveProjectsContent(PathToBuildFolder);
+
 	XjStartTime.SetInSeconds(FPlatformTime::Seconds());
 
 	if (!TryInitMockEngine())
 	{
-		Engine = MakeUnique<TXjMainEngine>();
+		Engine = MakeShared<TXjMainEngine>();
 	}
 
 	if (Engine)
 	{
+		XjMusicSubsystem->SetActiveEngine(Engine);
 		Engine->Setup(PathToProject);
 	}
 }
@@ -133,7 +132,7 @@ bool FXjRunnable::TryInitMockEngine()
 	UXJMusicDefaultSettings* XjSettings = GetMutableDefault<UXJMusicDefaultSettings>();
 	if (XjSettings && XjSettings->bDevelopmentMode)
 	{
-		Engine = MakeUnique<TMockDataEngine>();
+		Engine = MakeShared<TMockDataEngine>();
 
 		if (TMockDataEngine* MockEngine = (TMockDataEngine*)Engine.Get())
 		{

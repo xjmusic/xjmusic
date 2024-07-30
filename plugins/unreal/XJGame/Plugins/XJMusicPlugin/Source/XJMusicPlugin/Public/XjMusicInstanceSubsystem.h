@@ -19,6 +19,8 @@ public:
 
 	void RetrieveProjectsContent(const FString& Directory);
 
+	void SetActiveEngine(const TWeakPtr<TEngineBase>& Engine);
+
 	//Play audio from loaded tracks. GlobalStartTime and GlobalEndTime in millieseconds
 	bool PlayAudioByName(const FString& Name, const float GlobalStartTime, const float Duration);
 
@@ -55,6 +57,8 @@ private:
 	UQuartzClockHandle* QuartzClockHandle;
 
 	float PlanAheadMs = 64;
+
+	TWeakPtr<TEngineBase> ActiveEngine;
 
 	TSharedPtr<SDebugChainView> DebugChainViewWidget;
 };

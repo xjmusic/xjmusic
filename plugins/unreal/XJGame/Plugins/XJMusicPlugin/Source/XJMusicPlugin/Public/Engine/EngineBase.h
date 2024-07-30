@@ -7,11 +7,12 @@
 #include "HAL/Platform.h"
 #include "Containers/Set.h"
 
-struct EngineSettings
+struct FEngineSettings
 {
-	int32 CraftAheadSeconds = 20;
-	int32 DubAheadSeconds = 10;
-	int32 PersistenceWindowSeconds = 3600;
+	int32 CraftAheadSeconds;
+	int32 DubAheadSeconds;
+	int32 DeadlineSeconds;
+	int32 PersistenceWindowSeconds;
 };
 
 class TEngineBase
@@ -25,5 +26,7 @@ public:
 
 	virtual TArray<FAudioPlayer> RunCycle(const uint64 ChainMicros) { return {}; }
 
-	virtual EngineSettings GetSettings() const { return {}; }
+	virtual FEngineSettings GetSettings() const { return {}; }
+
+	virtual FString GetActiveTemplateName() const { return {}; }
 };

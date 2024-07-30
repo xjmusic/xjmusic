@@ -47,6 +47,8 @@ void TXjMainEngine::Setup(const FString& PathToProject)
 
 		const Template* FirstTemplate = *TemplatesInfo.begin();
 
+		CurrentTemplateName = FirstTemplate->name.c_str();
+
 		XjEngine->start(FirstTemplate->id);
 	}
 	catch (const std::invalid_argument& Exception)
@@ -87,7 +89,7 @@ TArray<FAudioPlayer> TXjMainEngine::RunCycle(const uint64 ChainMicros)
 	return Output;
 }
 
-EngineSettings TXjMainEngine::GetSettings() const
+FEngineSettings TXjMainEngine::GetSettings() const
 {
 	if (!XjEngine)
 	{
@@ -96,10 +98,16 @@ EngineSettings TXjMainEngine::GetSettings() const
 
 	WorkSettings XjSettings = XjEngine->getSettings();
 
-	EngineSettings Settings;
-	Settings.CraftAheadSeconds = XjSettings.craftAheadMicros;
-	Settings.DubAheadSeconds = XjSettings.dubAheadMicros;
+	FEngineSettings Settings;
+	Settings.CraftAheadSeconds = XjSettings.craftAheadMicros / MICROS_PER_SECOND;
+	Settings.DubAheadSeconds = XjSettings.dubAheadMicros / MICROS_PER_SECOND;
+	Settings.DeadlineSeconds = XjSettings.deadlineMicros / MICROS_PER_SECOND;
 	Settings.PersistenceWindowSeconds = XjSettings.persistenceWindowSeconds;
 
 	return Settings;
+}
+
+FString TXjMainEngine::GetActiveTemplateName() const
+{
+	return CurrentTemplateName;
 }

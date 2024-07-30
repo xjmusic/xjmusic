@@ -21,10 +21,14 @@ public:
 
 	TArray<FAudioPlayer> RunCycle(const uint64 ChainMicros) override;
 
-	EngineSettings GetSettings() const override;
+	FEngineSettings GetSettings() const override;
+
+	FString GetActiveTemplateName() const override;
 
 private:
 	TUniquePtr<Engine> XjEngine;
+
+	FString CurrentTemplateName;
 
 	int MILLIS_PER_SECOND = 1000;
 	int MICROS_PER_MILLI = 1000;

@@ -35,7 +35,7 @@ private:
 
 	class UXjMusicInstanceSubsystem* XjMusicSubsystem = nullptr;
 
-	TUniquePtr<TEngineBase> Engine;
+	TSharedPtr<TEngineBase> Engine;
 };
 
 UCLASS()
