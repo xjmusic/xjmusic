@@ -8,7 +8,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 
-public class SegmentChord {
+public class SegmentChord implements Comparable<SegmentChord> {
 
   UUID id;
   Integer segmentId;
@@ -123,6 +123,13 @@ public class SegmentChord {
       return "null";
     }
     return o.toString().replace("\n", "\n    ");
+  }
+
+  @Override
+  public int compareTo(SegmentChord o) {
+    if (!Objects.equals(segmentId, o.segmentId))
+      return segmentId.compareTo(o.segmentId);
+    return id.compareTo(o.id);
   }
 }
 

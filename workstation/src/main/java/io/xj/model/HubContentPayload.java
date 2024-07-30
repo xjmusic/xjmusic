@@ -24,6 +24,7 @@ import io.xj.model.pojos.TemplateBinding;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class HubContentPayload {
@@ -326,8 +327,8 @@ public class HubContentPayload {
   }
 
   @JsonIgnore
-  public Collection<Object> getAllEntities() {
-    Collection<Object> entities = new ArrayList<>();
+  public List<Object> getAllEntities() {
+    List<Object> entities = new ArrayList<>();
     entities.addAll(instrumentAudios);
     entities.addAll(instrumentMemes);
     entities.addAll(instruments);

@@ -2,11 +2,12 @@ package io.xj.model.pojos;
 
 
 import java.io.Serializable;
+import java.util.Objects;
 import java.util.UUID;
 
 
 @SuppressWarnings({"all", "unchecked", "rawtypes"})
-public class ProgramSequenceBinding implements Serializable {
+public class ProgramSequenceBinding implements Serializable, Comparable<ProgramSequenceBinding> {
 
   private static final long serialVersionUID = 1L;
 
@@ -104,5 +105,12 @@ public class ProgramSequenceBinding implements Serializable {
 
     sb.append(")");
     return sb.toString();
+  }
+
+  @Override
+  public int compareTo(ProgramSequenceBinding o) {
+    if (!Objects.equals(programSequenceId, o.programSequenceId))
+      return programSequenceId.compareTo(o.programSequenceId);
+    return id.compareTo(o.id);
   }
 }

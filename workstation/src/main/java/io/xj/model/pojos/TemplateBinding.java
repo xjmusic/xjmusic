@@ -4,11 +4,12 @@ package io.xj.model.pojos;
 import io.xj.model.enums.ContentBindingType;
 
 import java.io.Serializable;
+import java.util.Objects;
 import java.util.UUID;
 
 
 @SuppressWarnings({"all", "unchecked", "rawtypes"})
-public class TemplateBinding implements Serializable {
+public class TemplateBinding implements Serializable, Comparable<TemplateBinding> {
 
   private static final long serialVersionUID = 1L;
 
@@ -106,5 +107,14 @@ public class TemplateBinding implements Serializable {
 
     sb.append(")");
     return sb.toString();
+  }
+
+  @Override
+  public int compareTo(TemplateBinding o) {
+    if (!Objects.equals(templateId, o.templateId))
+      return templateId.compareTo(o.templateId);
+    if (!Objects.equals(targetId, o.targetId))
+      return targetId.compareTo(o.targetId);
+    return id.compareTo(o.id);
   }
 }

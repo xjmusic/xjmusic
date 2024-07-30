@@ -18,6 +18,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class JsonProviderImpl implements JsonProvider {
+
   final ObjectMapper mapper = new ObjectMapper();
 
   public JsonProviderImpl() {
@@ -25,6 +26,7 @@ public class JsonProviderImpl implements JsonProvider {
     mapper.registerModule(buildJavaTimeModule());
     mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
     mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    mapper.configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);
     mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
   }
 

@@ -5,11 +5,12 @@ import io.xj.model.enums.ProgramState;
 import io.xj.model.enums.ProgramType;
 
 import java.io.Serializable;
+import java.util.Objects;
 import java.util.UUID;
 
 
 @SuppressWarnings({"all", "unchecked", "rawtypes"})
-public class Program implements Serializable {
+public class Program implements Serializable, Comparable<Program> {
 
   private static final long serialVersionUID = 1L;
 
@@ -221,5 +222,12 @@ public class Program implements Serializable {
 
     sb.append(")");
     return sb.toString();
+  }
+
+  @Override
+  public int compareTo(Program o) {
+    if (!Objects.equals(name, o.name))
+      return name.compareTo(o.name);
+    return id.compareTo(o.id);
   }
 }

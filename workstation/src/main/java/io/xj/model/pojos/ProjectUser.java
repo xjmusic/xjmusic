@@ -4,11 +4,12 @@ package io.xj.model.pojos;
 import io.xj.model.enums.ProjectUserRole;
 
 import java.io.Serializable;
+import java.util.Objects;
 import java.util.UUID;
 
 
 @SuppressWarnings({"all", "unchecked", "rawtypes"})
-public class ProjectUser implements Serializable {
+public class ProjectUser implements Serializable, Comparable<ProjectUser> {
 
   private static final long serialVersionUID = 1L;
 
@@ -106,5 +107,10 @@ public class ProjectUser implements Serializable {
 
     sb.append(")");
     return sb.toString();
+  }
+
+  @Override
+  public int compareTo(ProjectUser o) {
+    return id.compareTo(o.id);
   }
 }

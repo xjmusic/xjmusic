@@ -360,7 +360,7 @@ public class ProjectManagerImpl implements ProjectManager {
 
       var jsonPath = exportFolderPrefix + exportName + ".json";
       LOG.info("Will save template content \"{}\" to {}", exportName, jsonPath);
-      var json = jsonProvider.getMapper().writeValueAsString(templateContent);
+      var json = jsonProvider.getMapper().writerWithDefaultPrettyPrinter().writeValueAsString(templateContent);
       Files.writeString(Path.of(jsonPath), json);
       LOG.info("Did write {} bytes of content to {}", json.length(), jsonPath);
 
@@ -448,7 +448,7 @@ public class ProjectManagerImpl implements ProjectManager {
 
       var jsonPath = buildFolderPathPrefix + buildName + ".json";
       LOG.info("Will save project content \"{}\" to {}", buildName, jsonPath);
-      var json = jsonProvider.getMapper().writeValueAsString(builtContent);
+      var json = jsonProvider.getMapper().writerWithDefaultPrettyPrinter().writeValueAsString(builtContent);
       Files.writeString(Path.of(jsonPath), json);
       LOG.info("Did write {} bytes of content to {}", json.length(), jsonPath);
 
