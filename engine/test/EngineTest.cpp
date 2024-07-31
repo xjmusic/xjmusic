@@ -83,7 +83,7 @@ TEST_F(XJEngineTest, ReadsAndRunsProjectFromDisk)
 		{
 			seenAudioSchedulingEventKeys.insert(computeKey(atChainMicros, audio));
 			// check that the audio file exists
-			ASSERT_TRUE(std::filesystem::exists(subject->getPathToBuildDirectory() / audio.audio.getAudio()->waveformKey));
+			ASSERT_TRUE(std::filesystem::exists(subject->getBuildPath() / audio.audio.getAudio()->waveformKey));
 		}
 		std::cout << "Ran cycle at " << std::to_string(atChainMicros) << std::endl;
 		atChainMicros += MICROS_PER_CYCLE;

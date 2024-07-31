@@ -12,6 +12,7 @@ using namespace ftxui;
 
 class XJPlayer : public EngineUiBase {
   std::optional<std::string> templateName;
+  SDL_AudioSpec outputSpec{};
 
 public:
   /**
@@ -31,7 +32,8 @@ public:
       std::optional<int> craftAheadSeconds,
       std::optional<int> dubAheadSeconds,
       std::optional<int> deadlineSeconds,
-      std::optional<int> persistenceWindowSeconds);
+      std::optional<int> persistenceWindowSeconds,
+      const SDL_AudioSpec &outputSpec);
 
   /**
    * Starts the XJPlayer.
@@ -48,8 +50,9 @@ protected:
 
   /**
    * Run one engine cycle.
+   * @param deviceId  The audio device ID.
    */
-  void RunEngineCycle();
+  void RunEngineCycle(SDL_AudioDeviceID deviceId);
 
 };
 

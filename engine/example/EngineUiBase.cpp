@@ -8,7 +8,6 @@
 #include <ftxui/dom/table.hpp>
 
 #include "EngineUiBase.h"
-#include "xjmusic/util/ValueUtils.h"
 
 // This is a helper function to create a button with a custom style.
 // The style is defined by a lambda function that takes an EntryState and
@@ -558,16 +557,16 @@ Element EngineUiBase::computeAudioMixerNode()
 {
 	std::vector<std::vector<Element>> tableContents;
 	tableContents.emplace_back(std::vector{ text("Start"), text("Stop"), text("Audio") });
-	for (const auto& [audioId, audio] : ActiveAudios)
+	for (const auto& [sId, s] : Schedule)
 	{
 		const unsigned long long dubbedToMicros = AtChainMicros + engine->getSettings().dubAheadMicros;
-		const bool				 bDubbed = dubbedToMicros >= audio.getStartAtChainMicros() && dubbedToMicros <= audio.getStopAtChainMicros();
-		const bool				 bActive = AtChainMicros >= audio.getStartAtChainMicros() && AtChainMicros <= audio.getStopAtChainMicros();
+		const bool				 bDubbed = dubbedToMicros >= s.getStartAtChainMicros() && dubbedToMicros <= s.getStopAtChainMicros();
+		const bool				 bActive = AtChainMicros >= s.getStartAtChainMicros() && AtChainMicros <= s.getStopAtChainMicros();
 		const Color				 audioColor = bActive ? Color::GreenLight : (bDubbed ? Color::Green : Color::GrayDark);
 		std::vector				 row = {
-			 text(formatTimeFromMicros(audio.getStartAtChainMicros())),
-			 text(formatTimeFromMicros(audio.getStopAtChainMicros())),
-			 text(audio.getAudio()->name) | color(audioColor),
+			 text(formatTimeFromMicros(s.getStartAtChainMicros())),
+			 text(formatTimeFromMicros(s.getStopAtChainMicros())),
+       text(s.getAudio()->name) | color(audioColor),
 		};
 		tableContents.emplace_back(row);
 	}
@@ -678,8 +677,8 @@ EngineUiBase::computeSegmentPicksNode(const SegmentChoice*& pSegmentChoice, long
 		std::optional<const InstrumentAudio*> audio = engine->getProjectContent()->getInstrumentAudio(pick->instrumentAudioId);
 		if (!audio.has_value())
 			continue;
-		const unsigned long long audioTransientMicros = audio.value()->transientSeconds * MICROS_PER_SECOND;
-		const unsigned long long audioLengthMicros = audio.value()->lengthSeconds * MICROS_PER_SECOND;
+		const unsigned long long audioTransientMicros = static_cast<unsigned long long>(audio.value()->transientSeconds * ValueUtils::MICROS_PER_SECOND_FLOAT);
+		const unsigned long long audioLengthMicros = static_cast<unsigned long long>(audio.value()->lengthSeconds * ValueUtils::MICROS_PER_SECOND_FLOAT);
 		const unsigned long long thresholdActiveFrom = pick->startAtSegmentMicros - audioTransientMicros;
 		const unsigned long long thresholdActiveTo = pick->lengthMicros == 0 ? pick->startAtSegmentMicros - audioTransientMicros + audioLengthMicros : pick->startAtSegmentMicros + pick->lengthMicros;
 		const unsigned long long dubbedToMicros = AtSegmentMicros + engine->getSettings().dubAheadMicros;

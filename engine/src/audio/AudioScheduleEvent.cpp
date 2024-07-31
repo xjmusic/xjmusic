@@ -1,5 +1,7 @@
 // Copyright (c) XJ Music Inc. (https://xjmusic.com) All Rights Reserved.
 
+#include <utility>
+
 #include "xjmusic/audio/AudioScheduleEvent.h"
 
 namespace XJ {
@@ -14,9 +16,9 @@ namespace XJ {
 
   AudioScheduleEvent::AudioScheduleEvent(
       const AudioScheduleEvent::EType type,
-      const ActiveAudio &audio)
+      ActiveAudio audio)
       : type(type),
-        audio(audio) {}
+        schedule(std::move(audio)) {}
 
   std::string AudioScheduleEvent::toString(const AudioScheduleEvent::EType &type) {
     return typeValueNames.at(type);

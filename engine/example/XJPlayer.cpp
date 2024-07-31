@@ -20,7 +20,8 @@ XJPlayer::XJPlayer(
     std::optional<int> craftAheadSeconds,
     std::optional<int> dubAheadSeconds,
     std::optional<int> deadlineSeconds,
-    std::optional<int> persistenceWindowSeconds) : EngineUiBase(pathToProjectFile,
+    std::optional<int> persistenceWindowSeconds,
+    const SDL_AudioSpec &outputSpec) : EngineUiBase(pathToProjectFile,
                                                                 controlMode,
                                                                 craftAheadSeconds,
                                                                 dubAheadSeconds,
@@ -28,6 +29,7 @@ XJPlayer::XJPlayer(
                                                                 persistenceWindowSeconds
 ) {
   this->templateName = std::move(templateName);
+  this->outputSpec = outputSpec;
 }
 
 void XJPlayer::Start() {
@@ -41,6 +43,12 @@ void XJPlayer::RunEngine(const std::string &templateIdentifier) {
     return;
   }
 
+  SDL_AudioDeviceID deviceId = SDL_OpenAudioDevice(nullptr, 0, &outputSpec, nullptr, 0);
+  if (deviceId == 0) {
+    std::cerr << "Failed to open audio device: " + std::string(SDL_GetError()) << std::endl;
+    return;
+  }
+
   // Set up an exit condition
   screen.Post([&] { running = false; });
 
@@ -49,7 +57,7 @@ void XJPlayer::RunEngine(const std::string &templateIdentifier) {
 
   // Spin off the screen UI on its own thread
   auto document = BuildRunningUI();
-  std::thread runEngineThread([this] {
+  std::thread runEngineThread([this, &deviceId] {
     // Record the current start time
     const Uint32 StartTime = SDL_GetTicks();
 
@@ -68,10 +76,10 @@ void XJPlayer::RunEngine(const std::string &templateIdentifier) {
       }
 
       // Calculate the time since the start
-      AtChainMicros = (SDL_GetTicks() - StartTime) * MICROS_PER_MILLI;
+      AtChainMicros = (SDL_GetTicks() - StartTime) * ValueUtils::MICROS_PER_MILLI;
 
       // Run the engine cycle
-      RunEngineCycle();
+      RunEngineCycle(deviceId);
 
       // Update the screen
       screen.PostEvent(ftxui::Event::Custom);
@@ -86,20 +94,24 @@ void XJPlayer::RunEngine(const std::string &templateIdentifier) {
   screen.Loop(document);
 }
 
-void XJPlayer::RunEngineCycle() {
-  for (AudioScheduleEvent event : engine->RunCycle(AtChainMicros)) {
+void XJPlayer::RunEngineCycle(SDL_AudioDeviceID deviceId) {
+  for (const AudioScheduleEvent& event : engine->RunCycle(AtChainMicros)) {
     switch (event.type) {
       case AudioScheduleEvent::EType::Create:
-        // NEXT: implement XJPlayer creating a new scheduled audio
-        ActiveAudios.emplace(event.audio.getId(), event.audio);
+        // TODO: implement XJPlayer creating a new scheduled audio
+        Schedule.emplace(event.schedule.getId(), EngineAudioSchedule(engine->getBuildPath(), deviceId, event.schedule));
         break;
       case AudioScheduleEvent::EType::Update:
-        // NEXT: implement XJPlayer updating an existing scheduled audio
-        ActiveAudios.emplace(event.audio.getId(), event.audio);
+        if (Schedule.find(event.schedule.getId()) != Schedule.end()) {
+          // TODO: implement XJPlayer updating an existing scheduled audio
+          Schedule.at(event.schedule.getId()).Update(event.schedule);
+        } else {
+          std::cerr << "Error: tried to update a non-existent audio" + event.schedule.getAudio()->waveformKey << std::endl;
+        }
         break;
       case AudioScheduleEvent::EType::Delete:
-        // NEXT: implement XJPlayer deleting a scheduled audio
-        ActiveAudios.erase(event.audio.getId());
+        // TODO: implement XJPlayer ensures stopped playback before erasing a scheduled audio
+        Schedule.erase(event.schedule.getId());
         break;
     }
   }

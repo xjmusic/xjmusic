@@ -17,7 +17,7 @@ namespace XJ {
     };
 
     EType type;
-    ActiveAudio audio;
+    ActiveAudio schedule;
 
     /**
      * Construct an AudioScheduleEvent object
@@ -26,7 +26,7 @@ namespace XJ {
      */
     explicit AudioScheduleEvent(
         EType type,
-        const ActiveAudio &audio
+        ActiveAudio audio
     );
 
     /**
@@ -34,7 +34,7 @@ namespace XJ {
      * @return  The startAtChainMicros of the ActiveAudio object
      */
     [[nodiscard]] unsigned long long getStartAtChainMicros() const {
-      return this->audio.getStartAtChainMicros();
+      return this->schedule.getStartAtChainMicros();
     }
 
     /**

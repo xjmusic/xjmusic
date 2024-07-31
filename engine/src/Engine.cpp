@@ -122,9 +122,9 @@ void Engine::setIntensityOverride(const std::optional<float> intensity) const
 	work->setIntensityOverride(intensity);
 }
 
-std::filesystem::path Engine::getPathToBuildDirectory()
+std::filesystem::path Engine::getBuildPath()
 {
-	return pathToBuildDirectory;
+	return buildPathPrefix;
 }
 
 WorkSettings Engine::getSettings() const
@@ -164,17 +164,17 @@ void Engine::loadProjectContent(const std::string& pathToProjectFile)
 	const std::filesystem::path projectPath(pathToProjectFile);
 	const std::filesystem::path folderContainingProject = projectPath.parent_path();
 	// get the "build" folder path
-	pathToBuildDirectory = folderContainingProject / "build";
+	buildPathPrefix = folderContainingProject / "build/";
 
 	// if the build folder does not exist, throw an error that you need to build the project before playing it
-	if (!exists(pathToBuildDirectory))
+	if (!exists(buildPathPrefix))
 	{
 		throw std::runtime_error("Build folder does not exist. Please build the project before playing it.");
 	}
 
 	try
 	{
-		for (const auto& entry : std::filesystem::recursive_directory_iterator(pathToBuildDirectory))
+		for (const auto& entry : std::filesystem::recursive_directory_iterator(buildPathPrefix))
 		{
 			if (entry.is_regular_file())
 			{
