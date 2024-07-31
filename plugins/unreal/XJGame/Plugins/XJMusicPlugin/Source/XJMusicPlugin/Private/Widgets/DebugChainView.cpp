@@ -3,23 +3,26 @@
 
 #include "Widgets/DebugChainView.h"
 #include "SlateOptMacros.h"
-#include <Brushes/SlateColorBrush.h>
+#include "Brushes/SlateColorBrush.h"
+#include "Widgets/DebugSegmentView.h"
 
 BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION
 
 void SDebugChainView::Construct(const FArguments& Args)
 {
-	TSharedPtr<TEngineBase> Engine = Args._Engine.Pin();
-	if (!Engine)
+	Engine = Args._Engine.Pin();
+
+	TSharedPtr<TEngineBase> EnginePtr = Engine.Pin();
+	if (!EnginePtr)
 	{
 		return;
 	}
 
-	FString TemplateStr = FString::Printf(TEXT("Template: %s"), *Engine->GetActiveTemplateName());
-	FString CraftAheadStr = FString::Printf(TEXT("Craft Ahead: %d s"), Engine->GetSettings().CraftAheadSeconds);
-	FString DubAheadStr = FString::Printf(TEXT("Dub Ahead: %d s"), Engine->GetSettings().DubAheadSeconds);
-	FString DeadlineStr = FString::Printf(TEXT("Deadline: %d s"), Engine->GetSettings().DeadlineSeconds);
-	FString PersistenceWindowStr = FString::Printf(TEXT("Persistence Window: %d s"), Engine->GetSettings().PersistenceWindowSeconds);
+	FString TemplateStr = FString::Printf(TEXT("Template: %s"), *EnginePtr->GetActiveTemplateName());
+	FString CraftAheadStr = FString::Printf(TEXT("Craft Ahead: %d s"), EnginePtr->GetSettings().CraftAheadSeconds);
+	FString DubAheadStr = FString::Printf(TEXT("Dub Ahead: %d s"), EnginePtr->GetSettings().DubAheadSeconds);
+	FString DeadlineStr = FString::Printf(TEXT("Deadline: %d s"), EnginePtr->GetSettings().DeadlineSeconds);
+	FString PersistenceWindowStr = FString::Printf(TEXT("Persistence Window: %d s"), EnginePtr->GetSettings().PersistenceWindowSeconds);
 
 	ChildSlot
 	.VAlign(VAlign_Bottom)
@@ -91,25 +94,37 @@ void SDebugChainView::Construct(const FArguments& Args)
 			]
 			+ SVerticalBox::Slot()
 			.VAlign(VAlign_Fill)
-			.HAlign(HAlign_Right)
+			.HAlign(HAlign_Fill)
 			[
-				SNew(SBox)
-				.MinDesiredHeight(600.0f)
-				.MinDesiredWidth(200.0f)
+				SNew(SHorizontalBox)
+				+ SHorizontalBox::Slot()
+				.VAlign(VAlign_Fill)
+				.HAlign(HAlign_Left)
 				[
-					SNew(SOverlay)
-					+ SOverlay::Slot()
-					.VAlign(VAlign_Fill)
-					.HAlign(HAlign_Fill)
+					SAssignNew(SegmentsVB, SHorizontalBox)
+				]
+				+ SHorizontalBox::Slot()
+				.VAlign(VAlign_Fill)
+				.HAlign(HAlign_Right)
+				.FillWidth(0.25f)
+				[
+					SNew(SBox)
+					.MinDesiredHeight(600.0f)
 					[
-						SNew(SImage)
-						.Image(new FSlateColorBrush(FLinearColor(0.2f, 0.2f, 0.2f, 1.0f)))
-					]
-					+ SOverlay::Slot()
-					.VAlign(VAlign_Fill)
-					.HAlign(HAlign_Fill)
-					[
-						SAssignNew(ActiveAudiosVB, SVerticalBox)
+						SNew(SOverlay)
+						+ SOverlay::Slot()
+						.VAlign(VAlign_Fill)
+						.HAlign(HAlign_Fill)
+						[
+							SNew(SImage)
+							.Image(new FSlateColorBrush(FLinearColor(0.2f, 0.2f, 0.2f, 1.0f)))
+						]
+						+ SOverlay::Slot()
+						.VAlign(VAlign_Fill)
+						.HAlign(HAlign_Fill)
+						[
+							SAssignNew(ActiveAudiosVB, SVerticalBox)
+						]
 					]
 				]
 			]
@@ -133,7 +148,7 @@ void SDebugChainView::UpdateActiveAudios(const TMap<FString, FAudioPlayer>& Acti
 	{
 		const FAudioPlayer& Value = Audio.Value;
 
-		FString AudioInfoStr = FString::Printf(TEXT("%s %fs - %fs"), *Value.Name, Value.StartTime.GetSeconds(), Value.EndTime.GetSeconds());
+		FString AudioInfoStr = FString::Printf(TEXT("%s \t %fs - %fs"), *Value.Name, Value.StartTime.GetSeconds(), Value.EndTime.GetSeconds());
 
 		bool bActive = ChainMicros.GetMicros() >= Value.StartTime.GetMicros() && ChainMicros.GetMicros() < Value.EndTime.GetMicros();
 
@@ -146,6 +161,34 @@ void SDebugChainView::UpdateActiveAudios(const TMap<FString, FAudioPlayer>& Acti
 			.Font(FSlateFontInfo(FPaths::EngineContentDir() / TEXT("Slate/Fonts/Roboto-Bold.ttf"), 14))
 			.ColorAndOpacity(bActive ? FLinearColor::Green : FLinearColor::Gray)
 		];
+	}
+
+	TSharedPtr<TEngineBase> EnginePtr = Engine.Pin();
+	if (!EnginePtr)
+	{
+		return;
+	}
+
+	if (!SegmentsVB)
+	{
+		return;
+	}
+
+	for (FSegmentInfo Segment : EnginePtr->GetSegments())
+	{
+		if (CreatedSegments.Contains(Segment.Id))
+		{
+			continue;
+		}
+
+		SegmentsVB->AddSlot()
+		.AutoWidth()
+		.Padding(10)
+		[
+			SNew(SDebugSegmentView).SegmentInfo(Segment)
+		];
+
+		CreatedSegments.Add(Segment.Id);
 	}
 }
 

@@ -64,6 +64,8 @@ void TXjMainEngine::Shutdown()
 
 TArray<FAudioPlayer> TXjMainEngine::RunCycle(const uint64 ChainMicros)
 {
+	LastChainMicros = ChainMicros;
+
 	std::vector<AudioScheduleEvent> ReceivedAudioEvents = XjEngine->RunCycle(ChainMicros);
 
 	TArray<FAudioPlayer> Output;
@@ -112,4 +114,27 @@ FEngineSettings TXjMainEngine::GetSettings() const
 FString TXjMainEngine::GetActiveTemplateName() const
 {
 	return CurrentTemplateName;
+}
+
+TArray<FSegmentInfo> TXjMainEngine::GetSegments() const
+{
+	if (!XjEngine)
+	{
+		return {};
+	}
+
+	TArray<FSegmentInfo> Segments;
+
+	for (const Segment* Segment : XjEngine->getSegmentStore()->readAllSegments())
+	{
+		if (Segment->durationMicros.has_value() && Segment->beginAtChainMicros + Segment->durationMicros.value() > LastChainMicros)
+		{
+			FSegmentInfo Info;
+			Info.Id = Segment->id;
+
+			Segments.Add(Info);
+		}
+	}
+
+	return Segments;
 }

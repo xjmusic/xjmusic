@@ -22,4 +22,9 @@ public:
 
 private:
 	TSharedPtr<SVerticalBox> ActiveAudiosVB;
+	TSharedPtr<SHorizontalBox> SegmentsVB;
+
+	TWeakPtr<TEngineBase> Engine;
+
+	TSet<int> CreatedSegments;
 };

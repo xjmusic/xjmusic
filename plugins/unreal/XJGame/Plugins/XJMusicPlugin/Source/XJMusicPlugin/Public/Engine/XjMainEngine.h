@@ -25,8 +25,12 @@ public:
 
 	FString GetActiveTemplateName() const override;
 
+	TArray<FSegmentInfo> GetSegments() const;
+
 private:
 	TUniquePtr<Engine> XjEngine;
+
+	uint64 LastChainMicros = 0;
 
 	FString CurrentTemplateName;
 

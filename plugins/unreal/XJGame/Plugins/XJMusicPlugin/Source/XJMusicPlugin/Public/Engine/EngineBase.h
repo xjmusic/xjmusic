@@ -15,6 +15,21 @@ struct FEngineSettings
 	int32 PersistenceWindowSeconds;
 };
 
+struct FSegmentInfo
+{
+	int Id;
+
+	bool operator == (const FSegmentInfo& Other) const
+	{
+		return Id == Other.Id;
+	}
+};
+
+static uint32 GetTypeHash(const FSegmentInfo& Segment)
+{
+	return GetTypeHash(Segment.Id);
+}
+
 class TEngineBase
 {
 
@@ -29,4 +44,6 @@ public:
 	virtual FEngineSettings GetSettings() const { return {}; }
 
 	virtual FString GetActiveTemplateName() const { return {}; }
+
+	virtual TArray<FSegmentInfo> GetSegments() const { return {}; }
 };
