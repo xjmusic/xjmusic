@@ -174,6 +174,38 @@ bool UXjMusicInstanceSubsystem::IsAudioScheduled(const FString& Name, const floa
 	return false;
 }
 
+void UXjMusicInstanceSubsystem::AddActiveAudio(const FAudioPlayer& Audio)
+{
+	ActiveAudios.Add(Audio.Id, Audio);
+
+	UpdateDebugChainView();
+
+	//Start playing audio
+}
+
+void UXjMusicInstanceSubsystem::UpdateActiveAudio(const FAudioPlayer& Audio)
+{
+	if (!ActiveAudios.Contains(Audio.Id))
+	{
+		return;
+	}
+
+	ActiveAudios[Audio.Id] = Audio;
+
+	UpdateDebugChainView();
+
+	//Update end time
+}
+
+void UXjMusicInstanceSubsystem::RemoveActiveAudio(const FAudioPlayer& Audio)
+{
+	ActiveAudios.Remove(Audio.Id);
+
+	UpdateDebugChainView();
+
+	//Stop playing audio if not stopped
+}
+
 USoundWave* UXjMusicInstanceSubsystem::GetSoundWaveByName(const FString& AudioName)
 {
 	if (!AudioPathsByNameLookup.Contains(AudioName))
@@ -274,5 +306,30 @@ void UXjMusicInstanceSubsystem::OnEnabledShowDebugChain(IConsoleVariable* Var)
 
 			DebugChainViewWidget->SetVisibility(EVisibility::Visible);
 		}
+
+		UpdateDebugChainView();
+	}
+}
+
+void UXjMusicInstanceSubsystem::UpdateDebugChainView()
+{
+	if (!IsInGameThread())
+	{
+		AsyncTask(ENamedThreads::GameThread, [this]()
+			{
+				UpdateDebugChainView();
+			});
+
+		return;
+	}
+
+	if (!Manager)
+	{
+		return;
+	}
+
+	if (DebugChainViewWidget)
+	{
+		DebugChainViewWidget->UpdateActiveAudios(ActiveAudios, Manager->GetAtChainMicros());
 	}
 }

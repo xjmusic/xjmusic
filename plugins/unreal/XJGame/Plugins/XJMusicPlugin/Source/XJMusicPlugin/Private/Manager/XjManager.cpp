@@ -75,7 +75,7 @@ uint32 FXjRunnable::Run()
 
 				Duration = Audio.EndTime.GetMillie() - AtChainMicros.GetMillie();
 
-				if (XjMusicSubsystem->PlayAudioByName(Audio.Id, Audio.StartTime.GetMillie(), Duration))
+				if (XjMusicSubsystem->PlayAudioByName(Audio.WaveId, Audio.StartTime.GetMillie(), Duration))
 				{
 					PlayingAudios += FString::Printf(TEXT("%s start: %f end: %f\n"),
 													*Audio.Name, 
@@ -83,14 +83,20 @@ uint32 FXjRunnable::Run()
 													 Audio.EndTime.GetSeconds());
 				}
 
+				XjMusicSubsystem->AddActiveAudio(Audio);
+
 				break;
 
 			case EAudioEventType::Update:
-				//checkf(false, TEXT("Update event"));
+				
+				XjMusicSubsystem->UpdateActiveAudio(Audio);
+
 				break;
 
 			case EAudioEventType::Delete:
-				//checkf(false, TEXT("Delete event"));
+				
+				XjMusicSubsystem->RemoveActiveAudio(Audio);
+
 				break;
 
 			}
@@ -110,7 +116,6 @@ uint32 FXjRunnable::Run()
 		}
 
 		AtChainMicros.SetInSeconds(AtChainMicros.GetSeconds() + SleepInterval);
-
 
 		DebugInfo = FString("Chain micros: ") + AtChainMicros.ToString();
 		DebugInfo += FString::Printf(TEXT("\n %f ms"), SleepInterval);

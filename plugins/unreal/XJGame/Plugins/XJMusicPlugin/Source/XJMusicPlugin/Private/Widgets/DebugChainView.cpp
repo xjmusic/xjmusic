@@ -3,6 +3,7 @@
 
 #include "Widgets/DebugChainView.h"
 #include "SlateOptMacros.h"
+#include <Brushes/SlateColorBrush.h>
 
 BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION
 
@@ -30,59 +31,122 @@ void SDebugChainView::Construct(const FArguments& Args)
 		.HAlign(HAlign_Fill)
 		[
 			SNew(SImage)
-			.ColorAndOpacity(FLinearColor(0.2f, 0.2, 0.2, 1.0f))
+			.Image(new FSlateColorBrush(FLinearColor(0.1f, 0.1f, 0.1f, 1.0f)))
 		]
 		+ SOverlay::Slot()
 		.VAlign(VAlign_Fill)
 		.HAlign(HAlign_Fill)
 		[
-			SNew(SHorizontalBox)
-			+ SHorizontalBox::Slot()
+			SNew(SVerticalBox)
+			+ SVerticalBox::Slot()
 			.VAlign(VAlign_Fill)
 			.HAlign(HAlign_Fill)
-			.Padding(FMargin(0.0f, 0.0f, 10.0f, 0.0f))
+			.FillHeight(0.2f)
 			[
-				SNew(STextBlock)
+				SNew(SHorizontalBox)
+				+ SHorizontalBox::Slot()
+				.VAlign(VAlign_Fill)
+				.HAlign(HAlign_Fill)
+				.Padding(FMargin(0.0f, 0.0f, 10.0f, 0.0f))
+				[
+					SNew(STextBlock)
 					.Text(FText::FromString(TemplateStr))
 					.Font(FSlateFontInfo(FPaths::EngineContentDir() / TEXT("Slate/Fonts/Roboto-Bold.ttf"), 24))
-			]
-			+ SHorizontalBox::Slot()
-			.VAlign(VAlign_Fill)
-			.HAlign(HAlign_Left)
-			.Padding(FMargin(0.0f, 0.0f, 10.0f, 0.0f))
-			[
-				SNew(STextBlock)
-				.Text(FText::FromString(CraftAheadStr))
-				.Font(FSlateFontInfo(FPaths::EngineContentDir() / TEXT("Slate/Fonts/Roboto-Bold.ttf"), 24))
-			]
-			+ SHorizontalBox::Slot()
-			.VAlign(VAlign_Fill)
-			.HAlign(HAlign_Left)
-			.Padding(FMargin(0.0f, 0.0f, 10.0f, 0.0f))
-			[
-				SNew(STextBlock)
-				.Text(FText::FromString(DubAheadStr))
-				.Font(FSlateFontInfo(FPaths::EngineContentDir() / TEXT("Slate/Fonts/Roboto-Bold.ttf"), 24))
-			]
-			+ SHorizontalBox::Slot()
-			.VAlign(VAlign_Fill)
-			.HAlign(HAlign_Left)
-			.Padding(FMargin(0.0f, 0.0f, 10.0f, 0.0f))
-			[
-				SNew(STextBlock)
+				]
+				+ SHorizontalBox::Slot()
+				.VAlign(VAlign_Fill)
+				.HAlign(HAlign_Left)
+				.Padding(FMargin(0.0f, 0.0f, 10.0f, 0.0f))
+				[
+					SNew(STextBlock)
+					.Text(FText::FromString(CraftAheadStr))
+					.Font(FSlateFontInfo(FPaths::EngineContentDir() / TEXT("Slate/Fonts/Roboto-Bold.ttf"), 24))
+				]
+				+ SHorizontalBox::Slot()
+				.VAlign(VAlign_Fill)
+				.HAlign(HAlign_Left)
+				.Padding(FMargin(0.0f, 0.0f, 10.0f, 0.0f))
+				[
+					SNew(STextBlock)
+					.Text(FText::FromString(DubAheadStr))
+					.Font(FSlateFontInfo(FPaths::EngineContentDir() / TEXT("Slate/Fonts/Roboto-Bold.ttf"), 24))
+				]
+				+ SHorizontalBox::Slot()
+				.VAlign(VAlign_Fill)
+				.HAlign(HAlign_Left)
+				.Padding(FMargin(0.0f, 0.0f, 10.0f, 0.0f))
+				[
+					SNew(STextBlock)
 					.Text(FText::FromString(DeadlineStr))
 					.Font(FSlateFontInfo(FPaths::EngineContentDir() / TEXT("Slate/Fonts/Roboto-Bold.ttf"), 24))
+				]
+				+ SHorizontalBox::Slot()
+				.HAlign(HAlign_Left)
+				.Padding(FMargin(0.0f, 0.0f, 10.0f, 0.0f))
+				[
+					SNew(STextBlock)
+					.Text(FText::FromString(PersistenceWindowStr))
+					.Font(FSlateFontInfo(FPaths::EngineContentDir() / TEXT("Slate/Fonts/Roboto-Bold.ttf"), 24))
+				]
 			]
-			+ SHorizontalBox::Slot()
-			.HAlign(HAlign_Left)
-			.Padding(FMargin(0.0f, 0.0f, 10.0f, 0.0f))
+			+ SVerticalBox::Slot()
+			.VAlign(VAlign_Fill)
+			.HAlign(HAlign_Right)
 			[
-				SNew(STextBlock)
-				.Text(FText::FromString(PersistenceWindowStr))
-				.Font(FSlateFontInfo(FPaths::EngineContentDir() / TEXT("Slate/Fonts/Roboto-Bold.ttf"), 24))
+				SNew(SBox)
+				.MinDesiredHeight(600.0f)
+				.MinDesiredWidth(200.0f)
+				[
+					SNew(SOverlay)
+					+ SOverlay::Slot()
+					.VAlign(VAlign_Fill)
+					.HAlign(HAlign_Fill)
+					[
+						SNew(SImage)
+						.Image(new FSlateColorBrush(FLinearColor(0.2f, 0.2f, 0.2f, 1.0f)))
+					]
+					+ SOverlay::Slot()
+					.VAlign(VAlign_Fill)
+					.HAlign(HAlign_Fill)
+					[
+						SAssignNew(ActiveAudiosVB, SVerticalBox)
+					]
+				]
 			]
 		]
 	];
+}
+
+void SDebugChainView::UpdateActiveAudios(const TMap<FString, FAudioPlayer>& ActiveAudios, const TimeRecord& ChainMicros)
+{
+	if (!ActiveAudiosVB.IsValid())
+	{
+		return;
+	}
+
+	if (ActiveAudiosVB->GetAllChildren()->Num() > 0)
+	{
+		ActiveAudiosVB->ClearChildren();
+	}
+
+	for (const TPair<FString, FAudioPlayer>& Audio : ActiveAudios)
+	{
+		const FAudioPlayer& Value = Audio.Value;
+
+		FString AudioInfoStr = FString::Printf(TEXT("%s %fs - %fs"), *Value.Name, Value.StartTime.GetSeconds(), Value.EndTime.GetSeconds());
+
+		bool bActive = ChainMicros.GetMicros() >= Value.StartTime.GetMicros() && ChainMicros.GetMicros() < Value.EndTime.GetMicros();
+
+		ActiveAudiosVB->AddSlot()
+		.AutoHeight()
+		.Padding(5)
+		[
+			SNew(STextBlock)
+			.Text(FText::FromString(AudioInfoStr))
+			.Font(FSlateFontInfo(FPaths::EngineContentDir() / TEXT("Slate/Fonts/Roboto-Bold.ttf"), 14))
+			.ColorAndOpacity(bActive ? FLinearColor::Green : FLinearColor::Gray)
+		];
+	}
 }
 
 END_SLATE_FUNCTION_BUILD_OPTIMIZATION

@@ -71,6 +71,7 @@ TArray<FAudioPlayer> TXjMainEngine::RunCycle(const uint64 ChainMicros)
 	for (const AudioScheduleEvent& Event : ReceivedAudioEvents)
 	{
 		FString WaveKey = Event.audio.getAudio()->waveformKey.c_str();
+		FString Id = Event.audio.getId().c_str();
 		FString Name = Event.audio.getAudio()->name.c_str();
 
 		TimeRecord StartTime = Event.getStartAtChainMicros();
@@ -80,7 +81,8 @@ TArray<FAudioPlayer> TXjMainEngine::RunCycle(const uint64 ChainMicros)
 		AudioPlayer.StartTime = StartTime;
 		AudioPlayer.EndTime = EndTime;
 		AudioPlayer.Name = Name;
-		AudioPlayer.Id = WaveKey;
+		AudioPlayer.Id = Id;
+		AudioPlayer.WaveId = WaveKey;
 		AudioPlayer.Event = (EAudioEventType)Event.type;
 
 		Output.Add(AudioPlayer);

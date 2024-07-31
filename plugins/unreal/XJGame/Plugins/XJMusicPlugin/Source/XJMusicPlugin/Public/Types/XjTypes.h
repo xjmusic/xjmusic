@@ -109,6 +109,7 @@ struct FAudioPlayer
 
 	FString Name;
 	FString Id;
+	FString WaveId;
 
 	EAudioEventType Event;
 

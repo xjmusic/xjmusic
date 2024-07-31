@@ -17,4 +17,9 @@ public:
 	SLATE_END_ARGS();
 
 	void Construct(const FArguments& Args);
+
+	void UpdateActiveAudios(const TMap<FString, FAudioPlayer>& ActiveAudios, const TimeRecord& ChainMicros);
+
+private:
+	TSharedPtr<SVerticalBox> ActiveAudiosVB;
 };

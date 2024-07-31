@@ -28,9 +28,20 @@ public:
 
 	bool IsAudioScheduled(const FString& Name, const float Time) const;
 
+	void AddActiveAudio(const FAudioPlayer& Audio);
+
+	void UpdateActiveAudio(const FAudioPlayer& Audio);
+
+	void RemoveActiveAudio(const FAudioPlayer& Audio);
+
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 
 	virtual void Deinitialize() override;
+
+	const TMap<FString, FAudioPlayer>& GetActiveAudios() const
+	{
+		return ActiveAudios;
+	}
 
 private:
 
@@ -40,25 +51,29 @@ private:
 
 	void OnEnabledShowDebugChain(class IConsoleVariable* Var);
 
+	void UpdateDebugChainView();
+
 private:
 
 	class UXjManager* Manager = nullptr;
 
+	UQuartzClockHandle* QuartzClockHandle;
+
 	FAudioDeviceHandle WorldAudioDeviceHandle;
 
-	const FString AudioExtension = ".wav";
+	TWeakPtr<TEngineBase> ActiveEngine;
+
+	TSharedPtr<SDebugChainView> DebugChainViewWidget;
 
 	TMap<FString, FString> AudioPathsByNameLookup;
 
 	TMap<FString, TMap<float, UAudioComponent*>> SoundsMap;
 
+	TMap<FString, FAudioPlayer> ActiveAudios;
+
 	mutable FCriticalSection SoundsMapCriticalSection;
 
-	UQuartzClockHandle* QuartzClockHandle;
+	const FString AudioExtension = ".wav";
 
 	float PlanAheadMs = 64;
-
-	TWeakPtr<TEngineBase> ActiveEngine;
-
-	TSharedPtr<SDebugChainView> DebugChainViewWidget;
 };

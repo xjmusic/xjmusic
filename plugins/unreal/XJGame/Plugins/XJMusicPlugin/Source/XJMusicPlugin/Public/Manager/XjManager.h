@@ -20,6 +20,11 @@ public:
 	virtual uint32 Run() override;
 	virtual void Stop() override;
 
+	TimeRecord GetAtChainMicros() const
+	{
+		return AtChainMicros;
+	}
+
 private:
 	bool TryInitMockEngine();
 
@@ -48,6 +53,16 @@ public:
 	void Setup();
 
 	void BeginDestroy() override;
+
+	TimeRecord GetAtChainMicros() const
+	{
+		if (!XjRunnable)
+		{
+			return {};
+		}
+
+		return XjRunnable->GetAtChainMicros();
+	}
 
 private:
 	FXjRunnable* XjRunnable = nullptr;
