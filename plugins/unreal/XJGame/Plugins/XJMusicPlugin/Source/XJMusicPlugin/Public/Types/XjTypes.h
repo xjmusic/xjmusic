@@ -123,3 +123,8 @@ static uint32 GetTypeHash(const FAudioPlayer& Player)
 {
 	return GetTypeHash(Player.Name);
 }
+
+static FString FloatToString(const float Value)
+{
+	return FString::Printf(TEXT("%.2f"), Value);
+}

@@ -116,6 +116,23 @@ FString TXjMainEngine::GetActiveTemplateName() const
 	return CurrentTemplateName;
 }
 
+int TXjMainEngine::GetSegmentBarsBeats(const int Id) const
+{
+	const auto choice = XjEngine->getSegmentStore()->readChoice(Id, Program::Main);
+	if (!choice.has_value())
+	{
+		return 0;
+	}
+
+	const auto program = XjEngine->getProjectContent()->getProgram(choice.value()->programId);
+	if (!program.has_value())
+	{
+		return 0;
+	}
+
+	return program.value()->config.barBeats;
+}
+
 TArray<FSegmentInfo> TXjMainEngine::GetSegments() const
 {
 	if (!XjEngine)
@@ -130,7 +147,32 @@ TArray<FSegmentInfo> TXjMainEngine::GetSegments() const
 		if (Segment->durationMicros.has_value() && Segment->beginAtChainMicros + Segment->durationMicros.value() > LastChainMicros)
 		{
 			FSegmentInfo Info;
+
 			Info.Id = Segment->id;
+			Info.Delta = Segment->delta;
+			Info.StartTime.SetInMicros(Segment->beginAtChainMicros);
+			Info.TypeStr = Segment::toString(Segment->type).c_str();
+
+			Info.TotalBars = Segment->total / GetSegmentBarsBeats(Segment->id);
+			Info.TotalTime.SetInMicros(Segment->durationMicros.value());
+
+			Info.Intensity = Segment->intensity;
+
+			Info.Tempo = Segment->tempo;
+
+			Info.Key = Segment->key.c_str();
+
+			for (const SegmentMeme* Meme : XjEngine->getSegmentStore()->readAllSegmentMemes({ Segment->id }))
+			{
+				if (!Meme)
+				{
+					continue;
+				}
+
+				Info.Memes.Add(Meme->name.c_str());
+			}
+
+			Info.Memes.Sort();
 
 			Segments.Add(Info);
 		}

@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Widgets/SCompoundWidget.h"
 #include "Engine/EngineBase.h"
+#include "Widgets/Layout/SScrollBox.h"
 
 class XJMUSICPLUGIN_API SDebugChainView : public SCompoundWidget
 {
@@ -22,7 +23,7 @@ public:
 
 private:
 	TSharedPtr<SVerticalBox> ActiveAudiosVB;
-	TSharedPtr<SHorizontalBox> SegmentsVB;
+	TSharedPtr<SScrollBox> SegmentsSB;
 
 	TWeakPtr<TEngineBase> Engine;
 

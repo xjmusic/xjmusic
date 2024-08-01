@@ -39,4 +39,6 @@ private:
 	int GENERATED_FIXTURE_COMPLEXITY = 3;
 
 	uint64 MICROS_PER_SECOND = MICROS_PER_MILLI * MILLIS_PER_SECOND;
+
+	int GetSegmentBarsBeats(const int Id) const;
 };

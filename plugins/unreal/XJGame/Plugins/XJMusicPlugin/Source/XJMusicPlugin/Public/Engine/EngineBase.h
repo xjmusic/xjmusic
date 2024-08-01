@@ -17,7 +17,25 @@ struct FEngineSettings
 
 struct FSegmentInfo
 {
-	int Id;
+	int32 Id;
+
+	float Delta;
+
+	TimeRecord StartTime;
+
+	FString TypeStr;
+
+	int TotalBars;
+
+	TimeRecord TotalTime;
+
+	float Intensity;
+
+	int Tempo;
+
+	FString Key;
+
+	TArray<FString> Memes;
 
 	bool operator == (const FSegmentInfo& Other) const
 	{

@@ -5,6 +5,7 @@
 #include "SlateOptMacros.h"
 #include "Brushes/SlateColorBrush.h"
 #include "Widgets/DebugSegmentView.h"
+#include "Types/XjTypes.h"
 
 BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION
 
@@ -101,7 +102,8 @@ void SDebugChainView::Construct(const FArguments& Args)
 				.VAlign(VAlign_Fill)
 				.HAlign(HAlign_Left)
 				[
-					SAssignNew(SegmentsVB, SHorizontalBox)
+					SAssignNew(SegmentsSB, SScrollBox)
+					.Orientation(EOrientation::Orient_Horizontal)
 				]
 				+ SHorizontalBox::Slot()
 				.VAlign(VAlign_Fill)
@@ -110,6 +112,7 @@ void SDebugChainView::Construct(const FArguments& Args)
 				[
 					SNew(SBox)
 					.MinDesiredHeight(600.0f)
+					.Padding(10)
 					[
 						SNew(SOverlay)
 						+ SOverlay::Slot()
@@ -148,7 +151,7 @@ void SDebugChainView::UpdateActiveAudios(const TMap<FString, FAudioPlayer>& Acti
 	{
 		const FAudioPlayer& Value = Audio.Value;
 
-		FString AudioInfoStr = FString::Printf(TEXT("%s \t %fs - %fs"), *Value.Name, Value.StartTime.GetSeconds(), Value.EndTime.GetSeconds());
+		FString AudioInfoStr = FString::Printf(TEXT("%s \t %s - %s"), *Value.Name, *FloatToString(Value.StartTime.GetSeconds()), *FloatToString(Value.EndTime.GetSeconds()));
 
 		bool bActive = ChainMicros.GetMicros() >= Value.StartTime.GetMicros() && ChainMicros.GetMicros() < Value.EndTime.GetMicros();
 
@@ -169,7 +172,7 @@ void SDebugChainView::UpdateActiveAudios(const TMap<FString, FAudioPlayer>& Acti
 		return;
 	}
 
-	if (!SegmentsVB)
+	if (!SegmentsSB)
 	{
 		return;
 	}
@@ -181,8 +184,7 @@ void SDebugChainView::UpdateActiveAudios(const TMap<FString, FAudioPlayer>& Acti
 			continue;
 		}
 
-		SegmentsVB->AddSlot()
-		.AutoWidth()
+		SegmentsSB->AddSlot()
 		.Padding(10)
 		[
 			SNew(SDebugSegmentView).SegmentInfo(Segment)

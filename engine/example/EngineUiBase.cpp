@@ -484,7 +484,8 @@ Element EngineUiBase::computeSegmentNode(const Segment*& pSegment) const
 		segMemeNamesSorted.push_back(name);
 	}
 	std::sort(segMemeNamesSorted.begin(), segMemeNamesSorted.end());
-	std::vector<Element> segMemeList;
+	std::vector<Element> segMemeList
+		;
 	segMemeList.reserve(segMemeNamesSorted.size());
 	for (const auto& name : segMemeNamesSorted)
 	{
