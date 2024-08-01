@@ -15,6 +15,27 @@ struct FEngineSettings
 	int32 PersistenceWindowSeconds;
 };
 
+struct FAudioPick
+{
+	FString Name;
+	TimeRecord StartTime;
+	bool bActive = false;
+};
+
+struct FSegmentChoice
+{
+	FString Type;
+	FString Mode;
+	FString Name;
+
+	TArray<FAudioPick> Picks;
+};
+
+static bool operator < (const FSegmentChoice& A, const FSegmentChoice& B)
+{
+	return FPlatformString::Stricmp(*A.Type, *B.Type) < 0;
+}
+
 struct FSegmentInfo
 {
 	int32 Id;
@@ -36,6 +57,11 @@ struct FSegmentInfo
 	FString Key;
 
 	TArray<FString> Memes;
+
+	TArray<FSegmentChoice> MacroChoices;
+	TArray<FSegmentChoice> MainChoices;
+	TArray<FSegmentChoice> BeatChoices;
+	TArray<FSegmentChoice> DetailChoices;
 
 	bool operator == (const FSegmentInfo& Other) const
 	{
@@ -63,5 +89,5 @@ public:
 
 	virtual FString GetActiveTemplateName() const { return {}; }
 
-	virtual TArray<FSegmentInfo> GetSegments() const { return {}; }
+	virtual TArray<FSegmentInfo> GetSegments() { return {}; }
 };

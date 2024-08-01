@@ -4,7 +4,7 @@
 #include "Widgets/DebugChainView.h"
 #include "SlateOptMacros.h"
 #include "Brushes/SlateColorBrush.h"
-#include "Widgets/DebugSegmentView.h"
+
 #include "Types/XjTypes.h"
 
 BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION
@@ -55,7 +55,7 @@ void SDebugChainView::Construct(const FArguments& Args)
 				[
 					SNew(STextBlock)
 					.Text(FText::FromString(TemplateStr))
-					.Font(FSlateFontInfo(FPaths::EngineContentDir() / TEXT("Slate/Fonts/Roboto-Bold.ttf"), 24))
+					.Font(FSlateFontInfo(FPaths::EngineContentDir() / TEXT("Slate/Fonts/Roboto-Bold.ttf"), 12))
 				]
 				+ SHorizontalBox::Slot()
 				.VAlign(VAlign_Fill)
@@ -64,7 +64,7 @@ void SDebugChainView::Construct(const FArguments& Args)
 				[
 					SNew(STextBlock)
 					.Text(FText::FromString(CraftAheadStr))
-					.Font(FSlateFontInfo(FPaths::EngineContentDir() / TEXT("Slate/Fonts/Roboto-Bold.ttf"), 24))
+					.Font(FSlateFontInfo(FPaths::EngineContentDir() / TEXT("Slate/Fonts/Roboto-Bold.ttf"), 12))
 				]
 				+ SHorizontalBox::Slot()
 				.VAlign(VAlign_Fill)
@@ -73,7 +73,7 @@ void SDebugChainView::Construct(const FArguments& Args)
 				[
 					SNew(STextBlock)
 					.Text(FText::FromString(DubAheadStr))
-					.Font(FSlateFontInfo(FPaths::EngineContentDir() / TEXT("Slate/Fonts/Roboto-Bold.ttf"), 24))
+					.Font(FSlateFontInfo(FPaths::EngineContentDir() / TEXT("Slate/Fonts/Roboto-Bold.ttf"), 12))
 				]
 				+ SHorizontalBox::Slot()
 				.VAlign(VAlign_Fill)
@@ -82,7 +82,7 @@ void SDebugChainView::Construct(const FArguments& Args)
 				[
 					SNew(STextBlock)
 					.Text(FText::FromString(DeadlineStr))
-					.Font(FSlateFontInfo(FPaths::EngineContentDir() / TEXT("Slate/Fonts/Roboto-Bold.ttf"), 24))
+					.Font(FSlateFontInfo(FPaths::EngineContentDir() / TEXT("Slate/Fonts/Roboto-Bold.ttf"), 12))
 				]
 				+ SHorizontalBox::Slot()
 				.HAlign(HAlign_Left)
@@ -90,7 +90,7 @@ void SDebugChainView::Construct(const FArguments& Args)
 				[
 					SNew(STextBlock)
 					.Text(FText::FromString(PersistenceWindowStr))
-					.Font(FSlateFontInfo(FPaths::EngineContentDir() / TEXT("Slate/Fonts/Roboto-Bold.ttf"), 24))
+					.Font(FSlateFontInfo(FPaths::EngineContentDir() / TEXT("Slate/Fonts/Roboto-Bold.ttf"), 12))
 				]
 			]
 			+ SVerticalBox::Slot()
@@ -151,7 +151,7 @@ void SDebugChainView::UpdateActiveAudios(const TMap<FString, FAudioPlayer>& Acti
 	{
 		const FAudioPlayer& Value = Audio.Value;
 
-		FString AudioInfoStr = FString::Printf(TEXT("%s \t %s - %s"), *Value.Name, *FloatToString(Value.StartTime.GetSeconds()), *FloatToString(Value.EndTime.GetSeconds()));
+		FString AudioInfoStr = FString::Printf(TEXT("%s - %s \t %s"), *FloatToString(Value.StartTime.GetSeconds()), *FloatToString(Value.EndTime.GetSeconds()), *Value.Name);
 
 		bool bActive = ChainMicros.GetMicros() >= Value.StartTime.GetMicros() && ChainMicros.GetMicros() < Value.EndTime.GetMicros();
 
@@ -177,20 +177,26 @@ void SDebugChainView::UpdateActiveAudios(const TMap<FString, FAudioPlayer>& Acti
 		return;
 	}
 
-	for (FSegmentInfo Segment : EnginePtr->GetSegments())
+	auto segments = EnginePtr->GetSegments();
+
+	for (FSegmentInfo Segment : segments)
 	{
 		if (CreatedSegments.Contains(Segment.Id))
 		{
+			CreatedSegments[Segment.Id]->Update(Segment);
 			continue;
 		}
+
+		TSharedPtr<SDebugSegmentView> NewSegment;
 
 		SegmentsSB->AddSlot()
 		.Padding(10)
 		[
-			SNew(SDebugSegmentView).SegmentInfo(Segment)
+			SAssignNew(NewSegment, SDebugSegmentView).SegmentInfo(Segment)
 		];
 
-		CreatedSegments.Add(Segment.Id);
+		NewSegment->Update(Segment);
+		CreatedSegments.Add(Segment.Id, NewSegment);
 	}
 }
 

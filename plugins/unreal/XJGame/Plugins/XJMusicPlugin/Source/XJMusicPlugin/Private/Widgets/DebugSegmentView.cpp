@@ -46,68 +46,138 @@ void SDebugSegmentView::Construct(const FArguments& Args)
 			[
 				SNew(SVerticalBox)
 				+ SVerticalBox::Slot()
-				.FillHeight(0.25f)
 				[
-					SNew(SUniformGridPanel)
-					.SlotPadding(5.0f)
+					SNew(SBox)
+					[
+						SNew(SUniformGridPanel)
+					.SlotPadding(2.0f)
 					+ SUniformGridPanel::Slot(0, 0)
 					[
 						SNew(STextBlock)
 						.Text(FText::FromString(IdStr))
-						.Font(FSlateFontInfo(FPaths::EngineContentDir() / TEXT("Slate/Fonts/Roboto-Bold.ttf"), 14))
+						.Font(FSlateFontInfo(FPaths::EngineContentDir() / TEXT("Slate/Fonts/Roboto-Bold.ttf"), 10))
 					]
 					+ SUniformGridPanel::Slot(1, 0)
 					[
 						SNew(STextBlock)
-						.Text(FText::FromString(DeltaStr))
-						.Font(FSlateFontInfo(FPaths::EngineContentDir() / TEXT("Slate/Fonts/Roboto-Bold.ttf"), 14))
+						.Text(FText::FromString(""))
+						.Font(FSlateFontInfo(FPaths::EngineContentDir() / TEXT("Slate/Fonts/Roboto-Bold.ttf"), 10))
 					]
 					+ SUniformGridPanel::Slot(0, 1)
 					[
 						SNew(STextBlock)
 						.Text(FText::FromString(BeginSecondsStr + "s"))
-						.Font(FSlateFontInfo(FPaths::EngineContentDir() / TEXT("Slate/Fonts/Roboto-Bold.ttf"), 14))
+						.Font(FSlateFontInfo(FPaths::EngineContentDir() / TEXT("Slate/Fonts/Roboto-Bold.ttf"), 10))
 					]
 					+ SUniformGridPanel::Slot(1, 1)
 					[
 						SNew(STextBlock)
 						.Text(FText::FromString(TypeStr))
-						.Font(FSlateFontInfo(FPaths::EngineContentDir() / TEXT("Slate/Fonts/Roboto-Bold.ttf"), 14))
+						.Font(FSlateFontInfo(FPaths::EngineContentDir() / TEXT("Slate/Fonts/Roboto-Bold.ttf"), 10))
 					]
 					+ SUniformGridPanel::Slot(0, 2)
 					[
 						SNew(STextBlock)
 						.Text(FText::FromString(TotalTimeStr))
-						.Font(FSlateFontInfo(FPaths::EngineContentDir() / TEXT("Slate/Fonts/Roboto-Bold.ttf"), 14))
+						.Font(FSlateFontInfo(FPaths::EngineContentDir() / TEXT("Slate/Fonts/Roboto-Bold.ttf"), 10))
 					]
 					+ SUniformGridPanel::Slot(1, 2)
 					[
 						SNew(STextBlock)
 						.Text(FText::FromString(IntensityStr))
-						.Font(FSlateFontInfo(FPaths::EngineContentDir() / TEXT("Slate/Fonts/Roboto-Bold.ttf"), 14))
+						.Font(FSlateFontInfo(FPaths::EngineContentDir() / TEXT("Slate/Fonts/Roboto-Bold.ttf"), 10))
 					]
 					+ SUniformGridPanel::Slot(2, 2)
 					[
 						SNew(STextBlock)
 						.Text(FText::FromString(TempoStr))
-						.Font(FSlateFontInfo(FPaths::EngineContentDir() / TEXT("Slate/Fonts/Roboto-Bold.ttf"), 14))
+						.Font(FSlateFontInfo(FPaths::EngineContentDir() / TEXT("Slate/Fonts/Roboto-Bold.ttf"), 10))
 					]
 					+ SUniformGridPanel::Slot(3, 2)
 					[
 						SNew(STextBlock)
 						.Text(FText::FromString(KeyStr))
-						.Font(FSlateFontInfo(FPaths::EngineContentDir() / TEXT("Slate/Fonts/Roboto-Bold.ttf"), 14))
+						.Font(FSlateFontInfo(FPaths::EngineContentDir() / TEXT("Slate/Fonts/Roboto-Bold.ttf"), 10))
 					]
 					+ SUniformGridPanel::Slot(0, 3)
 					[
 						SNew(STextBlock)
 						.Text(FText::FromString(MemesStr))
-						.Font(FSlateFontInfo(FPaths::EngineContentDir() / TEXT("Slate/Fonts/Roboto-Bold.ttf"), 14))
+						.Font(FSlateFontInfo(FPaths::EngineContentDir() / TEXT("Slate/Fonts/Roboto-Bold.ttf"), 10))
 					]
+					]
+				]
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(FMargin(0, 5, 0, 0))
+				[
+					SNew(STextBlock)
+					.Text(FText::FromString("Choices:"))
+					.Font(FSlateFontInfo(FPaths::EngineContentDir() / TEXT("Slate/Fonts/Roboto-Bold.ttf"), 10))
+				]
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				[
+					SAssignNew(FirstLevelChoicesVB, SVerticalBox)
 				]
 			]
 		]
 	];
+}
+
+void SDebugSegmentView::Update(const FSegmentInfo& Info)
+{
+	if (FirstLevelChoicesVB->GetChildren()->Num() > 0)
+	{
+		FirstLevelChoicesVB->ClearChildren();
+	}
+
+	for (const FSegmentChoice& Choice : Info.MacroChoices)
+	{
+		AddNewSegmentChoice(Choice);
+	}
+
+	for (const FSegmentChoice& Choice : Info.MainChoices)
+	{
+		AddNewSegmentChoice(Choice);
+	}
+
+	for (const FSegmentChoice& Choice : Info.BeatChoices)
+	{
+		AddNewSegmentChoice(Choice);
+	}
+
+	for (const FSegmentChoice& Choice : Info.DetailChoices)
+	{
+		AddNewSegmentChoice(Choice);
+	}
+}
+
+void SDebugSegmentView::AddNewSegmentChoice(const FSegmentChoice& Choice)
+{
+	if (!FirstLevelChoicesVB)
+	{
+		return;
+	}
+
+	FirstLevelChoicesVB->AddSlot()
+	[
+		SNew(STextBlock)
+		.Text(FText::FromString(FString::Printf(TEXT("[%s%s] %s"), *Choice.Type, *Choice.Mode, *Choice.Name)))
+		.Font(FSlateFontInfo(FPaths::EngineContentDir() / TEXT("Slate/Fonts/Roboto-Bold.ttf"), 10))
+	];
+
+	for (const FAudioPick& Pick : Choice.Picks)
+	{
+		FirstLevelChoicesVB->AddSlot()
+		.Padding(10)
+		[
+			SNew(STextBlock)
+			.Text(FText::FromString(FString::Printf(TEXT("[%.2f] %s"), Pick.StartTime.GetSeconds(), *Pick.Name)))
+			.Font(FSlateFontInfo(FPaths::EngineContentDir() / TEXT("Slate/Fonts/Roboto-Bold.ttf"), 8))
+			.ColorAndOpacity(Pick.bActive ? FLinearColor::Green :FLinearColor::Gray)
+		];
+	}
 }
 
 END_SLATE_FUNCTION_BUILD_OPTIMIZATION

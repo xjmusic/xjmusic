@@ -25,7 +25,7 @@ public:
 
 	FString GetActiveTemplateName() const override;
 
-	TArray<FSegmentInfo> GetSegments() const;
+	TArray<FSegmentInfo> GetSegments() override;
 
 private:
 	TUniquePtr<Engine> XjEngine;
@@ -41,4 +41,6 @@ private:
 	uint64 MICROS_PER_SECOND = MICROS_PER_MILLI * MILLIS_PER_SECOND;
 
 	int GetSegmentBarsBeats(const int Id) const;
+
+	FSegmentChoice ParseSegmentChoice(const SegmentChoice* Choice);
 };

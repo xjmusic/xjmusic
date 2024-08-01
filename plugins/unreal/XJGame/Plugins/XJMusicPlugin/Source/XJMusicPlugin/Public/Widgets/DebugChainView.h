@@ -6,6 +6,7 @@
 #include "Widgets/SCompoundWidget.h"
 #include "Engine/EngineBase.h"
 #include "Widgets/Layout/SScrollBox.h"
+#include "Widgets/DebugSegmentView.h"
 
 class XJMUSICPLUGIN_API SDebugChainView : public SCompoundWidget
 {
@@ -27,5 +28,5 @@ private:
 
 	TWeakPtr<TEngineBase> Engine;
 
-	TSet<int> CreatedSegments;
+	TMap<int, TSharedPtr<SDebugSegmentView>> CreatedSegments;
 };

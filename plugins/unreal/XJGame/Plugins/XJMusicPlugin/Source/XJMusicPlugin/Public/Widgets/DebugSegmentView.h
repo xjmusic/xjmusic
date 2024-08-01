@@ -19,4 +19,13 @@ public:
 	SLATE_END_ARGS();
 
 	void Construct(const FArguments& Args);
+
+	void Update(const FSegmentInfo& Info);
+
+private:
+	TSharedPtr<SVerticalBox> FirstLevelChoicesVB;
+
+	TMap<FString, TSharedPtr<SVerticalBox>> SecondLevelChoicesVB;
+
+	void AddNewSegmentChoice(const FSegmentChoice& Choice);
 };
