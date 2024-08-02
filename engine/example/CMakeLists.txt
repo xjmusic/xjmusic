@@ -6,7 +6,7 @@ add_executable(xj_player
         main.cpp
         XJPlayer.cpp
         EngineUiBase.cpp
-        EngineAudioSchedule.cpp
+        EngineScheduledAudio.cpp
 )
 target_compile_features(xj_player PRIVATE cxx_std_17)
 target_link_libraries(xj_player PRIVATE xjmusic)

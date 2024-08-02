@@ -99,7 +99,7 @@ void XJPlayer::RunEngineCycle(SDL_AudioDeviceID deviceId) {
     switch (event.type) {
       case AudioScheduleEvent::EType::Create:
         // TODO: implement XJPlayer creating a new scheduled audio
-        Schedule.emplace(event.schedule.getId(), EngineAudioSchedule(engine->getBuildPath(), deviceId, event.schedule));
+        Schedule.emplace(event.schedule.getId(), EngineScheduledAudio(engine->getBuildPath(), deviceId, event.schedule));
         break;
       case AudioScheduleEvent::EType::Update:
         if (Schedule.find(event.schedule.getId()) != Schedule.end()) {

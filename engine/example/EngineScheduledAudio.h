@@ -8,9 +8,9 @@
 using namespace XJ;
 
 // Assuming EngineAudioSchedule is a class that handles audio playback
-class EngineAudioSchedule : public ActiveAudio {
+class EngineScheduledAudio : public ActiveAudio {
 public:
-  EngineAudioSchedule(
+  EngineScheduledAudio(
       const std::filesystem::path& audioPathPrefix,
       SDL_AudioDeviceID deviceId,
       const ActiveAudio &activeAudio

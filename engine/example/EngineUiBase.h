@@ -12,7 +12,7 @@
 #include "xjmusic/Engine.h"
 
 #include "EngineUiBase.h"
-#include "EngineAudioSchedule.h"
+#include "EngineScheduledAudio.h"
 
 using namespace XJ;
 using namespace ftxui;
@@ -23,7 +23,7 @@ protected:
 	const Uint32					   CYCLE_MILLISECONDS = 382;
 	std::unique_ptr<Engine>			   engine;
 	ScreenInteractive				   screen;
-	std::map<std::string, EngineAudioSchedule> Schedule;
+	std::map<std::string, EngineScheduledAudio> Schedule;
 	Component						   ui_container;
 	Component						   ui_document;
 	Component						   ui_header_elapsed_time;

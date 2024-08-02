@@ -6,9 +6,9 @@
 #include <stdexcept>
 #include <utility>
 
-#include "EngineAudioSchedule.h"
+#include "EngineScheduledAudio.h"
 
-EngineAudioSchedule::EngineAudioSchedule(
+EngineScheduledAudio::EngineScheduledAudio(
     const std::filesystem::path& audioPathPrefix,
     SDL_AudioDeviceID deviceId,
     const ActiveAudio &activeAudio
@@ -28,13 +28,13 @@ EngineAudioSchedule::EngineAudioSchedule(
   }
 }
 
-void EngineAudioSchedule::Play() {
+void EngineScheduledAudio::Play() {
   // TODO actual playback properties
   SDL_QueueAudio(deviceId, wavBuffer, wavLength);
   SDL_PauseAudioDevice(deviceId, 0);
 }
 
-void EngineAudioSchedule::Update(const ActiveAudio &newActiveAudio) {
+void EngineScheduledAudio::Update(const ActiveAudio &newActiveAudio) {
   pick = newActiveAudio.getPick();
   instrument = newActiveAudio.getInstrument();
   audio = newActiveAudio.getAudio();
@@ -45,7 +45,7 @@ void EngineAudioSchedule::Update(const ActiveAudio &newActiveAudio) {
   // TODO additional logic to handle updating the playback properties (volume and end time) if necessary
 }
 
-void EngineAudioSchedule::Stop() {
+void EngineScheduledAudio::Stop() {
   // TODO additional logic to handle stopping the playback if necessary
   SDL_ClearQueuedAudio(deviceId);
   SDL_CloseAudioDevice(deviceId);
