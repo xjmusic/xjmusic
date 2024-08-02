@@ -22,11 +22,15 @@ public:
 
 	void UpdateActiveAudios(const TMap<FString, FAudioPlayer>& ActiveAudios, const TimeRecord& ChainMicros);
 
+	void Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime) override;
+
 private:
 	TSharedPtr<SVerticalBox> ActiveAudiosVB;
 	TSharedPtr<SScrollBox> SegmentsSB;
 
-	TWeakPtr<TEngineBase> Engine;
+	TSharedPtr<STextBlock> ChainMicrosTB;
+
+	TSharedPtr<TEngineBase> Engine;
 
 	TMap<int, TSharedPtr<SDebugSegmentView>> CreatedSegments;
 };

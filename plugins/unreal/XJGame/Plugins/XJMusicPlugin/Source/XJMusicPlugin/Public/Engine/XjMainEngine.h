@@ -27,10 +27,15 @@ public:
 
 	TArray<FSegmentInfo> GetSegments() override;
 
+	TimeRecord GetLastMicros() const override
+	{
+		return LastChainMicros;
+	}
+
 private:
 	TUniquePtr<Engine> XjEngine;
 
-	uint64 LastChainMicros = 0;
+	TimeRecord LastChainMicros;
 
 	FString CurrentTemplateName;
 

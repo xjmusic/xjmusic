@@ -132,6 +132,8 @@ void SDebugSegmentView::Update(const FSegmentInfo& Info)
 		FirstLevelChoicesVB->ClearChildren();
 	}
 
+	MarkOutdated(false);
+
 	for (const FSegmentChoice& Choice : Info.MacroChoices)
 	{
 		AddNewSegmentChoice(Choice);
@@ -151,6 +153,18 @@ void SDebugSegmentView::Update(const FSegmentInfo& Info)
 	{
 		AddNewSegmentChoice(Choice);
 	}
+}
+
+void SDebugSegmentView::MarkOutdated(bool bValue)
+{
+	if (bValue == bOutdated)
+	{
+		return;
+	}
+	
+	bOutdated = bValue;
+
+	this->SetEnabled(!bOutdated);
 }
 
 void SDebugSegmentView::AddNewSegmentChoice(const FSegmentChoice& Choice)

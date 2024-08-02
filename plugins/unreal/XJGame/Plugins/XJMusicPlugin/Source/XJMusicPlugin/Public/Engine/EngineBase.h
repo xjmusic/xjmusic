@@ -90,4 +90,6 @@ public:
 	virtual FString GetActiveTemplateName() const { return {}; }
 
 	virtual TArray<FSegmentInfo> GetSegments() { return {}; }
+
+	virtual TimeRecord GetLastMicros() const { return {}; }
 };

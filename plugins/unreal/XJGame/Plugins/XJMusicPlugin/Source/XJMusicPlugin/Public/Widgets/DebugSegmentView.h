@@ -22,10 +22,13 @@ public:
 
 	void Update(const FSegmentInfo& Info);
 
+	void MarkOutdated(bool bValue = true);
 private:
 	TSharedPtr<SVerticalBox> FirstLevelChoicesVB;
 
 	TMap<FString, TSharedPtr<SVerticalBox>> SecondLevelChoicesVB;
+
+	bool bOutdated = false;
 
 	void AddNewSegmentChoice(const FSegmentChoice& Choice);
 };

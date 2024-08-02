@@ -50,8 +50,6 @@ bool FXjRunnable::Init()
 
 uint32 FXjRunnable::Run()
 {
-	FString DebugInfo;
-
 	while (!bShouldStop)
 	{
 		float StartFrameTime = FPlatformTime::Seconds();
@@ -116,12 +114,6 @@ uint32 FXjRunnable::Run()
 		}
 
 		AtChainMicros.SetInSeconds(AtChainMicros.GetSeconds() + SleepInterval);
-
-		DebugInfo = FString("Chain micros: ") + AtChainMicros.ToString();
-		DebugInfo += FString::Printf(TEXT("\n %f ms"), SleepInterval);
-
-		GEngine->AddOnScreenDebugMessage(-1, SleepInterval + 0.5f, FColor::Green, DebugInfo);
-		GEngine->AddOnScreenDebugMessage(-1, SleepInterval + 0.5f, FColor::Magenta, PlayingAudios);
 	}
 
 	return 0;

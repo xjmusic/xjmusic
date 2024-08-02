@@ -13,17 +13,11 @@ void SDebugChainView::Construct(const FArguments& Args)
 {
 	Engine = Args._Engine.Pin();
 
-	TSharedPtr<TEngineBase> EnginePtr = Engine.Pin();
-	if (!EnginePtr)
-	{
-		return;
-	}
-
-	FString TemplateStr = FString::Printf(TEXT("Template: %s"), *EnginePtr->GetActiveTemplateName());
-	FString CraftAheadStr = FString::Printf(TEXT("Craft Ahead: %d s"), EnginePtr->GetSettings().CraftAheadSeconds);
-	FString DubAheadStr = FString::Printf(TEXT("Dub Ahead: %d s"), EnginePtr->GetSettings().DubAheadSeconds);
-	FString DeadlineStr = FString::Printf(TEXT("Deadline: %d s"), EnginePtr->GetSettings().DeadlineSeconds);
-	FString PersistenceWindowStr = FString::Printf(TEXT("Persistence Window: %d s"), EnginePtr->GetSettings().PersistenceWindowSeconds);
+	FString TemplateStr = FString::Printf(TEXT("Template: %s"), *Engine->GetActiveTemplateName());
+	FString CraftAheadStr = FString::Printf(TEXT("Craft Ahead: %d s"), Engine->GetSettings().CraftAheadSeconds);
+	FString DubAheadStr = FString::Printf(TEXT("Dub Ahead: %d s"), Engine->GetSettings().DubAheadSeconds);
+	FString DeadlineStr = FString::Printf(TEXT("Deadline: %d s"), Engine->GetSettings().DeadlineSeconds);
+	FString PersistenceWindowStr = FString::Printf(TEXT("Persistence Window: %d s"), Engine->GetSettings().PersistenceWindowSeconds);
 
 	ChildSlot
 	.VAlign(VAlign_Bottom)
@@ -48,6 +42,14 @@ void SDebugChainView::Construct(const FArguments& Args)
 			.FillHeight(0.2f)
 			[
 				SNew(SHorizontalBox)
+				+ SHorizontalBox::Slot()
+				.VAlign(VAlign_Fill)
+				.HAlign(HAlign_Fill)
+				.Padding(FMargin(0.0f, 0.0f, 10.0f, 0.0f))
+				[
+					SAssignNew(ChainMicrosTB, STextBlock)
+					.Font(FSlateFontInfo(FPaths::EngineContentDir() / TEXT("Slate/Fonts/Roboto-Bold.ttf"), 12))
+				]
 				+ SHorizontalBox::Slot()
 				.VAlign(VAlign_Fill)
 				.HAlign(HAlign_Fill)
@@ -166,20 +168,22 @@ void SDebugChainView::UpdateActiveAudios(const TMap<FString, FAudioPlayer>& Acti
 		];
 	}
 
-	TSharedPtr<TEngineBase> EnginePtr = Engine.Pin();
-	if (!EnginePtr)
-	{
-		return;
-	}
-
 	if (!SegmentsSB)
 	{
 		return;
 	}
 
-	auto segments = EnginePtr->GetSegments();
+	for (const TPair<int, TSharedPtr<SDebugSegmentView>>& Segment : CreatedSegments)
+	{
+		if (!Segment.Value)
+		{
+			continue;
+		}
 
-	for (FSegmentInfo Segment : segments)
+		Segment.Value->MarkOutdated();
+	}
+
+	for (FSegmentInfo Segment : Engine->GetSegments())
 	{
 		if (CreatedSegments.Contains(Segment.Id))
 		{
@@ -198,6 +202,18 @@ void SDebugChainView::UpdateActiveAudios(const TMap<FString, FAudioPlayer>& Acti
 		NewSegment->Update(Segment);
 		CreatedSegments.Add(Segment.Id, NewSegment);
 	}
+}
+
+void SDebugChainView::Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime)
+{
+	SCompoundWidget::Tick(AllottedGeometry, InCurrentTime, InDeltaTime);
+
+	if (!Engine || !ChainMicrosTB)
+	{
+		return;
+	}
+
+	ChainMicrosTB->SetText(FText::FromString(FString::Printf(TEXT("Micros: %.2fs"), Engine->GetLastMicros().GetSeconds())));
 }
 
 END_SLATE_FUNCTION_BUILD_OPTIMIZATION
