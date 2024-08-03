@@ -12,16 +12,17 @@ namespace XJ
 
 	class ActiveAudio
 	{
-		const SegmentChoiceArrangementPick* pick;
-		const Instrument*					instrument;
-		const InstrumentAudio*				audio;
-		unsigned long long					startAtChainMicros;
-		unsigned long long					stopAtChainMicros;
-		float								fromVolume;
-		float								toVolume;
-		UUID								id;
+    UUID								id;
 
-	public:
+  protected:
+    const SegmentChoiceArrangementPick* pick;
+    const Instrument*					instrument;
+    const InstrumentAudio*				audio;
+    unsigned long long					startAtChainMicros;
+    unsigned long long					stopAtChainMicros;
+    float								fromVolume;
+    float								toVolume;
+  public:
 		ActiveAudio(
 			const SegmentChoiceArrangementPick* pick,
 			const Instrument*					instrument,

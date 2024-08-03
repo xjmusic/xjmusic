@@ -15,7 +15,7 @@ namespace XJ {
     std::unique_ptr<ContentEntityStore> projectContent;
     std::unique_ptr<ContentEntityStore> templateContent;
     std::unique_ptr<WorkManager> work;
-    std::filesystem::path pathToBuildDirectory;
+    std::filesystem::path buildPathPrefix;
 
   public:
     /**
@@ -116,7 +116,7 @@ namespace XJ {
     /**
      Get the path to the build directory
      */
-    std::filesystem::path getPathToBuildDirectory();
+    std::filesystem::path getBuildPath();
 
     /**
      * Get the work settings

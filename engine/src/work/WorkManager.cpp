@@ -78,25 +78,25 @@ std::vector<AudioScheduleEvent> WorkManager::runCycle(const unsigned long long a
 
   // check for new or updated audio
   const auto audios = this->runDubCycle(atChainMicros);
-  for (auto audio: audios) {
+  for (const auto& audio: audios) {
     foundAudioIds.insert(audio.getId());
     if (activeAudioMap.find(audio.getId()) != activeAudioMap.end()) {
       // check if the audio has been modified; if so, update it
       if (activeAudioMap.at(audio.getId()) != audio) {
         activeAudioMap.emplace(audio.getId(), audio);
-        audioEvents.emplace_back(AudioScheduleEvent(AudioScheduleEvent::EType::Update, audio));
+        audioEvents.emplace_back(AudioScheduleEvent::EType::Update, audio);
       }
     } else {
       // create a new audio
       activeAudioMap.emplace(audio.getId(), audio);
-      audioEvents.emplace_back(AudioScheduleEvent(AudioScheduleEvent::EType::Create, audio));
+      audioEvents.emplace_back(AudioScheduleEvent::EType::Create, audio);
     }
   }
 
   // check for deleted audio
   for (auto it = activeAudioMap.begin(); it != activeAudioMap.end();) {
     if (foundAudioIds.find(it->first) == foundAudioIds.end()) {
-      audioEvents.emplace_back(AudioScheduleEvent(AudioScheduleEvent::EType::Delete, it->second));
+      audioEvents.emplace_back(AudioScheduleEvent::EType::Delete, it->second);
       it = activeAudioMap.erase(it);
     } else {
       ++it;
