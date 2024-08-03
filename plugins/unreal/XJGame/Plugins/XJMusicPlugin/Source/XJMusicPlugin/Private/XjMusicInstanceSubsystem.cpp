@@ -5,9 +5,6 @@
 #include <Settings/XJMusicDefaultSettings.h>
 #include <Sound/SoundBase.h>
 #include <Sound/SoundWave.h>
-#include <Engine/StreamableManager.h>
-#include <Engine/AssetManager.h>
-#include <Engine/ObjectLibrary.h>
 #include <Misc/FileHelper.h>
 #include <Runtime/Engine/Public/AudioDevice.h>
 #include <Async/Async.h>
@@ -114,11 +111,6 @@ bool UXjMusicInstanceSubsystem::PlayAudio(const FAudioPlayer& Audio)
 			if (!SoundWave)
 			{
 				return;
-			}
-
-			if (!FMath::IsNearlyEqual(DurationSeconds, SoundWave->Duration, 0.001f))
-			{
-				UE_LOG(LogTemp, Error, TEXT("Audio: %s actual %f and planned %f time are different!"), *Audio.Name, SoundWave->Duration, DurationSeconds);
 			}
 
 			UAudioComponent* NewAudioComponent = UGameplayStatics::CreateSound2D(GetWorld(), SoundWave, 

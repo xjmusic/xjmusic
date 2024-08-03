@@ -20,11 +20,10 @@ private:
 
 	void RegisterMenus();
 
-	void OnPostWorldInitialization(UWorld* World, const UWorld::InitializationValues IVS);
+	void OnPostWorldInitialization(UWorld* World, const UWorld::InitializationValues Ivs);
 
 	void OnLevelBeginPlay();
 
-private:
 	TSharedPtr<class FUICommandList> PluginCommands;
 
 	UWorld* LastWorld = nullptr;

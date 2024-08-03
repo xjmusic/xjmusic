@@ -44,7 +44,7 @@ void FXJMusicPluginModule::StartupModule()
 }
 
 
-void FXJMusicPluginModule::OnPostWorldInitialization(UWorld* World, const UWorld::InitializationValues IVS)
+void FXJMusicPluginModule::OnPostWorldInitialization(UWorld* World, const UWorld::InitializationValues Ivs)
 {
 	if (!World)
 	{
