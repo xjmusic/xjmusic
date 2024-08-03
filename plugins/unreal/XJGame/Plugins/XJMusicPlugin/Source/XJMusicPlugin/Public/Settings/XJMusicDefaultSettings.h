@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UObject/NoExportTypes.h"
 #include "XJMusicDefaultSettings.generated.h"
 
 UCLASS(config = "XJMusicConfig")
@@ -16,10 +15,7 @@ public:
 	FString PathToXjMusicWorkstation;
 
 	UPROPERTY(Config, EditAnywhere, Category = Settings)
-	FString XjProjectFolder = "D:/Dev/vgm/";
-
-	UPROPERTY(Config, EditAnywhere, Category = Settings)
-	FString XjProjectFile = "vgm.xj";
+	FString PathToXjProjectFile = "D:/Dev/vgm/vgm.xj";
 
 	UPROPERTY(EditAnywhere, Category = Settings)
 	bool bDevelopmentMode = false;
