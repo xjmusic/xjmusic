@@ -103,9 +103,8 @@ void FXJMusicPluginModule::PluginButtonClicked()
 		return;
 	}
 
-	FString DirAbsolute = XjSettings->XjProjectFolder;
 
-	FPlatformProcess::CreateProc(*XjSettings->PathToXjMusicWorkstation, *DirAbsolute, true, false, false, nullptr, 0, nullptr, nullptr);
+	FPlatformProcess::CreateProc(*XjSettings->PathToXjMusicWorkstation, *XjSettings->PathToXjProjectFile, true, false, false, nullptr, 0, nullptr, nullptr);
 }
 
 void FXJMusicPluginModule::RegisterMenus()

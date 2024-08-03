@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UObject/NoExportTypes.h"
 #include "Types/XjTypes.h"
 #include <Engine/EngineBase.h>
 
@@ -14,7 +13,7 @@ class FXjRunnable : public FRunnable
 
 public:
 
-	FXjRunnable(const FString& XjProjectFolder, const FString& XjProjectFile, UWorld* World);
+	FXjRunnable(const FString& PathToProjectFile, const UWorld* World);
 
 	virtual bool Init() override;
 	virtual uint32 Run() override;
@@ -52,7 +51,7 @@ public:
 
 	void Setup();
 
-	void BeginDestroy() override;
+	virtual void BeginDestroy() override;
 
 	TimeRecord GetAtChainMicros() const
 	{

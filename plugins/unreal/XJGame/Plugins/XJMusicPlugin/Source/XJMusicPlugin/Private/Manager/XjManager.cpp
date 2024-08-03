@@ -2,22 +2,24 @@
 
 
 #include "Manager/XjManager.h"
-#include "Components/AudioComponent.h"
 #include <XjMusicInstanceSubsystem.h>
 #include <Math/UnrealMathUtility.h>
 #include <Engine/XjMainEngine.h>
 #include <Tests/MockDataEngine.h>
 #include <Settings/XJMusicDefaultSettings.h>
 
-FXjRunnable::FXjRunnable(const FString& XjProjectFolder, const FString& XjProjectFile, UWorld* World)
+FXjRunnable::FXjRunnable(const FString& PathToProjectFile, const UWorld* World)
 {
 	check(World);
 
-	FString PathToProject = XjProjectFolder + XjProjectFile;
-	std::string PathToProjectStr(TCHAR_TO_UTF8(*PathToProject));
+	std::string PathToProjectStr(TCHAR_TO_UTF8(*PathToProjectFile));
 	UE_LOG(LogTemp, Display, TEXT("Path to project: %s"), *FString(PathToProjectStr.c_str()));
 
-	FString PathToBuildFolder = XjProjectFolder + "build/";
+	// Crawl the build folder in the folder containing the project file
+	FString ProjectPath = PathToProjectFile;
+	FString FolderContainingProject = FPaths::GetPath(ProjectPath);
+	FString PathToBuildFolder = FPaths::Combine(FolderContainingProject, TEXT("build/"));
+
 	UE_LOG(LogTemp, Display, TEXT("Path to build folder: %s"), *PathToBuildFolder);
 
 	XjMusicSubsystem = World->GetGameInstance()->GetSubsystem<UXjMusicInstanceSubsystem>();
@@ -39,7 +41,7 @@ FXjRunnable::FXjRunnable(const FString& XjProjectFolder, const FString& XjProjec
 	if (Engine)
 	{
 		XjMusicSubsystem->SetActiveEngine(Engine);
-		Engine->Setup(PathToProject);
+		Engine->Setup(PathToProjectFile);
 	}
 }
 
@@ -65,7 +67,7 @@ uint32 FXjRunnable::Run()
 
 		for (const FAudioPlayer& Audio : ReceivedAudios)
 		{
-			float Duration = 0;
+			float Duration;
 
 			switch (Audio.Event)
 			{
@@ -76,9 +78,9 @@ uint32 FXjRunnable::Run()
 				if (XjMusicSubsystem->PlayAudioByName(Audio.WaveId, Audio.StartTime.GetMillie(), Duration))
 				{
 					PlayingAudios += FString::Printf(TEXT("%s start: %f end: %f\n"),
-													*Audio.Name, 
-													 Audio.StartTime.GetSeconds(), 
-													 Audio.EndTime.GetSeconds());
+					                                 *Audio.Name,
+					                                 Audio.StartTime.GetSeconds(),
+					                                 Audio.EndTime.GetSeconds());
 				}
 
 				XjMusicSubsystem->AddActiveAudio(Audio);
@@ -86,17 +88,16 @@ uint32 FXjRunnable::Run()
 				break;
 
 			case EAudioEventType::Update:
-				
+
 				XjMusicSubsystem->UpdateActiveAudio(Audio);
 
 				break;
 
 			case EAudioEventType::Delete:
-				
+
 				XjMusicSubsystem->RemoveActiveAudio(Audio);
 
 				break;
-
 			}
 		}
 
@@ -131,7 +132,7 @@ bool FXjRunnable::TryInitMockEngine()
 	{
 		Engine = MakeShared<TMockDataEngine>();
 
-		if (TMockDataEngine* MockEngine = (TMockDataEngine*)Engine.Get())
+		if (TMockDataEngine* MockEngine = static_cast<TMockDataEngine*>(Engine.Get()))
 		{
 			MockEngine->SetMockData(XjSettings->MockDataDT);
 			MockEngine->MaxAudiosOutputPerCycle = XjSettings->MaxAudiosOutputPerCycle;
@@ -152,7 +153,7 @@ void UXjManager::Setup()
 		return;
 	}
 
-	XjRunnable = new FXjRunnable(XjSettings->XjProjectFolder, XjSettings->XjProjectFile, GetWorld());
+	XjRunnable = new FXjRunnable(XjSettings->PathToXjProjectFile, GetWorld());
 	XjThread = FRunnableThread::Create(XjRunnable, TEXT("Xj Thread"));
 }
 
