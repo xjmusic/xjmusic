@@ -64,6 +64,7 @@ public class MainWindowStageReadyListener implements ApplicationListener<StageRe
       primaryStage = event.getStage();
       UiUtils.setupIcon(primaryStage);
       primaryStage.initStyle(StageStyle.DECORATED);
+      event.getOpenProjectFilePath().ifPresent(projectService::openProject);
     } catch (Exception e) {
       LOG.error("Failed to initialize Stage! {}\n{}", e.getMessage(), StringUtils.formatStackTrace(e));
       return;
