@@ -8,15 +8,15 @@
 #include <Tests/MockDataEngine.h>
 #include <Settings/XJMusicDefaultSettings.h>
 
-FXjRunnable::FXjRunnable(const FString& PathToProjectFile, const UWorld* World)
+FXjRunnable::FXjRunnable(const FString& PathToProject, const UWorld* World)
 {
 	check(World);
 
-	std::string PathToProjectStr(TCHAR_TO_UTF8(*PathToProjectFile));
+	std::string PathToProjectStr(TCHAR_TO_UTF8(*PathToProject));
 	UE_LOG(LogTemp, Display, TEXT("Path to project: %s"), *FString(PathToProjectStr.c_str()));
 
 	// Crawl the build folder in the folder containing the project file
-	FString ProjectPath = PathToProjectFile;
+	FString ProjectPath = PathToProject;
 	FString FolderContainingProject = FPaths::GetPath(ProjectPath);
 	FString PathToBuildFolder = FPaths::Combine(FolderContainingProject, TEXT("build/"));
 
@@ -41,7 +41,7 @@ FXjRunnable::FXjRunnable(const FString& PathToProjectFile, const UWorld* World)
 	if (Engine)
 	{
 		XjMusicSubsystem->SetActiveEngine(Engine);
-		Engine->Setup(PathToProjectFile);
+		Engine->Setup(PathToProject);
 	}
 }
 
@@ -78,9 +78,9 @@ uint32 FXjRunnable::Run()
 				if (XjMusicSubsystem->PlayAudioByName(Audio.WaveId, Audio.StartTime.GetMillie(), Duration))
 				{
 					PlayingAudios += FString::Printf(TEXT("%s start: %f end: %f\n"),
-					                                 *Audio.Name,
-					                                 Audio.StartTime.GetSeconds(),
-					                                 Audio.EndTime.GetSeconds());
+													*Audio.Name, 
+													 Audio.StartTime.GetSeconds(), 
+													 Audio.EndTime.GetSeconds());
 				}
 
 				XjMusicSubsystem->AddActiveAudio(Audio);
@@ -88,16 +88,17 @@ uint32 FXjRunnable::Run()
 				break;
 
 			case EAudioEventType::Update:
-
+				
 				XjMusicSubsystem->UpdateActiveAudio(Audio);
 
 				break;
 
 			case EAudioEventType::Delete:
-
+				
 				XjMusicSubsystem->RemoveActiveAudio(Audio);
 
 				break;
+
 			}
 		}
 
