@@ -32,11 +32,6 @@ else ()
     add_vendor_external_project(xj_player vendor_sdl2 "SDL-2.30.5.tar.gz" "e3b9c6faf8b28567e069588c8f8fecef" "lib/libSDL2.a;lib/libSDL2main.a" "lib/libSDL2.so")
 endif ()
 
-# Add SDL2_Mixer
-FetchContent_Declare(vendor_sdl2_mixer URL "${CMAKE_SOURCE_DIR}/vendor/SDL_mixer-2.8.0.tar.gz")
-FetchContent_MakeAvailable(vendor_sdl2_mixer)
-target_link_libraries(xj_player SDL2::Mixer)
-
 # FTXUI
 FetchContent_Declare(ftxui URL "${CMAKE_SOURCE_DIR}/vendor/FTXUI-5.0.0.tar.gz")
 FetchContent_MakeAvailable(ftxui)

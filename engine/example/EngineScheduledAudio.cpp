@@ -29,7 +29,7 @@ EngineScheduledAudio::EngineScheduledAudio(
 }
 
 void EngineScheduledAudio::Play() {
-  // TODO actual playback properties
+  // NEXT actual playback properties
   SDL_QueueAudio(deviceId, wavBuffer, wavLength);
   SDL_PauseAudioDevice(deviceId, 0);
 }
@@ -42,11 +42,11 @@ void EngineScheduledAudio::Update(const ActiveAudio &newActiveAudio) {
   stopAtChainMicros = newActiveAudio.getStopAtChainMicros();
   fromVolume = newActiveAudio.getFromVolume();
   toVolume = newActiveAudio.getToVolume();
-  // TODO additional logic to handle updating the playback properties (volume and end time) if necessary
+  // NEXT additional logic to handle updating the playback properties (volume and end time) if necessary
 }
 
 void EngineScheduledAudio::Stop() {
-  // TODO additional logic to handle stopping the playback if necessary
+  // NEXT additional logic to handle stopping the playback if necessary
   SDL_ClearQueuedAudio(deviceId);
   SDL_CloseAudioDevice(deviceId);
   SDL_FreeWAV(wavBuffer);

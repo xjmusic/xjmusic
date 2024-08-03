@@ -98,19 +98,19 @@ void XJPlayer::RunEngineCycle(SDL_AudioDeviceID deviceId) {
   for (const AudioScheduleEvent& event : engine->RunCycle(AtChainMicros)) {
     switch (event.type) {
       case AudioScheduleEvent::EType::Create:
-        // TODO: implement XJPlayer creating a new scheduled audio
+        // NEXT: implement XJPlayer creating a new scheduled audio
         Schedule.emplace(event.schedule.getId(), EngineScheduledAudio(engine->getBuildPath(), deviceId, event.schedule));
         break;
       case AudioScheduleEvent::EType::Update:
         if (Schedule.find(event.schedule.getId()) != Schedule.end()) {
-          // TODO: implement XJPlayer updating an existing scheduled audio
+          // NEXT: implement XJPlayer updating an existing scheduled audio
           Schedule.at(event.schedule.getId()).Update(event.schedule);
         } else {
           std::cerr << "Error: tried to update a non-existent audio" + event.schedule.getAudio()->waveformKey << std::endl;
         }
         break;
       case AudioScheduleEvent::EType::Delete:
-        // TODO: implement XJPlayer ensures stopped playback before erasing a scheduled audio
+        // NEXT: implement XJPlayer ensures stopped playback before erasing a scheduled audio
         Schedule.erase(event.schedule.getId());
         break;
     }
