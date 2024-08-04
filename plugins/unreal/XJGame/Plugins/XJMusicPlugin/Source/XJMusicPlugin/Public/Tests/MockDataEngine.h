@@ -41,6 +41,16 @@ public:
 
 	float LatencyBetweenCyclesInSeconds = 0.0f;
 
+
+	TimeRecord GetLastMicros() const override
+	{
+		TimeRecord Time;
+		Time.SetInMicros(LastMicros);
+
+		return Time;
+	}
+
+
 private:
 	TArray<FMockAudioTableRow> ScheduledAudios;
 

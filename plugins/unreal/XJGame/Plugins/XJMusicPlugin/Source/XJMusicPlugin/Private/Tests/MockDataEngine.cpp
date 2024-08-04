@@ -14,9 +14,9 @@ TArray<FAudioPlayer> TMockDataEngine::RunCycle(const uint64 ChainMicros)
         {
             return {};
         }
-
-        LastMicros = ChainMicros;
     }
+
+    LastMicros = ChainMicros;
 
     TArray<FAudioPlayer> OutputPlayers;
 
@@ -52,6 +52,7 @@ TArray<FAudioPlayer> TMockDataEngine::RunCycle(const uint64 ChainMicros)
         FAudioPlayer Player;
         Player.Name = Element.Name;
         Player.Id = Element.Id;
+        Player.WaveId = Element.Id;
         Player.StartTime.SetInMicros(Element.StartTimeAtChainMicros);
         Player.EndTime.SetInMicros(Element.EndTimeAtChainMicros);
         Player.Event = EAudioEventType::Create;
