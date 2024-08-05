@@ -15,7 +15,7 @@ public class XJMusicPlugin : ModuleRules
         PublicDependencyModuleNames.AddRange(
 			new string[]
 			{
-				"Core",
+				"Core", "AudioMixer",
 			}
 			);
 			

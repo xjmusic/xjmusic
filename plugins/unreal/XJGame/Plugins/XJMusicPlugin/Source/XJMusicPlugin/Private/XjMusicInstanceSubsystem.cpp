@@ -5,9 +5,6 @@
 #include <Settings/XJMusicDefaultSettings.h>
 #include <Sound/SoundBase.h>
 #include <Sound/SoundWave.h>
-#include <Engine/StreamableManager.h>
-#include <Engine/AssetManager.h>
-#include <Engine/ObjectLibrary.h>
 #include <Misc/FileHelper.h>
 #include <Runtime/Engine/Public/AudioDevice.h>
 #include <Async/Async.h>
@@ -103,7 +100,7 @@ bool UXjMusicInstanceSubsystem::PlayAudioByName(const FString& Name, const float
 			bool OverrideStartBars = false;
 
 			FQuartzTransportTimeStamp CurrentTimestamp = QuartzClockHandle->GetCurrentTimestamp(GetWorld());
-			float ActualCurrentTime = CurrentTimestamp.Seconds * CurrentTimestamp.BeatFraction;
+			const float ActualCurrentTime = CurrentTimestamp.Seconds * CurrentTimestamp.BeatFraction;
 
 			if (ActualCurrentTime > StartTime)
 			{

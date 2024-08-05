@@ -3,8 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Quartz/AudioMixerClockHandle.h"
 #include "Subsystems/GameInstanceSubsystem.h"
-#include "Quartz/QuartzSubsystem.h"
 #include "Widgets/DebugChainView.h"
 
 #include "XjMusicInstanceSubsystem.generated.h"

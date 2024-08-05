@@ -2,22 +2,24 @@
 
 
 #include "Manager/XjManager.h"
-#include "Components/AudioComponent.h"
 #include <XjMusicInstanceSubsystem.h>
 #include <Math/UnrealMathUtility.h>
 #include <Engine/XjMainEngine.h>
 #include <Tests/MockDataEngine.h>
 #include <Settings/XJMusicDefaultSettings.h>
 
-FXjRunnable::FXjRunnable(const FString& XjProjectFolder, const FString& XjProjectFile, UWorld* World)
+FXjRunnable::FXjRunnable(const FString& PathToProject, const UWorld* World)
 {
 	check(World);
 
-	FString PathToProject = XjProjectFolder + XjProjectFile;
 	std::string PathToProjectStr(TCHAR_TO_UTF8(*PathToProject));
 	UE_LOG(LogTemp, Display, TEXT("Path to project: %s"), *FString(PathToProjectStr.c_str()));
 
-	FString PathToBuildFolder = XjProjectFolder + "build/";
+	// Crawl the build folder in the folder containing the project file
+	FString ProjectPath = PathToProject;
+	FString FolderContainingProject = FPaths::GetPath(ProjectPath);
+	FString PathToBuildFolder = FPaths::Combine(FolderContainingProject, TEXT("build/"));
+
 	UE_LOG(LogTemp, Display, TEXT("Path to build folder: %s"), *PathToBuildFolder);
 
 	XjMusicSubsystem = World->GetGameInstance()->GetSubsystem<UXjMusicInstanceSubsystem>();
@@ -65,7 +67,7 @@ uint32 FXjRunnable::Run()
 
 		for (const FAudioPlayer& Audio : ReceivedAudios)
 		{
-			float Duration = 0;
+			float Duration;
 
 			switch (Audio.Event)
 			{
@@ -131,7 +133,7 @@ bool FXjRunnable::TryInitMockEngine()
 	{
 		Engine = MakeShared<TMockDataEngine>();
 
-		if (TMockDataEngine* MockEngine = (TMockDataEngine*)Engine.Get())
+		if (TMockDataEngine* MockEngine = static_cast<TMockDataEngine*>(Engine.Get()))
 		{
 			MockEngine->SetMockData(XjSettings->MockDataDT);
 			MockEngine->MaxAudiosOutputPerCycle = XjSettings->MaxAudiosOutputPerCycle;
@@ -152,7 +154,7 @@ void UXjManager::Setup()
 		return;
 	}
 
-	XjRunnable = new FXjRunnable(XjSettings->XjProjectFolder, XjSettings->XjProjectFile, GetWorld());
+	XjRunnable = new FXjRunnable(XjSettings->PathToXjProjectFile, GetWorld());
 	XjThread = FRunnableThread::Create(XjRunnable, TEXT("Xj Thread"));
 }
 
