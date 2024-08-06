@@ -30,9 +30,11 @@ private:
 
 private:
 
+	double LastFramTime = 0.0f;
+
 	FThreadSafeBool bShouldStop = false;
 
-	int RunCycleFrequency = 3;
+	int RunCycleFrequency = 9;
 
 	TimeRecord XjStartTime;
 
@@ -65,6 +67,6 @@ public:
 	}
 
 private:
-	FXjRunnable* XjRunnable = nullptr;
-	FRunnableThread* XjThread = nullptr;
+	TSharedPtr<FXjRunnable> XjRunnable;
+	TSharedPtr<FRunnableThread> XjThread;
 };

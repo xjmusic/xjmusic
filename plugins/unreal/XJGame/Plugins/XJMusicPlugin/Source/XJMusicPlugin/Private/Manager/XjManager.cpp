@@ -41,6 +41,8 @@ FXjRunnable::FXjRunnable(const FString& XjProjectFolder, const FString& XjProjec
 		XjMusicSubsystem->SetActiveEngine(Engine);
 		Engine->Setup(PathToProject);
 	}
+
+	LastFramTime = FPlatformTime::Seconds();
 }
 
 bool FXjRunnable::Init()
@@ -52,14 +54,21 @@ uint32 FXjRunnable::Run()
 {
 	while (!bShouldStop)
 	{
-		float StartFrameTime = FPlatformTime::Seconds();
-
-		FString PlayingAudios = "Scheduled:\n";
-
 		if (!Engine)
 		{
 			continue;
 		}
+
+		const double CurrentTime = FPlatformTime::Seconds();
+		const double DeltaTime = CurrentTime - LastFramTime;
+
+		if (DeltaTime < (1.0f / RunCycleFrequency))
+		{
+			FPlatformProcess::Sleep(0.0f);
+			continue;
+		}
+
+		LastFramTime = CurrentTime;
 
 		TArray<FAudioPlayer> ReceivedAudios = Engine->RunCycle(AtChainMicros.GetMicros());
 
@@ -70,50 +79,21 @@ uint32 FXjRunnable::Run()
 			switch (Audio.Event)
 			{
 			case EAudioEventType::Create:
-
-				Duration = Audio.EndTime.GetMillie() - AtChainMicros.GetMillie();
-
-				if (XjMusicSubsystem->PlayAudioByName(Audio.WaveId, Audio.StartTime.GetMillie(), Duration))
-				{
-					PlayingAudios += FString::Printf(TEXT("%s start: %f end: %f\n"),
-													*Audio.Name, 
-													 Audio.StartTime.GetSeconds(), 
-													 Audio.EndTime.GetSeconds());
-				}
-
 				XjMusicSubsystem->AddActiveAudio(Audio);
-
 				break;
 
 			case EAudioEventType::Update:
-				
 				XjMusicSubsystem->UpdateActiveAudio(Audio);
-
 				break;
 
 			case EAudioEventType::Delete:
-				
 				XjMusicSubsystem->RemoveActiveAudio(Audio);
-
 				break;
 
 			}
 		}
 
-		float EndFrameTime = FPlatformTime::Seconds();
-
-		float DeltaTime = EndFrameTime - StartFrameTime;
-		float SleepInterval = 1.0f / RunCycleFrequency - (EndFrameTime - StartFrameTime);
-		SleepInterval = FMath::Max(SleepInterval, 0.0f);
-
-		FPlatformProcess::Sleep(SleepInterval);
-
-		if (SleepInterval == 0.0f)
-		{
-			SleepInterval = DeltaTime;
-		}
-
-		AtChainMicros.SetInSeconds(AtChainMicros.GetSeconds() + SleepInterval);
+		AtChainMicros.SetInSeconds(AtChainMicros.GetSeconds() + DeltaTime);
 	}
 
 	return 0;
@@ -152,8 +132,8 @@ void UXjManager::Setup()
 		return;
 	}
 
-	XjRunnable = new FXjRunnable(XjSettings->XjProjectFolder, XjSettings->XjProjectFile, GetWorld());
-	XjThread = FRunnableThread::Create(XjRunnable, TEXT("Xj Thread"));
+	XjRunnable = MakeShared<FXjRunnable>(XjSettings->XjProjectFolder, XjSettings->XjProjectFile, GetWorld());
+	XjThread = TSharedPtr<FRunnableThread>(FRunnableThread::Create(XjRunnable.Get(), TEXT("Xj Thread")));
 }
 
 void UXjManager::BeginDestroy()
@@ -162,9 +142,6 @@ void UXjManager::BeginDestroy()
 	{
 		XjRunnable->Stop();
 		XjThread->WaitForCompletion();
-
-		delete XjThread;
-		delete XjRunnable;
 	}
 
 	Super::BeginDestroy();

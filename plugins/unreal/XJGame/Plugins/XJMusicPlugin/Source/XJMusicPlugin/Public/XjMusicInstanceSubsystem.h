@@ -21,13 +21,6 @@ public:
 
 	void SetActiveEngine(const TWeakPtr<TEngineBase>& Engine);
 
-	//Play audio from loaded tracks. GlobalStartTime and GlobalEndTime in millieseconds
-	bool PlayAudioByName(const FString& Name, const float GlobalStartTime, const float Duration);
-
-	void StopAudioByName(const FString& Name);
-
-	bool IsAudioScheduled(const FString& Name, const float Time) const;
-
 	void AddActiveAudio(const FAudioPlayer& Audio);
 
 	void UpdateActiveAudio(const FAudioPlayer& Audio);
@@ -45,7 +38,7 @@ public:
 
 private:
 
-	USoundWave* GetSoundWaveByName(const FString& AudioName);
+	USoundWave* GetSoundWaveById(const FString& Id, const float Duration = 0.0f);
 
 	void InitQuartz();
 
@@ -53,8 +46,15 @@ private:
 
 	void UpdateDebugChainView();
 
-private:
+	bool PlayAudio(const FAudioPlayer& Audio);
 
+	UFUNCTION()
+	void CheckActiveAudios();
+
+private:
+	FTimerHandle CheckTimerHandle;
+
+	UPROPERTY()
 	class UXjManager* Manager = nullptr;
 
 	UQuartzClockHandle* QuartzClockHandle;
@@ -67,7 +67,8 @@ private:
 
 	TMap<FString, FString> AudioPathsByNameLookup;
 
-	TMap<FString, TMap<float, UAudioComponent*>> SoundsMap;
+	UPROPERTY()
+	TMap<FString, UAudioComponent*> SoundsMap;
 
 	TMap<FString, FAudioPlayer> ActiveAudios;
 
@@ -75,5 +76,6 @@ private:
 
 	const FString AudioExtension = ".wav";
 
-	float PlanAheadMs = 64;
+	UPROPERTY()
+	class USoundConcurrency* SoundConcurrency = nullptr;
 };

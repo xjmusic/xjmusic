@@ -13,10 +13,11 @@
 #include <Async/Async.h>
 #include <Manager/XjManager.h>
 #include <Widgets/SWeakWidget.h>
+#include <Sound/SoundConcurrency.h>
 
 static TAutoConsoleVariable<int32> CVarShowDebugChain(
 	TEXT("xj.showdebug"), 
-	0, 
+	1, 
 	TEXT("Show debug view of the chain schedule"), 
 	ECVF_Default);
 
@@ -39,11 +40,31 @@ void UXjMusicInstanceSubsystem::SetupXJ()
 		return;
 	}
 
+	SoundConcurrency = NewObject<USoundConcurrency>();
+	if (SoundConcurrency)
+	{
+		FSoundConcurrencySettings Settings;
+		Settings.MaxCount = 64;
+		Settings.ResolutionRule = EMaxConcurrentResolutionRule::StopOldest;
+
+		SoundConcurrency->Concurrency = Settings;
+	}
+
 	Manager = NewObject<UXjManager>(this);
 	if (Manager)
 	{
 		Manager->Setup();
 	}
+
+	if (CVarShowDebugChain->GetInt() > 0)
+	{
+		OnEnabledShowDebugChain(CVarShowDebugChain->AsVariable());
+	}
+
+	FTimerDelegate CheckDelegate;
+	CheckDelegate.BindUObject(this, &UXjMusicInstanceSubsystem::CheckActiveAudios);
+
+	GetWorld()->GetTimerManager().SetTimer(CheckTimerHandle, CheckDelegate, 1.0f, true);
 }
 
 void UXjMusicInstanceSubsystem::RetrieveProjectsContent(const FString& Directory)
@@ -83,67 +104,42 @@ void UXjMusicInstanceSubsystem::SetActiveEngine(const TWeakPtr<TEngineBase>& Eng
 	ActiveEngine = Engine;
 }
 
-bool UXjMusicInstanceSubsystem::PlayAudioByName(const FString& Name, const float StartTime, const float Duration)
-{
-	float DurationSeconds = Duration  / 1000.0f;
-	
-	AsyncTask(ENamedThreads::GameThread, [this, StartTime, DurationSeconds, Name]()
+bool UXjMusicInstanceSubsystem::PlayAudio(const FAudioPlayer& Audio)
+{	
+	AsyncTask(ENamedThreads::GameThread, [this, Audio]()
 		{
-			if (IsAudioScheduled(Name, StartTime))
-			{
-				return;
-			}
+			float DurationSeconds = Audio.EndTime.GetSeconds() - Audio.StartTime.GetSeconds();
 
-			USoundWave* SoundWave = GetSoundWaveByName(Name);
+			USoundWave* SoundWave = GetSoundWaveById(Audio.WaveId, DurationSeconds);
 			if (!SoundWave)
 			{
 				return;
 			}
 
-			bool OverrideStartBars = false;
-
-			FQuartzTransportTimeStamp CurrentTimestamp = QuartzClockHandle->GetCurrentTimestamp(GetWorld());
-			float ActualCurrentTime = CurrentTimestamp.Seconds * CurrentTimestamp.BeatFraction;
-
-			if (ActualCurrentTime > StartTime)
+			if (!FMath::IsNearlyEqual(DurationSeconds, SoundWave->Duration, 0.001f))
 			{
-				OverrideStartBars = true;
+				UE_LOG(LogTemp, Error, TEXT("Audio: %s actual %f and planned %f time are different!"), *Audio.Name, SoundWave->Duration, DurationSeconds);
 			}
-			
-			UAudioComponent* NewAudioComponent = UGameplayStatics::CreateSound2D(GetWorld(), SoundWave);
+
+			UAudioComponent* NewAudioComponent = UGameplayStatics::CreateSound2D(GetWorld(), SoundWave, 
+																					1.0f, 1.0f, 0.0f, SoundConcurrency);
 			if (NewAudioComponent)
 			{
-				if (OverrideStartBars)
-				{
-					float PredictedStartTime = ActualCurrentTime + (PlanAheadMs / 1000.0f);
+				FQuartzQuantizationBoundary Boundary;
+				Boundary.Quantization = EQuartzCommandQuantization::ThirtySecondNote;
+				Boundary.CountingReferencePoint = EQuarztQuantizationReference::TransportRelative;
+				Boundary.Multiplier = Audio.StartTime.GetMillie();
 
-					FQuartzQuantizationBoundary Boundary;
-					Boundary.Quantization = EQuartzCommandQuantization::ThirtySecondNote;
-					Boundary.CountingReferencePoint = EQuarztQuantizationReference::CurrentTimeRelative;
-					Boundary.Multiplier = PredictedStartTime;
-					
-					NewAudioComponent->PlayQuantized(GetWorld(), QuartzClockHandle, Boundary, {}, PredictedStartTime);
-				}
-				else
-				{
-					FQuartzQuantizationBoundary Boundary;
-					Boundary.Quantization = EQuartzCommandQuantization::ThirtySecondNote;
-					Boundary.CountingReferencePoint = EQuarztQuantizationReference::TransportRelative;
-					Boundary.Multiplier = StartTime;
-
-					NewAudioComponent->PlayQuantized(GetWorld(), QuartzClockHandle, Boundary, {});
-				}
-
-				NewAudioComponent->StopDelayed(DurationSeconds);
+				NewAudioComponent->PlayQuantized(GetWorld(), QuartzClockHandle, Boundary, {});
 
 				SoundsMapCriticalSection.Lock();
 
-				if (!SoundsMap.Contains(Name))
+				if (!SoundsMap.Contains(Audio.Id))
 				{
-					SoundsMap.Add(Name, {});
+					SoundsMap.Add(Audio.Id, {});
 				}
 
-				SoundsMap[Name].Add(StartTime, NewAudioComponent);
+				SoundsMap.Add(Audio.Id, NewAudioComponent);
 
 				SoundsMapCriticalSection.Unlock();
 			}
@@ -152,35 +148,23 @@ bool UXjMusicInstanceSubsystem::PlayAudioByName(const FString& Name, const float
 	return true;
 }
 
-void UXjMusicInstanceSubsystem::StopAudioByName(const FString& Name)
+void UXjMusicInstanceSubsystem::CheckActiveAudios()
 {
 
-}
-
-bool UXjMusicInstanceSubsystem::IsAudioScheduled(const FString& Name, const float Time) const
-{
-	SoundsMapCriticalSection.Lock();
-
-	if (SoundsMap.Contains(Name))
-	{
-		if (SoundsMap[Name].Contains(Time))
-		{
-			return true;
-		}
-	}
-
-	SoundsMapCriticalSection.Unlock();
-
-	return false;
 }
 
 void UXjMusicInstanceSubsystem::AddActiveAudio(const FAudioPlayer& Audio)
 {
+	if (ActiveAudios.Contains(Audio.Id))
+	{
+		return;
+	}
+
 	ActiveAudios.Add(Audio.Id, Audio);
 
 	UpdateDebugChainView();
 
-	//Start playing audio
+	PlayAudio(Audio);
 }
 
 void UXjMusicInstanceSubsystem::UpdateActiveAudio(const FAudioPlayer& Audio)
@@ -199,21 +183,24 @@ void UXjMusicInstanceSubsystem::UpdateActiveAudio(const FAudioPlayer& Audio)
 
 void UXjMusicInstanceSubsystem::RemoveActiveAudio(const FAudioPlayer& Audio)
 {
+	if (!ActiveAudios.Contains(Audio.Id))
+	{
+		return;
+	}
+
 	ActiveAudios.Remove(Audio.Id);
 
 	UpdateDebugChainView();
-
-	//Stop playing audio if not stopped
 }
 
-USoundWave* UXjMusicInstanceSubsystem::GetSoundWaveByName(const FString& AudioName)
+USoundWave* UXjMusicInstanceSubsystem::GetSoundWaveById(const FString& Id, const float Duration)
 {
-	if (!AudioPathsByNameLookup.Contains(AudioName))
+	if (!AudioPathsByNameLookup.Contains(Id))
 	{
 		return nullptr;
 	}
 
-	FString FilePath = AudioPathsByNameLookup[AudioName];
+	FString FilePath = AudioPathsByNameLookup[Id];
 
 	USoundWave* SoundWave = NewObject<USoundWave>(USoundWave::StaticClass());
 	if (!SoundWave)
@@ -228,22 +215,46 @@ USoundWave* UXjMusicInstanceSubsystem::GetSoundWaveByName(const FString& AudioNa
 		return nullptr;
 	}
 
-	SoundWave->SoundGroup = ESoundGroup::SOUNDGROUP_Default;
-	SoundWave->NumChannels = 2; 
+	uint32 NeededChunkSize = RawFile.Num();
 
+	FWaveModInfo WaveInfo;
+	if (WaveInfo.ReadWaveInfo(RawFile.GetData(), RawFile.Num()))
+	{
+		check(WaveInfo.pChannels);
+		const uint32 Channels = *WaveInfo.pChannels;
+		
+		check(WaveInfo.pSamplesPerSec);
+		const uint32 SampleRate = *WaveInfo.pSamplesPerSec;
+
+		check(WaveInfo.pBlockAlign);
+		const uint32 BlockAlign = *WaveInfo.pBlockAlign;
+
+		check(WaveInfo.pWaveDataSize);
+		const uint32 WaveData = *WaveInfo.pWaveDataSize;
+
+		const uint32 HeaderSize = RawFile.Num() - WaveData;
+
+		const uint32 NewSize = HeaderSize + Duration * SampleRate * BlockAlign;
+
+		NeededChunkSize = FMath::Min(NeededChunkSize, NewSize);
+
+		SoundWave->NumChannels = Channels;
+		SoundWave->SetSampleRate(SampleRate);
+	}
+
+	SoundWave->SoundGroup = ESoundGroup::SOUNDGROUP_Music;
 	SoundWave->RawData.Lock(LOCK_READ_WRITE);
 
-	void* LockedData = SoundWave->RawData.Realloc(RawFile.Num());
+	void* LockedData = SoundWave->RawData.Realloc(NeededChunkSize);
 	if (LockedData)
 	{
-		FMemory::Memcpy(LockedData, RawFile.GetData(), RawFile.Num());
+		FMemory::Memcpy(LockedData, RawFile.GetData(), NeededChunkSize);
 	}
 
 	SoundWave->RawData.Unlock();
 
 	SoundWave->RawData.SetBulkDataFlags(BULKDATA_ForceInlinePayload);
 	SoundWave->InvalidateCompressedData();
-	//SoundWave->bNeedsThumbnailGeneration = true;
 	
 	return SoundWave;
 }
