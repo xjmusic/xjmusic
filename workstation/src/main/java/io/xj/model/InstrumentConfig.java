@@ -11,6 +11,7 @@ import io.xj.model.util.ValueException;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -86,9 +87,9 @@ public class InstrumentConfig {
     config.put("isOneShot", isOneShot.toString());
     config.put("isOneShotCutoffEnabled", isOneShotCutoffEnabled.toString());
     config.put("isTonal", isTonal.toString());
-    config.put("oneShotObserveLengthOfEvents", String.format("[%s]", CsvUtils.join(oneShotObserveLengthOfEvents.stream().sorted().toList())));
+    config.put("oneShotObserveLengthOfEvents", String.format(Locale.US, "[%s]", CsvUtils.join(oneShotObserveLengthOfEvents.stream().sorted().toList())));
     config.put("releaseMillis", releaseMillis.toString());
-    return StringUtils.formatMultiline(config.entrySet().stream().sorted(Map.Entry.comparingByKey()).map(pair -> String.format("%s = %s", pair.getKey(), pair.getValue())).toArray());
+    return StringUtils.formatMultiline(config.entrySet().stream().sorted(Map.Entry.comparingByKey()).map(pair -> String.format(Locale.US, "%s = %s", pair.getKey(), pair.getValue())).toArray());
   }
 
   /**

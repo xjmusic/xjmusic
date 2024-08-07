@@ -15,6 +15,7 @@ import io.xj.model.util.ValueException;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -221,7 +222,7 @@ public class TemplateConfig {
 
   <N> List<N> requireAtLeastOne(String description, List<N> values) throws ValueException {
     if (values.isEmpty())
-      throw new ValueException(String.format("Template Config requires non-empty list for %s", description));
+      throw new ValueException(String.format(Locale.US, "Template Config requires non-empty list for %s", description));
     return values;
   }
 
@@ -229,12 +230,12 @@ public class TemplateConfig {
   @Override
   public String toString() {
     Map<String, String> config = new HashMap<>();
-    config.put("choiceMuteProbability", this.formatInstrumentTypeDoubles(choiceMuteProbability));
+    config.put("choiceMuteProbability", formatInstrumentTypeDoubles(choiceMuteProbability));
     config.put("deltaArcBeatLayersIncoming", String.valueOf(deltaArcBeatLayersIncoming));
     config.put("deltaArcBeatLayersToPrioritize", formatTypesafeQuoted(deltaArcBeatLayersToPrioritize));
     config.put("deltaArcEnabled", String.valueOf(deltaArcEnabled));
     config.put("detailLayerOrder", formatTypesafeQuoted(detailLayerOrder));
-    config.put("dubMasterVolume", this.formatInstrumentTypeDoubles(dubMasterVolume));
+    config.put("dubMasterVolume", formatInstrumentTypeDoubles(dubMasterVolume));
     config.put("eventNamesLarge", formatTypesafeQuoted(eventNamesLarge));
     config.put("eventNamesMedium", formatTypesafeQuoted(eventNamesMedium));
     config.put("eventNamesSmall", formatTypesafeQuoted(eventNamesSmall));
@@ -258,7 +259,7 @@ public class TemplateConfig {
     config.put("mixerNormalizationBoostThreshold", String.valueOf(mixerNormalizationBoostThreshold));
     config.put("mixerNormalizationCeiling", String.valueOf(mixerNormalizationCeiling));
     config.put("stickyBunEnabled", String.valueOf(stickyBunEnabled));
-    return StringUtils.formatMultiline(config.entrySet().stream().sorted(Map.Entry.comparingByKey()).map(pair -> String.format("%s = %s", pair.getKey(), pair.getValue())).toArray());
+    return StringUtils.formatMultiline(config.entrySet().stream().sorted(Map.Entry.comparingByKey()).map(pair -> String.format(Locale.US, "%s = %s", pair.getKey(), pair.getValue())).toArray());
   }
 
   /**
@@ -267,8 +268,8 @@ public class TemplateConfig {
    @return string value
    */
   String formatMemeTaxonomy(MemeTaxonomy taxonomy) {
-    return String.format("[%s\n  ]", taxonomy.getCategories().stream()
-      .map(category -> String.format("\n    {\n      memes = [%s]\n      name = %s\n    }",
+    return String.format(Locale.US, "[%s\n  ]", taxonomy.getCategories().stream()
+      .map(category -> String.format(Locale.US, "\n    {\n      memes = [%s]\n      name = %s\n    }",
         category.getMemes().stream().map(StringUtils::doubleQuoted).collect(Collectors.joining(",")),
         StringUtils.doubleQuoted(category.getName())))
       .collect(Collectors.joining(",")));
@@ -280,9 +281,9 @@ public class TemplateConfig {
    @return string value
    */
   String formatInstrumentTypeDoubles(Map<InstrumentType, Double> instrumentTypeDoubles) {
-    return String.format("{%s\n  }", instrumentTypeDoubles.entrySet().stream()
+    return String.format(Locale.US, "{%s\n  }", instrumentTypeDoubles.entrySet().stream()
       .sorted(Comparator.comparing((entry) -> entry.getKey().toString()))
-      .map(type -> String.format("\n    %s = %s", type.getKey(), StringUtils.formatMinimumDigits(type.getValue())))
+      .map(type -> String.format(Locale.US, "\n    %s = %s", type.getKey(), StringUtils.formatMinimumDigits(type.getValue())))
       .collect(Collectors.joining()));
   }
 
@@ -292,9 +293,9 @@ public class TemplateConfig {
    @return string value
    */
   String formatInstrumentTypeIntegers(Map<InstrumentType, Integer> instrumentTypeIntegers) {
-    return String.format("{%s\n  }", instrumentTypeIntegers.entrySet().stream()
+    return String.format(Locale.US, "{%s\n  }", instrumentTypeIntegers.entrySet().stream()
       .sorted(Comparator.comparing((entry) -> entry.getKey().toString()))
-      .map(mode -> String.format("\n    %s = %d", mode.getKey(), mode.getValue()))
+      .map(mode -> String.format(Locale.US, "\n    %s = %d", mode.getKey(), mode.getValue()))
       .collect(Collectors.joining()));
   }
 
@@ -305,7 +306,7 @@ public class TemplateConfig {
    @return typesafe array of quoted values
    */
   <N> String formatTypesafeQuoted(List<N> values) {
-    return String.format("[%s]", values.stream().map(N::toString).map(StringUtils::doubleQuoted).collect(Collectors.joining(",")));
+    return String.format(Locale.US, "[%s]", values.stream().map(N::toString).map(StringUtils::doubleQuoted).collect(Collectors.joining(",")));
   }
 
   /**
