@@ -37,6 +37,8 @@ void UXjMusicInstanceSubsystem::SetupXJ()
 		return;
 	}
 
+	AudioComponentsPool.Reset();
+
 	SoundConcurrency = NewObject<USoundConcurrency>();
 	if (SoundConcurrency)
 	{
@@ -57,11 +59,6 @@ void UXjMusicInstanceSubsystem::SetupXJ()
 	{
 		OnEnabledShowDebugChain(CVarShowDebugChain->AsVariable());
 	}
-
-	FTimerDelegate CheckDelegate;
-	CheckDelegate.BindUObject(this, &UXjMusicInstanceSubsystem::CheckActiveAudios);
-
-	GetWorld()->GetTimerManager().SetTimer(CheckTimerHandle, CheckDelegate, 1.0f, true);
 }
 
 void UXjMusicInstanceSubsystem::RetrieveProjectsContent(const FString& Directory)
@@ -113,40 +110,38 @@ bool UXjMusicInstanceSubsystem::PlayAudio(const FAudioPlayer& Audio)
 				return;
 			}
 
-			UAudioComponent* NewAudioComponent = UGameplayStatics::CreateSound2D(GetWorld(), SoundWave, 
-																					1.0f, 1.0f, 0.0f, SoundConcurrency);
-
-			CookedAudiosAtRuntime++;
-			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, FString::Printf(TEXT("Created audio components: %d"), CookedAudiosAtRuntime));
-
-			if (NewAudioComponent)
+			UAudioComponent* NewAudioComponent = Cast<UAudioComponent>(AudioComponentsPool.GetObject());
+			if (!NewAudioComponent)
 			{
-				FQuartzQuantizationBoundary Boundary;
-				Boundary.Quantization = EQuartzCommandQuantization::ThirtySecondNote;
-				Boundary.CountingReferencePoint = EQuarztQuantizationReference::TransportRelative;
-				Boundary.Multiplier = Audio.StartTime.GetMillie();
+				NewAudioComponent = UGameplayStatics::CreateSound2D(GetWorld(), SoundWave, 1.0f, 1.0f, 0.0f, SoundConcurrency);
 
-				NewAudioComponent->PlayQuantized(GetWorld(), QuartzClockHandle, Boundary, {});
-
-				SoundsMapCriticalSection.Lock();
-
-				if (!SoundsMap.Contains(Audio.Id))
+				if (!NewAudioComponent)
 				{
-					SoundsMap.Add(Audio.Id, {});
+					return;
 				}
 
-				SoundsMap.Add(Audio.Id, NewAudioComponent);
-
-				SoundsMapCriticalSection.Unlock();
+				AudioComponentsPool.AddObject(NewAudioComponent);
 			}
+
+			NewAudioComponent->OnAudioFinishedNative.AddUObject(this, &UXjMusicInstanceSubsystem::OnAudioComponentFinished);
+
+			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, FString::Printf(TEXT("Active audio components: %d"), AudioComponentsPool.GetNumberOfInUseObjects()));
+
+
+			FQuartzQuantizationBoundary Boundary;
+			Boundary.Quantization = EQuartzCommandQuantization::ThirtySecondNote;
+			Boundary.CountingReferencePoint = EQuarztQuantizationReference::TransportRelative;
+			Boundary.Multiplier = Audio.StartTime.GetMillie();
+
+			NewAudioComponent->PlayQuantized(GetWorld(), QuartzClockHandle, Boundary, {});
 		});
 
 	return true;
 }
 
-void UXjMusicInstanceSubsystem::CheckActiveAudios()
+void UXjMusicInstanceSubsystem::OnAudioComponentFinished(UAudioComponent* AudioComponent)
 {
-
+	AudioComponentsPool.FreeObject(AudioComponent);
 }
 
 void UXjMusicInstanceSubsystem::AddActiveAudio(const FAudioPlayer& Audio)

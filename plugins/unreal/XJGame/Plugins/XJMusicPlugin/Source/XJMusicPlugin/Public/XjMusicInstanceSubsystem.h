@@ -6,6 +6,7 @@
 #include "Quartz/AudioMixerClockHandle.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "Widgets/DebugChainView.h"
+#include "Types/XjObjectPool.h"
 
 #include "XjMusicInstanceSubsystem.generated.h"
 
@@ -48,8 +49,7 @@ private:
 
 	bool PlayAudio(const FAudioPlayer& Audio);
 
-	UFUNCTION()
-	void CheckActiveAudios();
+	void OnAudioComponentFinished(UAudioComponent* AudioComponent);
 
 private:
 	FTimerHandle CheckTimerHandle;
@@ -67,9 +67,6 @@ private:
 
 	TMap<FString, FString> AudioPathsByNameLookup;
 
-	UPROPERTY()
-	TMap<FString, UAudioComponent*> SoundsMap;
-
 	TMap<FString, FAudioPlayer> ActiveAudios;
 
 	UPROPERTY()
@@ -82,5 +79,5 @@ private:
 	UPROPERTY()
 	class USoundConcurrency* SoundConcurrency = nullptr;
 
-	uint32 CookedAudiosAtRuntime = 0;
+	FXjObjectPool AudioComponentsPool;
 };
