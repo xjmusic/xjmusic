@@ -72,10 +72,15 @@ private:
 
 	TMap<FString, FAudioPlayer> ActiveAudios;
 
+	UPROPERTY()
+	TMap<uint32, USoundWave*>  CachedSoundWaves;
+
 	mutable FCriticalSection SoundsMapCriticalSection;
 
 	const FString AudioExtension = ".wav";
 
 	UPROPERTY()
 	class USoundConcurrency* SoundConcurrency = nullptr;
+
+	uint32 CookedAudiosAtRuntime = 0;
 };

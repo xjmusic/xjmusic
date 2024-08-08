@@ -115,6 +115,10 @@ bool UXjMusicInstanceSubsystem::PlayAudio(const FAudioPlayer& Audio)
 
 			UAudioComponent* NewAudioComponent = UGameplayStatics::CreateSound2D(GetWorld(), SoundWave, 
 																					1.0f, 1.0f, 0.0f, SoundConcurrency);
+
+			CookedAudiosAtRuntime++;
+			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, FString::Printf(TEXT("Created audio components: %d"), CookedAudiosAtRuntime));
+
 			if (NewAudioComponent)
 			{
 				FQuartzQuantizationBoundary Boundary;
@@ -194,6 +198,15 @@ USoundWave* UXjMusicInstanceSubsystem::GetSoundWaveById(const FString& Id, const
 
 	FString FilePath = AudioPathsByNameLookup[Id];
 
+	const uint32 PathHash = GetTypeHash(FilePath);
+	const uint32 DurationHash = GetTypeHash((int)Duration);
+	const uint32 SearchHash = HashCombine(PathHash, DurationHash);
+
+	if (USoundWave** Result = CachedSoundWaves.Find(SearchHash))
+	{
+		return *Result;
+	}
+
 	USoundWave* SoundWave = NewObject<USoundWave>(USoundWave::StaticClass());
 	if (!SoundWave)
 	{
@@ -247,6 +260,8 @@ USoundWave* UXjMusicInstanceSubsystem::GetSoundWaveById(const FString& Id, const
 
 	SoundWave->RawData.SetBulkDataFlags(BULKDATA_ForceInlinePayload);
 	SoundWave->InvalidateCompressedData();
+
+	CachedSoundWaves.Add(SearchHash, SoundWave);
 	
 	return SoundWave;
 }
