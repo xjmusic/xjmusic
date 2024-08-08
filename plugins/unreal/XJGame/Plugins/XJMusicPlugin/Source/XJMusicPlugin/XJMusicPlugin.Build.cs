@@ -15,7 +15,7 @@ public class XJMusicPlugin : ModuleRules
         PublicDependencyModuleNames.AddRange(
 			new string[]
 			{
-				"Core",
+				"Core", "AudioMixer",
 			}
 			);
 			
@@ -30,7 +30,8 @@ public class XJMusicPlugin : ModuleRules
 				"Engine",
 				"Slate",
 				"SlateCore",
-			}
+                "AudioMixer"
+            }
 		);
 
 		if (Target.Configuration == UnrealTargetConfiguration.Development)

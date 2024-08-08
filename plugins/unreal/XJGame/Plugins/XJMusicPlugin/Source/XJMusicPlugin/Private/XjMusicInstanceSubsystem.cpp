@@ -1,22 +1,69 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "XjMusicInstanceSubsystem.h"
 #include "Kismet/GameplayStatics.h"
 #include <Settings/XJMusicDefaultSettings.h>
 #include <Sound/SoundBase.h>
 #include <Sound/SoundWave.h>
-#include <Engine/StreamableManager.h>
-#include <Engine/AssetManager.h>
-#include <Engine/ObjectLibrary.h>
 #include <Misc/FileHelper.h>
 #include <Runtime/Engine/Public/AudioDevice.h>
+#include <Async/Async.h>
+#include <Manager/XjManager.h>
+#include <Widgets/SWeakWidget.h>
+#include <Sound/SoundConcurrency.h>
 
-#include "TimerManager.h"
+static TAutoConsoleVariable<int32> CVarShowDebugChain(
+	TEXT("xj.showdebug"), 
+	1, 
+	TEXT("Show debug view of the chain schedule"), 
+	ECVF_Default);
+
+void UXjMusicInstanceSubsystem::Initialize(FSubsystemCollectionBase& Collection)
+{
+	Super::Initialize(Collection);
+
+	CVarShowDebugChain->SetOnChangedCallback(FConsoleVariableDelegate::CreateUObject(this, &UXjMusicInstanceSubsystem::OnEnabledShowDebugChain));
+}
+
+void UXjMusicInstanceSubsystem::Deinitialize()
+{
+	Super::Deinitialize();
+}
+
+void UXjMusicInstanceSubsystem::SetupXJ()
+{
+	if (IsValid(Manager))
+	{
+		return;
+	}
+
+	AudioComponentsPool.Reset();
+
+	SoundConcurrency = NewObject<USoundConcurrency>();
+	if (SoundConcurrency)
+	{
+		FSoundConcurrencySettings Settings;
+		Settings.MaxCount = 64;
+		Settings.ResolutionRule = EMaxConcurrentResolutionRule::StopOldest;
+
+		SoundConcurrency->Concurrency = Settings;
+	}
+
+	Manager = NewObject<UXjManager>(this);
+	if (Manager)
+	{
+		Manager->Setup();
+	}
+
+	if (CVarShowDebugChain->GetInt() > 0)
+	{
+		OnEnabledShowDebugChain(CVarShowDebugChain->AsVariable());
+	}
+}
 
 void UXjMusicInstanceSubsystem::RetrieveProjectsContent(const FString& Directory)
 {
-	WorldAudioDeviceHandle = GetWorld()->GetAudioDevice();
+	InitQuartz();
 
 	TArray<FString> WavFiles;
 
@@ -46,81 +93,114 @@ void UXjMusicInstanceSubsystem::RetrieveProjectsContent(const FString& Directory
 	}
 }
 
-void UXjMusicInstanceSubsystem::PlayAudioByName(const FString& Name, const float OverrideStartTime)
+void UXjMusicInstanceSubsystem::SetActiveEngine(const TWeakPtr<TEngineBase>& Engine)
 {
-	if (SoundsMap.Contains(Name))
-	{
-		return;
-	}
-
-	USoundWave* SoundWave = GetSoundWaveByName(Name);
-	if (!SoundWave)
-	{
-		return;
-	}
-
-	if (FAudioDeviceHandle Device = GetWorld()->GetAudioDevice())
-	{
-		TSharedPtr<FActiveSound> ActiveSound = MakeShared<FActiveSound>();
-		ActiveSound->SetSound(SoundWave);
-		ActiveSound->SetWorld(GetWorld());
-
-		ActiveSound->SetVolume(1.0f);
-
-		ActiveSound->RequestedStartTime = OverrideStartTime;
-
-		ActiveSound->bIsUISound = true;
-		ActiveSound->bAllowSpatialization = false;
-
-		ActiveSound->Priority = SoundWave->GetPriority();
-		ActiveSound->SubtitlePriority = SoundWave->GetSubtitlePriority();
-
-		SoundsMap.Add(Name, ActiveSound);
-
-		Device->AddNewActiveSound(*ActiveSound.Get());
-	}
+	ActiveEngine = Engine;
 }
 
-void UXjMusicInstanceSubsystem::StopAudioByName(const FString& Name)
-{
-	if (!SoundsMap.Contains(Name))
-	{
-		return;
-	}
-
-	FActiveSound* Sound = SoundsMap[Name].Get();
-
-	if (!Sound)
-	{
-		return;
-	}
-
-	FAudioThread::RunCommandOnAudioThread([this, Sound, Name]()
+bool UXjMusicInstanceSubsystem::PlayAudio(const FAudioPlayer& Audio)
+{	
+	AsyncTask(ENamedThreads::GameThread, [this, Audio]()
 		{
-			TArray<FActiveSound*> ActiveSounds = WorldAudioDeviceHandle->GetActiveSounds();
+			float DurationSeconds = Audio.EndTime.GetSeconds() - Audio.StartTime.GetSeconds();
 
-			for (int32 SoundIndex = ActiveSounds.Num() - 1; SoundIndex >= 0; --SoundIndex)
+			USoundWave* SoundWave = GetSoundWaveById(Audio.WaveId, DurationSeconds);
+			if (!SoundWave)
 			{
-				FActiveSound* Inst = ActiveSounds[SoundIndex];
-				if (Inst && (Inst->GetSound()->GetName() == Sound->GetSound()->GetName()))
-				{
-					WorldAudioDeviceHandle->AddSoundToStop(Inst);
-					SoundsMap.Remove(Name);
-
-					break;
-				}
+				return;
 			}
+
+			UAudioComponent* NewAudioComponent = Cast<UAudioComponent>(AudioComponentsPool.GetObject());
+			if (!NewAudioComponent)
+			{
+				NewAudioComponent = UGameplayStatics::CreateSound2D(GetWorld(), SoundWave, 1.0f, 1.0f, 0.0f, SoundConcurrency);
+
+				if (!NewAudioComponent)
+				{
+					return;
+				}
+
+				AudioComponentsPool.AddObject(NewAudioComponent);
+			}
+
+			NewAudioComponent->OnAudioFinishedNative.AddUObject(this, &UXjMusicInstanceSubsystem::OnAudioComponentFinished);
+
+			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, FString::Printf(TEXT("Active audio components: %d"), AudioComponentsPool.GetNumberOfInUseObjects()));
+
+
+			FQuartzQuantizationBoundary Boundary;
+			Boundary.Quantization = EQuartzCommandQuantization::ThirtySecondNote;
+			Boundary.CountingReferencePoint = EQuarztQuantizationReference::TransportRelative;
+			Boundary.Multiplier = Audio.StartTime.GetMillie();
+
+			NewAudioComponent->PlayQuantized(GetWorld(), QuartzClockHandle, Boundary, {});
 		});
+
+	return true;
 }
 
-USoundWave* UXjMusicInstanceSubsystem::GetSoundWaveByName(const FString& AudioName)
+void UXjMusicInstanceSubsystem::OnAudioComponentFinished(UAudioComponent* AudioComponent)
 {
-	if (!AudioPathsByNameLookup.Contains(AudioName))
+	AudioComponentsPool.FreeObject(AudioComponent);
+}
+
+void UXjMusicInstanceSubsystem::AddActiveAudio(const FAudioPlayer& Audio)
+{
+	if (ActiveAudios.Contains(Audio.Id))
+	{
+		return;
+	}
+
+	ActiveAudios.Add(Audio.Id, Audio);
+
+	UpdateDebugChainView();
+
+	PlayAudio(Audio);
+}
+
+void UXjMusicInstanceSubsystem::UpdateActiveAudio(const FAudioPlayer& Audio)
+{
+	if (!ActiveAudios.Contains(Audio.Id))
+	{
+		return;
+	}
+
+	ActiveAudios[Audio.Id] = Audio;
+
+	UpdateDebugChainView();
+
+	//Update end time
+}
+
+void UXjMusicInstanceSubsystem::RemoveActiveAudio(const FAudioPlayer& Audio)
+{
+	if (!ActiveAudios.Contains(Audio.Id))
+	{
+		return;
+	}
+
+	ActiveAudios.Remove(Audio.Id);
+
+	UpdateDebugChainView();
+}
+
+USoundWave* UXjMusicInstanceSubsystem::GetSoundWaveById(const FString& Id, const float Duration)
+{
+	if (!AudioPathsByNameLookup.Contains(Id))
 	{
 		return nullptr;
 	}
 
-	FString FilePath = AudioPathsByNameLookup[AudioName];
+	FString FilePath = AudioPathsByNameLookup[Id];
+
+	const uint32 PathHash = GetTypeHash(FilePath);
+	const uint32 DurationHash = GetTypeHash((int)Duration);
+	const uint32 SearchHash = HashCombine(PathHash, DurationHash);
+
+	if (USoundWave** Result = CachedSoundWaves.Find(SearchHash))
+	{
+		return *Result;
+	}
 
 	USoundWave* SoundWave = NewObject<USoundWave>(USoundWave::StaticClass());
 	if (!SoundWave)
@@ -135,54 +215,134 @@ USoundWave* UXjMusicInstanceSubsystem::GetSoundWaveByName(const FString& AudioNa
 		return nullptr;
 	}
 
-	SoundWave->SoundGroup = ESoundGroup::SOUNDGROUP_Default;
-	SoundWave->NumChannels = 2; 
+	uint32 NeededChunkSize = RawFile.Num();
 
+	FWaveModInfo WaveInfo;
+	if (WaveInfo.ReadWaveInfo(RawFile.GetData(), RawFile.Num()))
+	{
+		check(WaveInfo.pChannels);
+		const uint32 Channels = *WaveInfo.pChannels;
+		
+		check(WaveInfo.pSamplesPerSec);
+		const uint32 SampleRate = *WaveInfo.pSamplesPerSec;
+
+		check(WaveInfo.pBlockAlign);
+		const uint32 BlockAlign = *WaveInfo.pBlockAlign;
+
+		check(WaveInfo.pWaveDataSize);
+		const uint32 WaveData = *WaveInfo.pWaveDataSize;
+
+		const uint32 HeaderSize = RawFile.Num() - WaveData;
+
+		const uint32 NewSize = HeaderSize + Duration * SampleRate * BlockAlign;
+
+		NeededChunkSize = FMath::Min(NeededChunkSize, NewSize);
+
+		SoundWave->NumChannels = Channels;
+		SoundWave->SetSampleRate(SampleRate);
+	}
+
+	SoundWave->SoundGroup = ESoundGroup::SOUNDGROUP_Music;
 	SoundWave->RawData.Lock(LOCK_READ_WRITE);
 
-	void* LockedData = SoundWave->RawData.Realloc(RawFile.Num());
+	void* LockedData = SoundWave->RawData.Realloc(NeededChunkSize);
 	if (LockedData)
 	{
-		FMemory::Memcpy(LockedData, RawFile.GetData(), RawFile.Num());
+		FMemory::Memcpy(LockedData, RawFile.GetData(), NeededChunkSize);
 	}
 
 	SoundWave->RawData.Unlock();
 
 	SoundWave->RawData.SetBulkDataFlags(BULKDATA_ForceInlinePayload);
 	SoundWave->InvalidateCompressedData();
-	//SoundWave->bNeedsThumbnailGeneration = true;
 
+	CachedSoundWaves.Add(SearchHash, SoundWave);
+	
 	return SoundWave;
 }
 
-void UXjMusicInstanceSubsystem::TestPlayAllSounds()
+void UXjMusicInstanceSubsystem::InitQuartz()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, "Audio test started");
+	UQuartzSubsystem* QuartzSubsystem = UQuartzSubsystem::Get(GetWorld());
+	if (QuartzSubsystem)
+	{
+		FQuartzTimeSignature TimeSignatures;
+		TimeSignatures.BeatType = EQuartzTimeSignatureQuantization::ThirtySecondNote;
+		TimeSignatures.NumBeats = 1;
 
-	TestAudioCounter = 0;
-	GetWorld()->GetTimerManager().SetTimer(TestTimerHandle, this, &UXjMusicInstanceSubsystem::OnTestTimerCallback,5.0f, true);
+		FQuartzClockSettings Settings;
+		Settings.TimeSignature = TimeSignatures;
+
+		QuartzClockHandle = QuartzSubsystem->CreateNewClock(GetWorld(), "XJ Clock", Settings);
+		if (QuartzClockHandle)
+		{
+			QuartzClockHandle->SetThirtySecondNotesPerMinute(GetWorld(), {}, {}, QuartzClockHandle, 60000);
+		
+			QuartzClockHandle->StartClock(GetWorld(), QuartzClockHandle);
+		}
+	}
 }
 
-void UXjMusicInstanceSubsystem::OnTestTimerCallback()
+void UXjMusicInstanceSubsystem::OnEnabledShowDebugChain(IConsoleVariable* Var)
 {
-	if (TestAudioCounter >= AudioPathsByNameLookup.Num())
+	if (!Var)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, "Audio test finished");
 		return;
 	}
 
-	TArray<FString> Names;
-	AudioPathsByNameLookup.GetKeys(Names);
+	int Value = Var->GetInt();
 
-	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, FString::Printf(TEXT("Played audio %d/%d"), TestAudioCounter + 1, AudioPathsByNameLookup.Num()));
-
-	if (!TestLastAudioName.IsEmpty())
+	if (Value <= 0)
 	{
-		StopAudioByName(TestLastAudioName);
+		if (DebugChainViewWidget)
+		{
+			DebugChainViewWidget->SetVisibility(EVisibility::Hidden);
+		}
+	}
+	else
+	{
+		if (DebugChainViewWidget)
+		{
+			DebugChainViewWidget->SetVisibility(EVisibility::Visible);
+		}
+		else
+		{
+			DebugChainViewWidget = SNew(SDebugChainView).Engine(ActiveEngine);
+
+			if (!GEngine)
+			{
+				return;
+			}
+
+			GEngine->GameViewport->AddViewportWidgetContent(
+				SNew(SWeakWidget).PossiblyNullContent(DebugChainViewWidget.ToSharedRef()));
+
+			DebugChainViewWidget->SetVisibility(EVisibility::Visible);
+		}
+
+		UpdateDebugChainView();
+	}
+}
+
+void UXjMusicInstanceSubsystem::UpdateDebugChainView()
+{
+	if (!IsInGameThread())
+	{
+		AsyncTask(ENamedThreads::GameThread, [this]()
+			{
+				UpdateDebugChainView();
+			});
+
+		return;
 	}
 
-	TestLastAudioName = Names[TestAudioCounter];
-	PlayAudioByName(TestLastAudioName);
+	if (!Manager)
+	{
+		return;
+	}
 
-	TestAudioCounter++;
+	if (DebugChainViewWidget)
+	{
+		DebugChainViewWidget->UpdateActiveAudios(ActiveAudios, Manager->GetAtChainMicros());
+	}
 }

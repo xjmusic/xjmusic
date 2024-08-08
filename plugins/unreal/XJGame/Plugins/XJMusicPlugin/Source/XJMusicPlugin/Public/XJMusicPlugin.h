@@ -15,10 +15,19 @@ public:
 	virtual void ShutdownModule() override;
 	
 	void PluginButtonClicked();
-	
-private:
-	void RegisterMenus();
 
 private:
+
+	void RegisterMenus();
+
+	void OnPostWorldInitialization(UWorld* World, const UWorld::InitializationValues Ivs);
+
+	void OnLevelBeginPlay();
+
 	TSharedPtr<class FUICommandList> PluginCommands;
+
+	UWorld* LastWorld = nullptr;
+
+	FDelegateHandle WorldBeginPlayHandle;
+	FDelegateHandle WorldPostInitializeHandle;
 };
