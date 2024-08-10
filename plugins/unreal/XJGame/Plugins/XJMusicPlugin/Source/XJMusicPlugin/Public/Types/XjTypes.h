@@ -104,6 +104,8 @@ struct FAudioPlayer
 {
 	TimeRecord StartTime;
 	TimeRecord EndTime;
+	
+	TimeRecord TimeScheduled;
 
 	bool bIsPlaying = false;
 

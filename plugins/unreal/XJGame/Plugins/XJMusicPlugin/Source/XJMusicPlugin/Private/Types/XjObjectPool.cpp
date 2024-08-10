@@ -40,8 +40,8 @@ void FXjObjectPool::FreeObject(UObject* Object)
 		return;
 	}
 
-	InUseObjects.Remove(Object);
 	AvailableObjects.Add(Object);
+	InUseObjects.Remove(Object);
 }
 
 void FXjObjectPool::Reset()

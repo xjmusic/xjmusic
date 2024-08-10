@@ -86,6 +86,7 @@ TArray<FAudioPlayer> TXjMainEngine::RunCycle(const uint64 ChainMicros)
 		AudioPlayer.Id = Id;
 		AudioPlayer.WaveId = WaveKey;
 		AudioPlayer.Event = (EAudioEventType)Event.type;
+		AudioPlayer.TimeScheduled.SetInMicros(ChainMicros);
 
 		Output.Add(AudioPlayer);
 	}

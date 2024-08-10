@@ -110,8 +110,9 @@ bool UXjMusicInstanceSubsystem::PlayAudio(const FAudioPlayer& Audio)
 				return;
 			}
 
-			UAudioComponent* NewAudioComponent = Cast<UAudioComponent>(AudioComponentsPool.GetObject());
-			if (!NewAudioComponent)
+			UAudioComponent* NewAudioComponent = nullptr;
+			UObject* Obj = AudioComponentsPool.GetObject();
+			if (!Obj)
 			{
 				NewAudioComponent = UGameplayStatics::CreateSound2D(GetWorld(), SoundWave, 1.0f, 1.0f, 0.0f, SoundConcurrency);
 
@@ -122,16 +123,20 @@ bool UXjMusicInstanceSubsystem::PlayAudio(const FAudioPlayer& Audio)
 
 				AudioComponentsPool.AddObject(NewAudioComponent);
 			}
+			else
+			{
+				NewAudioComponent = Cast<UAudioComponent>(Obj);
+				check(NewAudioComponent);
+			}
 
 			NewAudioComponent->OnAudioFinishedNative.AddUObject(this, &UXjMusicInstanceSubsystem::OnAudioComponentFinished);
 
 			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, FString::Printf(TEXT("Active audio components: %d"), AudioComponentsPool.GetNumberOfInUseObjects()));
 
-
 			FQuartzQuantizationBoundary Boundary;
 			Boundary.Quantization = EQuartzCommandQuantization::ThirtySecondNote;
 			Boundary.CountingReferencePoint = EQuarztQuantizationReference::TransportRelative;
-			Boundary.Multiplier = Audio.StartTime.GetMillie();
+			Boundary.Multiplier = Audio.StartTime.GetMillie() - Audio.TimeScheduled.GetMillie();
 
 			NewAudioComponent->PlayQuantized(GetWorld(), QuartzClockHandle, Boundary, {});
 		});
