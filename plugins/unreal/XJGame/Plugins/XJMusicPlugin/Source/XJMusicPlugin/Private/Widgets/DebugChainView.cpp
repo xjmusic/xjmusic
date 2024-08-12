@@ -13,127 +13,157 @@ void SDebugChainView::Construct(const FArguments& Args)
 {
 	Engine = Args._Engine.Pin();
 
-	FString TemplateStr = FString::Printf(TEXT("Template: %s"), *Engine->GetActiveTemplateName());
-	FString CraftAheadStr = FString::Printf(TEXT("Craft Ahead: %d s"), Engine->GetSettings().CraftAheadSeconds);
-	FString DubAheadStr = FString::Printf(TEXT("Dub Ahead: %d s"), Engine->GetSettings().DubAheadSeconds);
-	FString DeadlineStr = FString::Printf(TEXT("Deadline: %d s"), Engine->GetSettings().DeadlineSeconds);
-	FString PersistenceWindowStr = FString::Printf(TEXT("Persistence Window: %d s"), Engine->GetSettings().PersistenceWindowSeconds);
+	check(Engine);
+
+	const FString TemplateStr = FString::Printf(TEXT("Template: %s"), *Engine->GetActiveTemplateName());
+	const FString CraftAheadStr = FString::Printf(TEXT("Craft Ahead: %d s"), Engine->GetSettings().CraftAheadSeconds);
+	const FString DubAheadStr = FString::Printf(TEXT("Dub Ahead: %d s"), Engine->GetSettings().DubAheadSeconds);
+	const FString DeadlineStr = FString::Printf(TEXT("Deadline: %d s"), Engine->GetSettings().DeadlineSeconds);
+	const FString PersistenceWindowStr = FString::Printf(TEXT("Persistence Window: %d s"), Engine->GetSettings().PersistenceWindowSeconds);
+
+	const FSlateFontInfo HeaderFontInfo = FSlateFontInfo(FPaths::EngineContentDir() / TEXT("Slate/Fonts/Roboto-Bold.ttf"), 11);
+
+	const FMargin HeaderTextOffset(10.0f, 0.0f, 10.0f, 0.0f);
+
+	const FSlateColorBrush* BackgroundBrush = new FSlateColorBrush(FLinearColor(0.1f, 0.1f, 0.1f, 1.0f));
+
+	const FSlateColorBrush* HeaderBackgroundBrush = new FSlateColorBrush(FLinearColor(0.05f, 0.05f, 0.05f, 1.0f));
+
+	const FSlateColorBrush* ActiveAudiosBackgroundBrush = new FSlateColorBrush(FLinearColor(0.2f, 0.2f, 0.2f, 1.0f));
 
 	ChildSlot
 	.VAlign(VAlign_Bottom)
 	.HAlign(HAlign_Fill)
 	[
-		SNew(SOverlay)
-		+ SOverlay::Slot()
-		.VAlign(VAlign_Fill)
-		.HAlign(HAlign_Fill)
+		SNew(SBox)
+		.MinDesiredHeight(600.0f)
+		.MaxDesiredHeight(600.0f)
 		[
-			SNew(SImage)
-			.Image(new FSlateColorBrush(FLinearColor(0.1f, 0.1f, 0.1f, 1.0f)))
-		]
-		+ SOverlay::Slot()
-		.VAlign(VAlign_Fill)
-		.HAlign(HAlign_Fill)
-		[
-			SNew(SVerticalBox)
-			+ SVerticalBox::Slot()
-			.VAlign(VAlign_Fill)
-			.HAlign(HAlign_Fill)
-			.FillHeight(0.2f)
-			[
-				SNew(SHorizontalBox)
-				+ SHorizontalBox::Slot()
+			SNew(SOverlay)
+				+ SOverlay::Slot()
 				.VAlign(VAlign_Fill)
 				.HAlign(HAlign_Fill)
-				.Padding(FMargin(0.0f, 0.0f, 10.0f, 0.0f))
 				[
-					SAssignNew(ChainMicrosTB, STextBlock)
-					.Font(FSlateFontInfo(FPaths::EngineContentDir() / TEXT("Slate/Fonts/Roboto-Bold.ttf"), 12))
+					SNew(SImage)
+						.Image(BackgroundBrush)
 				]
-				+ SHorizontalBox::Slot()
+				+ SOverlay::Slot()
 				.VAlign(VAlign_Fill)
 				.HAlign(HAlign_Fill)
-				.Padding(FMargin(0.0f, 0.0f, 10.0f, 0.0f))
 				[
-					SNew(STextBlock)
-					.Text(FText::FromString(TemplateStr))
-					.Font(FSlateFontInfo(FPaths::EngineContentDir() / TEXT("Slate/Fonts/Roboto-Bold.ttf"), 12))
-				]
-				+ SHorizontalBox::Slot()
-				.VAlign(VAlign_Fill)
-				.HAlign(HAlign_Left)
-				.Padding(FMargin(0.0f, 0.0f, 10.0f, 0.0f))
-				[
-					SNew(STextBlock)
-					.Text(FText::FromString(CraftAheadStr))
-					.Font(FSlateFontInfo(FPaths::EngineContentDir() / TEXT("Slate/Fonts/Roboto-Bold.ttf"), 12))
-				]
-				+ SHorizontalBox::Slot()
-				.VAlign(VAlign_Fill)
-				.HAlign(HAlign_Left)
-				.Padding(FMargin(0.0f, 0.0f, 10.0f, 0.0f))
-				[
-					SNew(STextBlock)
-					.Text(FText::FromString(DubAheadStr))
-					.Font(FSlateFontInfo(FPaths::EngineContentDir() / TEXT("Slate/Fonts/Roboto-Bold.ttf"), 12))
-				]
-				+ SHorizontalBox::Slot()
-				.VAlign(VAlign_Fill)
-				.HAlign(HAlign_Left)
-				.Padding(FMargin(0.0f, 0.0f, 10.0f, 0.0f))
-				[
-					SNew(STextBlock)
-					.Text(FText::FromString(DeadlineStr))
-					.Font(FSlateFontInfo(FPaths::EngineContentDir() / TEXT("Slate/Fonts/Roboto-Bold.ttf"), 12))
-				]
-				+ SHorizontalBox::Slot()
-				.HAlign(HAlign_Left)
-				.Padding(FMargin(0.0f, 0.0f, 10.0f, 0.0f))
-				[
-					SNew(STextBlock)
-					.Text(FText::FromString(PersistenceWindowStr))
-					.Font(FSlateFontInfo(FPaths::EngineContentDir() / TEXT("Slate/Fonts/Roboto-Bold.ttf"), 12))
-				]
-			]
-			+ SVerticalBox::Slot()
-			.VAlign(VAlign_Fill)
-			.HAlign(HAlign_Fill)
-			[
-				SNew(SHorizontalBox)
-				+ SHorizontalBox::Slot()
-				.VAlign(VAlign_Fill)
-				.HAlign(HAlign_Left)
-				[
-					SAssignNew(SegmentsSB, SScrollBox)
-					.Orientation(EOrientation::Orient_Horizontal)
-				]
-				+ SHorizontalBox::Slot()
-				.VAlign(VAlign_Fill)
-				.HAlign(HAlign_Right)
-				.FillWidth(0.25f)
-				[
-					SNew(SBox)
-					.MinDesiredHeight(600.0f)
-					.Padding(10)
-					[
-						SNew(SOverlay)
-						+ SOverlay::Slot()
+					SNew(SVerticalBox)
+						+ SVerticalBox::Slot()
+						.VAlign(VAlign_Fill)
+						.HAlign(HAlign_Fill)
+						.FillHeight(0.04f)
+						[
+							SNew(SOverlay)
+								+ SOverlay::Slot()
+								.HAlign(HAlign_Fill)
+								[
+									SNew(SImage)
+										.Image(HeaderBackgroundBrush)
+								]
+								+ SOverlay::Slot()
+								.HAlign(HAlign_Left)
+								[
+									SNew(SHorizontalBox)
+										+ SHorizontalBox::Slot()
+										.VAlign(VAlign_Fill)
+										.AutoWidth()
+										.Padding(HeaderTextOffset)
+										[
+											SAssignNew(ChainMicrosTB, STextBlock)
+												.Font(HeaderFontInfo)
+										]
+										+ SHorizontalBox::Slot()
+										.VAlign(VAlign_Fill)
+										.AutoWidth()
+										.Padding(HeaderTextOffset)
+										[
+											SNew(STextBlock)
+												.Text(FText::FromString(TemplateStr))
+												.Font(HeaderFontInfo)
+										]
+										+ SHorizontalBox::Slot()
+										.VAlign(VAlign_Fill)
+										.AutoWidth()
+										.Padding(HeaderTextOffset)
+										[
+											SNew(STextBlock)
+												.Text(FText::FromString(CraftAheadStr))
+												.Font(HeaderFontInfo)
+										]
+										+ SHorizontalBox::Slot()
+										.VAlign(VAlign_Fill)
+										.AutoWidth()
+										.Padding(HeaderTextOffset)
+										[
+											SNew(STextBlock)
+												.Text(FText::FromString(DubAheadStr))
+												.Font(HeaderFontInfo)
+										]
+										+ SHorizontalBox::Slot()
+										.VAlign(VAlign_Fill)
+										.AutoWidth()
+										.Padding(HeaderTextOffset)
+										[
+											SNew(STextBlock)
+												.Text(FText::FromString(DeadlineStr))
+												.Font(HeaderFontInfo)
+										]
+										+ SHorizontalBox::Slot()
+										.AutoWidth()
+										.Padding(HeaderTextOffset)
+										[
+											SNew(STextBlock)
+												.Text(FText::FromString(PersistenceWindowStr))
+												.Font(HeaderFontInfo)
+										]
+								]
+						]
+						+ SVerticalBox::Slot()
 						.VAlign(VAlign_Fill)
 						.HAlign(HAlign_Fill)
 						[
-							SNew(SImage)
-							.Image(new FSlateColorBrush(FLinearColor(0.2f, 0.2f, 0.2f, 1.0f)))
+							SNew(SHorizontalBox)
+								+ SHorizontalBox::Slot()
+								.VAlign(VAlign_Fill)
+								.HAlign(HAlign_Left)
+								[
+									SAssignNew(SegmentsSB, SScrollBox)
+										.Orientation(EOrientation::Orient_Horizontal)
+								]
+								+ SHorizontalBox::Slot()
+								.VAlign(VAlign_Fill)
+								.HAlign(HAlign_Right)
+								.FillWidth(0.25f)
+								[
+									SNew(SBox)
+										.MinDesiredHeight(600.0f)
+										.Padding(10)
+										[
+											SNew(SOverlay)
+												+ SOverlay::Slot()
+												.VAlign(VAlign_Fill)
+												.HAlign(HAlign_Fill)
+												[
+													SNew(SImage)
+														.Image(ActiveAudiosBackgroundBrush)
+												]
+												+ SOverlay::Slot()
+												.VAlign(VAlign_Top)
+												.HAlign(HAlign_Fill)
+												[
+													SAssignNew(ActiveAudiosVB, SScrollBox)
+														.Orientation(EOrientation::Orient_Vertical)
+												]
+										]
+								]
 						]
-						+ SOverlay::Slot()
-						.VAlign(VAlign_Fill)
-						.HAlign(HAlign_Fill)
-						[
-							SAssignNew(ActiveAudiosVB, SVerticalBox)
-						]
-					]
 				]
-			]
 		]
+		
 	];
 }
 
@@ -158,7 +188,6 @@ void SDebugChainView::UpdateActiveAudios(const TMap<FString, FAudioPlayer>& Acti
 		bool bActive = ChainMicros.GetMicros() >= Value.StartTime.GetMicros() && ChainMicros.GetMicros() < Value.EndTime.GetMicros();
 
 		ActiveAudiosVB->AddSlot()
-		.AutoHeight()
 		.Padding(5)
 		[
 			SNew(STextBlock)
@@ -213,7 +242,7 @@ void SDebugChainView::Tick(const FGeometry& AllottedGeometry, const double InCur
 		return;
 	}
 
-	ChainMicrosTB->SetText(FText::FromString(FString::Printf(TEXT("Micros: %.2fs"), Engine->GetLastMicros().GetSeconds())));
+	ChainMicrosTB->SetText(FText::FromString(FString::Printf(TEXT("Time: %.2fs"), Engine->GetLastMicros().GetSeconds())));
 }
 
 END_SLATE_FUNCTION_BUILD_OPTIMIZATION

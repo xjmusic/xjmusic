@@ -25,7 +25,7 @@ public:
 	void Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime) override;
 
 private:
-	TSharedPtr<SVerticalBox> ActiveAudiosVB;
+	TSharedPtr<SScrollBox> ActiveAudiosVB;
 	TSharedPtr<SScrollBox> SegmentsSB;
 
 	TSharedPtr<STextBlock> ChainMicrosTB;

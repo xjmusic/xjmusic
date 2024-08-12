@@ -24,7 +24,7 @@ public:
 
 	void MarkOutdated(bool bValue = true);
 private:
-	TSharedPtr<SVerticalBox> FirstLevelChoicesVB;
+	TSharedPtr<SScrollBox> FirstLevelChoicesVB;
 
 	TMap<FString, TSharedPtr<SVerticalBox>> SecondLevelChoicesVB;
 

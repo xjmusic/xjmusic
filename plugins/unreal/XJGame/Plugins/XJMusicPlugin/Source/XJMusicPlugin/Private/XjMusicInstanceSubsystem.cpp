@@ -348,6 +348,11 @@ void UXjMusicInstanceSubsystem::UpdateDebugChainView()
 
 	if (DebugChainViewWidget)
 	{
+		ActiveAudios.ValueSort([](const FAudioPlayer& A, const FAudioPlayer& B)
+			{
+				return A.StartTime.GetMicros() < B.StartTime.GetMicros();
+			});
+
 		DebugChainViewWidget->UpdateActiveAudios(ActiveAudios, Manager->GetAtChainMicros());
 	}
 }
