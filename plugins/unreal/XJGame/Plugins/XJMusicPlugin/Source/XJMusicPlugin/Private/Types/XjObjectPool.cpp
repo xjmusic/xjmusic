@@ -35,7 +35,7 @@ void FXjObjectPool::FreeObject(UObject* Object)
 		return;
 	}
 
-	if (!IsValid(Object) || !InUseObjects.Contains(Object))
+	if (!IsValid(Object) || InUseObjects.Contains(Object))
 	{
 		return;
 	}
@@ -47,4 +47,5 @@ void FXjObjectPool::FreeObject(UObject* Object)
 void FXjObjectPool::Reset()
 {
 	AvailableObjects.Empty();
+	InUseObjects.Empty();
 }

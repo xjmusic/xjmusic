@@ -127,7 +127,6 @@ void SDebugSegmentView::Construct(const FArguments& Args)
 					.Font(FontInfo)
 				]
 				+ SVerticalBox::Slot()
-				.AutoHeight()
 				.Padding(FMargin(0.0f, 5.0f, 0, 0))
 				[
 					SAssignNew(FirstLevelChoicesVB, SScrollBox)

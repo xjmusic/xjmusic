@@ -47,5 +47,5 @@ private:
 
 	int GetSegmentBarsBeats(const int Id) const;
 
-	FSegmentChoice ParseSegmentChoice(const SegmentChoice* Choice);
+	FSegmentChoice ParseSegmentChoice(const SegmentChoice* Choicem, const int64 SegmentMicros);
 };

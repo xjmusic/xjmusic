@@ -134,7 +134,7 @@ int TXjMainEngine::GetSegmentBarsBeats(const int Id) const
 	return program.value()->config.barBeats;
 }
 
-FSegmentChoice TXjMainEngine::ParseSegmentChoice(const SegmentChoice* Choice)
+FSegmentChoice TXjMainEngine::ParseSegmentChoice(const SegmentChoice* Choice, const int64 SegmentMicros)
 {
 	FSegmentChoice Out;
 
@@ -147,6 +147,8 @@ FSegmentChoice TXjMainEngine::ParseSegmentChoice(const SegmentChoice* Choice)
 		Out.Mode = Instrument::toString(Instr.value()->mode).c_str();
 		Out.Name = Instr.value()->name.c_str();
 
+		FString Debug = "Segment: " + FString::FromInt(Choice->segmentId) + "\n";
+
 		for (const SegmentChoiceArrangementPick* Pick : XjEngine->getSegmentStore()->readAllSegmentChoiceArrangementPicks(Choice))
 		{
 			std::optional<const InstrumentAudio*> Audio = XjEngine->getProjectContent()->getInstrumentAudio(Pick->instrumentAudioId);
@@ -155,21 +157,24 @@ FSegmentChoice TXjMainEngine::ParseSegmentChoice(const SegmentChoice* Choice)
 				continue;
 			}
 			
-			const uint64 AudioTransientMicros = Audio.value()->transientSeconds * MICROS_PER_SECOND;
-			const uint64 AudioLengthMicros = Audio.value()->lengthSeconds * MICROS_PER_SECOND;
-			const uint64 ThresholdActiveFrom = Pick->startAtSegmentMicros - AudioTransientMicros;
-			const uint64 ThresholdActiveTo = Pick->lengthMicros == 0 ? Pick->startAtSegmentMicros - AudioTransientMicros + AudioLengthMicros : Pick->startAtSegmentMicros + Pick->lengthMicros;
-			const bool	 bActive = LastChainMicros.GetMicros() >= ThresholdActiveFrom && LastChainMicros.GetMicros() <= ThresholdActiveTo;
-			const uint64 DubbedToMicros = LastChainMicros.GetMicros() + XjEngine->getSettings().dubAheadMicros;
-			const bool	 bDubbed = DubbedToMicros >= ThresholdActiveFrom && DubbedToMicros <= ThresholdActiveTo;
+			const int64 AudioTransientMicros = Audio.value()->transientSeconds * MICROS_PER_SECOND;
+			const int64 AudioLengthMicros = Audio.value()->lengthSeconds * MICROS_PER_SECOND;
+			const int64 ThresholdActiveFrom = Pick->startAtSegmentMicros - AudioTransientMicros;
+			const int64 ThresholdActiveTo = Pick->lengthMicros == 0 ? Pick->startAtSegmentMicros - AudioTransientMicros + AudioLengthMicros : Pick->startAtSegmentMicros + Pick->lengthMicros;
+			const bool	bActive = SegmentMicros >= ThresholdActiveFrom && SegmentMicros <= ThresholdActiveTo;
 
 			FAudioPick AudioPick;
 			AudioPick.Name = Audio.value()->name.c_str();
 			AudioPick.StartTime.SetInMicros(Pick->startAtSegmentMicros);
-			AudioPick.bActive = bActive || bDubbed;
+			AudioPick.bActive = bActive;
 
 			Out.Picks.Add(AudioPick);
+
+			Debug += FString::SanitizeFloat(AudioPick.StartTime.GetSeconds()) + "\n";
 		}
+
+
+		UE_LOG(LogTemp, Warning, TEXT("%s"), *Debug);
 	}
 	else if (Prgm.has_value())
 	{
@@ -191,10 +196,11 @@ TArray<FSegmentInfo> TXjMainEngine::GetSegments()
 
 	for (const Segment* Segment : XjEngine->getSegmentStore()->readAllSegments())
 	{
-		if (!(Segment->durationMicros.has_value() && Segment->beginAtChainMicros + Segment->durationMicros.value() > LastChainMicros.GetMicros()))
+		if (!Segment->durationMicros.has_value() || Segment->beginAtChainMicros + Segment->durationMicros.value() < LastChainMicros.GetMicros())
 		{
 			continue;
 		}
+
 		FSegmentInfo Info;
 
 		Info.Id = Segment->id;
@@ -211,7 +217,9 @@ TArray<FSegmentInfo> TXjMainEngine::GetSegments()
 
 		Info.Key = Segment->key.c_str();
 
-		for (const SegmentMeme* Meme : XjEngine->getSegmentStore()->readAllSegmentMemes({ Segment->id }))
+		const int64 AtSegmentMicros = LastChainMicros.GetMicros() - Segment->beginAtChainMicros;
+
+		for (const SegmentMeme* Meme : XjEngine->getSegmentStore()->readAllSegmentMemes(Segment->id))
 		{
 			if (!Meme)
 			{
@@ -220,25 +228,24 @@ TArray<FSegmentInfo> TXjMainEngine::GetSegments()
 
 			Info.Memes.Add(Meme->name.c_str());
 		}
-
+		
 		for (const SegmentChoice* Choice : XjEngine->getSegmentStore()->readAllSegmentChoices(Segment->id))
 		{
-
 			if (!Choice->programId.empty() && Program::Type::Macro == Choice->programType)
 			{
-				Info.MacroChoices.Add(ParseSegmentChoice(Choice));
+				Info.MacroChoices.Add(ParseSegmentChoice(Choice, AtSegmentMicros));
 			}
 			else if (!Choice->programId.empty() && Program::Type::Main == Choice->programType)
 			{
-				Info.MainChoices.Add(ParseSegmentChoice(Choice));
+				Info.MainChoices.Add(ParseSegmentChoice(Choice, AtSegmentMicros));
 			}
 			else if ((!Choice->programId.empty() && Program::Type::Beat == Choice->programType) || Instrument::Type::Drum == Choice->instrumentType)
 			{
-				Info.BeatChoices.Add(ParseSegmentChoice(Choice));
+				Info.BeatChoices.Add(ParseSegmentChoice(Choice, AtSegmentMicros));
 			}
 			else
 			{
-				Info.DetailChoices.Add(ParseSegmentChoice(Choice));
+				Info.DetailChoices.Add(ParseSegmentChoice(Choice, AtSegmentMicros));
 			}
 		}
 

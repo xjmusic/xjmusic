@@ -297,6 +297,11 @@ void UXjMusicInstanceSubsystem::OnEnabledShowDebugChain(IConsoleVariable* Var)
 
 	int Value = Var->GetInt();
 
+	if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
+	{
+		PlayerController->SetShowMouseCursor(Value > 0);
+	}
+
 	if (Value <= 0)
 	{
 		if (DebugChainViewWidget)
