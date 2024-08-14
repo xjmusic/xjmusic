@@ -19,6 +19,7 @@ import org.springframework.context.support.GenericApplicationContext;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 public class WorkstationFxApplication extends Application {
   static final Logger LOG = LoggerFactory.getLogger(WorkstationFxApplication.class);
@@ -30,13 +31,15 @@ public class WorkstationFxApplication extends Application {
 
   @Override
   public void start(Stage primaryStage) {
+    Optional<String> openProjectPath = getParameters().getRaw().stream().findFirst();
+
     if (Objects.isNull(ac)) {
       LOG.error("Cannot start without application context!");
       return;
     }
     LOG.info("Will publish StageReadyEvent");
     try {
-      ac.publishEvent(new StageReadyEvent(primaryStage));
+      ac.publishEvent(new StageReadyEvent(primaryStage, openProjectPath.orElse(null)));
     } catch (Exception e) {
       LOG.error("Failed to publish StageReadyEvent! {}\n{}", e.getMessage(), StringUtils.formatStackTrace(e));
     }

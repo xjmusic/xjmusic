@@ -12,6 +12,7 @@
 #include "xjmusic/Engine.h"
 
 #include "EngineUiBase.h"
+#include "EngineScheduledAudio.h"
 
 using namespace XJ;
 using namespace ftxui;
@@ -19,12 +20,10 @@ using namespace ftxui;
 class EngineUiBase
 {
 protected:
-	const Uint32					   MICROS_PER_MILLI = 1000;
-	const Uint32					   MICROS_PER_SECOND = 1000000;
 	const Uint32					   CYCLE_MILLISECONDS = 382;
 	std::unique_ptr<Engine>			   engine;
 	ScreenInteractive				   screen;
-	std::map<std::string, ActiveAudio> ActiveAudios;
+	std::map<std::string, EngineScheduledAudio> Schedule;
 	Component						   ui_container;
 	Component						   ui_document;
 	Component						   ui_header_elapsed_time;

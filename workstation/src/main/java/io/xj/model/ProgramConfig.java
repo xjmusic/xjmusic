@@ -9,6 +9,7 @@ import io.xj.model.util.StringUtils;
 import io.xj.model.util.ValueException;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -77,7 +78,7 @@ public class ProgramConfig {
     config.put("doPatternRestartOnChord", doPatternRestartOnChord.toString());
     return StringUtils.formatMultiline(config.entrySet().stream()
       .sorted(Map.Entry.comparingByKey())
-      .map(pair -> String.format("%s = %s", pair.getKey(), pair.getValue()))
+      .map(pair -> String.format(Locale.US, "%s = %s", pair.getKey(), pair.getValue()))
       .toArray());
   }
 
