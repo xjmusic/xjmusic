@@ -72,12 +72,12 @@ TArray<FAudioPlayer> TXjMainEngine::RunCycle(const uint64 ChainMicros)
 
 	for (const AudioScheduleEvent& Event : ReceivedAudioEvents)
 	{
-		FString WaveKey = Event.audio.getAudio()->waveformKey.c_str();
-		FString Id = Event.audio.getId().c_str();
-		FString Name = Event.audio.getAudio()->name.c_str();
+		FString WaveKey = Event.schedule.getAudio()->waveformKey.c_str();
+		FString Id = Event.schedule.getId().c_str();
+		FString Name = Event.schedule.getAudio()->name.c_str();
 
 		TimeRecord StartTime = Event.getStartAtChainMicros();
-		TimeRecord EndTime = Event.audio.getStopAtChainMicros();
+		TimeRecord EndTime = Event.schedule.getStopAtChainMicros();
 
 		FAudioPlayer AudioPlayer;
 		AudioPlayer.StartTime = StartTime;

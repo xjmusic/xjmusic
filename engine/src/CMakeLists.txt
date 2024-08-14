@@ -107,3 +107,33 @@ source_group(
         TREE "${PROJECT_SOURCE_DIR}/include"
         PREFIX "Header Files"
         FILES ${HEADER_LIST})
+
+
+#Copy dependencies to Unreal Engine plugin
+
+get_filename_component(ROOT_DIRECTORY ${CMAKE_SOURCE_DIR} DIRECTORY)
+
+set(PLUGIN_LIB_DIRECTORY "${ROOT_DIRECTORY}/plugins/unreal/XJGame/Plugins/XJMusicPlugin/Lib/$<CONFIG>")
+set(PLUGIN_INCLUDE_DIRECTORY "${ROOT_DIRECTORY}/plugins/unreal/XJGame/Plugins/XJMusicPlugin/Include")
+
+add_custom_command(TARGET xjmusic POST_BUILD
+    # Ensure the plugin library directory exists
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${PLUGIN_LIB_DIRECTORY}"
+
+    # Ensure the plugin include directory exists
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${PLUGIN_INCLUDE_DIRECTORY}"
+
+    # Copy the compiled library to the plugin library directory
+    COMMAND ${CMAKE_COMMAND} -E copy
+    "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/xjmusic.lib"
+    "${PLUGIN_LIB_DIRECTORY}/xjmusic.lib"
+
+    # Copy the include directory to the plugin include directory
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    "${CMAKE_SOURCE_DIR}/include/"
+    "${PLUGIN_INCLUDE_DIRECTORY}/"
+
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    "${CMAKE_BINARY_DIR}/_deps/json-src/include/"
+    "${PLUGIN_INCLUDE_DIRECTORY}/"
+)

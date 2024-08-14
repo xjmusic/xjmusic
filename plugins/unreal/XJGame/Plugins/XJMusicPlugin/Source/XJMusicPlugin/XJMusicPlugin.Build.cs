@@ -36,13 +36,11 @@ public class XJMusicPlugin : ModuleRules
 
 		if (Target.Configuration == UnrealTargetConfiguration.Development)
 		{
-			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "../../Lib/xjmusic.lib"));
-			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "../../Lib/spdlog.lib"));
+			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "../../Lib/Release/xjmusic.lib"));
 		}
 		else
 		{
-			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "../../Lib/debug/xjmusic.lib"));
-			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "../../Lib/debug/spdlogd.lib"));
+			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "../../Lib/Debug/xjmusic.lib"));
         }
 
         PublicIncludePaths.Add(Path.Combine(ModuleDirectory, "../../Include/"));
