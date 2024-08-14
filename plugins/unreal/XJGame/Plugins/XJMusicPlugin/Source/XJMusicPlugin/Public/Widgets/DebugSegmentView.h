@@ -23,7 +23,11 @@ public:
 	void Update(const FSegmentInfo& Info);
 
 	void MarkOutdated(bool bValue = true);
+
 private:
+
+	FSegmentInfo SegmentInfo;
+
 	TSharedPtr<SScrollBox> FirstLevelChoicesVB;
 
 	TMap<FString, TSharedPtr<SVerticalBox>> SecondLevelChoicesVB;

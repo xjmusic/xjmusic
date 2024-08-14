@@ -147,8 +147,6 @@ FSegmentChoice TXjMainEngine::ParseSegmentChoice(const SegmentChoice* Choice, co
 		Out.Mode = Instrument::toString(Instr.value()->mode).c_str();
 		Out.Name = Instr.value()->name.c_str();
 
-		FString Debug = "Segment: " + FString::FromInt(Choice->segmentId) + "\n";
-
 		for (const SegmentChoiceArrangementPick* Pick : XjEngine->getSegmentStore()->readAllSegmentChoiceArrangementPicks(Choice))
 		{
 			std::optional<const InstrumentAudio*> Audio = XjEngine->getProjectContent()->getInstrumentAudio(Pick->instrumentAudioId);
@@ -169,12 +167,7 @@ FSegmentChoice TXjMainEngine::ParseSegmentChoice(const SegmentChoice* Choice, co
 			AudioPick.bActive = bActive;
 
 			Out.Picks.Add(AudioPick);
-
-			Debug += FString::SanitizeFloat(AudioPick.StartTime.GetSeconds()) + "\n";
 		}
-
-
-		UE_LOG(LogTemp, Warning, TEXT("%s"), *Debug);
 	}
 	else if (Prgm.has_value())
 	{

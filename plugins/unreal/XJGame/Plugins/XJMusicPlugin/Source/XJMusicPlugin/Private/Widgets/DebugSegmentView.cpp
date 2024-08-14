@@ -21,6 +21,8 @@ void SDebugSegmentView::Construct(const FArguments& Args)
 	const FString TempoStr = FString::Printf(TEXT("Tempo:\n%d"), Args._SegmentInfo.Tempo);
 	const FString KeyStr = FString::Printf(TEXT("Key:\n%s"), *Args._SegmentInfo.Key);
 
+	SegmentInfo = Args._SegmentInfo;
+
 	FString MemesStr = "Memes:\n";
 	for (const FString& Meme : Args._SegmentInfo.Memes)
 	{
@@ -202,7 +204,7 @@ void SDebugSegmentView::AddNewSegmentChoice(const FSegmentChoice& Choice)
 		.Padding(10)
 		[
 			SNew(STextBlock)
-			.Text(FText::FromString(FString::Printf(TEXT("[%.2f] %s"), Pick.StartTime.GetSeconds(), *Pick.Name)))
+			.Text(FText::FromString(FString::Printf(TEXT("[%.2f] %s"), Pick.StartTime.GetSeconds() + SegmentInfo.StartTime.GetSeconds(), *Pick.Name)))
 			.Font(PickFontInfo)
 			.ColorAndOpacity(Pick.bActive ? FLinearColor::Green :FLinearColor::Gray)
 		];
