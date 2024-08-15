@@ -17,8 +17,8 @@
 	"Modules": [
 		{
 			"Name": "XJMusicPlugin",
-			"Type": "Editor",
-			"LoadingPhase": "PreDefault"
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
 		}
 	]
 }

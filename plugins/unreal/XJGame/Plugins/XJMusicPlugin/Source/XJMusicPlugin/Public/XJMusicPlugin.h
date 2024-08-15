@@ -22,12 +22,16 @@ private:
 
 	void OnPostWorldInitialization(UWorld* World, const UWorld::InitializationValues Ivs);
 
+	void OnLevelRemovedFromWorld(ULevel* Level, UWorld* World);
+
 	void OnLevelBeginPlay();
 
 	TSharedPtr<class FUICommandList> PluginCommands;
 
+	UPROPERTY()
+	UXjMusicInstanceSubsystem* XjSubsystem = nullptr;
+
 	UWorld* LastWorld = nullptr;
 
 	FDelegateHandle WorldBeginPlayHandle;
-	FDelegateHandle WorldPostInitializeHandle;
 };

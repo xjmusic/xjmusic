@@ -31,6 +31,16 @@ struct XJMUSICPLUGIN_API FXjObjectPool
 		return InUseObjects.Num();
 	}
 
+	bool IsInUse(UObject* Object) const
+	{
+		if (!IsValid(Object))
+		{
+			return false;
+		}
+
+		return InUseObjects.Contains(Object);
+	}
+
 private:
 	uint32 MaxAvailableObjects = 16;
 

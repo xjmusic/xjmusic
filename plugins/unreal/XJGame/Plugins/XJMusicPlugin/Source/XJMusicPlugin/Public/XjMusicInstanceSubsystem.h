@@ -16,11 +16,15 @@ class XJMUSICPLUGIN_API UXjMusicInstanceSubsystem : public UGameInstanceSubsyste
 	GENERATED_BODY()
 	
 public:
+
+	UFUNCTION(BlueprintCallable)
+	void DoOverrideTaxonomy(const FString Taxonomy);
+
 	void SetupXJ();
 
-	void RetrieveProjectsContent(const FString& Directory);
+	void ShutdownXJ();
 
-	void SetActiveEngine(const TWeakPtr<TEngineBase>& Engine);
+	void RetrieveProjectsContent(const FString& Directory);
 
 	void AddActiveAudio(const FAudioPlayer& Audio);
 
@@ -29,8 +33,6 @@ public:
 	void RemoveActiveAudio(const FAudioPlayer& Audio);
 
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
-
-	virtual void Deinitialize() override;
 
 	const TMap<FString, FAudioPlayer>& GetActiveAudios() const
 	{
@@ -52,32 +54,33 @@ private:
 	void OnAudioComponentFinished(UAudioComponent* AudioComponent);
 
 private:
-	FTimerHandle CheckTimerHandle;
-
 	UPROPERTY()
 	class UXjManager* Manager = nullptr;
 
-	UQuartzClockHandle* QuartzClockHandle;
+	UPROPERTY()
+	UQuartzClockHandle* QuartzClockHandle = nullptr;
 
-	FAudioDeviceHandle WorldAudioDeviceHandle;
-
-	TWeakPtr<TEngineBase> ActiveEngine;
-
-	TSharedPtr<SDebugChainView> DebugChainViewWidget;
-
-	TMap<FString, FString> AudioPathsByNameLookup;
-
-	TMap<FString, FAudioPlayer> ActiveAudios;
+	UPROPERTY()
+	UQuartzSubsystem* QuartzSubsystem = nullptr;
 
 	UPROPERTY()
 	TMap<uint32, USoundWave*>  CachedSoundWaves;
 
-	mutable FCriticalSection SoundsMapCriticalSection;
-
-	const FString AudioExtension = ".wav";
-
 	UPROPERTY()
 	class USoundConcurrency* SoundConcurrency = nullptr;
 
+	const FString AudioExtension = ".wav";
+
+	FAudioDeviceHandle WorldAudioDeviceHandle;
+
+	TSharedPtr<SDebugChainView> DebugChainViewWidget;
+
 	FXjObjectPool AudioComponentsPool;
+
+	mutable FCriticalSection SoundsMapCriticalSection;
+
+	TMap<FString, UAudioComponent*> SoundsMap;
+
+	TMap<FString, FString> AudioPathsByNameLookup;
+	TMap<FString, FAudioPlayer> ActiveAudios;
 };

@@ -94,6 +94,28 @@ TArray<FAudioPlayer> TXjMainEngine::RunCycle(const uint64 ChainMicros)
 	return Output;
 }
 
+void TXjMainEngine::DoOverrideTaxonomy(const FString& Taxonomy)
+{
+	std::string Cstr = TCHAR_TO_UTF8(*Taxonomy);
+
+	std::istringstream sstream(Cstr);
+	
+	std::set<std::string> Memes;
+
+	while (sstream)
+	{
+		std::string str;
+		sstream >> str;
+
+		Memes.insert(str);
+	}
+
+	if (XjEngine)
+	{
+		XjEngine->doOverrideMemes(Memes);
+	}
+}
+
 FEngineSettings TXjMainEngine::GetSettings() const
 {
 	if (!XjEngine)

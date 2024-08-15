@@ -25,9 +25,18 @@ void UXjMusicInstanceSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 	CVarShowDebugChain->SetOnChangedCallback(FConsoleVariableDelegate::CreateUObject(this, &UXjMusicInstanceSubsystem::OnEnabledShowDebugChain));
 }
 
-void UXjMusicInstanceSubsystem::Deinitialize()
+void UXjMusicInstanceSubsystem::DoOverrideTaxonomy(const FString Taxonomy)
 {
-	Super::Deinitialize();
+	if (!Manager)
+	{
+		return;
+	}
+
+	XjCommand Command;
+	Command.Type = XjCommandType::TaxonomyChange;
+	Command.Arguments = Taxonomy;
+
+	Manager->PushCommand(Command);
 }
 
 void UXjMusicInstanceSubsystem::SetupXJ()
@@ -36,8 +45,6 @@ void UXjMusicInstanceSubsystem::SetupXJ()
 	{
 		return;
 	}
-
-	AudioComponentsPool.Reset();
 
 	SoundConcurrency = NewObject<USoundConcurrency>();
 	if (SoundConcurrency)
@@ -59,6 +66,19 @@ void UXjMusicInstanceSubsystem::SetupXJ()
 	{
 		OnEnabledShowDebugChain(CVarShowDebugChain->AsVariable());
 	}
+}
+
+void UXjMusicInstanceSubsystem::ShutdownXJ()
+{
+	Manager = nullptr;
+	SoundConcurrency = nullptr;
+	QuartzClockHandle = nullptr;
+
+	DebugChainViewWidget.Reset();
+
+	AudioComponentsPool.Reset();
+
+	ActiveAudios.Empty();
 }
 
 void UXjMusicInstanceSubsystem::RetrieveProjectsContent(const FString& Directory)
@@ -91,11 +111,6 @@ void UXjMusicInstanceSubsystem::RetrieveProjectsContent(const FString& Directory
 		FString Name = FPaths::GetCleanFilename(Path);
 		AudioPathsByNameLookup.Add(Name, Path);
 	}
-}
-
-void UXjMusicInstanceSubsystem::SetActiveEngine(const TWeakPtr<TEngineBase>& Engine)
-{
-	ActiveEngine = Engine;
 }
 
 bool UXjMusicInstanceSubsystem::PlayAudio(const FAudioPlayer& Audio)
@@ -131,7 +146,13 @@ bool UXjMusicInstanceSubsystem::PlayAudio(const FAudioPlayer& Audio)
 
 			NewAudioComponent->OnAudioFinishedNative.AddUObject(this, &UXjMusicInstanceSubsystem::OnAudioComponentFinished);
 
-			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, FString::Printf(TEXT("Active audio components: %d"), AudioComponentsPool.GetNumberOfInUseObjects()));
+
+			SoundsMapCriticalSection.Lock();
+			
+			SoundsMap.Add(Audio.Id, NewAudioComponent);
+			
+			SoundsMapCriticalSection.Unlock();
+
 
 			FQuartzQuantizationBoundary Boundary;
 			Boundary.Quantization = EQuartzCommandQuantization::ThirtySecondNote;
@@ -174,7 +195,22 @@ void UXjMusicInstanceSubsystem::UpdateActiveAudio(const FAudioPlayer& Audio)
 
 	UpdateDebugChainView();
 
-	//Update end time
+	AsyncTask(ENamedThreads::GameThread, [this, Audio]()
+		{
+			SoundsMapCriticalSection.Lock();
+
+			if (UAudioComponent** AC = SoundsMap.Find(Audio.Id))
+			{
+				if (!IsValid(*AC) || !IsValid(Manager))
+				{
+					return;
+				}
+
+				(*AC)->FadeOut(Manager->GetAtChainMicros().GetSeconds() - Audio.EndTime.GetSeconds(), 0.0f);
+			}
+
+			SoundsMapCriticalSection.Unlock();
+		});
 }
 
 void UXjMusicInstanceSubsystem::RemoveActiveAudio(const FAudioPlayer& Audio)
@@ -187,6 +223,29 @@ void UXjMusicInstanceSubsystem::RemoveActiveAudio(const FAudioPlayer& Audio)
 	ActiveAudios.Remove(Audio.Id);
 
 	UpdateDebugChainView();
+
+	//This mean audio will end naturally otherwise we assume DoOverride happened
+	if (!Manager || Manager->GetAtChainMicros() > Audio.EndTime.GetMicros())
+	{
+		return;
+	}
+
+	AsyncTask(ENamedThreads::GameThread, [this, Audio]()
+		{
+			SoundsMapCriticalSection.Lock();
+
+			if (UAudioComponent** AC = SoundsMap.Find(Audio.Id))
+			{
+				if (!IsValid(*AC) || !AudioComponentsPool.IsInUse(*AC))
+				{
+					return;
+				}
+
+				(*AC)->Stop();
+			}
+
+			SoundsMapCriticalSection.Unlock();
+		});
 }
 
 USoundWave* UXjMusicInstanceSubsystem::GetSoundWaveById(const FString& Id, const float Duration)
@@ -268,7 +327,7 @@ USoundWave* UXjMusicInstanceSubsystem::GetSoundWaveById(const FString& Id, const
 
 void UXjMusicInstanceSubsystem::InitQuartz()
 {
-	UQuartzSubsystem* QuartzSubsystem = UQuartzSubsystem::Get(GetWorld());
+	QuartzSubsystem = UQuartzSubsystem::Get(GetWorld());
 	if (QuartzSubsystem)
 	{
 		FQuartzTimeSignature TimeSignatures;
@@ -317,12 +376,12 @@ void UXjMusicInstanceSubsystem::OnEnabledShowDebugChain(IConsoleVariable* Var)
 		}
 		else
 		{
-			DebugChainViewWidget = SNew(SDebugChainView).Engine(ActiveEngine);
-
-			if (!GEngine)
+			if (!GEngine || !Manager)
 			{
 				return;
 			}
+
+			DebugChainViewWidget = SNew(SDebugChainView).Engine(Manager->GetActiveEngine());
 
 			GEngine->GameViewport->AddViewportWidgetContent(
 				SNew(SWeakWidget).PossiblyNullContent(DebugChainViewWidget.ToSharedRef()));

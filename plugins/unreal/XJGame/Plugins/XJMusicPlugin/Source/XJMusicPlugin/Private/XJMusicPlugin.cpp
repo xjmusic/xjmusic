@@ -40,7 +40,8 @@ void FXJMusicPluginModule::StartupModule()
 			GetMutableDefault<UXJMusicDefaultSettings>());
 	}
 
-    WorldPostInitializeHandle =	FWorldDelegates::OnPostWorldInitialization.AddRaw(this, &FXJMusicPluginModule::OnPostWorldInitialization);
+    FWorldDelegates::OnPostWorldInitialization.AddRaw(this, &FXJMusicPluginModule::OnPostWorldInitialization);
+	FWorldDelegates::LevelRemovedFromWorld.AddRaw(this, &FXJMusicPluginModule::OnLevelRemovedFromWorld);
 }
 
 
@@ -51,10 +52,23 @@ void FXJMusicPluginModule::OnPostWorldInitialization(UWorld* World, const UWorld
 		return;
 	}
 
-	//TODO Add OnWorldBeginPlay delegate remove after level change
-
 	LastWorld = World;
     WorldBeginPlayHandle = World->OnWorldBeginPlay.AddRaw(this, &FXJMusicPluginModule::OnLevelBeginPlay);
+}
+
+void FXJMusicPluginModule::OnLevelRemovedFromWorld(ULevel* Level, UWorld* World)
+{
+	if (!World)
+	{
+		return;
+	}
+
+	World->OnWorldBeginPlay.Remove(WorldBeginPlayHandle);
+
+	if (XjSubsystem)
+	{
+		XjSubsystem->ShutdownXJ();
+	}
 }
 
 void FXJMusicPluginModule::OnLevelBeginPlay()
@@ -64,7 +78,7 @@ void FXJMusicPluginModule::OnLevelBeginPlay()
 		return;
 	}
 
-	UXjMusicInstanceSubsystem* XjSubsystem = LastWorld->GetGameInstance()->GetSubsystem<UXjMusicInstanceSubsystem>();
+	XjSubsystem = LastWorld->GetGameInstance()->GetSubsystem<UXjMusicInstanceSubsystem>();
 	if (XjSubsystem)
 	{
 		XjSubsystem->SetupXJ();
@@ -87,6 +101,7 @@ void FXJMusicPluginModule::ShutdownModule()
 	}
 
 	FWorldDelegates::OnPostWorldInitialization.RemoveAll(this);
+	FWorldDelegates::OnPreWorldFinishDestroy.RemoveAll(this);
 }
 
 void FXJMusicPluginModule::PluginButtonClicked()

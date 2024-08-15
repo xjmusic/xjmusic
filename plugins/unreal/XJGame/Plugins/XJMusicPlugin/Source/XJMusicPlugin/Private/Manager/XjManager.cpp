@@ -40,7 +40,6 @@ FXjRunnable::FXjRunnable(const FString& PathToProject, const UWorld* World)
 
 	if (Engine)
 	{
-		XjMusicSubsystem->SetActiveEngine(Engine);
 		Engine->Setup(PathToProject);
 	}
 
@@ -71,6 +70,26 @@ uint32 FXjRunnable::Run()
 		}
 
 		LastFramTime = CurrentTime;
+
+
+		while (!Commands.IsEmpty())
+		{
+			if (!Engine)
+			{
+				break;
+			}
+
+			XjCommand Command;
+			Commands.Dequeue(Command);
+
+			switch (Command.Type)
+			{
+				case XjCommandType::TaxonomyChange:
+					Engine->DoOverrideTaxonomy(Command.Arguments);
+					break;
+			}
+		}
+
 
 		TArray<FAudioPlayer> ReceivedAudios = Engine->RunCycle(AtChainMicros.GetMicros());
 

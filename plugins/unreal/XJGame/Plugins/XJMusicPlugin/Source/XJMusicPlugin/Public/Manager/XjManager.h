@@ -8,6 +8,17 @@
 
 #include "XjManager.generated.h"
 
+enum class XjCommandType
+{
+	TaxonomyChange
+};
+
+struct XjCommand
+{
+	XjCommandType Type;
+	FString Arguments;
+};
+
 class FXjRunnable : public FRunnable
 {
 
@@ -19,9 +30,19 @@ public:
 	virtual uint32 Run() override;
 	virtual void Stop() override;
 
+	void PushCommand(const XjCommand& NewCommand)
+	{
+		Commands.Enqueue(NewCommand);
+	}
+
 	TimeRecord GetAtChainMicros() const
 	{
 		return AtChainMicros;
+	}
+
+	TWeakPtr<TEngineBase> GetActiveEngine() const
+	{
+		return Engine;
 	}
 
 private:
@@ -29,9 +50,11 @@ private:
 
 private:
 
-	double LastFramTime = 0.0f;
+	class UXjMusicInstanceSubsystem* XjMusicSubsystem = nullptr;
 
-	FThreadSafeBool bShouldStop = false;
+	TSharedPtr<TEngineBase> Engine;
+
+	double LastFramTime = 0.0f;
 
 	int RunCycleFrequency = 9;
 
@@ -39,9 +62,9 @@ private:
 
 	TimeRecord AtChainMicros;
 
-	class UXjMusicInstanceSubsystem* XjMusicSubsystem = nullptr;
+	FThreadSafeBool bShouldStop = false;
 
-	TSharedPtr<TEngineBase> Engine;
+	TQueue<XjCommand> Commands;
 };
 
 UCLASS()
@@ -55,6 +78,16 @@ public:
 
 	virtual void BeginDestroy() override;
 
+	void PushCommand(const XjCommand& NewCommand)
+	{
+		if (!XjRunnable)
+		{
+			return;
+		}
+
+		XjRunnable->PushCommand(NewCommand);
+	}
+
 	TimeRecord GetAtChainMicros() const
 	{
 		if (!XjRunnable)
@@ -63,6 +96,16 @@ public:
 		}
 
 		return XjRunnable->GetAtChainMicros();
+	}
+
+	TWeakPtr<TEngineBase> GetActiveEngine() const
+	{
+		if (!XjRunnable)
+		{
+			return {};
+		}
+
+		return XjRunnable->GetActiveEngine();
 	}
 
 private:

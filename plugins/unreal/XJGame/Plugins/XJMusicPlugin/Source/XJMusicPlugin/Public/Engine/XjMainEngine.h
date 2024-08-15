@@ -21,6 +21,8 @@ public:
 
 	TArray<FAudioPlayer> RunCycle(const uint64 ChainMicros) override;
 
+	void DoOverrideTaxonomy(const FString& Taxonomy) override;
+
 	FEngineSettings GetSettings() const override;
 
 	FString GetActiveTemplateName() const override;

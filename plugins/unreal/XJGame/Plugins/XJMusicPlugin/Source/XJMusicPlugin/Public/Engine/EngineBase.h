@@ -92,4 +92,6 @@ public:
 	virtual TArray<FSegmentInfo> GetSegments() { return {}; }
 
 	virtual TimeRecord GetLastMicros() const { return {}; }
+
+	virtual void DoOverrideTaxonomy(const FString& Taxonomy) {}
 };
