@@ -7,21 +7,6 @@ class TimeRecord
 public:
 	TimeRecord() = default;
 
-	TimeRecord(const uint64 NewTime)
-	{
-		SetInMicros(NewTime);
-	}
-
-	TimeRecord(const int NewTime)
-	{
-		SetInMicros(NewTime);
-	}
-
-	TimeRecord(const float NewTime)
-	{
-		SetInSeconds(NewTime);
-	}
-
 	void SetInMicros(const uint64 NewTime)
 	{
 		Micros = NewTime;
@@ -52,6 +37,15 @@ public:
 	FString ToString() const
 	{
 		FString Out = FString::Printf(TEXT("%f s (%lld micro)"), Seconds, Micros);
+		return Out;
+	}
+
+	TimeRecord operator + (const TimeRecord& Other)
+	{
+		TimeRecord Out;
+		Out.Seconds = Seconds + Other.Seconds;
+		Out.Micros = Micros + Other.Micros;
+
 		return Out;
 	}
 

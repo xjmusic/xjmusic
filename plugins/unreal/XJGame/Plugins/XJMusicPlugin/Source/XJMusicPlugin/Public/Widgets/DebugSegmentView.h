@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Widgets/SCompoundWidget.h"
 #include "Engine/EngineBase.h"
+#include "Brushes/SlateColorBrush.h"
 
 class XJMUSICPLUGIN_API SDebugSegmentView : public SCompoundWidget
 {
@@ -22,7 +23,9 @@ public:
 
 	void Update(const FSegmentInfo& Info);
 
-	void MarkOutdated(bool bValue = true);
+	void MarkOutdated(const bool bValue = true);
+
+	void ShowActiveBorder(const bool bShow);
 
 private:
 
@@ -30,9 +33,16 @@ private:
 
 	TSharedPtr<SScrollBox> FirstLevelChoicesVB;
 
+	TSharedPtr<SBorder> Border;
+
 	TMap<FString, TSharedPtr<SVerticalBox>> SecondLevelChoicesVB;
 
 	bool bOutdated = false;
+
+	bool bActive = false;
+
+	const FSlateColorBrush* DefaultBorderBrush = new FSlateColorBrush(FLinearColor(0.08f, 0.08f, 0.08f, 1.0f));
+	const FSlateColorBrush* ActiveBorderBrush = new FSlateColorBrush(FLinearColor(0.05f, 0.45f, 0.05f, 1.0f));
 
 	void AddNewSegmentChoice(const FSegmentChoice& Choice);
 };

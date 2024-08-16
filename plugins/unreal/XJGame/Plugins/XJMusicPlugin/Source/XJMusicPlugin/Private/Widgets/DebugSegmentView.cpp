@@ -35,107 +35,113 @@ void SDebugSegmentView::Construct(const FArguments& Args)
 
 	ChildSlot
 	[
-		SNew(SBox)
-		.MinDesiredHeight(600.0f)
-		.MaxDesiredHeight(600.0f)
-		.MinDesiredWidth(350.0f)
-		.MaxDesiredWidth(350.0f)
+		SAssignNew(Border, SBorder)
+		.BorderImage(DefaultBorderBrush)
+		.Padding(FMargin(2.0f))
 		[
-			SNew(SOverlay)
-			+ SOverlay::Slot()
-			.VAlign(VAlign_Fill)
-			.HAlign(HAlign_Fill)
+			SNew(SBox)
+			.MinDesiredHeight(600.0f)
+			.MaxDesiredHeight(600.0f)
+			.MinDesiredWidth(350.0f)
+			.MaxDesiredWidth(350.0f)
 			[
-				SNew(SImage)
-				.Image(BackgroundBrush)
-			]
-			+ SOverlay::Slot()
-			.Padding(FMargin(5.0f, 0.0f, 0, 0))
-			.VAlign(VAlign_Fill)
-			.HAlign(HAlign_Fill)
-			[
-				SNew(SVerticalBox)
-				+ SVerticalBox::Slot()
-				.AutoHeight()
+				SNew(SOverlay)
+				+ SOverlay::Slot()
+				.VAlign(VAlign_Fill)
+				.HAlign(HAlign_Fill)
 				[
-					SNew(SBox)
-					.MinDesiredHeight(200.0f)
-					.MaxDesiredHeight(200.0f)
+					SNew(SImage)
+						.Image(BackgroundBrush)
+				]
+				+ SOverlay::Slot()
+				.Padding(FMargin(5.0f, 0.0f, 0, 0))
+				.VAlign(VAlign_Fill)
+				.HAlign(HAlign_Fill)
+				[
+					SNew(SVerticalBox)
+					+ SVerticalBox::Slot()
+					.AutoHeight()
 					[
-						SNew(SUniformGridPanel)
-						.SlotPadding(FMargin(0, 2.0f))
-						+ SUniformGridPanel::Slot(0, 0)
+						SNew(SBox)
+						.MinDesiredHeight(200.0f)
+						.MaxDesiredHeight(200.0f)
 						[
-							SNew(STextBlock)
-							.Text(FText::FromString(IdStr))
-							.Font(FontInfo)
-						]
-						+ SUniformGridPanel::Slot(1, 0)
-						[
-							SNew(STextBlock)
-							.Text(FText::FromString(""))
-							.Font(FontInfo)
-						]
-						+ SUniformGridPanel::Slot(0, 1)
-						[
-							SNew(STextBlock)
-							.Text(FText::FromString(BeginSecondsStr + "s"))
-							.Font(FontInfo)
-						]
-						+ SUniformGridPanel::Slot(1, 1)
-						[
-							SNew(STextBlock)
-							.Text(FText::FromString(TypeStr))
-							.Font(FontInfo)
-						]
-						+ SUniformGridPanel::Slot(0, 2)
-						[
-							SNew(STextBlock)
-							.Text(FText::FromString(TotalTimeStr))
-							.Font(FontInfo)
-						]
-						+ SUniformGridPanel::Slot(1, 2)
-						[
-							SNew(STextBlock)
-							.Text(FText::FromString(IntensityStr))
-							.Font(FontInfo)
-						]
-						+ SUniformGridPanel::Slot(2, 2)
-						[
-							SNew(STextBlock)
-							.Text(FText::FromString(TempoStr))
-							.Font(FontInfo)
-						]
-						+ SUniformGridPanel::Slot(3, 2)
-						[
-							SNew(STextBlock)
-							.Text(FText::FromString(KeyStr))
-							.Font(FontInfo)
-						]
-						+ SUniformGridPanel::Slot(0, 3)
-						[
-							SNew(STextBlock)
-							.Text(FText::FromString(MemesStr))
-							.Font(FontInfo)
-						]
+							SNew(SUniformGridPanel)
+							.SlotPadding(FMargin(0, 2.0f))
+							+ SUniformGridPanel::Slot(0, 0)
+							[
+								SNew(STextBlock)
+								.Text(FText::FromString(IdStr))
+								.Font(FontInfo)
+							]
+							+ SUniformGridPanel::Slot(1, 0)
+							[
+								SNew(STextBlock)
+									.Text(FText::FromString(""))
+									.Font(FontInfo)
+							]
+							+ SUniformGridPanel::Slot(0, 1)
+							[
+								SNew(STextBlock)
+									.Text(FText::FromString(BeginSecondsStr + "s"))
+									.Font(FontInfo)
+							]
+							+ SUniformGridPanel::Slot(1, 1)
+							[
+								SNew(STextBlock)
+									.Text(FText::FromString(TypeStr))
+									.Font(FontInfo)
+							]
+							+ SUniformGridPanel::Slot(0, 2)
+							[
+								SNew(STextBlock)
+									.Text(FText::FromString(TotalTimeStr))
+									.Font(FontInfo)
+							]
+							+ SUniformGridPanel::Slot(1, 2)
+							[
+								SNew(STextBlock)
+									.Text(FText::FromString(IntensityStr))
+									.Font(FontInfo)
+							]
+							+ SUniformGridPanel::Slot(2, 2)
+							[
+								SNew(STextBlock)
+									.Text(FText::FromString(TempoStr))
+									.Font(FontInfo)
+							]
+							+ SUniformGridPanel::Slot(3, 2)
+							[
+								SNew(STextBlock)
+									.Text(FText::FromString(KeyStr))
+									.Font(FontInfo)
+							]
+							+ SUniformGridPanel::Slot(0, 3)
+							[
+								SNew(STextBlock)
+									.Text(FText::FromString(MemesStr))
+									.Font(FontInfo)
+							]
 					]
 				]
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				.Padding(FMargin(0.0f, 10.0f, 0, 0))
-				[
-					SNew(STextBlock)
-					.Text(FText::FromString("Choices:"))
-					.Font(FontInfo)
-				]
-				+ SVerticalBox::Slot()
-				.Padding(FMargin(0.0f, 5.0f, 0, 0))
-				[
-					SAssignNew(FirstLevelChoicesVB, SScrollBox)
-					.Orientation(EOrientation::Orient_Vertical)
+							+ SVerticalBox::Slot()
+							.AutoHeight()
+							.Padding(FMargin(0.0f, 10.0f, 0, 0))
+							[
+								SNew(STextBlock)
+									.Text(FText::FromString("Choices:"))
+									.Font(FontInfo)
+							]
+							+ SVerticalBox::Slot()
+							.Padding(FMargin(0.0f, 5.0f, 0, 0))
+							[
+								SAssignNew(FirstLevelChoicesVB, SScrollBox)
+									.Orientation(EOrientation::Orient_Vertical)
+							]
 				]
 			]
 		]
+		
 	];
 }
 
@@ -169,7 +175,7 @@ void SDebugSegmentView::Update(const FSegmentInfo& Info)
 	}
 }
 
-void SDebugSegmentView::MarkOutdated(bool bValue)
+void SDebugSegmentView::MarkOutdated(const bool bValue)
 {
 	if (bValue == bOutdated)
 	{
@@ -179,6 +185,18 @@ void SDebugSegmentView::MarkOutdated(bool bValue)
 	bOutdated = bValue;
 
 	SetEnabled(!bOutdated);
+}
+
+void SDebugSegmentView::ShowActiveBorder(const bool bShow)
+{
+	if (!Border || bActive == bShow)
+	{
+		return;
+	}
+
+	bActive = bShow;
+
+	Border->SetBorderImage(bShow ? ActiveBorderBrush : DefaultBorderBrush);
 }
 
 void SDebugSegmentView::AddNewSegmentChoice(const FSegmentChoice& Choice)

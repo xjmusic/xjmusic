@@ -3,7 +3,6 @@
 
 #include "Widgets/DebugChainView.h"
 #include "SlateOptMacros.h"
-#include "Brushes/SlateColorBrush.h"
 
 #include "Types/XjTypes.h"
 
@@ -214,9 +213,25 @@ void SDebugChainView::UpdateActiveAudios(const TMap<FString, FAudioPlayer>& Acti
 
 	for (FSegmentInfo Segment : Engine->GetSegments())
 	{
-		if (CreatedSegments.Contains(Segment.Id))
+		if (TSharedPtr<SDebugSegmentView>* SegmentView = CreatedSegments.Find(Segment.Id))
 		{
-			CreatedSegments[Segment.Id]->Update(Segment);
+			if (!Engine || !*SegmentView)
+			{
+				return;
+			}
+
+			(*SegmentView)->Update(Segment);
+
+			const TimeRecord EndTime = Segment.StartTime + Segment.TotalTime;
+			const bool bActive = Engine->GetLastMicros() >= Segment.StartTime && Engine->GetLastMicros() <= EndTime;
+
+			(*SegmentView)->ShowActiveBorder(bActive);
+
+			if (bActive)
+			{
+				SegmentsSB->ScrollDescendantIntoView(*SegmentView);
+			}
+
 			continue;
 		}
 
@@ -230,6 +245,11 @@ void SDebugChainView::UpdateActiveAudios(const TMap<FString, FAudioPlayer>& Acti
 
 		NewSegment->Update(Segment);
 		CreatedSegments.Add(Segment.Id, NewSegment);
+
+		const TimeRecord EndTime = Segment.StartTime + Segment.TotalTime;
+		const bool bActive = Engine->GetLastMicros() >= Segment.StartTime && Engine->GetLastMicros() <= EndTime;
+
+		NewSegment->ShowActiveBorder(bActive);
 	}
 }
 

@@ -225,7 +225,7 @@ void UXjMusicInstanceSubsystem::RemoveActiveAudio(const FAudioPlayer& Audio)
 	UpdateDebugChainView();
 
 	//This mean audio will end naturally otherwise we assume DoOverride happened
-	if (!Manager || Manager->GetAtChainMicros() > Audio.EndTime.GetMicros())
+	if (!Manager || Manager->GetAtChainMicros().GetMicros() > Audio.EndTime.GetMicros())
 	{
 		return;
 	}

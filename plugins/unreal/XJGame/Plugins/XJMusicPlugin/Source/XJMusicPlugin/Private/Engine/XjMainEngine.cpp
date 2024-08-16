@@ -76,8 +76,11 @@ TArray<FAudioPlayer> TXjMainEngine::RunCycle(const uint64 ChainMicros)
 		FString Id = Event.schedule.getId().c_str();
 		FString Name = Event.schedule.getAudio()->name.c_str();
 
-		TimeRecord StartTime = Event.getStartAtChainMicros();
-		TimeRecord EndTime = Event.schedule.getStopAtChainMicros();
+		TimeRecord StartTime;
+		StartTime.SetInMicros(Event.getStartAtChainMicros());
+
+		TimeRecord EndTime;
+		EndTime.SetInMicros(Event.schedule.getStopAtChainMicros());
 
 		FAudioPlayer AudioPlayer;
 		AudioPlayer.StartTime = StartTime;
