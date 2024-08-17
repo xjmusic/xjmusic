@@ -39,10 +39,9 @@ public:
 		return ActiveAudios;
 	}
 
-private:
-
 	USoundWave* GetSoundWaveById(const FString& Id, const float Duration = 0.0f);
 
+private:
 	void InitQuartz();
 
 	void OnEnabledShowDebugChain(class IConsoleVariable* Var);
@@ -56,6 +55,9 @@ private:
 private:
 	UPROPERTY()
 	class UXjManager* Manager = nullptr;
+
+	UPROPERTY()
+	class UXjMixer* Mixer = nullptr;
 
 	UPROPERTY()
 	UQuartzClockHandle* QuartzClockHandle = nullptr;

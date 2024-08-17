@@ -11,6 +11,7 @@
 #include <Manager/XjManager.h>
 #include <Widgets/SWeakWidget.h>
 #include <Sound/SoundConcurrency.h>
+#include "Mixer/XjMixer.h"
 
 static TAutoConsoleVariable<int32> CVarShowDebugChain(
 	TEXT("xj.showdebug"), 
@@ -60,6 +61,12 @@ void UXjMusicInstanceSubsystem::SetupXJ()
 	if (Manager)
 	{
 		Manager->Setup();
+	}
+
+	Mixer = NewObject<UXjMixer>(this);
+	if (Mixer)
+	{
+		Mixer->Setup();
 	}
 
 	if (CVarShowDebugChain->GetInt() > 0)
@@ -181,7 +188,7 @@ void UXjMusicInstanceSubsystem::AddActiveAudio(const FAudioPlayer& Audio)
 
 	UpdateDebugChainView();
 
-	PlayAudio(Audio);
+	//PlayAudio(Audio);
 }
 
 void UXjMusicInstanceSubsystem::UpdateActiveAudio(const FAudioPlayer& Audio)
