@@ -34,6 +34,11 @@ public:
 		return Seconds;
 	}
 
+	uint32 GetSamples(const uint32 SampleRate, const uint32 Channels) const
+	{
+		return Seconds * SampleRate * Channels;
+	}
+
 	FString ToString() const
 	{
 		FString Out = FString::Printf(TEXT("%f s (%lld micro)"), Seconds, Micros);
