@@ -188,7 +188,24 @@ void UXjMusicInstanceSubsystem::AddActiveAudio(const FAudioPlayer& Audio)
 
 	UpdateDebugChainView();
 
-	//PlayAudio(Audio);
+	if (Mixer)
+	{
+		float DurationSeconds = Audio.EndTime.GetSeconds() - Audio.StartTime.GetSeconds();
+
+		USoundWave* SoundWave = GetSoundWaveById(Audio.WaveId, DurationSeconds);
+		if (!SoundWave)
+		{
+			return;
+		}
+
+		FMixerAudio MixerAudio;
+		MixerAudio.Id = Audio.Id;
+		MixerAudio.Wave = SoundWave;
+		MixerAudio.StartSamples = Audio.StartTime.GetSamples(48000, 2);
+		MixerAudio.EndSamples = Audio.EndTime.GetSamples(48000, 2);
+
+		Mixer->AddOrUpdateActiveAudio(MixerAudio);
+	}
 }
 
 void UXjMusicInstanceSubsystem::UpdateActiveAudio(const FAudioPlayer& Audio)
@@ -202,22 +219,24 @@ void UXjMusicInstanceSubsystem::UpdateActiveAudio(const FAudioPlayer& Audio)
 
 	UpdateDebugChainView();
 
-	AsyncTask(ENamedThreads::GameThread, [this, Audio]()
+	if (Mixer)
+	{
+		float DurationSeconds = Audio.EndTime.GetSeconds() - Audio.StartTime.GetSeconds();
+
+		USoundWave* SoundWave = GetSoundWaveById(Audio.WaveId, DurationSeconds);
+		if (!SoundWave)
 		{
-			SoundsMapCriticalSection.Lock();
+			return;
+		}
 
-			if (UAudioComponent** AC = SoundsMap.Find(Audio.Id))
-			{
-				if (!IsValid(*AC) || !IsValid(Manager))
-				{
-					return;
-				}
+		FMixerAudio MixerAudio;
+		MixerAudio.Id = Audio.Id;
+		MixerAudio.Wave = SoundWave;
+		MixerAudio.StartSamples = Audio.StartTime.GetSamples(48000, 2);
+		MixerAudio.EndSamples = Audio.EndTime.GetSamples(48000, 2);
 
-				(*AC)->FadeOut(Manager->GetAtChainMicros().GetSeconds() - Audio.EndTime.GetSeconds(), 0.0f);
-			}
-
-			SoundsMapCriticalSection.Unlock();
-		});
+		Mixer->AddOrUpdateActiveAudio(MixerAudio);
+	}
 }
 
 void UXjMusicInstanceSubsystem::RemoveActiveAudio(const FAudioPlayer& Audio)
@@ -231,28 +250,10 @@ void UXjMusicInstanceSubsystem::RemoveActiveAudio(const FAudioPlayer& Audio)
 
 	UpdateDebugChainView();
 
-	//This mean audio will end naturally otherwise we assume DoOverride happened
-	if (!Manager || Manager->GetAtChainMicros().GetMicros() > Audio.EndTime.GetMicros())
+	if (Mixer)
 	{
-		return;
+		Mixer->RemoveActiveAudio(Audio.Id);
 	}
-
-	AsyncTask(ENamedThreads::GameThread, [this, Audio]()
-		{
-			SoundsMapCriticalSection.Lock();
-
-			if (UAudioComponent** AC = SoundsMap.Find(Audio.Id))
-			{
-				if (!IsValid(*AC) || !AudioComponentsPool.IsInUse(*AC))
-				{
-					return;
-				}
-
-				(*AC)->Stop();
-			}
-
-			SoundsMapCriticalSection.Unlock();
-		});
 }
 
 USoundWave* UXjMusicInstanceSubsystem::GetSoundWaveById(const FString& Id, const float Duration)

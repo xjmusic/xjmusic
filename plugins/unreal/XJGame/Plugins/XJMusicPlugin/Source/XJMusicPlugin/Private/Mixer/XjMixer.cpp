@@ -7,6 +7,54 @@
 #include "Kismet/GameplayStatics.h"
 #include "XjMusicInstanceSubsystem.h"
 
+void FMixerAudio::BeginReadSample()
+{
+	if (!Wave || Wave->RawData.IsLocked())
+	{
+		return;
+	}
+
+	uint8* RawData = (uint8*)Wave->RawData.LockReadOnly();
+
+	if (!RawData)
+	{
+		return;
+	}
+
+	int32 RawDataSize = Wave->RawData.GetBulkDataSize();
+
+	ReadSamplesData = (int16*)RawData;
+	ReadNumSamples = RawDataSize / sizeof(int16);
+}
+
+int16 FMixerAudio::ReadSample()
+{
+	uint16 Sample = 0;
+
+	BeginReadSample();
+
+	if (ReadSamplesData && SamplePointer < ReadNumSamples && SamplePointer < (EndSamples - StartSamples))
+	{
+		Sample = ReadSamplesData[SamplePointer];
+	}
+
+	EndReadSample();
+
+	SamplePointer++;
+
+	return Sample;
+}
+
+void FMixerAudio::EndReadSample()
+{
+	if (!Wave)
+	{
+		return;
+	}
+
+	Wave->RawData.Unlock();
+}
+
 void UXjMixer::Setup()
 {
 	Output = NewObject<UXjOutput>();
@@ -28,26 +76,11 @@ void UXjMixer::Setup()
 		{
 			return OnGeneratePCMAudio(OutAudio, NumSamples);
 		};
-	
-	UXjMusicInstanceSubsystem* XjSubsystem = GetWorld()->GetGameInstance()->GetSubsystem<UXjMusicInstanceSubsystem>();
-	if (XjSubsystem)
+
+	AudioComponent = UGameplayStatics::CreateSound2D(GetWorld(), Output);
+	if (AudioComponent)
 	{
-		USoundWave* Wave = XjSubsystem->GetSoundWaveById("0d1ba43d-02b4-47e2-9e51-dc3d37f5d55d.wav", 20);
-		TimeRecord Start;
-		TimeRecord End;
-
-		AudioComponent = UGameplayStatics::CreateSound2D(GetWorld(), Wave);
-		if (AudioComponent)
-		{
-			AudioComponent->Play();
-		}
-
-		Start.SetInSeconds(0);
-		End.SetInSeconds(20.0f);
-
-		TestAudio.Wave = Wave;
-		TestAudio.StartSamples = Start.GetSamples(SampleRate, NumChannels);
-		TestAudio.EndSamples = End.GetSamples(SampleRate, NumChannels);
+		AudioComponent->Play();
 	}
 }
 
@@ -57,48 +90,68 @@ void UXjMixer::Shutdown()
 	Output->MarkPendingKill();
 }
 
-void UXjMixer::AddActiveAudio(const FMixerAudio& Audio)
+void UXjMixer::AddOrUpdateActiveAudio(const FMixerAudio& Audio)
 {
+	AudiosToUpdate.Enqueue(Audio);
 }
 
-void UXjMixer::UpdateActiveAudio(const FMixerAudio& Audio)
+void UXjMixer::RemoveActiveAudio(const FString& AudioId)
 {
-}
-
-void UXjMixer::RemoveActiveAudio(const FMixerAudio& Audio)
-{
+	AudiosToRemove.Enqueue(AudioId);
 }
 
 int32 UXjMixer::OnGeneratePCMAudio(TArray<uint8>& OutAudio, int32 NumSamples)
 {
 	OutAudio.Reset();
 
+	FMixerAudio UpdatedAudio;
+	while (AudiosToUpdate.Dequeue(UpdatedAudio))
+	{
+		if (ActiveAudios.Contains(UpdatedAudio.Id))
+		{
+			ActiveAudios[UpdatedAudio.Id] = UpdatedAudio;
+		}	
+		else
+		{
+			ActiveAudios.Add(UpdatedAudio.Id, UpdatedAudio);
+		}
+	}
+
+	FString AudioId;
+	while (AudiosToRemove.Dequeue(AudioId))
+	{
+		ActiveAudios.Remove(AudioId);
+	}
+
 	OutAudio.AddZeroed(NumSamples * sizeof(int16));
 	int16* OutAudioBuffer = (int16*)OutAudio.GetData();
 
-
-	uint8* RawData = (uint8*)TestAudio.Wave->RawData.Lock(LOCK_READ_ONLY);
-	int32 RawDataSize = TestAudio.Wave->RawData.GetBulkDataSize();
-
-	int16* SamplesData = (int16*)RawData;
-	int32 AudioSamples = RawDataSize / sizeof(int16);
-
 	for (int32 Sample = 0; Sample < NumSamples; ++Sample)
 	{
-		if (!TestAudio.Wave)
+		int32 MixedData = 0;
+
+		for (TPair<FString, FMixerAudio>& Audio : ActiveAudios)
 		{
-			break;
+			if (SampleCounter > Audio.Value.StartSamples)
+			{
+				MixedData += Audio.Value.ReadSample();
+			}
 		}
 
-		if (SampleCounter < AudioSamples && SampleCounter < TestAudio.EndSamples)
+		//Clipping fix. TODO make this using limits in somewhere else
+		if (MixedData > 32767)
 		{
-			OutAudioBuffer[Sample] = SamplesData[SampleCounter];
+			MixedData = 32767;
 		}
+		else if (MixedData < -32768)
+		{
+			MixedData = -32768;
+		}
+
+		OutAudioBuffer[Sample] = MixedData;
 
 		SampleCounter += 1;
 	}
-
-	TestAudio.Wave->RawData.Unlock();
 
 	return NumSamples;
 }

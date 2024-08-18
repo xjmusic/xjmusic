@@ -18,7 +18,18 @@ public:
 
 	int32 StartSamples = 0;
 	int32 EndSamples = 0;
+
+	int16 ReadSample();
+
+private:
 	int32 SamplePointer = 0;
+
+	int32 ReadNumSamples = 0;
+	int16* ReadSamplesData = nullptr;
+
+	void BeginReadSample();
+
+	void EndReadSample();
 };
 
 UCLASS()
@@ -32,16 +43,14 @@ public:
 
 	void Shutdown();
 
-	void AddActiveAudio(const FMixerAudio& Audio);
+	void AddOrUpdateActiveAudio(const FMixerAudio& Audio);
 
-	void UpdateActiveAudio(const FMixerAudio& Audio);
-
-	void RemoveActiveAudio(const FMixerAudio& Audio);
+	void RemoveActiveAudio(const FString& AudioId);
 
 private:
 
-	uint32 SampleRate = 0;
-	uint32 NumChannels = 0;
+	int32 SampleRate = 0;
+	int32 NumChannels = 0;
 
 	UPROPERTY()
 	class UAudioComponent* AudioComponent;
@@ -51,7 +60,9 @@ private:
 
 	int32 SampleCounter = 0;
 
-	FMixerAudio TestAudio;
+	TQueue<FMixerAudio> AudiosToUpdate;
+
+	TQueue<FString> AudiosToRemove;
 
 	TMap<FString, FMixerAudio> ActiveAudios;
 
