@@ -27,20 +27,21 @@ void FMixerAudio::BeginReadSample()
 	ReadNumSamples = RawDataSize / sizeof(int16);
 }
 
-int16 FMixerAudio::ReadSample()
+int16 FMixerAudio::ReadSample(const int32 CurrentSample)
 {
+	SamplePointer = CurrentSample - StartSamples;
+
 	uint16 Sample = 0;
 
 	BeginReadSample();
 
-	if (ReadSamplesData && SamplePointer < ReadNumSamples && SamplePointer < (EndSamples - StartSamples))
+	if (ReadSamplesData && SamplePointer >= 0 
+		&& SamplePointer <= ReadNumSamples && SamplePointer <= (EndSamples - StartSamples))
 	{
 		Sample = ReadSamplesData[SamplePointer];
 	}
 
 	EndReadSample();
-
-	SamplePointer++;
 
 	return Sample;
 }
@@ -100,6 +101,14 @@ void UXjMixer::RemoveActiveAudio(const FString& AudioId)
 	AudiosToRemove.Enqueue(AudioId);
 }
 
+float UXjMixer::CalculateAmplitude(const FMixerAudio& Audio) const
+{
+	const int32 Difference = Audio.EndSamples - Audio.GetSamplePointer();
+	const int32 FadeOutSamples = FadeOutDuration * SampleRate;
+
+	return 1.0f - FMath::Clamp((float)FadeOutSamples / (float)Difference, 0.0f, 1.0f);
+}
+
 int32 UXjMixer::OnGeneratePCMAudio(TArray<uint8>& OutAudio, int32 NumSamples)
 {
 	OutAudio.Reset();
@@ -132,12 +141,12 @@ int32 UXjMixer::OnGeneratePCMAudio(TArray<uint8>& OutAudio, int32 NumSamples)
 
 		for (TPair<FString, FMixerAudio>& Audio : ActiveAudios)
 		{
-			if (SampleCounter > Audio.Value.StartSamples)
+			if (SampleCounter >= Audio.Value.StartSamples)
 			{
-				MixedData += Audio.Value.ReadSample();
+				MixedData += Audio.Value.ReadSample(SampleCounter);
 			}
 		}
-
+	
 		//Clipping fix. TODO make this using limits in somewhere else
 		if (MixedData > 32767)
 		{

@@ -19,7 +19,12 @@ public:
 	int32 StartSamples = 0;
 	int32 EndSamples = 0;
 
-	int16 ReadSample();
+	int16 ReadSample(const int32 CurrentSample);
+
+	int32 GetSamplePointer() const
+	{
+		return SamplePointer;
+	}
 
 private:
 	int32 SamplePointer = 0;
@@ -47,7 +52,21 @@ public:
 
 	void RemoveActiveAudio(const FString& AudioId);
 
+	float CalculateAmplitude(const FMixerAudio& Audio) const;
+
+	int32 GetSampleRate() const
+	{
+		return SampleRate;
+	}
+
+	int32 GetNumChannels() const
+	{
+		return NumChannels;
+	}
+
 private:
+
+	float FadeOutDuration = 0.5f;
 
 	int32 SampleRate = 0;
 	int32 NumChannels = 0;
