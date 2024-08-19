@@ -35,16 +35,14 @@ public:
 		return ActiveAudios;
 	}
 
-	USoundWave* GetSoundWaveById(const FString& Id, const float Duration = 0.0f);
-
 private:
+
 	void OnEnabledShowDebugChain(class IConsoleVariable* Var);
 
 	void UpdateDebugChainView();
 
-	void RetrieveProjectsContent(const FString& Directory);
-
 private:
+
 	UPROPERTY()
 	class UXjManager* Manager = nullptr;
 
@@ -52,18 +50,9 @@ private:
 	class UXjMixer* Mixer = nullptr;
 
 	UPROPERTY()
-	TMap<uint32, USoundWave*>  CachedSoundWaves;
-
-	const FString AudioExtension = ".wav";
-
-	FAudioDeviceHandle WorldAudioDeviceHandle;
+	class UXjAudioLoader* AudioLoader = nullptr;
 
 	TSharedPtr<SDebugChainView> DebugChainViewWidget;
 
-	mutable FCriticalSection SoundsMapCriticalSection;
-
-	TMap<FString, UAudioComponent*> SoundsMap;
-
-	TMap<FString, FString> AudioPathsByNameLookup;
 	TMap<FString, FAudioPlayer> ActiveAudios;
 };

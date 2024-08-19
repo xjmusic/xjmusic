@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Manager/XjAudioLoader.h"
 #include "XjMixer.generated.h"
 
 USTRUCT()
@@ -11,8 +12,8 @@ struct FMixerAudio
 	GENERATED_BODY()
 
 public:
-	UPROPERTY()
-	USoundWave* Wave;
+
+	FXjAudioWave Wave;
 
 	FString Id;
 
@@ -27,14 +28,8 @@ public:
 	}
 
 private:
+
 	int32 SamplePointer = 0;
-
-	int32 ReadNumSamples = 0;
-	int16* ReadSamplesData = nullptr;
-
-	void BeginReadSample();
-
-	void EndReadSample();
 };
 
 UCLASS()

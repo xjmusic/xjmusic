@@ -7,53 +7,19 @@
 #include "Kismet/GameplayStatics.h"
 #include "XjMusicInstanceSubsystem.h"
 
-void FMixerAudio::BeginReadSample()
-{
-	if (!Wave || Wave->RawData.IsLocked())
-	{
-		return;
-	}
-
-	uint8* RawData = (uint8*)Wave->RawData.LockReadOnly();
-
-	if (!RawData)
-	{
-		return;
-	}
-
-	int32 RawDataSize = Wave->RawData.GetBulkDataSize();
-
-	ReadSamplesData = (int16*)RawData;
-	ReadNumSamples = RawDataSize / sizeof(int16);
-}
-
 int16 FMixerAudio::ReadSample(const int32 CurrentSample)
 {
 	SamplePointer = CurrentSample - StartSamples;
 
 	uint16 Sample = 0;
 
-	BeginReadSample();
-
-	if (ReadSamplesData && SamplePointer >= 0 
-		&& SamplePointer <= ReadNumSamples && SamplePointer <= (EndSamples - StartSamples))
+	if (Wave.IsValidToUse() && SamplePointer >= 0
+		&& SamplePointer <= Wave.NumSamples && SamplePointer <= (EndSamples - StartSamples))
 	{
-		Sample = ReadSamplesData[SamplePointer];
+		Sample = Wave.SamplesData[SamplePointer];
 	}
-
-	EndReadSample();
 
 	return Sample;
-}
-
-void FMixerAudio::EndReadSample()
-{
-	if (!Wave)
-	{
-		return;
-	}
-
-	Wave->RawData.Unlock();
 }
 
 void UXjMixer::Setup()

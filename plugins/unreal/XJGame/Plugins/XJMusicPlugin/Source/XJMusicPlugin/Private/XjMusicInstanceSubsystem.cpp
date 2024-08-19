@@ -3,15 +3,13 @@
 #include "XjMusicInstanceSubsystem.h"
 #include "Kismet/GameplayStatics.h"
 #include "Settings/XJMusicDefaultSettings.h"
-#include "Sound/SoundBase.h"
-#include "Sound/SoundWave.h"
-#include "Misc/FileHelper.h"
 #include "Runtime/Engine/Public/AudioDevice.h"
 #include "Async/Async.h"
 #include "Manager/XjManager.h"
 #include "Widgets/SWeakWidget.h"
 #include "Sound/SoundConcurrency.h"
 #include "Mixer/XjMixer.h"
+#include "Manager/XjAudioLoader.h"
 
 static TAutoConsoleVariable<int32> CVarShowDebugChain(
 	TEXT("xj.showdebug"), 
@@ -47,28 +45,22 @@ void UXjMusicInstanceSubsystem::SetupXJ()
 		return;
 	}
 
-	UXJMusicDefaultSettings* XjSettings = GetMutableDefault<UXJMusicDefaultSettings>();
-	if (!XjSettings)
+	AudioLoader = NewObject<UXjAudioLoader>(this);
+	if (AudioLoader)
 	{
-		return;
-	}
-
-	FString ProjectPath = XjSettings->PathToXjProjectFile;
-	FString FolderContainingProject = FPaths::GetPath(ProjectPath);
-	FString PathToBuildFolder = FPaths::Combine(FolderContainingProject, TEXT("build/"));
-
-	RetrieveProjectsContent(PathToBuildFolder);
-
-	Manager = NewObject<UXjManager>(this);
-	if (Manager)
-	{
-		Manager->Setup();
+		AudioLoader->Setup();
 	}
 
 	Mixer = NewObject<UXjMixer>(this);
 	if (Mixer)
 	{
 		Mixer->Setup();
+	}
+
+	Manager = NewObject<UXjManager>(this);
+	if (Manager)
+	{
+		Manager->Setup();
 	}
 
 	if (CVarShowDebugChain->GetInt() > 0)
@@ -79,41 +71,21 @@ void UXjMusicInstanceSubsystem::SetupXJ()
 
 void UXjMusicInstanceSubsystem::ShutdownXJ()
 {
-	Manager->MarkPendingKill();
-
 	DebugChainViewWidget.Reset();
 
 	ActiveAudios.Empty();
-}
 
-void UXjMusicInstanceSubsystem::RetrieveProjectsContent(const FString& Directory)
-{
-	TArray<FString> WavFiles;
 
-	UXJMusicDefaultSettings* XjSettings = GetMutableDefault<UXJMusicDefaultSettings>();
-	if (!XjSettings)
-	{
-		return;
-	}
+	Mixer->Shutdown();
 
-	FString WorkPath = Directory;
+	AudioLoader->Shutdown();
 
-	IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();
 
-	if (!PlatformFile.DirectoryExists(*WorkPath))
-	{
-		return;
-	}
+	Manager->MarkPendingKill();
 
-	TArray<FString> FoundAudioFilesPaths;
+	Mixer->MarkPendingKill();
 
-	PlatformFile.FindFilesRecursively(FoundAudioFilesPaths, *WorkPath, *AudioExtension);
-
-	for (const FString& Path : FoundAudioFilesPaths)
-	{
-		FString Name = FPaths::GetCleanFilename(Path);
-		AudioPathsByNameLookup.Add(Name, Path);
-	}
+	AudioLoader->MarkPendingKill();
 }
 
 void UXjMusicInstanceSubsystem::AddActiveAudio(const FAudioPlayer& Audio)
@@ -127,24 +99,26 @@ void UXjMusicInstanceSubsystem::AddActiveAudio(const FAudioPlayer& Audio)
 
 	UpdateDebugChainView();
 
-	if (Mixer)
+	if (!Mixer || !AudioLoader)
 	{
-		float DurationSeconds = Audio.EndTime.GetSeconds() - Audio.StartTime.GetSeconds();
-
-		USoundWave* SoundWave = GetSoundWaveById(Audio.WaveId, DurationSeconds);
-		if (!SoundWave)
-		{
-			return;
-		}
-
-		FMixerAudio MixerAudio;
-		MixerAudio.Id = Audio.Id;
-		MixerAudio.Wave = SoundWave;
-		MixerAudio.StartSamples = Audio.StartTime.GetSamples(Mixer->GetSampleRate(), Mixer->GetNumChannels());
-		MixerAudio.EndSamples = Audio.EndTime.GetSamples(Mixer->GetSampleRate(), Mixer->GetNumChannels());
-
-		Mixer->AddOrUpdateActiveAudio(MixerAudio);
+		return;
 	}
+
+	float DurationSeconds = Audio.EndTime.GetSeconds() - Audio.StartTime.GetSeconds();
+
+	FXjAudioWave SoundWave = AudioLoader->GetOrLoadSoundById(Audio.WaveId, DurationSeconds);
+	if (!SoundWave.IsValidToUse())
+	{
+		return;
+	}
+
+	FMixerAudio MixerAudio;
+	MixerAudio.Id = Audio.Id;
+	MixerAudio.Wave = SoundWave;
+	MixerAudio.StartSamples = Audio.StartTime.GetSamples(Mixer->GetSampleRate(), Mixer->GetNumChannels());
+	MixerAudio.EndSamples = Audio.EndTime.GetSamples(Mixer->GetSampleRate(), Mixer->GetNumChannels());
+
+	Mixer->AddOrUpdateActiveAudio(MixerAudio);
 }
 
 void UXjMusicInstanceSubsystem::UpdateActiveAudio(const FAudioPlayer& Audio)
@@ -158,24 +132,26 @@ void UXjMusicInstanceSubsystem::UpdateActiveAudio(const FAudioPlayer& Audio)
 
 	UpdateDebugChainView();
 
-	if (Mixer)
+	if (!Mixer || !AudioLoader)
 	{
-		float DurationSeconds = Audio.EndTime.GetSeconds() - Audio.StartTime.GetSeconds();
-
-		USoundWave* SoundWave = GetSoundWaveById(Audio.WaveId, DurationSeconds);
-		if (!SoundWave)
-		{
-			return;
-		}
-
-		FMixerAudio MixerAudio;
-		MixerAudio.Id = Audio.Id;
-		MixerAudio.Wave = SoundWave;
-		MixerAudio.StartSamples = Audio.StartTime.GetSamples(Mixer->GetSampleRate(), Mixer->GetNumChannels());
-		MixerAudio.EndSamples = Audio.EndTime.GetSamples(Mixer->GetSampleRate(), Mixer->GetNumChannels());
-
-		Mixer->AddOrUpdateActiveAudio(MixerAudio);
+		return;
 	}
+
+	float DurationSeconds = Audio.EndTime.GetSeconds() - Audio.StartTime.GetSeconds();
+
+	FXjAudioWave SoundWave = AudioLoader->GetOrLoadSoundById(Audio.WaveId, DurationSeconds);
+	if (!SoundWave.IsValidToUse())
+	{
+		return;
+	}
+
+	FMixerAudio MixerAudio;
+	MixerAudio.Id = Audio.Id;
+	MixerAudio.Wave = SoundWave;
+	MixerAudio.StartSamples = Audio.StartTime.GetSamples(Mixer->GetSampleRate(), Mixer->GetNumChannels());
+	MixerAudio.EndSamples = Audio.EndTime.GetSamples(Mixer->GetSampleRate(), Mixer->GetNumChannels());
+
+	Mixer->AddOrUpdateActiveAudio(MixerAudio);
 }
 
 void UXjMusicInstanceSubsystem::RemoveActiveAudio(const FAudioPlayer& Audio)
@@ -193,83 +169,6 @@ void UXjMusicInstanceSubsystem::RemoveActiveAudio(const FAudioPlayer& Audio)
 	{
 		Mixer->RemoveActiveAudio(Audio.Id);
 	}
-}
-
-USoundWave* UXjMusicInstanceSubsystem::GetSoundWaveById(const FString& Id, const float Duration)
-{
-	if (!AudioPathsByNameLookup.Contains(Id))
-	{
-		return nullptr;
-	}
-
-	FString FilePath = AudioPathsByNameLookup[Id];
-
-	const uint32 PathHash = GetTypeHash(FilePath);
-	const uint32 DurationHash = GetTypeHash((int)Duration);
-	const uint32 SearchHash = HashCombine(PathHash, DurationHash);
-
-	if (USoundWave** Result = CachedSoundWaves.Find(SearchHash))
-	{
-		return *Result;
-	}
-
-	USoundWave* SoundWave = NewObject<USoundWave>(USoundWave::StaticClass());
-	if (!SoundWave)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Failed to create USoundWave object"));
-		return nullptr;
-	}
-
-	TArray<uint8> RawFile;
-	if (!FFileHelper::LoadFileToArray(RawFile, *FilePath))
-	{
-		return nullptr;
-	}
-
-	uint32 NeededChunkSize = RawFile.Num();
-
-	FWaveModInfo WaveInfo;
-	if (WaveInfo.ReadWaveInfo(RawFile.GetData(), RawFile.Num()))
-	{
-		check(WaveInfo.pChannels);
-		const uint32 Channels = *WaveInfo.pChannels;
-		
-		check(WaveInfo.pSamplesPerSec);
-		const uint32 SampleRate = *WaveInfo.pSamplesPerSec;
-
-		check(WaveInfo.pBlockAlign);
-		const uint32 BlockAlign = *WaveInfo.pBlockAlign;
-
-		check(WaveInfo.pWaveDataSize);
-		const uint32 WaveData = *WaveInfo.pWaveDataSize;
-
-		const uint32 HeaderSize = RawFile.Num() - WaveData;
-
-		const uint32 NewSize = HeaderSize + Duration * SampleRate * BlockAlign;
-
-		NeededChunkSize = FMath::Min(NeededChunkSize, NewSize);
-
-		SoundWave->NumChannels = Channels;
-		SoundWave->SetSampleRate(SampleRate);
-	}
-
-	SoundWave->SoundGroup = ESoundGroup::SOUNDGROUP_Music;
-	SoundWave->RawData.Lock(LOCK_READ_WRITE);
-
-	void* LockedData = SoundWave->RawData.Realloc(NeededChunkSize);
-	if (LockedData)
-	{
-		FMemory::Memcpy(LockedData, RawFile.GetData(), NeededChunkSize);
-	}
-
-	SoundWave->RawData.Unlock();
-
-	SoundWave->RawData.SetBulkDataFlags(BULKDATA_ForceInlinePayload);
-	SoundWave->InvalidateCompressedData();
-
-	CachedSoundWaves.Add(SearchHash, SoundWave);
-	
-	return SoundWave;
 }
 
 void UXjMusicInstanceSubsystem::OnEnabledShowDebugChain(IConsoleVariable* Var)
