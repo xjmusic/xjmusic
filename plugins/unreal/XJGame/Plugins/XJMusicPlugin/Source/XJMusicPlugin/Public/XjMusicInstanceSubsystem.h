@@ -22,8 +22,6 @@ public:
 
 	void ShutdownXJ();
 
-	void RetrieveProjectsContent(const FString& Directory);
-
 	void AddActiveAudio(const FAudioPlayer& Audio);
 
 	void UpdateActiveAudio(const FAudioPlayer& Audio);
@@ -44,6 +42,8 @@ private:
 
 	void UpdateDebugChainView();
 
+	void RetrieveProjectsContent(const FString& Directory);
+
 private:
 	UPROPERTY()
 	class UXjManager* Manager = nullptr;
@@ -53,9 +53,6 @@ private:
 
 	UPROPERTY()
 	TMap<uint32, USoundWave*>  CachedSoundWaves;
-
-	UPROPERTY()
-	class USoundConcurrency* SoundConcurrency = nullptr;
 
 	const FString AudioExtension = ".wav";
 

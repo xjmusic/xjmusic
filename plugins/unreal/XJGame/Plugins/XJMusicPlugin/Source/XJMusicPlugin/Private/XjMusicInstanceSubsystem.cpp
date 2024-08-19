@@ -47,15 +47,17 @@ void UXjMusicInstanceSubsystem::SetupXJ()
 		return;
 	}
 
-	SoundConcurrency = NewObject<USoundConcurrency>();
-	if (SoundConcurrency)
+	UXJMusicDefaultSettings* XjSettings = GetMutableDefault<UXJMusicDefaultSettings>();
+	if (!XjSettings)
 	{
-		FSoundConcurrencySettings Settings;
-		Settings.MaxCount = 64;
-		Settings.ResolutionRule = EMaxConcurrentResolutionRule::StopOldest;
-
-		SoundConcurrency->Concurrency = Settings;
+		return;
 	}
+
+	FString ProjectPath = XjSettings->PathToXjProjectFile;
+	FString FolderContainingProject = FPaths::GetPath(ProjectPath);
+	FString PathToBuildFolder = FPaths::Combine(FolderContainingProject, TEXT("build/"));
+
+	RetrieveProjectsContent(PathToBuildFolder);
 
 	Manager = NewObject<UXjManager>(this);
 	if (Manager)
@@ -78,7 +80,6 @@ void UXjMusicInstanceSubsystem::SetupXJ()
 void UXjMusicInstanceSubsystem::ShutdownXJ()
 {
 	Manager->MarkPendingKill();
-	SoundConcurrency->MarkPendingKill();
 
 	DebugChainViewWidget.Reset();
 

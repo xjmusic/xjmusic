@@ -8,28 +8,20 @@
 #include <Tests/MockDataEngine.h>
 #include <Settings/XJMusicDefaultSettings.h>
 
-FXjRunnable::FXjRunnable(const FString& PathToProject, const UWorld* World)
+FXjRunnable::FXjRunnable(UWorld* World)
 {
 	check(World);
 
-	std::string PathToProjectStr(TCHAR_TO_UTF8(*PathToProject));
-	UE_LOG(LogTemp, Display, TEXT("Path to project: %s"), *FString(PathToProjectStr.c_str()));
-
-	// Crawl the build folder in the folder containing the project file
-	FString ProjectPath = PathToProject;
-	FString FolderContainingProject = FPaths::GetPath(ProjectPath);
-	FString PathToBuildFolder = FPaths::Combine(FolderContainingProject, TEXT("build/"));
-
-	UE_LOG(LogTemp, Display, TEXT("Path to build folder: %s"), *PathToBuildFolder);
-
 	XjMusicSubsystem = World->GetGameInstance()->GetSubsystem<UXjMusicInstanceSubsystem>();
-	if (!XjMusicSubsystem)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Cannot find XjMusicInstanceSubsystem"));
-		return;
-	}
+}
 
-	XjMusicSubsystem->RetrieveProjectsContent(PathToBuildFolder);
+bool FXjRunnable::Init()
+{
+	UXJMusicDefaultSettings* XjSettings = GetMutableDefault<UXJMusicDefaultSettings>();
+	if (!XjSettings)
+	{
+		return false;
+	}
 
 	XjStartTime.SetInSeconds(FPlatformTime::Seconds());
 
@@ -40,14 +32,11 @@ FXjRunnable::FXjRunnable(const FString& PathToProject, const UWorld* World)
 
 	if (Engine)
 	{
-		Engine->Setup(PathToProject);
+		Engine->Setup(XjSettings->PathToXjProjectFile);
 	}
 
 	LastFramTime = FPlatformTime::Seconds();
-}
 
-bool FXjRunnable::Init()
-{
 	return true;
 }
 
@@ -55,10 +44,8 @@ uint32 FXjRunnable::Run()
 {
 	while (!bShouldStop)
 	{
-		if (!Engine)
-		{
-			continue;
-		}
+		check(Engine);
+		check(XjMusicSubsystem);
 
 		const double CurrentTime = FPlatformTime::Seconds();
 		const double DeltaTime = CurrentTime - LastFramTime;
@@ -145,13 +132,7 @@ bool FXjRunnable::TryInitMockEngine()
 
 void UXjManager::Setup()
 {
-	UXJMusicDefaultSettings* XjSettings = GetMutableDefault<UXJMusicDefaultSettings>();
-	if (!XjSettings)
-	{
-		return;
-	}
-
-	XjRunnable = MakeShared<FXjRunnable>(XjSettings->PathToXjProjectFile, GetWorld());
+	XjRunnable = MakeShared<FXjRunnable>(GetWorld());
 	XjThread = TSharedPtr<FRunnableThread>(FRunnableThread::Create(XjRunnable.Get(), TEXT("Xj Thread")));
 }
 

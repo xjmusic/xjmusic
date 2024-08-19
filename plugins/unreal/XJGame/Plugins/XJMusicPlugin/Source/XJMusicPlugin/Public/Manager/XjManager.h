@@ -23,8 +23,7 @@ class FXjRunnable : public FRunnable
 {
 
 public:
-
-	FXjRunnable(const FString& PathToProject, const UWorld* World);
+	FXjRunnable(UWorld* World);
 
 	virtual bool Init() override;
 	virtual uint32 Run() override;
