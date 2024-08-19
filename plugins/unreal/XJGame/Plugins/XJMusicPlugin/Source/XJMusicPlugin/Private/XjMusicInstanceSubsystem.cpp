@@ -2,15 +2,15 @@
 
 #include "XjMusicInstanceSubsystem.h"
 #include "Kismet/GameplayStatics.h"
-#include <Settings/XJMusicDefaultSettings.h>
-#include <Sound/SoundBase.h>
-#include <Sound/SoundWave.h>
-#include <Misc/FileHelper.h>
-#include <Runtime/Engine/Public/AudioDevice.h>
-#include <Async/Async.h>
-#include <Manager/XjManager.h>
-#include <Widgets/SWeakWidget.h>
-#include <Sound/SoundConcurrency.h>
+#include "Settings/XJMusicDefaultSettings.h"
+#include "Sound/SoundBase.h"
+#include "Sound/SoundWave.h"
+#include "Misc/FileHelper.h"
+#include "Runtime/Engine/Public/AudioDevice.h"
+#include "Async/Async.h"
+#include "Manager/XjManager.h"
+#include "Widgets/SWeakWidget.h"
+#include "Sound/SoundConcurrency.h"
 #include "Mixer/XjMixer.h"
 
 static TAutoConsoleVariable<int32> CVarShowDebugChain(
@@ -77,21 +77,16 @@ void UXjMusicInstanceSubsystem::SetupXJ()
 
 void UXjMusicInstanceSubsystem::ShutdownXJ()
 {
-	Manager = nullptr;
-	SoundConcurrency = nullptr;
-	QuartzClockHandle = nullptr;
+	Manager->MarkPendingKill();
+	SoundConcurrency->MarkPendingKill();
 
 	DebugChainViewWidget.Reset();
-
-	AudioComponentsPool.Reset();
 
 	ActiveAudios.Empty();
 }
 
 void UXjMusicInstanceSubsystem::RetrieveProjectsContent(const FString& Directory)
 {
-	InitQuartz();
-
 	TArray<FString> WavFiles;
 
 	UXJMusicDefaultSettings* XjSettings = GetMutableDefault<UXJMusicDefaultSettings>();
@@ -118,63 +113,6 @@ void UXjMusicInstanceSubsystem::RetrieveProjectsContent(const FString& Directory
 		FString Name = FPaths::GetCleanFilename(Path);
 		AudioPathsByNameLookup.Add(Name, Path);
 	}
-}
-
-bool UXjMusicInstanceSubsystem::PlayAudio(const FAudioPlayer& Audio)
-{	
-	AsyncTask(ENamedThreads::GameThread, [this, Audio]()
-		{
-			float DurationSeconds = Audio.EndTime.GetSeconds() - Audio.StartTime.GetSeconds();
-
-			USoundWave* SoundWave = GetSoundWaveById(Audio.WaveId, DurationSeconds);
-			if (!SoundWave)
-			{
-				return;
-			}
-
-			UAudioComponent* NewAudioComponent = nullptr;
-			UObject* Obj = AudioComponentsPool.GetObject();
-			if (!Obj)
-			{
-				NewAudioComponent = UGameplayStatics::CreateSound2D(GetWorld(), SoundWave, 1.0f, 1.0f, 0.0f, SoundConcurrency);
-
-				if (!NewAudioComponent)
-				{
-					return;
-				}
-
-				AudioComponentsPool.AddObject(NewAudioComponent);
-			}
-			else
-			{
-				NewAudioComponent = Cast<UAudioComponent>(Obj);
-				check(NewAudioComponent);
-			}
-
-			NewAudioComponent->OnAudioFinishedNative.AddUObject(this, &UXjMusicInstanceSubsystem::OnAudioComponentFinished);
-
-
-			SoundsMapCriticalSection.Lock();
-			
-			SoundsMap.Add(Audio.Id, NewAudioComponent);
-			
-			SoundsMapCriticalSection.Unlock();
-
-
-			FQuartzQuantizationBoundary Boundary;
-			Boundary.Quantization = EQuartzCommandQuantization::ThirtySecondNote;
-			Boundary.CountingReferencePoint = EQuarztQuantizationReference::TransportRelative;
-			Boundary.Multiplier = Audio.StartTime.GetMillie() - Audio.TimeScheduled.GetMillie();
-
-			NewAudioComponent->PlayQuantized(GetWorld(), QuartzClockHandle, Boundary, {});
-		});
-
-	return true;
-}
-
-void UXjMusicInstanceSubsystem::OnAudioComponentFinished(UAudioComponent* AudioComponent)
-{
-	AudioComponentsPool.FreeObject(AudioComponent);
 }
 
 void UXjMusicInstanceSubsystem::AddActiveAudio(const FAudioPlayer& Audio)
@@ -331,28 +269,6 @@ USoundWave* UXjMusicInstanceSubsystem::GetSoundWaveById(const FString& Id, const
 	CachedSoundWaves.Add(SearchHash, SoundWave);
 	
 	return SoundWave;
-}
-
-void UXjMusicInstanceSubsystem::InitQuartz()
-{
-	QuartzSubsystem = UQuartzSubsystem::Get(GetWorld());
-	if (QuartzSubsystem)
-	{
-		FQuartzTimeSignature TimeSignatures;
-		TimeSignatures.BeatType = EQuartzTimeSignatureQuantization::ThirtySecondNote;
-		TimeSignatures.NumBeats = 1;
-
-		FQuartzClockSettings Settings;
-		Settings.TimeSignature = TimeSignatures;
-
-		QuartzClockHandle = QuartzSubsystem->CreateNewClock(GetWorld(), "XJ Clock", Settings);
-		if (QuartzClockHandle)
-		{
-			QuartzClockHandle->SetThirtySecondNotesPerMinute(GetWorld(), {}, {}, QuartzClockHandle, 60000);
-		
-			QuartzClockHandle->StartClock(GetWorld(), QuartzClockHandle);
-		}
-	}
 }
 
 void UXjMusicInstanceSubsystem::OnEnabledShowDebugChain(IConsoleVariable* Var)

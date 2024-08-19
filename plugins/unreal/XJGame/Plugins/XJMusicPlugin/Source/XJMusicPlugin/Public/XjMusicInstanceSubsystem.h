@@ -3,10 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Quartz/AudioMixerClockHandle.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "Widgets/DebugChainView.h"
-#include "Types/XjObjectPool.h"
 
 #include "XjMusicInstanceSubsystem.generated.h"
 
@@ -42,15 +40,9 @@ public:
 	USoundWave* GetSoundWaveById(const FString& Id, const float Duration = 0.0f);
 
 private:
-	void InitQuartz();
-
 	void OnEnabledShowDebugChain(class IConsoleVariable* Var);
 
 	void UpdateDebugChainView();
-
-	bool PlayAudio(const FAudioPlayer& Audio);
-
-	void OnAudioComponentFinished(UAudioComponent* AudioComponent);
 
 private:
 	UPROPERTY()
@@ -58,12 +50,6 @@ private:
 
 	UPROPERTY()
 	class UXjMixer* Mixer = nullptr;
-
-	UPROPERTY()
-	UQuartzClockHandle* QuartzClockHandle = nullptr;
-
-	UPROPERTY()
-	UQuartzSubsystem* QuartzSubsystem = nullptr;
 
 	UPROPERTY()
 	TMap<uint32, USoundWave*>  CachedSoundWaves;
@@ -76,8 +62,6 @@ private:
 	FAudioDeviceHandle WorldAudioDeviceHandle;
 
 	TSharedPtr<SDebugChainView> DebugChainViewWidget;
-
-	FXjObjectPool AudioComponentsPool;
 
 	mutable FCriticalSection SoundsMapCriticalSection;
 
