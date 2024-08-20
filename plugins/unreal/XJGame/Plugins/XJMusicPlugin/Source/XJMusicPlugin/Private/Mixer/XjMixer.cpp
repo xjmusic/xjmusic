@@ -16,7 +16,9 @@ int16 FMixerAudio::ReadSample(const int32 CurrentSample)
 	if (Wave.IsValidToUse() && SamplePointer >= 0
 		&& SamplePointer <= Wave.NumSamples && SamplePointer <= (EndSamples - StartSamples))
 	{
-		Sample = Wave.SamplesData[SamplePointer];
+		float Delta = 1.0f / (EndSamples - SamplePointer);
+
+		Sample = Wave.SamplesData[SamplePointer] * GetAmplitude(Delta);
 	}
 
 	return Sample;
@@ -38,11 +40,7 @@ void UXjMixer::Setup()
 	Output->NumChannels = NumChannels;
 	Output->Duration = INDEFINITELY_LOOPING_DURATION;
 	Output->SoundGroup = ESoundGroup::SOUNDGROUP_Music;
-	Output->GenerateCallback 
-		= [this](TArray<uint8>& OutAudio, int32 NumSamples) -> int32
-		{
-			return OnGeneratePCMAudio(OutAudio, NumSamples);
-		};
+	Output->OnGeneratePCMData.BindUObject(this, &UXjMixer::OnGeneratePCMAudio);
 
 	AudioComponent = UGameplayStatics::CreateSound2D(GetWorld(), Output);
 	if (AudioComponent)

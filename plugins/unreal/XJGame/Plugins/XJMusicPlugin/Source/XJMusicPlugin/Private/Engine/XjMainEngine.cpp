@@ -58,10 +58,6 @@ void TXjMainEngine::Setup(const FString& PathToProject)
 	}
 }
 
-void TXjMainEngine::Shutdown()
-{
-}
-
 TArray<FAudioPlayer> TXjMainEngine::RunCycle(const uint64 ChainMicros)
 {
 	LastChainMicros.SetInMicros(ChainMicros);
@@ -89,7 +85,8 @@ TArray<FAudioPlayer> TXjMainEngine::RunCycle(const uint64 ChainMicros)
 		AudioPlayer.Id = Id;
 		AudioPlayer.WaveId = WaveKey;
 		AudioPlayer.Event = (EAudioEventType)Event.type;
-		AudioPlayer.TimeScheduled.SetInMicros(ChainMicros);
+		AudioPlayer.FromVolume = Event.schedule.getFromVolume();
+		AudioPlayer.ToVolume = Event.schedule.getToVolume();
 
 		Output.Add(AudioPlayer);
 	}

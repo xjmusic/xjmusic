@@ -5,9 +5,9 @@
 
 int32 UXjOutput::OnGeneratePCMAudio(TArray<uint8>& OutAudio, int32 NumSamples)
 {
-	if (GenerateCallback)
+	if (OnGeneratePCMData.IsBound())
 	{
-		return GenerateCallback(OutAudio, NumSamples);
+		return OnGeneratePCMData.Execute(OutAudio, NumSamples);
 	}
 
 	return 0;

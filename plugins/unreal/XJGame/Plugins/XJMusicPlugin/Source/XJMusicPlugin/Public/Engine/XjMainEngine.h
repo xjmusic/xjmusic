@@ -17,8 +17,6 @@ public:
 
 	void Setup(const FString& PathToProject) override;
 
-	void Shutdown() override;
-
 	TArray<FAudioPlayer> RunCycle(const uint64 ChainMicros) override;
 
 	void DoOverrideTaxonomy(const FString& Taxonomy) override;

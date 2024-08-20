@@ -117,6 +117,8 @@ void UXjMusicInstanceSubsystem::AddActiveAudio(const FAudioPlayer& Audio)
 	MixerAudio.Wave = SoundWave;
 	MixerAudio.StartSamples = Audio.StartTime.GetSamples(Mixer->GetSampleRate(), Mixer->GetNumChannels());
 	MixerAudio.EndSamples = Audio.EndTime.GetSamples(Mixer->GetSampleRate(), Mixer->GetNumChannels());
+	MixerAudio.FromVolume = Audio.FromVolume;
+	MixerAudio.ToVolume = Audio.ToVolume;
 
 	Mixer->AddOrUpdateActiveAudio(MixerAudio);
 }
@@ -150,6 +152,8 @@ void UXjMusicInstanceSubsystem::UpdateActiveAudio(const FAudioPlayer& Audio)
 	MixerAudio.Wave = SoundWave;
 	MixerAudio.StartSamples = Audio.StartTime.GetSamples(Mixer->GetSampleRate(), Mixer->GetNumChannels());
 	MixerAudio.EndSamples = Audio.EndTime.GetSamples(Mixer->GetSampleRate(), Mixer->GetNumChannels());
+	MixerAudio.FromVolume = Audio.FromVolume;
+	MixerAudio.ToVolume = Audio.ToVolume;
 
 	Mixer->AddOrUpdateActiveAudio(MixerAudio);
 }

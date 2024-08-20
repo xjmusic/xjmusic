@@ -103,16 +103,15 @@ struct FAudioPlayer
 {
 	TimeRecord StartTime;
 	TimeRecord EndTime;
-	
-	TimeRecord TimeScheduled;
-
-	bool bIsPlaying = false;
 
 	FString Name;
 	FString Id;
 	FString WaveId;
 
 	EAudioEventType Event;
+
+	float FromVolume;
+	float ToVolume;
 
 	bool operator == (const FAudioPlayer& Other) const
 	{

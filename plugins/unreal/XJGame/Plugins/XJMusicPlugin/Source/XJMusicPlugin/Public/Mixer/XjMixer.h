@@ -20,16 +20,29 @@ public:
 	int32 StartSamples = 0;
 	int32 EndSamples = 0;
 
-	int16 ReadSample(const int32 CurrentSample);
+	float FromVolume;
+	float ToVolume;
 
 	int32 GetSamplePointer() const
 	{
 		return SamplePointer;
 	}
 
+	int16 ReadSample(const int32 CurrentSample);
+
 private:
 
 	int32 SamplePointer = 0;
+
+	float GetAmplitude(const float Delta) const
+	{
+		if (FromVolume == ToVolume)
+		{
+			return FromVolume;
+		}
+
+		return FromVolume + (ToVolume - FromVolume) * Delta;
+	}
 };
 
 UCLASS()
@@ -48,6 +61,8 @@ public:
 	void RemoveActiveAudio(const FString& AudioId);
 
 	float CalculateAmplitude(const FMixerAudio& Audio) const;
+
+	int32 OnGeneratePCMAudio(TArray<uint8>& OutAudio, int32 NumSamples);
 
 	int32 GetSampleRate() const
 	{
@@ -79,6 +94,4 @@ private:
 	TQueue<FString> AudiosToRemove;
 
 	TMap<FString, FMixerAudio> ActiveAudios;
-
-	int32 OnGeneratePCMAudio(TArray<uint8>& OutAudio, int32 NumSamples);
 };
