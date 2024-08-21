@@ -17,6 +17,9 @@ public:
 	UPROPERTY(Config, EditAnywhere, Category = Settings)
 	FString PathToXjProjectFile = "D:/Dev/vgm/vgm.xj";
 
+	UPROPERTY(Config, EditAnywhere, Category = Settings)
+	FString XjProjectName;
+
 	UPROPERTY(EditAnywhere, Category = Settings)
 	bool bDevelopmentMode = false;
 

@@ -8,6 +8,7 @@
 
 class FXJMusicPluginCommands : public TCommands<FXJMusicPluginCommands>
 {
+
 public:
 
 	FXJMusicPluginCommands()
@@ -17,6 +18,4 @@ public:
 
 	virtual void RegisterCommands() override;
 
-public:
-	TSharedPtr< FUICommandInfo > PluginAction;
 };

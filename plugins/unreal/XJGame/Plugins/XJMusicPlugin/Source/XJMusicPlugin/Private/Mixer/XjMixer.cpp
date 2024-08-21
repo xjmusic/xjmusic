@@ -13,7 +13,7 @@ int16 FMixerAudio::ReadSample(const int32 CurrentSample)
 
 	uint16 Sample = 0;
 
-	if (Wave.IsValidToUse() && SamplePointer >= 0
+	if (Wave.SamplesData && SamplePointer >= 0
 		&& SamplePointer <= Wave.NumSamples && SamplePointer <= (EndSamples - StartSamples))
 	{
 		float Delta = 1.0f / (EndSamples - SamplePointer);

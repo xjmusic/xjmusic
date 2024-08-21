@@ -6,7 +6,7 @@
 
 void FXJMusicPluginCommands::RegisterCommands()
 {
-	UI_COMMAND(PluginAction, "XJMusic", "Run XJMusic app", EUserInterfaceActionType::Button, FInputGesture());
+	
 }
 
 #undef LOCTEXT_NAMESPACE

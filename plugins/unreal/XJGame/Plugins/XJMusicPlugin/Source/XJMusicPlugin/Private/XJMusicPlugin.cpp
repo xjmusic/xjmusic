@@ -11,6 +11,9 @@
 #include <Interfaces/IPluginManager.h>
 #include <XjMusicInstanceSubsystem.h>
 
+#include "AssetToolsModule.h"
+#include "Misc/FileHelper.h"
+
 static const FName XJMusicPluginTabName("XJMusicPlugin");
 
 #define LOCTEXT_NAMESPACE "FXJMusicPluginModule"
@@ -23,11 +26,6 @@ void FXJMusicPluginModule::StartupModule()
 	FXJMusicPluginCommands::Register();
 	
 	PluginCommands = MakeShareable(new FUICommandList);
-
-	PluginCommands->MapAction(
-		FXJMusicPluginCommands::Get().PluginAction,
-		FExecuteAction::CreateRaw(this, &FXJMusicPluginModule::PluginButtonClicked),
-		FCanExecuteAction());
 
 	UToolMenus::RegisterStartupCallback(FSimpleMulticastDelegate::FDelegate::CreateRaw(this, &FXJMusicPluginModule::RegisterMenus));
 
@@ -104,6 +102,23 @@ void FXJMusicPluginModule::ShutdownModule()
 	FWorldDelegates::OnPreWorldFinishDestroy.RemoveAll(this);
 }
 
+TSharedRef<SWidget> FXJMusicPluginModule::GenerateComboBox()
+{
+	FMenuBuilder Builder(true, nullptr);
+
+	Builder.AddMenuEntry(FText::FromString("Build"), 
+						 FText(), 
+						 FSlateIcon(),
+						 FExecuteAction::CreateRaw(this, &FXJMusicPluginModule::BuildButtonClicked));
+
+	Builder.AddMenuEntry(FText::FromString("Open Workstation"), 
+						 FText(), 
+						 FSlateIcon(), 
+						 FExecuteAction::CreateRaw(this, &FXJMusicPluginModule::PluginButtonClicked));
+
+	return Builder.MakeWidget();
+}
+
 void FXJMusicPluginModule::PluginButtonClicked()
 {
 	UXJMusicDefaultSettings* XjSettings = GetMutableDefault<UXJMusicDefaultSettings>();
@@ -122,6 +137,39 @@ void FXJMusicPluginModule::PluginButtonClicked()
 	FPlatformProcess::CreateProc(*XjSettings->PathToXjMusicWorkstation, *XjSettings->PathToXjProjectFile, true, false, false, nullptr, 0, nullptr, nullptr);
 }
 
+void FXJMusicPluginModule::BuildButtonClicked()
+{
+	UXJMusicDefaultSettings* XjSettings = GetMutableDefault<UXJMusicDefaultSettings>();
+	if (!XjSettings)
+	{
+		return;
+	}
+
+	const FString ProjectPath = XjSettings->PathToXjProjectFile;
+	const FString FolderContainingProject = FPaths::GetPath(ProjectPath);
+	const FString LastFolderName = FPaths::GetBaseFilename(FolderContainingProject);
+	const FString PathToBuildFolder = FPaths::Combine(FolderContainingProject, TEXT("build/"));
+	
+	IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();
+
+	if (!PlatformFile.DirectoryExists(*PathToBuildFolder))
+	{
+		return;
+	}
+
+	TArray<FString> FoundAudioFilesPaths;
+
+	PlatformFile.FindFilesRecursively(FoundAudioFilesPaths, *PathToBuildFolder, TEXT(".wav"));
+
+	UAutomatedAssetImportData* ImportData = NewObject<UAutomatedAssetImportData>();
+	ImportData->bReplaceExisting = true;
+	ImportData->DestinationPath = FPaths::Combine(ProjectsLocalPath, LastFolderName);
+	ImportData->Filenames = FoundAudioFilesPaths;
+
+	FAssetToolsModule& AssetToolsModule = FModuleManager::GetModuleChecked<FAssetToolsModule>("AssetTools");
+	AssetToolsModule.Get().ImportAssetsAutomated(ImportData);
+}
+
 void FXJMusicPluginModule::RegisterMenus()
 {
 	FToolMenuOwnerScoped OwnerScoped(this);
@@ -130,7 +178,6 @@ void FXJMusicPluginModule::RegisterMenus()
 		UToolMenu* Menu = UToolMenus::Get()->ExtendMenu("LevelEditor.MainMenu.Window");
 		{
 			FToolMenuSection& Section = Menu->FindOrAddSection("WindowLayout");
-			Section.AddMenuEntryWithCommandList(FXJMusicPluginCommands::Get().PluginAction, PluginCommands);
 		}
 	}
 
@@ -139,8 +186,11 @@ void FXJMusicPluginModule::RegisterMenus()
 		{
 			FToolMenuSection& Section = ToolbarMenu->FindOrAddSection("Settings");
 			{
-				FToolMenuEntry& Entry = Section.AddEntry(FToolMenuEntry::InitToolBarButton(FXJMusicPluginCommands::Get().PluginAction));
-				Entry.SetCommandList(PluginCommands);
+				FToolMenuEntry& Entry = 
+					Section.AddEntry(FToolMenuEntry::InitComboButton("XJMusicPlugin.PluginAction", 
+					{}, FOnGetContent::CreateRaw(this, &FXJMusicPluginModule::GenerateComboBox)));
+				Entry.Icon = FSlateIcon(FXJMusicPluginStyle::GetStyleSetName(), "XJMusicPlugin.PluginAction");
+				Entry.Label = INVTEXT("XJ Music");
 			}
 		}
 	}

@@ -10,12 +10,13 @@ class FMenuBuilder;
 
 class FXJMusicPluginModule : public IModuleInterface
 {
+
 public:
+
 	virtual void StartupModule() override;
 	virtual void ShutdownModule() override;
-	
-	void PluginButtonClicked();
 
+	const FString ProjectsLocalPath = "/Game/XJ/";
 private:
 
 	void RegisterMenus();
@@ -25,6 +26,12 @@ private:
 	void OnLevelRemovedFromWorld(ULevel* Level, UWorld* World);
 
 	void OnLevelBeginPlay();
+
+	void PluginButtonClicked();
+
+	void BuildButtonClicked();
+
+	TSharedRef<SWidget> GenerateComboBox();
 
 	TSharedPtr<class FUICommandList> PluginCommands;
 

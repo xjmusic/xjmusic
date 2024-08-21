@@ -17,12 +17,13 @@ public class XJMusicPlugin : ModuleRules
 			{
 				"Core",
 			}
-			);
+		);
 			
 		PrivateDependencyModuleNames.AddRange(
 			new string[]
 			{
-				"Projects",
+                "AssetTools",
+                "Projects",
 				"InputCore",
 				"UnrealEd",
 				"ToolMenus",

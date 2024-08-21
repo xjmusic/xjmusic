@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
+#include "UObject/SoftObjectPath.h"
 #include "XjAudioLoader.generated.h"
 
 USTRUCT()
@@ -14,6 +15,9 @@ struct FXjAudioWave
 public:
 	FXjAudioWave() = default;
 	~FXjAudioWave();
+
+	FXjAudioWave(const FXjAudioWave& Other);
+	const FXjAudioWave& operator = (const FXjAudioWave& Other);
 
 	UPROPERTY()
 	USoundWave* Wave;
@@ -26,6 +30,7 @@ public:
 	void UnLoadData();
 
 	bool IsValidToUse() const;
+
 };
 
 UCLASS()
@@ -43,9 +48,7 @@ public:
 
 private:
 	
-	const FString AudioExtension = ".wav";
-
-	TMap<FString, FString> AudioPathsByNameLookup;
+	TMap<FString, TSoftObjectPtr<UObject>> AudiosSoftReferences;
 
 	UPROPERTY()
 	TMap<uint32, FXjAudioWave> CachedSoundWaves;
