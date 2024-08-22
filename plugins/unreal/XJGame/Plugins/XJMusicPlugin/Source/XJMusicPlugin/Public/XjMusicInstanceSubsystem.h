@@ -35,6 +35,8 @@ public:
 		return ActiveAudios;
 	}
 
+	bool IsAssetsLoading() const;
+
 private:
 
 	void OnEnabledShowDebugChain(class IConsoleVariable* Var);

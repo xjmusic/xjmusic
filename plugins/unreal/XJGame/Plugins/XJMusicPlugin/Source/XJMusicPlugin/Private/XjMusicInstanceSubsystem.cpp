@@ -106,13 +106,9 @@ void UXjMusicInstanceSubsystem::AddActiveAudio(const FAudioPlayer& Audio)
 				return;
 			}
 
-			float DurationSeconds = Audio.EndTime.GetSeconds() - Audio.StartTime.GetSeconds();
-
-			FXjAudioWave SoundWave = AudioLoader->GetOrLoadSoundById(Audio.WaveId, DurationSeconds);
-
 			FMixerAudio MixerAudio;
 			MixerAudio.Id = Audio.Id;
-			MixerAudio.Wave = SoundWave;
+			MixerAudio.Wave = AudioLoader->GetSoundById(Audio.WaveId);
 			MixerAudio.StartSamples = Audio.StartTime.GetSamples(Mixer->GetSampleRate(), Mixer->GetNumChannels());
 			MixerAudio.EndSamples = Audio.EndTime.GetSamples(Mixer->GetSampleRate(), Mixer->GetNumChannels());
 			MixerAudio.FromVolume = Audio.FromVolume;
@@ -140,13 +136,9 @@ void UXjMusicInstanceSubsystem::UpdateActiveAudio(const FAudioPlayer& Audio)
 				return;
 			}
 
-			float DurationSeconds = Audio.EndTime.GetSeconds() - Audio.StartTime.GetSeconds();
-
-			FXjAudioWave SoundWave = AudioLoader->GetOrLoadSoundById(Audio.WaveId, DurationSeconds);
-
 			FMixerAudio MixerAudio;
 			MixerAudio.Id = Audio.Id;
-			MixerAudio.Wave = SoundWave;
+			MixerAudio.Wave = AudioLoader->GetSoundById(Audio.WaveId);
 			MixerAudio.StartSamples = Audio.StartTime.GetSamples(Mixer->GetSampleRate(), Mixer->GetNumChannels());
 			MixerAudio.EndSamples = Audio.EndTime.GetSamples(Mixer->GetSampleRate(), Mixer->GetNumChannels());
 			MixerAudio.FromVolume = Audio.FromVolume;
@@ -171,6 +163,11 @@ void UXjMusicInstanceSubsystem::RemoveActiveAudio(const FAudioPlayer& Audio)
 	{
 		Mixer->RemoveActiveAudio(Audio.Id);
 	}
+}
+
+bool UXjMusicInstanceSubsystem::IsAssetsLoading() const
+{
+	return !AudioLoader || AudioLoader->IsLoading();
 }
 
 void UXjMusicInstanceSubsystem::OnEnabledShowDebugChain(IConsoleVariable* Var)

@@ -7,7 +7,6 @@
 #include "Sound/SoundWave.h"
 #include "AssetRegistryModule.h"
 #include "Engine/AssetManager.h"
-#include "Engine/StreamableManager.h"
 #include "XJMusicPlugin.h"
 
 FXjAudioWave::~FXjAudioWave()
@@ -33,7 +32,7 @@ const FXjAudioWave& FXjAudioWave::operator=(const FXjAudioWave& Other)
 
 void FXjAudioWave::LoadData(USoundWave* NewWave)
 {
-	if (!NewWave || NewWave == Wave || NewWave->RawData.IsLocked())
+	if (!NewWave || NewWave == Wave)
 	{
 		return;
 	}
@@ -86,31 +85,28 @@ void UXjAudioLoader::Setup()
 void UXjAudioLoader::Shutdown()
 {
 	AudiosSoftReferences.Reset();
-
-	CachedSoundWaves.Reset();
 }
 
-FXjAudioWave UXjAudioLoader::GetOrLoadSoundById(const FString& Id, const float Duration)
+FXjAudioWave UXjAudioLoader::GetSoundById(const FString& Id)
 {
-	if (!AudiosSoftReferences.Contains(Id))
+	if (FXjAudioWave* Wave = CachedAudios.Find(Id))
+	{
+		return *Wave;
+	}
+
+	FSoftObjectPath* ObjectPath = AudiosSoftReferences.Find(Id);
+	if (!ObjectPath)
 	{
 		return {};
 	}
 
-	const uint32 PathHash = GetTypeHash(AudiosSoftReferences[Id].GetAssetName());
-
-	if (FXjAudioWave* Result = CachedSoundWaves.Find(PathHash))
-	{
-		return *Result;
-	}
-
-	TSoftObjectPtr<UObject> SoftRef = AudiosSoftReferences[Id];
-	USoundWave* Loaded = Cast<USoundWave>(SoftRef.LoadSynchronous());
+	USoundWave* Wave = Cast<USoundWave>(ObjectPath->ResolveObject());
+	check(Wave);
 
 	FXjAudioWave XjAudio;
-	XjAudio.LoadData(Loaded);
+	XjAudio.LoadData(Wave);
 
-	CachedSoundWaves.Add(PathHash, XjAudio);
+	CachedAudios.Add(Id, XjAudio);
 
 	return XjAudio;
 }
@@ -135,7 +131,11 @@ void UXjAudioLoader::RetrieveProjectsContent(const FString& Directory)
 
 	for (const FAssetData& Data : AudioData)
 	{
-		TSoftObjectPtr<UObject> SoftObjectRef(Data.ToSoftObjectPath());
-		AudiosSoftReferences.Add(Data.AssetName.ToString() + ".wav", SoftObjectRef);
+		AudiosSoftReferences.Add(Data.AssetName.ToString() + ".wav", Data.ToSoftObjectPath());
 	}
+
+	TArray<FSoftObjectPath> Paths;
+	AudiosSoftReferences.GenerateValueArray(Paths);
+
+	InitialAssetsStream = StreamableManager.RequestAsyncLoad(Paths);
 }

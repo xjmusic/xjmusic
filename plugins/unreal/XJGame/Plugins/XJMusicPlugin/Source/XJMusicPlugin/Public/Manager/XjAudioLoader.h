@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
 #include "UObject/SoftObjectPath.h"
+#include "Engine/StreamableManager.h"
 #include "XjAudioLoader.generated.h"
 
 USTRUCT()
@@ -40,18 +41,27 @@ class XJMUSICPLUGIN_API UXjAudioLoader : public UObject
 
 public:
 
-	FXjAudioWave GetOrLoadSoundById(const FString& Id, const float Duration);
-
 	void Setup();
 
 	void Shutdown();
 
-private:
-	
-	TMap<FString, TSoftObjectPtr<UObject>> AudiosSoftReferences;
+	FXjAudioWave GetSoundById(const FString& Id);
 
-	UPROPERTY()
-	TMap<uint32, FXjAudioWave> CachedSoundWaves;
+	bool IsLoading() const
+	{
+		return InitialAssetsStream.IsValid() && InitialAssetsStream->IsLoadingInProgress();
+	}
+
+private:
+
+	FStreamableManager StreamableManager;
+	
+	TSharedPtr<FStreamableHandle> InitialAssetsStream;
+
+	FCriticalSection StreamAccessCriticalSection;
+	
+	TMap<FString, FSoftObjectPath> AudiosSoftReferences;
+	TMap<FString, FXjAudioWave> CachedAudios;
 
 	void RetrieveProjectsContent(const FString& Directory);
 };

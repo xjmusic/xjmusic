@@ -76,6 +76,8 @@ public:
 
 private:
 
+	bool StartMixing = false;
+
 	float FadeOutDuration = 0.5f;
 
 	int32 SampleRate = 0;

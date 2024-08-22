@@ -87,6 +87,8 @@ int32 UXjMixer::OnGeneratePCMAudio(TArray<uint8>& OutAudio, int32 NumSamples)
 		else
 		{
 			ActiveAudios.Add(UpdatedAudio.Id, UpdatedAudio);
+
+			StartMixing = true;
 		}
 	}
 
@@ -123,7 +125,10 @@ int32 UXjMixer::OnGeneratePCMAudio(TArray<uint8>& OutAudio, int32 NumSamples)
 
 		OutAudioBuffer[Sample] = MixedData;
 
-		SampleCounter += 1;
+		if (StartMixing)
+		{
+			SampleCounter += 1;
+		}
 	}
 
 	return NumSamples;

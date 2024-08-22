@@ -47,6 +47,12 @@ uint32 FXjRunnable::Run()
 		check(Engine);
 		check(XjMusicSubsystem);
 
+		if (XjMusicSubsystem->IsAssetsLoading())
+		{
+			FPlatformProcess::Sleep(0.0f);
+			continue;
+		}
+
 		const double CurrentTime = FPlatformTime::Seconds();
 		const double DeltaTime = CurrentTime - LastFramTime;
 

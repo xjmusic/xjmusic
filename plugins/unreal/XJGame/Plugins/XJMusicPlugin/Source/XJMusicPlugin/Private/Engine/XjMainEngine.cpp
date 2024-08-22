@@ -8,8 +8,8 @@ void TXjMainEngine::Setup(const FString& PathToProject)
 	std::string PathToProjectStr = TCHAR_TO_UTF8(*PathToProject);
 
 	Fabricator::ControlMode	   ControlMode = Fabricator::ControlMode::Taxonomy;
-	std::optional<int>		   CraftAheadSeconds = 60;
-	std::optional<int>		   DubAheadSeconds = 20;
+	std::optional<int>		   CraftAheadSeconds = 10;
+	std::optional<int>		   DubAheadSeconds = 5;
 	std::optional<int>		   DeadlineSeconds;
 	std::optional<int>		   PersistenceWindowSeconds;
 
