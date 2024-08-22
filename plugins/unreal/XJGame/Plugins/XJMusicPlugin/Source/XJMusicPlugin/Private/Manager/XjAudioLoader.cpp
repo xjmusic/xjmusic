@@ -85,6 +85,8 @@ void UXjAudioLoader::Setup()
 void UXjAudioLoader::Shutdown()
 {
 	AudiosSoftReferences.Reset();
+
+	CachedAudios.Reset();
 }
 
 FXjAudioWave UXjAudioLoader::GetSoundById(const FString& Id)
