@@ -1,9 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "XjMusicInstanceSubsystem.h"
-#include "Kismet/GameplayStatics.h"
 #include "Settings/XJMusicDefaultSettings.h"
-#include "Runtime/Engine/Public/AudioDevice.h"
 #include "Async/Async.h"
 #include "Manager/XjManager.h"
 #include "Widgets/SWeakWidget.h"
@@ -24,6 +22,13 @@ void UXjMusicInstanceSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 	CVarShowDebugChain->SetOnChangedCallback(FConsoleVariableDelegate::CreateUObject(this, &UXjMusicInstanceSubsystem::OnEnabledShowDebugChain));
 }
 
+void UXjMusicInstanceSubsystem::Deinitialize()
+{
+	Super::Deinitialize();
+
+	DeleteRuntimeProjectDirectory();
+}
+
 void UXjMusicInstanceSubsystem::DoOverrideTaxonomy(const FString Taxonomy)
 {
 	if (!Manager)
@@ -40,6 +45,8 @@ void UXjMusicInstanceSubsystem::DoOverrideTaxonomy(const FString Taxonomy)
 
 void UXjMusicInstanceSubsystem::SetupXJ()
 {
+	RestoreRuntimeProjectDirectory();
+	
 	if (IsValid(Manager))
 	{
 		return;
@@ -86,6 +93,8 @@ void UXjMusicInstanceSubsystem::ShutdownXJ()
 	Mixer->MarkPendingKill();
 
 	AudioLoader->MarkPendingKill();
+
+	DeleteRuntimeProjectDirectory();
 }
 
 void UXjMusicInstanceSubsystem::AddActiveAudio(const FAudioPlayer& Audio)
@@ -241,5 +250,29 @@ void UXjMusicInstanceSubsystem::UpdateDebugChainView()
 			});
 
 		DebugChainViewWidget->UpdateActiveAudios(ActiveAudios, Manager->GetAtChainMicros());
+	}
+}
+
+void UXjMusicInstanceSubsystem::RestoreRuntimeProjectDirectory()
+{
+	UXJMusicDefaultSettings* XjSettings = GetMutableDefault<UXJMusicDefaultSettings>();
+	check(XjSettings || XjSettings->LaunchProject.IsValid())
+
+	XjProjectInstance = Cast<UXjProject>(XjSettings->LaunchProject.TryLoad());
+	check(XjProjectInstance)
+
+	DeleteRuntimeProjectDirectory();
+	
+	RuntimeProjectDir = FPaths::ConvertRelativePathToFull(FPaths::ProjectDir()) + "TempXJ";
+	
+	XjProjectInstance->RestoreDirectory(RuntimeProjectDir);
+}
+
+void UXjMusicInstanceSubsystem::DeleteRuntimeProjectDirectory()
+{
+	IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();
+	if(!RuntimeProjectDir.IsEmpty() && PlatformFile.DirectoryExists(*RuntimeProjectDir))
+	{
+		PlatformFile.DeleteDirectoryRecursively(*RuntimeProjectDir);
 	}
 }

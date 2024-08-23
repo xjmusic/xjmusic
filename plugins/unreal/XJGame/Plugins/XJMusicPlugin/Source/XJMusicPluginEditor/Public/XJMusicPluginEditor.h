@@ -6,7 +6,9 @@
 
 class FXJMusicPluginEditorModule : public IModuleInterface
 {
+
 public:
+    
     virtual void StartupModule() override;
     
     virtual void ShutdownModule() override;
@@ -24,5 +26,9 @@ public:
 private:
     const FString ProjectsLocalPath = "/Game/XJ/";
 
+    FString LastSelectedBuildDirectory;
+    
     TSharedPtr<FXjProjectTypeActions> XjProjectTypeActions;
+
+    void OpenFileDialog(const FString& DialogTitle, const FString DefaultPath, TArray<FString>& OutFiles);
 };

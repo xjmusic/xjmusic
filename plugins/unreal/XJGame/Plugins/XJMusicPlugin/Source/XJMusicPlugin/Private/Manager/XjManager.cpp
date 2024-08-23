@@ -17,12 +17,6 @@ FXjRunnable::FXjRunnable(UWorld* World)
 
 bool FXjRunnable::Init()
 {
-	UXJMusicDefaultSettings* XjSettings = GetMutableDefault<UXJMusicDefaultSettings>();
-	if (!XjSettings)
-	{
-		return false;
-	}
-
 	XjStartTime.SetInSeconds(FPlatformTime::Seconds());
 
 	if (!TryInitMockEngine())
@@ -30,9 +24,9 @@ bool FXjRunnable::Init()
 		Engine = MakeShared<TXjMainEngine>();
 	}
 
-	if (Engine)
+	if (Engine && XjMusicSubsystem->XjProjectInstance)
 	{
-		Engine->Setup(XjSettings->ProjectToImport);
+		Engine->Setup(XjMusicSubsystem->RuntimeProjectDir + "/" + XjMusicSubsystem->XjProjectInstance->ProjectName + ".xj");
 	}
 
 	LastFramTime = FPlatformTime::Seconds();

@@ -1,5 +1,4 @@
 ﻿#include "XJMusicPluginEditor.h"
-
 #include "AssetToolsModule.h"
 #include "ISettingsModule.h"
 #include "Settings/XJMusicDefaultSettings.h"
@@ -7,6 +6,8 @@
 #include "XJMusicPluginStyle.h"
 #include "Assets/XjProjectTypeFactory.h"
 #include "Types/XjProject.h"
+#include "IDesktopPlatform.h"
+#include "DesktopPlatformModule.h"
 
 #define LOCTEXT_NAMESPACE "FXJMusicPluginEditorModule"
 
@@ -29,6 +30,8 @@ void FXJMusicPluginEditorModule::StartupModule()
 
 	XjProjectTypeActions = MakeShared<FXjProjectTypeActions>();
 	FAssetToolsModule::GetModule().Get().RegisterAssetTypeActions(XjProjectTypeActions.ToSharedRef());
+
+	LastSelectedBuildDirectory = FPaths::ProjectDir();
 }
 
 void FXJMusicPluginEditorModule::ShutdownModule()
@@ -58,7 +61,7 @@ void FXJMusicPluginEditorModule::PluginButtonClicked()
 		return;
 	}
 
-	FPlatformProcess::CreateProc(*XjSettings->PathToXjMusicWorkstation, *XjSettings->ProjectToImport, true, false, false, nullptr, 0, nullptr, nullptr);
+	FPlatformProcess::CreateProc(*XjSettings->PathToXjMusicWorkstation, TEXT(""), true, false, false, nullptr, 0, nullptr, nullptr);
 }
 
 void FXJMusicPluginEditorModule::BuildButtonClicked()
@@ -69,11 +72,21 @@ void FXJMusicPluginEditorModule::BuildButtonClicked()
 		return;
 	}
 
-	const FString ProjectPath = XjSettings->ProjectToImport;
-	const FString FolderContainingProject = FPaths::GetPath(ProjectPath);
-	const FString LastFolderName = FPaths::GetBaseFilename(FolderContainingProject);
-	const FString PathToBuildFolder = FPaths::Combine(FolderContainingProject, TEXT("build/"));
+	TArray<FString> OutFiles;
+	OpenFileDialog("Select XJ project directory to build", LastSelectedBuildDirectory, OutFiles);
+
+	if(OutFiles.Num() == 0)
+	{
+		return;
+	}
+	
+	const FString ProjectPath = OutFiles[0];
+	const FString DirectoryContainingProject = FPaths::GetPath(ProjectPath);
+	const FString LastFolderName = FPaths::GetBaseFilename(DirectoryContainingProject);
+	const FString PathToBuildFolder = FPaths::Combine(DirectoryContainingProject, TEXT("build/"));
 	const FString DestinationPath = FPaths::Combine(ProjectsLocalPath, LastFolderName);
+
+	LastSelectedBuildDirectory = DirectoryContainingProject;
 	
 	IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();
 
@@ -104,6 +117,8 @@ void FXJMusicPluginEditorModule::BuildButtonClicked()
 	UXjProject* XjProject = Cast<UXjProject>(AssetToolsModule.Get().CreateAsset(LastFolderName, DestinationPath, UXjProject::StaticClass(), XjProjectTypeFactory));
 	check(XjProject);
 
+	XjProject->StoreDirectory(DirectoryContainingProject);
+	
 	XjProject->ProjectName = LastFolderName;
 	XjProject->ProjectPath = DestinationPath;
 }
@@ -148,6 +163,28 @@ void FXJMusicPluginEditorModule::RegisterMenus()
 				Entry.Label = INVTEXT("XJ Music");
 			}
 		}
+	}
+}
+
+void FXJMusicPluginEditorModule::OpenFileDialog(const FString& DialogTitle, const FString DefaultPath, TArray<FString>& OutFiles)
+{
+	void* ParentWindowPtr = FSlateApplication::Get().GetActiveTopLevelWindow()->GetNativeWindow()->GetOSWindowHandle();
+	IDesktopPlatform* DesktopPlatform = FDesktopPlatformModule::Get();
+	
+	if (DesktopPlatform)
+	{
+		const FString Title = TEXT("Select XJ project to build");
+		const FString FileTypes = TEXT("XJ Files (*.xj)|*.xj");
+
+		DesktopPlatform->OpenFileDialog(
+			ParentWindowPtr,
+			Title,
+			DefaultPath,
+			TEXT(""),
+			FileTypes,
+			EFileDialogFlags::None,
+			OutFiles
+		);
 	}
 }
 

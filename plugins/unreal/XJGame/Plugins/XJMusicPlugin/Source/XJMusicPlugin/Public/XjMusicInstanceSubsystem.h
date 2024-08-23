@@ -14,6 +14,10 @@ class XJMUSICPLUGIN_API UXjMusicInstanceSubsystem : public UGameInstanceSubsyste
 	GENERATED_BODY()
 	
 public:
+	
+	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
+
+	virtual void Deinitialize() override;
 
 	UFUNCTION(BlueprintCallable)
 	void DoOverrideTaxonomy(const FString Taxonomy);
@@ -27,22 +31,29 @@ public:
 	void UpdateActiveAudio(const FAudioPlayer& Audio);
 
 	void RemoveActiveAudio(const FAudioPlayer& Audio);
-
-	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
-
+	
 	const TMap<FString, FAudioPlayer>& GetActiveAudios() const
 	{
 		return ActiveAudios;
 	}
 
 	bool IsAssetsLoading() const;
-
+	
+	FString RuntimeProjectDir;
+	
+	UPROPERTY()
+	class UXjProject* XjProjectInstance = nullptr;
+	
 private:
 
 	void OnEnabledShowDebugChain(class IConsoleVariable* Var);
 
 	void UpdateDebugChainView();
 
+	void RestoreRuntimeProjectDirectory();
+
+	void DeleteRuntimeProjectDirectory();
+	
 private:
 
 	UPROPERTY()

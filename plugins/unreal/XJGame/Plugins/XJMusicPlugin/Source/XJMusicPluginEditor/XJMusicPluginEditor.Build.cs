@@ -25,8 +25,18 @@ public class XJMusicPluginEditor : ModuleRules
                 "AssetTools",
                 "Projects",
                 "InputCore",
-                "Engine",
+                "Engine"
             }
         );
+        
+        if (Target.bBuildEditor == true)
+        {
+            PublicDependencyModuleNames.AddRange(
+                new string[]
+                {
+                    "DesktopPlatform",
+                }
+            );
+        }
     }
 }

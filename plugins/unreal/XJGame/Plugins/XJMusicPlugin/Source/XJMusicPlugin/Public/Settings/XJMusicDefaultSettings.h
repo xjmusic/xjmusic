@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Types/XjProject.h"
 #include "XJMusicDefaultSettings.generated.h"
 
 UCLASS(config = "XJMusicConfig")
@@ -11,14 +12,12 @@ class XJMUSICPLUGIN_API UXJMusicDefaultSettings : public UObject
 	GENERATED_BODY()
 
 public:
+	
+	UPROPERTY(Config, EditAnywhere, Category = Settings, meta=(AllowedClasses="XjProject"))
+	FSoftObjectPath LaunchProject;
+	
 	UPROPERTY(Config, EditAnywhere, Category = Settings)
 	FString PathToXjMusicWorkstation;
-
-	UPROPERTY(Config, EditAnywhere, Category = Settings)
-	FString ProjectToImport = "D:/Dev/vgm/vgm.xj";
-
-	UPROPERTY(Config, EditAnywhere, Category = Settings)
-	FString XjProjectName;
 
 	UPROPERTY(EditAnywhere, Category = Settings)
 	bool bDevelopmentMode = false;
