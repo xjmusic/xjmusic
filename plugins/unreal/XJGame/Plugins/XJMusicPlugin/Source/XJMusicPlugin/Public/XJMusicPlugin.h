@@ -15,11 +15,8 @@ public:
 
 	virtual void StartupModule() override;
 	virtual void ShutdownModule() override;
-
-	const FString ProjectsLocalPath = "/Game/XJ/";
+	
 private:
-
-	void RegisterMenus();
 
 	void OnPostWorldInitialization(UWorld* World, const UWorld::InitializationValues Ivs);
 
@@ -27,16 +24,8 @@ private:
 
 	void OnLevelBeginPlay();
 
-	void PluginButtonClicked();
-
-	void BuildButtonClicked();
-
-	TSharedRef<SWidget> GenerateComboBox();
-
-	TSharedPtr<class FUICommandList> PluginCommands;
-
 	UPROPERTY()
-	UXjMusicInstanceSubsystem* XjSubsystem = nullptr;
+	class UXjMusicInstanceSubsystem* XjSubsystem = nullptr;
 
 	UWorld* LastWorld = nullptr;
 

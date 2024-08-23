@@ -32,7 +32,7 @@ bool FXjRunnable::Init()
 
 	if (Engine)
 	{
-		Engine->Setup(XjSettings->PathToXjProjectFile);
+		Engine->Setup(XjSettings->ProjectToImport);
 	}
 
 	LastFramTime = FPlatformTime::Seconds();

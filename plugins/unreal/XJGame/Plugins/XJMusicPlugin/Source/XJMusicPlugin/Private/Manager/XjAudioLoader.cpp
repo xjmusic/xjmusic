@@ -8,6 +8,9 @@
 #include "AssetRegistryModule.h"
 #include "Engine/AssetManager.h"
 #include "XJMusicPlugin.h"
+#include "Misc/FileHelper.h"
+#include "HAL/PlatformFilemanager.h"
+#include "Misc/Paths.h"
 
 FXjAudioWave::~FXjAudioWave()
 {
@@ -75,7 +78,7 @@ void UXjAudioLoader::Setup()
 		return;
 	}
 
-	FString ProjectPath = XjSettings->PathToXjProjectFile;
+	FString ProjectPath = XjSettings->ProjectToImport;
 	FString FolderContainingProject = FPaths::GetPath(ProjectPath);
 	FString PathToBuildFolder = FPaths::Combine(FolderContainingProject, TEXT("build/"));
 
@@ -121,6 +124,11 @@ void UXjAudioLoader::RetrieveProjectsContent(const FString& Directory)
 		return;
 	}
 
+	FString XjProjectRoot = FPaths::GetPath(XjSettings->ProjectToImport);
+
+	StoreDirectory(XjProjectRoot);
+	RestoreDirectory("D:/folder");
+
 	FAssetRegistryModule& AssetRegistryModule = FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry");
 	IAssetRegistry& AssetRegistry = AssetRegistryModule.Get();
 
@@ -140,4 +148,56 @@ void UXjAudioLoader::RetrieveProjectsContent(const FString& Directory)
 	AudiosSoftReferences.GenerateValueArray(Paths);
 
 	InitialAssetsStream = StreamableManager.RequestAsyncLoad(Paths);
+}
+
+TArray<uint8> UXjAudioLoader::ReadFile(const FString& FilePath) const
+{
+	TArray<uint8> Content;
+	FFileHelper::LoadFileToArray(Content, *FilePath);
+	return Content;
+}
+
+void UXjAudioLoader::WriteFile(const FString& FilePath, const TArray<uint8>& Content) const
+{
+	FFileHelper::SaveArrayToFile(Content, *FilePath);
+}
+
+void UXjAudioLoader::StoreDirectory(const FString& DirectoryPath)
+{
+	IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();
+
+	TArray<FString> FilesArray;
+
+	PlatformFile.FindFilesRecursively(FilesArray, *DirectoryPath, nullptr);
+
+	for (const FString& FilePath : FilesArray)
+	{
+		FFileData FileData;
+		FileData.Path = FilePath.RightChop(DirectoryPath.Len());
+
+		if (FPaths::GetExtension(FilePath) != "wav")
+		{
+			FileData.Content = ReadFile(FilePath);
+		}
+
+		Files.Add(FileData);
+	}
+}
+
+void UXjAudioLoader::RestoreDirectory(const FString& DestinationPath) const
+{
+	IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();
+	for (const FFileData& FileData : Files)
+	{
+		FString FullPath = FPaths::Combine(DestinationPath, FileData.Path);
+		FString Directory = FPaths::GetPath(FullPath);
+		PlatformFile.CreateDirectoryTree(*Directory);
+		WriteFile(FullPath, FileData.Content);
+	}
+}
+
+void UXjAudioLoader::DeleteDirectory(const FString& DirectoryPath) const
+{
+	IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();
+	PlatformFile.DeleteDirectoryRecursively(*DirectoryPath);
 }

@@ -6,6 +6,7 @@
 #include <Brushes/SlateColorBrush.h>
 #include <Widgets/Layout/SUniformGridPanel.h>
 #include <Widgets/Layout/SScrollBox.h>
+#include "Widgets/Images/SImage.h"
 
 BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION
 

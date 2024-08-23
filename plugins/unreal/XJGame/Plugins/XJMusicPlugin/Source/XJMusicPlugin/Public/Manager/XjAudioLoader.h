@@ -34,6 +34,18 @@ public:
 
 };
 
+USTRUCT()
+struct FFileData
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	FString Path;
+
+	UPROPERTY()
+	TArray<uint8> Content;
+};
+
 UCLASS()
 class XJMUSICPLUGIN_API UXjAudioLoader : public UObject
 {
@@ -64,4 +76,20 @@ private:
 	TMap<FString, FXjAudioWave> CachedAudios;
 
 	void RetrieveProjectsContent(const FString& Directory);
+
+	UPROPERTY()
+	TArray<FFileData> Files;
+
+	TArray<uint8> ReadFile(const FString& FilePath) const;
+
+	void WriteFile(const FString& FilePath, const TArray<uint8>& Content) const;
+
+	UFUNCTION()
+	void StoreDirectory(const FString& DirectoryPath);
+
+	UFUNCTION()
+	void RestoreDirectory(const FString& DestinationPath) const;
+
+	UFUNCTION()
+	void DeleteDirectory(const FString& DirectoryPath) const;
 };

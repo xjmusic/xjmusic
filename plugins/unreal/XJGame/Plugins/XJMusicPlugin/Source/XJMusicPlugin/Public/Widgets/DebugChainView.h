@@ -30,6 +30,8 @@ private:
 
 	TSharedPtr<STextBlock> ChainMicrosTB;
 
+	TSharedPtr< STextBlock> LoadingTB;
+
 	TSharedPtr<TEngineBase> Engine;
 
 	TMap<int, TSharedPtr<SDebugSegmentView>> CreatedSegments;

@@ -5,6 +5,7 @@
 #include "SlateOptMacros.h"
 
 #include "Types/XjTypes.h"
+#include "Widgets/Images/SImage.h"
 
 BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION
 
@@ -45,6 +46,14 @@ void SDebugChainView::Construct(const FArguments& Args)
 				[
 					SNew(SImage)
 						.Image(BackgroundBrush)
+				]
+				+SOverlay::Slot()
+				.VAlign(VAlign_Center)
+				.HAlign(HAlign_Center)
+				[
+					SAssignNew(LoadingTB, STextBlock)
+					.Text(INVTEXT("LOADING ASSETS..."))
+					.Font(HeaderFontInfo)
 				]
 				+ SOverlay::Slot()
 				.VAlign(VAlign_Fill)
@@ -131,7 +140,7 @@ void SDebugChainView::Construct(const FArguments& Args)
 								.HAlign(HAlign_Left)
 								[
 									SAssignNew(SegmentsSB, SScrollBox)
-										.Orientation(EOrientation::Orient_Horizontal)
+									.Orientation(EOrientation::Orient_Horizontal)
 								]
 								+ SHorizontalBox::Slot()
 								.VAlign(VAlign_Fill)
@@ -168,7 +177,7 @@ void SDebugChainView::Construct(const FArguments& Args)
 
 void SDebugChainView::UpdateActiveAudios(const TMap<FString, FAudioPlayer>& ActiveAudios, const TimeRecord& ChainMicros)
 {
-	if (!ActiveAudiosVB.IsValid())
+	if (!ActiveAudiosVB.IsValid() || ActiveAudios.Num() == 0)
 	{
 		return;
 	}
@@ -176,6 +185,12 @@ void SDebugChainView::UpdateActiveAudios(const TMap<FString, FAudioPlayer>& Acti
 	if (ActiveAudiosVB->GetAllChildren()->Num() > 0)
 	{
 		ActiveAudiosVB->ClearChildren();
+	}
+
+	if (LoadingTB && LoadingTB->GetVisibility() == EVisibility::Visible)
+	{
+		LoadingTB->SetVisibility(EVisibility::Hidden);
+		LoadingTB.Reset();
 	}
 
 	for (const TPair<FString, FAudioPlayer>& Audio : ActiveAudios)

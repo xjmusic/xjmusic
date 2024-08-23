@@ -15,7 +15,7 @@ public:
 	FString PathToXjMusicWorkstation;
 
 	UPROPERTY(Config, EditAnywhere, Category = Settings)
-	FString PathToXjProjectFile = "D:/Dev/vgm/vgm.xj";
+	FString ProjectToImport = "D:/Dev/vgm/vgm.xj";
 
 	UPROPERTY(Config, EditAnywhere, Category = Settings)
 	FString XjProjectName;
@@ -24,7 +24,7 @@ public:
 	bool bDevelopmentMode = false;
 
 	UPROPERTY(EditAnywhere, Category = DevelopmentMode, meta = (EditCondition = "bDevelopmentMode"))
-	UDataTable* MockDataDT = nullptr;
+	class UDataTable* MockDataDT = nullptr;
 
 	UPROPERTY(EditAnywhere, Category = DevelopmentMode, meta = (EditCondition = "bDevelopmentMode"))
 	int MaxAudiosOutputPerCycle = 0;

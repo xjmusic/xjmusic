@@ -19,6 +19,11 @@
 			"Name": "XJMusicPlugin",
 			"Type": "Runtime",
 			"LoadingPhase": "Default"
+		},
+		{
+			"Name": "XJMusicPluginEditor",
+			"Type": "Editor",
+			"LoadingPhase": "Default"
 		}
 	]
 }

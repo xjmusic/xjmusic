@@ -6,6 +6,7 @@
 void TXjMainEngine::Setup(const FString& PathToProject)
 {	
 	std::string PathToProjectStr = TCHAR_TO_UTF8(*PathToProject);
+	PathToProjectStr = "D:/folder/vgm.xj";
 
 	Fabricator::ControlMode	   ControlMode = Fabricator::ControlMode::Taxonomy;
 	std::optional<int>		   CraftAheadSeconds = 10;
