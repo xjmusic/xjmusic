@@ -2,12 +2,13 @@
 
 #include "CoreMinimal.h"
 #include "Modules/ModuleManager.h"
+#include "Assets/XjProjectTypeActions.h"
 
 class FXJMusicPluginEditorModule : public IModuleInterface
 {
 public:
-    
     virtual void StartupModule() override;
+    
     virtual void ShutdownModule() override;
 
     void PluginButtonClicked();
@@ -21,6 +22,7 @@ public:
     TSharedPtr<class FUICommandList> PluginCommands;
 
 private:
-    
     const FString ProjectsLocalPath = "/Game/XJ/";
+
+    TSharedPtr<FXjProjectTypeActions> XjProjectTypeActions;
 };

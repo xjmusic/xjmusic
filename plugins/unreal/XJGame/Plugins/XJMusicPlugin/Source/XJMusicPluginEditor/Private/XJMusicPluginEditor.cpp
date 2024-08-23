@@ -5,6 +5,8 @@
 #include "Settings/XJMusicDefaultSettings.h"
 #include "ToolMenus.h"
 #include "XJMusicPluginStyle.h"
+#include "Assets/XjProjectTypeFactory.h"
+#include "Types/XjProject.h"
 
 #define LOCTEXT_NAMESPACE "FXJMusicPluginEditorModule"
 
@@ -24,6 +26,9 @@ void FXJMusicPluginEditorModule::StartupModule()
 			LOCTEXT("RuntimeSettingsDescription", "Configure XJ music plugin settings"),
 			GetMutableDefault<UXJMusicDefaultSettings>());
 	}
+
+	XjProjectTypeActions = MakeShared<FXjProjectTypeActions>();
+	FAssetToolsModule::GetModule().Get().RegisterAssetTypeActions(XjProjectTypeActions.ToSharedRef());
 }
 
 void FXJMusicPluginEditorModule::ShutdownModule()
@@ -37,6 +42,11 @@ void FXJMusicPluginEditorModule::ShutdownModule()
 	if (ISettingsModule* SettingsModule = FModuleManager::GetModulePtr<ISettingsModule>("Settings"))
 	{
 		SettingsModule->UnregisterSettings("Project", "Plugins", "XJSettings");
+	}
+
+	if(FModuleManager::Get().IsModuleLoaded("AssetTools"))
+	{
+		FAssetToolsModule::GetModule().Get().UnregisterAssetTypeActions(XjProjectTypeActions.ToSharedRef());
 	}
 }
 
@@ -63,6 +73,7 @@ void FXJMusicPluginEditorModule::BuildButtonClicked()
 	const FString FolderContainingProject = FPaths::GetPath(ProjectPath);
 	const FString LastFolderName = FPaths::GetBaseFilename(FolderContainingProject);
 	const FString PathToBuildFolder = FPaths::Combine(FolderContainingProject, TEXT("build/"));
+	const FString DestinationPath = FPaths::Combine(ProjectsLocalPath, LastFolderName);
 	
 	IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();
 
@@ -76,12 +87,25 @@ void FXJMusicPluginEditorModule::BuildButtonClicked()
 	PlatformFile.FindFilesRecursively(FoundAudioFilesPaths, *PathToBuildFolder, TEXT(".wav"));
 
 	UAutomatedAssetImportData* ImportData = NewObject<UAutomatedAssetImportData>();
+	check(ImportData);
+	
 	ImportData->bReplaceExisting = true;
-	ImportData->DestinationPath = FPaths::Combine(ProjectsLocalPath, LastFolderName);
+	ImportData->DestinationPath = DestinationPath;
 	ImportData->Filenames = FoundAudioFilesPaths;
 
+
 	FAssetToolsModule& AssetToolsModule = FModuleManager::GetModuleChecked<FAssetToolsModule>("AssetTools");
+
 	AssetToolsModule.Get().ImportAssetsAutomated(ImportData);
+
+	UXjProjectTypeFactory* XjProjectTypeFactory = NewObject<UXjProjectTypeFactory>();
+	check(XjProjectTypeFactory);
+
+	UXjProject* XjProject = Cast<UXjProject>(AssetToolsModule.Get().CreateAsset(LastFolderName, DestinationPath, UXjProject::StaticClass(), XjProjectTypeFactory));
+	check(XjProject);
+
+	XjProject->ProjectName = LastFolderName;
+	XjProject->ProjectPath = DestinationPath;
 }
 
 TSharedRef<SWidget> FXJMusicPluginEditorModule::GenerateComboBox()
