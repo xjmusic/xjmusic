@@ -24,7 +24,7 @@ int16 FMixerAudio::ReadSample(const int32 CurrentSample)
 	return Sample;
 }
 
-void UXjMixer::Setup()
+void UXjMixer::Setup(const bool bDefaultOutput)
 {
 	Output = NewObject<UXjOutput>();
 
@@ -40,8 +40,14 @@ void UXjMixer::Setup()
 	Output->NumChannels = NumChannels;
 	Output->Duration = INDEFINITELY_LOOPING_DURATION;
 	Output->SoundGroup = ESoundGroup::SOUNDGROUP_Music;
+	Output->VirtualizationMode = EVirtualizationMode::PlayWhenSilent;
 	Output->OnGeneratePCMData.BindUObject(this, &UXjMixer::OnGeneratePCMAudio);
 
+	if(!bDefaultOutput)
+	{
+		return;
+	}
+	
 	AudioComponent = UGameplayStatics::CreateSound2D(GetWorld(), Output);
 	if (AudioComponent)
 	{

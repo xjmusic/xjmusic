@@ -26,7 +26,7 @@ bool FXjRunnable::Init()
 
 	if (Engine && XjMusicSubsystem->XjProjectInstance)
 	{
-		Engine->Setup(XjMusicSubsystem->RuntimeProjectDir + "/" + XjMusicSubsystem->XjProjectInstance->ProjectName + ".xj");
+		Engine->Setup(XjMusicSubsystem->GetRuntimeProjectDirectory() + "/" + XjMusicSubsystem->XjProjectInstance->ProjectName + ".xj");
 	}
 
 	LastFramTime = FPlatformTime::Seconds();

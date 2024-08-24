@@ -13,22 +13,25 @@ class XJMUSICPLUGIN_API UXJMusicDefaultSettings : public UObject
 
 public:
 	
-	UPROPERTY(Config, EditAnywhere, Category = Settings, meta=(AllowedClasses="XjProject"))
+	UPROPERTY(Config, EditAnywhere, Category = "Settings", meta=(AllowedClasses="XjProject"))
 	FSoftObjectPath LaunchProject;
 	
-	UPROPERTY(Config, EditAnywhere, Category = Settings)
+	UPROPERTY(Config, EditAnywhere, Category = "Settings")
+	bool bDefaultOutput = true;
+	
+	UPROPERTY(Config, EditAnywhere, Category = "Settings")
 	FString PathToXjMusicWorkstation;
 
-	UPROPERTY(EditAnywhere, Category = Settings)
+	UPROPERTY(EditAnywhere, Category = "Development")
 	bool bDevelopmentMode = false;
 
-	UPROPERTY(EditAnywhere, Category = DevelopmentMode, meta = (EditCondition = "bDevelopmentMode"))
+	UPROPERTY(EditAnywhere, Category = "Development", meta = (EditCondition = "bDevelopmentMode"))
 	class UDataTable* MockDataDT = nullptr;
 
-	UPROPERTY(EditAnywhere, Category = DevelopmentMode, meta = (EditCondition = "bDevelopmentMode"))
+	UPROPERTY(EditAnywhere, Category = "Development", meta = (EditCondition = "bDevelopmentMode"))
 	int MaxAudiosOutputPerCycle = 0;
 
-	UPROPERTY(EditAnywhere, Category = DevelopmentMode, meta = (EditCondition = "bDevelopmentMode"))
+	UPROPERTY(EditAnywhere, Category = "Development", meta = (EditCondition = "bDevelopmentMode"))
 	float LatencyBetweenCyclesInSeconds = 0.0f;
 
 };

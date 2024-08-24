@@ -5,8 +5,13 @@
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "Widgets/DebugChainView.h"
-
 #include "XjMusicInstanceSubsystem.generated.h"
+
+class UXjProject;
+class UXjManager;
+class UXjMixer;
+class UXjAudioLoader;
+class UXJMusicDefaultSettings;
 
 UCLASS(DisplayName = "XjSubsystem")
 class XJMUSICPLUGIN_API UXjMusicInstanceSubsystem : public UGameInstanceSubsystem
@@ -37,33 +42,36 @@ public:
 		return ActiveAudios;
 	}
 
+	FString GetRuntimeProjectDirectory() const
+	{
+		return RuntimeProjectDir;
+	}
+
 	bool IsAssetsLoading() const;
 	
-	FString RuntimeProjectDir;
-	
 	UPROPERTY()
-	class UXjProject* XjProjectInstance = nullptr;
-	
+	UXjProject* XjProjectInstance = nullptr;
+
+	UPROPERTY()
+	UXjManager* Manager = nullptr;
+
+	UPROPERTY()
+	UXjMixer* Mixer = nullptr;
+
+	UPROPERTY()
+	UXjAudioLoader* AudioLoader = nullptr;
+
 private:
 
-	void OnEnabledShowDebugChain(class IConsoleVariable* Var);
+	FString RuntimeProjectDir;
+	
+	void OnEnabledShowDebugChain(IConsoleVariable* Var);
 
 	void UpdateDebugChainView();
 
-	void RestoreRuntimeProjectDirectory();
+	void RestoreRuntimeProjectDirectory(UXJMusicDefaultSettings* XjSettings);
 
 	void DeleteRuntimeProjectDirectory();
-	
-private:
-
-	UPROPERTY()
-	class UXjManager* Manager = nullptr;
-
-	UPROPERTY()
-	class UXjMixer* Mixer = nullptr;
-
-	UPROPERTY()
-	class UXjAudioLoader* AudioLoader = nullptr;
 
 	TSharedPtr<SDebugChainView> DebugChainViewWidget;
 

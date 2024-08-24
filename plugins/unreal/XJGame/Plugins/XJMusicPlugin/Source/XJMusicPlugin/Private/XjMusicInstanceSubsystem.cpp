@@ -45,7 +45,14 @@ void UXjMusicInstanceSubsystem::DoOverrideTaxonomy(const FString Taxonomy)
 
 void UXjMusicInstanceSubsystem::SetupXJ()
 {
-	RestoreRuntimeProjectDirectory();
+	UXJMusicDefaultSettings* XjSettings = GetMutableDefault<UXJMusicDefaultSettings>();
+
+	if(!XjSettings || !XjSettings->LaunchProject.IsValid())
+	{
+		return;
+	}
+	
+	RestoreRuntimeProjectDirectory(XjSettings);
 	
 	if (IsValid(Manager))
 	{
@@ -61,7 +68,7 @@ void UXjMusicInstanceSubsystem::SetupXJ()
 	Mixer = NewObject<UXjMixer>(this);
 	if (Mixer)
 	{
-		Mixer->Setup();
+		Mixer->Setup(XjSettings->bDefaultOutput);
 	}
 
 	Manager = NewObject<UXjManager>(this);
@@ -253,10 +260,12 @@ void UXjMusicInstanceSubsystem::UpdateDebugChainView()
 	}
 }
 
-void UXjMusicInstanceSubsystem::RestoreRuntimeProjectDirectory()
+void UXjMusicInstanceSubsystem::RestoreRuntimeProjectDirectory(UXJMusicDefaultSettings* XjSettings)
 {
-	UXJMusicDefaultSettings* XjSettings = GetMutableDefault<UXJMusicDefaultSettings>();
-	check(XjSettings || XjSettings->LaunchProject.IsValid())
+	if(!XjSettings->LaunchProject.IsValid())
+	{
+		return;
+	}
 
 	XjProjectInstance = Cast<UXjProject>(XjSettings->LaunchProject.TryLoad());
 	check(XjProjectInstance)

@@ -6,6 +6,9 @@
 #include "Manager/XjAudioLoader.h"
 #include "XjMixer.generated.h"
 
+class UXjOutput;
+class UAudioComponent;
+
 USTRUCT()
 struct FMixerAudio
 {
@@ -52,7 +55,7 @@ class XJMUSICPLUGIN_API UXjMixer : public UObject
 
 public:
 
-	void Setup();
+	void Setup(const bool bDefaultOutput);
 
 	void Shutdown();
 
@@ -74,6 +77,17 @@ public:
 		return NumChannels;
 	}
 
+	bool IsPlaying() const
+	{
+		return StartMixing;
+	}
+
+	UPROPERTY()
+	UAudioComponent* AudioComponent;
+
+	UPROPERTY()
+	UXjOutput* Output;
+
 private:
 
 	bool StartMixing = false;
@@ -82,12 +96,6 @@ private:
 
 	int32 SampleRate = 0;
 	int32 NumChannels = 0;
-
-	UPROPERTY()
-	class UAudioComponent* AudioComponent;
-
-	UPROPERTY()
-	class UXjOutput* Output;
 
 	int32 SampleCounter = 0;
 
