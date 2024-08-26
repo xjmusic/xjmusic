@@ -12,6 +12,12 @@ public:
 		Micros = NewTime;
 		Seconds = NewTime / 1000000.0f;
 	}
+	
+	void SetInMillie(const float NewTime)
+	{
+		Seconds = NewTime / 1000.0f;
+		Micros = Seconds * 1000000;
+	}
 
 	void SetInSeconds(const float NewTime)
 	{
@@ -103,6 +109,8 @@ struct FAudioPlayer
 {
 	TimeRecord StartTime;
 	TimeRecord EndTime;
+
+	TimeRecord ReleaseTime;
 
 	FString Name;
 	FString Id;

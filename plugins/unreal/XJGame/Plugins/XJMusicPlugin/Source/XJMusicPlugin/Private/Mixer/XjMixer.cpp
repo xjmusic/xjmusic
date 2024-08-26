@@ -7,18 +7,26 @@
 #include "Kismet/GameplayStatics.h"
 #include "XjMusicInstanceSubsystem.h"
 
-int16 FMixerAudio::ReadSample(const int32 CurrentSample)
+float FMixerAudio::ReadSample(const int32 CurrentSample, const float FrameDelta)
 {
 	SamplePointer = CurrentSample - StartSamples;
 
-	uint16 Sample = 0;
+	float Sample = 0;
 
-	if (Wave.SamplesData && SamplePointer >= 0
-		&& SamplePointer <= Wave.NumSamples && SamplePointer <= (EndSamples - StartSamples))
+	if (!Wave.SamplesData || SamplePointer < 0)
 	{
-		float Delta = 1.0f / (EndSamples - SamplePointer);
+		return Sample;
+	}
 
-		Sample = Wave.SamplesData[SamplePointer] * GetAmplitude(Delta);
+	if(SamplePointer <= FMath::Min((GetEndWithRelease() - StartSamples), Wave.NumSamples))
+	{
+		Sample = (float(Wave.SamplesData[SamplePointer] * GetAmplitude(FrameDelta)) / INT16_MAX) 
+			* FadeOutEnvelope.Out(ReleaseDelta) * FadeOutEnvelope.In(SamplePointer);
+
+		if (CurrentSample > EndSamples)
+		{
+			ReleaseDelta++;
+		}
 	}
 
 	return Sample;
@@ -109,27 +117,22 @@ int32 UXjMixer::OnGeneratePCMAudio(TArray<uint8>& OutAudio, int32 NumSamples)
 
 	for (int32 Sample = 0; Sample < NumSamples; ++Sample)
 	{
-		int32 MixedData = 0;
+		float MixedData = 0;
 
 		for (TPair<FString, FMixerAudio>& Audio : ActiveAudios)
 		{
+			float FrameDelta = 1.0f / FMath::Min(NumSamples, Audio.Value.GetEndWithRelease() - SampleCounter);
+
 			if (SampleCounter >= Audio.Value.StartSamples)
 			{
-				MixedData += Audio.Value.ReadSample(SampleCounter);
+				MixedData += Audio.Value.ReadSample(SampleCounter, FrameDelta);
 			}
 		}
-	
-		//Clipping fix. TODO make this using limits in somewhere else
-		if (MixedData > 32767)
-		{
-			MixedData = 32767;
-		}
-		else if (MixedData < -32768)
-		{
-			MixedData = -32768;
-		}
 
-		OutAudioBuffer[Sample] = MixedData;
+		//Clipping fix. TODO make this using limits in somewhere else
+		MixedData = FMath::Clamp(MixedData, -1.0f, 1.0f);
+
+		OutAudioBuffer[Sample] = MixedData * INT16_MAX;
 
 		if (StartMixing)
 		{

@@ -78,9 +78,13 @@ TArray<FAudioPlayer> TXjMainEngine::RunCycle(const uint64 ChainMicros)
 		TimeRecord EndTime;
 		EndTime.SetInMicros(Event.schedule.getStopAtChainMicros());
 
+		TimeRecord ReleaseTime;
+		ReleaseTime.SetInMillie(Event.schedule.getReleaseMillis());
+
 		FAudioPlayer AudioPlayer;
 		AudioPlayer.StartTime = StartTime;
 		AudioPlayer.EndTime = EndTime;
+		AudioPlayer.ReleaseTime = ReleaseTime;
 		AudioPlayer.Name = Name;
 		AudioPlayer.Id = Id;
 		AudioPlayer.WaveId = WaveKey;

@@ -43,6 +43,8 @@ uint32 FXjRunnable::Run()
 
 		if (XjMusicSubsystem->IsAssetsLoading())
 		{
+			LastFramTime = FPlatformTime::Seconds();
+
 			FPlatformProcess::Sleep(0.0f);
 			continue;
 		}

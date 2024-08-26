@@ -4,10 +4,59 @@
 
 #include "CoreMinimal.h"
 #include "Manager/XjAudioLoader.h"
+#include "Math/UnrealMathUtility.h"
 #include "XjMixer.generated.h"
 
 class UXjOutput;
 class UAudioComponent;
+
+class Envelope
+{
+
+public:
+
+	float Out(const int32 Delta)
+	{
+		if (Delta > Exponential.Num())
+		{
+			return 0.0f;
+		}
+
+		return Delta > 0 ? Exponential[Exponential.Num() - Delta] : 1.0f;
+	}
+
+	float In(const int32 Delta)
+	{
+		if (Delta < 0.0f)
+		{
+			return 0.0f;
+		}
+
+		return Delta <  Exponential.Num() ? Exponential[Delta] : 1.0f;
+	}
+
+	void SetEnvelope(const int32 Samples)
+	{
+		Exponential.Reserve(Samples - 1);
+
+		for (int i = 1; i < Samples; ++i) 
+		{
+			Exponential.Push(FMath::Sin(HALF_PI * i / Samples));
+		}
+
+		Length = Samples;
+	}
+
+	int32 GetLength() const
+	{
+		return Length;
+	}
+
+private:
+
+	TArray<float> Exponential;
+	int32 Length = 0;
+};
 
 USTRUCT()
 struct FMixerAudio
@@ -31,11 +80,27 @@ public:
 		return SamplePointer;
 	}
 
-	int16 ReadSample(const int32 CurrentSample);
+	int32 GetEndWithRelease() const
+	{
+		return EndSamples + FadeOutEnvelope.GetLength();
+	}
+
+	void SetReleaseSamples(const int32 Samples)
+	{
+		FadeOutEnvelope.SetEnvelope(Samples);
+		FadeInEnvelope.SetEnvelope(0.07f * 48000);
+	}
+
+	float ReadSample(const int32 CurrentSample, const float FrameDelta);
 
 private:
+	
+	Envelope FadeOutEnvelope;
+	Envelope FadeInEnvelope;
 
 	int32 SamplePointer = 0;
+
+	int32 ReleaseDelta = 0;
 
 	float GetAmplitude(const float Delta) const
 	{
