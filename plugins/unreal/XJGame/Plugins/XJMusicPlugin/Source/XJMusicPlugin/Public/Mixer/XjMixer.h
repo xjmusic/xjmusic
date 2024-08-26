@@ -65,6 +65,20 @@ struct FMixerAudio
 
 public:
 
+	void SetupEnvelops(const int32 ReleaseTimeSamples);
+
+	float ReadSample(const int32 CurrentSample, const float FrameDelta);
+
+	int32 GetSamplePointer() const
+	{
+		return SamplePointer;
+	}
+
+	int32 GetEndWithRelease() const
+	{
+		return EndSamples + FadeOutEnvelope->GetLength();
+	}
+	
 	FXjAudioWave Wave;
 
 	FString Id;
@@ -75,28 +89,10 @@ public:
 	float FromVolume;
 	float ToVolume;
 
-	int32 GetSamplePointer() const
-	{
-		return SamplePointer;
-	}
-
-	int32 GetEndWithRelease() const
-	{
-		return EndSamples + FadeOutEnvelope.GetLength();
-	}
-
-	void SetReleaseSamples(const int32 Samples)
-	{
-		FadeOutEnvelope.SetEnvelope(Samples);
-		FadeInEnvelope.SetEnvelope(0.07f * 48000);
-	}
-
-	float ReadSample(const int32 CurrentSample, const float FrameDelta);
-
 private:
 	
-	Envelope FadeOutEnvelope;
-	Envelope FadeInEnvelope;
+	TSharedPtr<Envelope> FadeOutEnvelope;
+	TSharedPtr<Envelope> FadeInEnvelope;
 
 	int32 SamplePointer = 0;
 
@@ -128,25 +124,23 @@ public:
 
 	void RemoveActiveAudio(const FString& AudioId);
 
-	float CalculateAmplitude(const FMixerAudio& Audio) const;
-
 	int32 OnGeneratePCMAudio(TArray<uint8>& OutAudio, int32 NumSamples);
-
-	int32 GetSampleRate() const
-	{
-		return SampleRate;
-	}
-
-	int32 GetNumChannels() const
-	{
-		return NumChannels;
-	}
 
 	bool IsPlaying() const
 	{
 		return StartMixing;
 	}
 
+	static int32 GetSampleRate()
+	{
+		return SampleRate;
+	}
+
+	static int32 GetNumChannels()
+	{
+		return NumChannels;
+	}
+	
 	UPROPERTY()
 	UAudioComponent* AudioComponent;
 
@@ -159,9 +153,6 @@ private:
 
 	float FadeOutDuration = 0.5f;
 
-	int32 SampleRate = 0;
-	int32 NumChannels = 0;
-
 	int32 SampleCounter = 0;
 
 	TQueue<FMixerAudio> AudiosToUpdate;
@@ -169,4 +160,7 @@ private:
 	TQueue<FString> AudiosToRemove;
 
 	TMap<FString, FMixerAudio> ActiveAudios;
+
+	inline static int32 SampleRate = 0;
+	inline static int32 NumChannels = 0;
 };

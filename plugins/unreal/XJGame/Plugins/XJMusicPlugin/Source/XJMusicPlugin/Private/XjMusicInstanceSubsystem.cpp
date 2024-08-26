@@ -126,9 +126,9 @@ void UXjMusicInstanceSubsystem::AddActiveAudio(const FAudioPlayer& Audio)
 			MixerAudio.Id = Audio.Id;
 			MixerAudio.Wave = AudioLoader->GetSoundById(Audio.WaveId);
 
-			MixerAudio.StartSamples = Audio.StartTime.GetSamples(Mixer->GetSampleRate(), Mixer->GetNumChannels());
-			MixerAudio.EndSamples = Audio.EndTime.GetSamples(Mixer->GetSampleRate(), Mixer->GetNumChannels());
-			MixerAudio.SetReleaseSamples(Audio.ReleaseTime.GetSamples(Mixer->GetSampleRate(), Mixer->GetNumChannels()));
+			MixerAudio.StartSamples = Audio.StartTime.GetSamples(UXjMixer::GetSampleRate(), UXjMixer::GetNumChannels());
+			MixerAudio.EndSamples = Audio.EndTime.GetSamples(UXjMixer::GetSampleRate(), UXjMixer::GetNumChannels());
+			MixerAudio.SetupEnvelops(Audio.ReleaseTime.GetSamples(UXjMixer::GetSampleRate(), UXjMixer::GetNumChannels()));
 
 			MixerAudio.FromVolume = Audio.FromVolume;
 			MixerAudio.ToVolume = Audio.ToVolume;
@@ -159,9 +159,9 @@ void UXjMusicInstanceSubsystem::UpdateActiveAudio(const FAudioPlayer& Audio)
 			MixerAudio.Id = Audio.Id;
 			MixerAudio.Wave = AudioLoader->GetSoundById(Audio.WaveId);
 
-			MixerAudio.StartSamples = Audio.StartTime.GetSamples(Mixer->GetSampleRate(), Mixer->GetNumChannels());
-			MixerAudio.EndSamples = Audio.EndTime.GetSamples(Mixer->GetSampleRate(), Mixer->GetNumChannels());
-			MixerAudio.SetReleaseSamples(Audio.ReleaseTime.GetSamples(Mixer->GetSampleRate(), Mixer->GetNumChannels()));
+			MixerAudio.StartSamples = Audio.StartTime.GetSamples(UXjMixer::GetSampleRate(), UXjMixer::GetNumChannels());
+			MixerAudio.EndSamples = Audio.EndTime.GetSamples(UXjMixer::GetSampleRate(), UXjMixer::GetNumChannels());
+			MixerAudio.SetupEnvelops(Audio.ReleaseTime.GetSamples(UXjMixer::GetSampleRate(), UXjMixer::GetNumChannels()));
 
 			MixerAudio.FromVolume = Audio.FromVolume;
 			MixerAudio.ToVolume = Audio.ToVolume;

@@ -7,6 +7,42 @@
 #include "Kismet/GameplayStatics.h"
 #include "XjMusicInstanceSubsystem.h"
 
+class EnvelopsCache
+{
+	
+public:
+	
+	static TSharedPtr<Envelope> GetInstanceByLength(const int32 SamplesLength)
+	{
+		if(CacheMap.Contains(SamplesLength))
+		{
+			return CacheMap[SamplesLength];
+		}
+
+		TSharedPtr<Envelope> NewInstance = MakeShared<Envelope>();
+		NewInstance->SetEnvelope(SamplesLength);
+
+		CacheMap.Add(SamplesLength, NewInstance);
+
+		return NewInstance;
+	}
+
+	static void Reset()
+	{
+		CacheMap.Reset();
+	}
+	
+private:
+	
+	inline static TMap<int32, TSharedPtr<Envelope>> CacheMap;
+};
+
+void FMixerAudio::SetupEnvelops(const int32 ReleaseTimeSamples)
+{
+	FadeOutEnvelope = EnvelopsCache::GetInstanceByLength(ReleaseTimeSamples);
+	FadeInEnvelope = EnvelopsCache::GetInstanceByLength(0.07f * UXjMixer::GetSampleRate());
+}
+
 float FMixerAudio::ReadSample(const int32 CurrentSample, const float FrameDelta)
 {
 	SamplePointer = CurrentSample - StartSamples;
@@ -20,8 +56,8 @@ float FMixerAudio::ReadSample(const int32 CurrentSample, const float FrameDelta)
 
 	if(SamplePointer <= FMath::Min((GetEndWithRelease() - StartSamples), Wave.NumSamples))
 	{
-		Sample = (float(Wave.SamplesData[SamplePointer] * GetAmplitude(FrameDelta)) / INT16_MAX) 
-			* FadeOutEnvelope.Out(ReleaseDelta) * FadeOutEnvelope.In(SamplePointer);
+		Sample = ((float)Wave.SamplesData[SamplePointer] / INT16_MAX)
+				* GetAmplitude(FrameDelta) * FadeOutEnvelope->Out(ReleaseDelta) * FadeInEnvelope->In(SamplePointer);
 
 		if (CurrentSample > EndSamples)
 		{
@@ -67,6 +103,8 @@ void UXjMixer::Shutdown()
 {
 	AudioComponent->MarkPendingKill();
 	Output->MarkPendingKill();
+
+	EnvelopsCache::Reset();
 }
 
 void UXjMixer::AddOrUpdateActiveAudio(const FMixerAudio& Audio)
@@ -77,14 +115,6 @@ void UXjMixer::AddOrUpdateActiveAudio(const FMixerAudio& Audio)
 void UXjMixer::RemoveActiveAudio(const FString& AudioId)
 {
 	AudiosToRemove.Enqueue(AudioId);
-}
-
-float UXjMixer::CalculateAmplitude(const FMixerAudio& Audio) const
-{
-	const int32 Difference = Audio.EndSamples - Audio.GetSamplePointer();
-	const int32 FadeOutSamples = FadeOutDuration * SampleRate;
-
-	return 1.0f - FMath::Clamp((float)FadeOutSamples / (float)Difference, 0.0f, 1.0f);
 }
 
 int32 UXjMixer::OnGeneratePCMAudio(TArray<uint8>& OutAudio, int32 NumSamples)
