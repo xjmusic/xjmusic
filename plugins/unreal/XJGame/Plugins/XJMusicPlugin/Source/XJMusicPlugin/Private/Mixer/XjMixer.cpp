@@ -40,7 +40,21 @@ private:
 void FMixerAudio::SetupEnvelops(const int32 ReleaseTimeSamples)
 {
 	FadeOutEnvelope = EnvelopsCache::GetInstanceByLength(ReleaseTimeSamples);
-	FadeInEnvelope = EnvelopsCache::GetInstanceByLength(0.07f * UXjMixer::GetSampleRate());
+	FadeInEnvelope = EnvelopsCache::GetInstanceByLength(0.1f * UXjMixer::GetSampleRate());
+}
+
+static float ApplyLogarithmicCompression(const float Sample)
+{
+	if(Sample < -1.0f)
+	{
+		return -FMath::Loge(-Sample - 0.85f) / 14.0f - 0.75f;
+	}
+	else if(Sample > 1.0f)
+	{
+		return FMath::Loge(Sample - 0.85f) / 14.0f + 0.75f;
+	}
+
+	return (Sample / 1.61803398875f);
 }
 
 float FMixerAudio::ReadSample(const int32 CurrentSample, const float FrameDelta)
@@ -142,8 +156,8 @@ int32 UXjMixer::OnGeneratePCMAudio(TArray<uint8>& OutAudio, int32 NumSamples)
 		ActiveAudios.Remove(AudioId);
 	}
 
-	OutAudio.AddZeroed(NumSamples * sizeof(int16));
-	int16* OutAudioBuffer = (int16*)OutAudio.GetData();
+	OutAudio.AddZeroed(NumSamples * sizeof(float));
+	float* OutAudioBuffer = (float*)OutAudio.GetData();
 
 	for (int32 Sample = 0; Sample < NumSamples; ++Sample)
 	{
@@ -159,10 +173,7 @@ int32 UXjMixer::OnGeneratePCMAudio(TArray<uint8>& OutAudio, int32 NumSamples)
 			}
 		}
 
-		//Clipping fix. TODO make this using limits in somewhere else
-		MixedData = FMath::Clamp(MixedData, -1.0f, 1.0f);
-
-		OutAudioBuffer[Sample] = MixedData * INT16_MAX;
+		OutAudioBuffer[Sample] = ApplyLogarithmicCompression(MixedData);
 
 		if (StartMixing)
 		{

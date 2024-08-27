@@ -18,4 +18,9 @@ public:
 	FOnSoundGeneratePCM OnGeneratePCMData;
 
 	int32 OnGeneratePCMAudio(TArray<uint8>& OutAudio, int32 NumSamples) override;
+
+	virtual Audio::EAudioMixerStreamDataFormat::Type GetGeneratedPCMDataFormat() const override
+	{
+		return Audio::EAudioMixerStreamDataFormat::Type::Float;
+	}
 };
