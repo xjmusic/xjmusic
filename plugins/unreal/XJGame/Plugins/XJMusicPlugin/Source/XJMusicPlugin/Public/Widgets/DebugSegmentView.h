@@ -31,6 +31,15 @@ private:
 
 	FSegmentInfo SegmentInfo;
 
+	TSharedPtr<STextBlock> IdTextBlock;
+	TSharedPtr<STextBlock> BeginSecondsTextBlock;
+	TSharedPtr<STextBlock> TypeTextBlock;
+	TSharedPtr<STextBlock> TotalTextBlock;
+	TSharedPtr<STextBlock> IntensityTextBlock;
+	TSharedPtr<STextBlock> TempoTextBlock;
+	TSharedPtr<STextBlock> KeyTextBlock;
+	TSharedPtr<STextBlock> MemesTextBlock;
+
 	TSharedPtr<SScrollBox> FirstLevelChoicesVB;
 
 	TSharedPtr<SBorder> Border;

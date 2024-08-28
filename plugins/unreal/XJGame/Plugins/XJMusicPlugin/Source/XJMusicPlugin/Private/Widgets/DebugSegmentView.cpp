@@ -12,23 +12,7 @@ BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION
 
 void SDebugSegmentView::Construct(const FArguments& Args)
 {
-	const FString IdStr = FString::FromInt(Args._SegmentInfo.Id);
-	const FString DeltaStr = FloatToString(Args._SegmentInfo.Delta);
-	const FString BeginSecondsStr = FloatToString(Args._SegmentInfo.StartTime.GetSeconds());
-	const FString TypeStr = Args._SegmentInfo.TypeStr;
-
-	const FString TotalTimeStr = FString::Printf(TEXT("%d bars\n%.2fs"), Args._SegmentInfo.TotalBars, Args._SegmentInfo.TotalTime.GetSeconds());
-	const FString IntensityStr = FString::Printf(TEXT("Intensity:\n%.2f"), Args._SegmentInfo.Intensity);
-	const FString TempoStr = FString::Printf(TEXT("Tempo:\n%d"), Args._SegmentInfo.Tempo);
-	const FString KeyStr = FString::Printf(TEXT("Key:\n%s"), *Args._SegmentInfo.Key);
-
 	SegmentInfo = Args._SegmentInfo;
-
-	FString MemesStr = "Memes:\n";
-	for (const FString& Meme : Args._SegmentInfo.Memes)
-	{
-		MemesStr += Meme + "\n";
-	}
 
 	const FSlateFontInfo FontInfo = FSlateFontInfo(FPaths::EngineContentDir() / TEXT("Slate/Fonts/Roboto-Bold.ttf"), 10);
 
@@ -71,57 +55,49 @@ void SDebugSegmentView::Construct(const FArguments& Args)
 							.SlotPadding(FMargin(0, 2.0f))
 							+ SUniformGridPanel::Slot(0, 0)
 							[
-								SNew(STextBlock)
-								.Text(FText::FromString(IdStr))
+								SAssignNew(IdTextBlock,STextBlock)
 								.Font(FontInfo)
 							]
 							+ SUniformGridPanel::Slot(1, 0)
 							[
 								SNew(STextBlock)
-									.Text(FText::FromString(""))
-									.Font(FontInfo)
+								.Text(FText::FromString(""))
+								.Font(FontInfo)
 							]
 							+ SUniformGridPanel::Slot(0, 1)
 							[
-								SNew(STextBlock)
-									.Text(FText::FromString(BeginSecondsStr + "s"))
-									.Font(FontInfo)
+								SAssignNew(BeginSecondsTextBlock, STextBlock)
+								.Font(FontInfo)
 							]
 							+ SUniformGridPanel::Slot(1, 1)
 							[
-								SNew(STextBlock)
-									.Text(FText::FromString(TypeStr))
-									.Font(FontInfo)
+								SAssignNew(TypeTextBlock, STextBlock)
+								.Font(FontInfo)
 							]
 							+ SUniformGridPanel::Slot(0, 2)
 							[
-								SNew(STextBlock)
-									.Text(FText::FromString(TotalTimeStr))
-									.Font(FontInfo)
+								SAssignNew(TotalTextBlock, STextBlock)
+								.Font(FontInfo)
 							]
 							+ SUniformGridPanel::Slot(1, 2)
 							[
-								SNew(STextBlock)
-									.Text(FText::FromString(IntensityStr))
-									.Font(FontInfo)
+								SAssignNew(IntensityTextBlock, STextBlock)
+								.Font(FontInfo)
 							]
 							+ SUniformGridPanel::Slot(2, 2)
 							[
-								SNew(STextBlock)
-									.Text(FText::FromString(TempoStr))
-									.Font(FontInfo)
+								SAssignNew(TempoTextBlock, STextBlock)
+								.Font(FontInfo)
 							]
 							+ SUniformGridPanel::Slot(3, 2)
 							[
-								SNew(STextBlock)
-									.Text(FText::FromString(KeyStr))
-									.Font(FontInfo)
+								SAssignNew(KeyTextBlock, STextBlock)
+								.Font(FontInfo)
 							]
 							+ SUniformGridPanel::Slot(0, 3)
 							[
-								SNew(STextBlock)
-									.Text(FText::FromString(MemesStr))
-									.Font(FontInfo)
+								SAssignNew(MemesTextBlock, STextBlock)
+								.Font(FontInfo)
 							]
 					]
 				]
@@ -130,14 +106,14 @@ void SDebugSegmentView::Construct(const FArguments& Args)
 							.Padding(FMargin(0.0f, 10.0f, 0, 0))
 							[
 								SNew(STextBlock)
-									.Text(FText::FromString("Choices:"))
-									.Font(FontInfo)
+								.Text(FText::FromString("Choices:"))
+								.Font(FontInfo)
 							]
 							+ SVerticalBox::Slot()
 							.Padding(FMargin(0.0f, 5.0f, 0, 0))
 							[
 								SAssignNew(FirstLevelChoicesVB, SScrollBox)
-									.Orientation(EOrientation::Orient_Vertical)
+								.Orientation(EOrientation::Orient_Vertical)
 							]
 				]
 			]
@@ -148,6 +124,31 @@ void SDebugSegmentView::Construct(const FArguments& Args)
 
 void SDebugSegmentView::Update(const FSegmentInfo& Info)
 {
+	const FString IdStr = FString::FromInt(Info.Id);
+	const FString DeltaStr = FloatToString(Info.Delta);
+	const FString BeginSecondsStr = FloatToString(Info.StartTime.GetSeconds());
+	const FString TypeStr = Info.TypeStr;
+
+	const FString TotalTimeStr = FString::Printf(TEXT("%d bars\n%.2fs"), Info.TotalBars, Info.TotalTime.GetSeconds());
+	const FString IntensityStr = FString::Printf(TEXT("Intensity:\n%.2f"), Info.Intensity);
+	const FString TempoStr = FString::Printf(TEXT("Tempo:\n%d"), Info.Tempo);
+	const FString KeyStr = FString::Printf(TEXT("Key:\n%s"), *Info.Key);
+
+	FString MemesStr = "Memes:\n";
+	for (const FString& Meme : Info.Memes)
+	{
+		MemesStr += Meme + "\n";
+	}
+
+	IdTextBlock->SetText(IdStr);
+	BeginSecondsTextBlock->SetText(FText::FromString(BeginSecondsStr + "s"));
+	TypeTextBlock->SetText(TypeStr);
+	TotalTextBlock->SetText(TotalTimeStr);
+	IntensityTextBlock->SetText(IntensityStr);
+	TempoTextBlock->SetText(TempoStr);
+	KeyTextBlock->SetText(KeyStr);
+	MemesTextBlock->SetText(MemesStr);
+
 	if (FirstLevelChoicesVB->GetChildren()->Num() > 0)
 	{
 		FirstLevelChoicesVB->ClearChildren();
