@@ -95,11 +95,11 @@ void UXjMusicInstanceSubsystem::ShutdownXJ()
 	AudioLoader->Shutdown();
 
 
-	Manager->MarkPendingKill();
+	Manager->MarkAsGarbage();
 
-	Mixer->MarkPendingKill();
+	Mixer->MarkAsGarbage();
 
-	AudioLoader->MarkPendingKill();
+	AudioLoader->MarkAsGarbage();
 
 	DeleteRuntimeProjectDirectory();
 }

@@ -115,8 +115,8 @@ void UXjMixer::Setup(const bool bDefaultOutput)
 
 void UXjMixer::Shutdown()
 {
-	AudioComponent->MarkPendingKill();
-	Output->MarkPendingKill();
+	AudioComponent->MarkAsGarbage();
+	Output->MarkAsGarbage();
 
 	EnvelopsCache::Reset();
 }

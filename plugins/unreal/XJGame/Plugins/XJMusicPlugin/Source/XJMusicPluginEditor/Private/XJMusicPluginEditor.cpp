@@ -7,6 +7,10 @@
 #include "Assets/XjProjectTypeFactory.h"
 #include "Types/XjProject.h"
 #include "IDesktopPlatform.h"
+#include "LevelEditor.h"
+#include "Framework/MultiBox/MultiBoxBuilder.h"
+#include "Framework/Commands/UIAction.h"
+#include "ToolMenus.h"
 #include "DesktopPlatformModule.h"
 
 #define LOCTEXT_NAMESPACE "FXJMusicPluginEditorModule"
@@ -32,6 +36,18 @@ void FXJMusicPluginEditorModule::StartupModule()
 	FAssetToolsModule::GetModule().Get().RegisterAssetTypeActions(XjProjectTypeActions.ToSharedRef());
 
 	LastSelectedBuildDirectory = FPaths::ProjectDir();
+
+	FLevelEditorModule& LevelEditorModule = FModuleManager::LoadModuleChecked<FLevelEditorModule>("LevelEditor");
+
+	TSharedPtr<FExtender> MenuExtender = MakeShareable(new FExtender());
+	MenuExtender->AddMenuExtension(
+		"FileProject",
+		EExtensionHook::After,
+		nullptr,
+		FMenuExtensionDelegate::CreateRaw(this, &FXJMusicPluginEditorModule::AddMenuBarButton)
+	);
+
+	LevelEditorModule.GetMenuExtensibilityManager()->AddExtender(MenuExtender);
 }
 
 void FXJMusicPluginEditorModule::ShutdownModule()
@@ -186,6 +202,20 @@ void FXJMusicPluginEditorModule::OpenFileDialog(const FString& DialogTitle, cons
 			OutFiles
 		);
 	}
+}
+
+void FXJMusicPluginEditorModule::AddMenuBarButton(FMenuBuilder& MenuBuilder)
+{
+	FUIAction MyAction(
+	FExecuteAction::CreateRaw(this, &FXJMusicPluginEditorModule::BuildButtonClicked)
+);
+	
+	MenuBuilder.AddMenuEntry(
+		FText::FromString("XJ Build"),
+		FText::FromString("Tooltip for My Custom Button"),
+		FSlateIcon(),
+		MyAction
+	);
 }
 
 #undef LOCTEXT_NAMESPACE

@@ -31,4 +31,6 @@ private:
     TSharedPtr<FXjProjectTypeActions> XjProjectTypeActions;
 
     void OpenFileDialog(const FString& DialogTitle, const FString DefaultPath, TArray<FString>& OutFiles);
+
+    void AddMenuBarButton(FMenuBuilder& MenuBuilder);
 };

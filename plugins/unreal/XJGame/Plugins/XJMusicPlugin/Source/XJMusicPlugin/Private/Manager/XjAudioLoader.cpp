@@ -5,9 +5,7 @@
 #include "Settings/XJMusicDefaultSettings.h"
 #include "Misc/FileHelper.h"
 #include "Sound/SoundWave.h"
-#include "AssetRegistryModule.h"
 #include "Engine/AssetManager.h"
-#include "XJMusicPlugin.h"
 #include "Misc/FileHelper.h"
 #include "HAL/PlatformFilemanager.h"
 #include "Misc/Paths.h"
@@ -42,27 +40,30 @@ void FXjAudioWave::LoadData(USoundWave* NewWave)
 
 	Wave = NewWave;
 
-	uint8* RawData = (uint8*)Wave->RawData.LockReadOnly();
-
+	while(!Wave->RawData.GetPayload().WaitFor(FTimespan::MaxValue()))
+	{
+		continue;
+	}
+	
+	uint8* RawData = (uint8*)Wave->RawData.GetPayload().Get().GetData();
+	
 	if (!RawData)
 	{
 		return;
 	}
-
-	int32 RawDataSize = Wave->RawData.GetBulkDataSize();
-
+	
+	int32 RawDataSize = Wave->RawData.GetPayloadSize();
+	
 	SamplesData = (int16*)RawData;
 	NumSamples = RawDataSize / sizeof(int16);
 }
 
 void FXjAudioWave::UnLoadData()
 {
-	if (!IsValidToUse() || !Wave->RawData.IsLocked())
+	if (!IsValidToUse())
 	{
 		return;
 	}
-
-	Wave->RawData.Unlock();
 }
 
 bool FXjAudioWave::IsValidToUse() const
@@ -114,32 +115,31 @@ FXjAudioWave UXjAudioLoader::GetSoundById(const FString& Id)
 
 void UXjAudioLoader::RetrieveProjectsContent()
 {
-	UXJMusicDefaultSettings* XjSettings = GetMutableDefault<UXJMusicDefaultSettings>();
-	if (!XjSettings)
-	{
-		return;
-	}
-
-	UXjProject* Project = Cast<UXjProject>(XjSettings->LaunchProject.ResolveObject());
-	check(Project);
-
-	FAssetRegistryModule& AssetRegistryModule = FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry");
-	IAssetRegistry& AssetRegistry = AssetRegistryModule.Get();
-
-	FString ContentDirectory = "/Game/XJ/" + Project->ProjectName;
-
-	TArray<FAssetData> AudioData;
-
-	AssetRegistry.ScanPathsSynchronous({ ContentDirectory }, true);
-	AssetRegistry.GetAssetsByPath(*ContentDirectory, AudioData, true);
-
-	for (const FAssetData& Data : AudioData)
-	{
-		AudiosSoftReferences.Add(Data.AssetName.ToString() + ".wav", Data.ToSoftObjectPath());
-	}
-
-	TArray<FSoftObjectPath> Paths;
-	AudiosSoftReferences.GenerateValueArray(Paths);
-
-	InitialAssetsStream = StreamableManager.RequestAsyncLoad(Paths);
+    UXJMusicDefaultSettings* XjSettings = GetMutableDefault<UXJMusicDefaultSettings>();
+    if (!XjSettings)
+    {
+    	return;
+    }
+   
+    UXjProject* Project = Cast<UXjProject>(XjSettings->LaunchProject.ResolveObject());
+    check(Project);
+   
+    FAssetRegistryModule& AssetRegistryModule = FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry");
+    IAssetRegistry& AssetRegistry = AssetRegistryModule.Get();
+   
+    FString ContentDirectory = "/Game/XJ/" + Project->ProjectName;
+   
+    TArray<FAssetData> AudioData;
+   
+    AssetRegistry.ScanPathsSynchronous({ ContentDirectory }, true);
+    AssetRegistry.GetAssetsByPath(*ContentDirectory, AudioData, true);
+   
+    for (const FAssetData& Data : AudioData)
+    {
+    	AudiosSoftReferences.Add(Data.AssetName.ToString() + ".wav", Data.ToSoftObjectPath());
+    }
+   
+    TArray<FSoftObjectPath> Paths;
+    AudiosSoftReferences.GenerateValueArray(Paths);
+    InitialAssetsStream = StreamableManager.RequestAsyncLoad(Paths);
 }
