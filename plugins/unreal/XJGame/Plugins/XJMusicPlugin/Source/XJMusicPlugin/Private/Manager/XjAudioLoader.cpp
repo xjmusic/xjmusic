@@ -9,6 +9,8 @@
 #include "Misc/FileHelper.h"
 #include "HAL/PlatformFilemanager.h"
 #include "Misc/Paths.h"
+#include <AudioDecompress.h>
+#include <AudioDevice.h>
 
 FXjAudioWave::~FXjAudioWave()
 {
@@ -33,24 +35,31 @@ const FXjAudioWave& FXjAudioWave::operator=(const FXjAudioWave& Other)
 
 void FXjAudioWave::LoadData(USoundWave* NewWave)
 {
-	if (!NewWave || NewWave == Wave)
+	FAudioDevice* AudioDevice = GEngine->GetMainAudioDeviceRaw();
+	if (AudioDevice)
 	{
-		return;
+		EDecompressionType DecompressionType = NewWave->DecompressionType;
+		NewWave->DecompressionType = DTYPE_Native;
+
+		FByteBulkData* Bulk = NewWave->GetCompressedData(NewWave->GetRuntimeFormat(), NewWave->GetPlatformCompressionOverridesForCurrentPlatform());
+		if (Bulk)
+		{
+			NewWave->InitAudioResource(*Bulk);
+
+			if (NewWave->DecompressionType != DTYPE_RealTime || NewWave->CachedRealtimeFirstBuffer == nullptr)
+			{
+				FAsyncAudioDecompress DecompressTask(NewWave, 128, AudioDevice);
+				DecompressTask.StartSynchronousTask();
+			}
+
+			NewWave->DecompressionType = DecompressionType;
+		}
 	}
 
-	Wave = NewWave;
-	
-	uint8* RawData = const_cast<uint8*>(Wave->GetResourceData());
-	
-	if (!RawData)
-	{
-		return;
-	}
-	
-	int32 RawDataSize = Wave->GetResourceSize();
-	
-	SamplesData = (int16*)RawData;
-	NumSamples = RawDataSize / sizeof(int16);
+	TArrayView<SHORT> Arr((SHORT*)NewWave->RawPCMData, NewWave->RawPCMDataSize / 2);
+
+	SamplesData = (int16*)Arr.GetData();
+	NumSamples = NewWave->RawPCMDataSize / sizeof(int16);
 }
 
 void FXjAudioWave::UnLoadData()

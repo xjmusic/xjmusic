@@ -68,7 +68,7 @@ float FMixerAudio::ReadSample(const int32 CurrentSample, const float FrameDelta)
 		return Sample;
 	}
 
-	if(SamplePointer <= FMath::Min((GetEndWithRelease() - StartSamples), Wave.NumSamples))
+	if(SamplePointer < FMath::Min((GetEndWithRelease() - StartSamples), Wave.NumSamples))
 	{
 		Sample = ((float)Wave.SamplesData[SamplePointer] / INT16_MAX)
 				* GetAmplitude(FrameDelta) * FadeOutEnvelope->Out(ReleaseDelta) * FadeInEnvelope->In(SamplePointer);
