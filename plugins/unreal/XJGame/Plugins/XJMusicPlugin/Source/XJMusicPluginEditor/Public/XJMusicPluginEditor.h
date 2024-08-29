@@ -19,11 +19,8 @@ public:
 
     TSharedRef<SWidget> GenerateComboBox();
 
-    void RegisterMenus();
-
-    TSharedPtr<class FUICommandList> PluginCommands;
-
 private:
+
     const FString ProjectsLocalPath = "/Game/XJ/";
 
     FString LastSelectedBuildDirectory;
@@ -33,4 +30,6 @@ private:
     void OpenFileDialog(const FString& DialogTitle, const FString DefaultPath, TArray<FString>& OutFiles);
 
     void AddMenuBarButton(FMenuBuilder& MenuBuilder);
+
+    void RegisterMenu();
 };

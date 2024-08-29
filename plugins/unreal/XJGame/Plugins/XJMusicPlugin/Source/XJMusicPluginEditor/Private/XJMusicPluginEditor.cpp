@@ -19,11 +19,7 @@ void FXJMusicPluginEditorModule::StartupModule()
 {
 	FXJMusicPluginStyle::Initialize();
 	FXJMusicPluginStyle::ReloadTextures();
-	
-	PluginCommands = MakeShareable(new FUICommandList);
 
-	UToolMenus::RegisterStartupCallback(FSimpleMulticastDelegate::FDelegate::CreateRaw(this, &FXJMusicPluginEditorModule::RegisterMenus));
-	
 	if (ISettingsModule* SettingModule = FModuleManager::GetModulePtr<ISettingsModule>("Settings"))
 	{
 		SettingModule->RegisterSettings("Project", "Plugins", "XJSettings",
@@ -37,17 +33,25 @@ void FXJMusicPluginEditorModule::StartupModule()
 
 	LastSelectedBuildDirectory = FPaths::ProjectDir();
 
-	FLevelEditorModule& LevelEditorModule = FModuleManager::LoadModuleChecked<FLevelEditorModule>("LevelEditor");
+	UToolMenus::RegisterStartupCallback(FSimpleMulticastDelegate::FDelegate::CreateRaw(
+		this, &FXJMusicPluginEditorModule::RegisterMenu));
+}
 
-	TSharedPtr<FExtender> MenuExtender = MakeShareable(new FExtender());
-	MenuExtender->AddMenuExtension(
-		"FileProject",
-		EExtensionHook::After,
-		nullptr,
-		FMenuExtensionDelegate::CreateRaw(this, &FXJMusicPluginEditorModule::AddMenuBarButton)
-	);
+void FXJMusicPluginEditorModule::RegisterMenu()
+{
+	FToolMenuOwnerScoped OwnerScoped(this);
 
-	LevelEditorModule.GetMenuExtensibilityManager()->AddExtender(MenuExtender);
+	UToolMenu* ToolbarMenu = UToolMenus::Get()->ExtendMenu("LevelEditor.LevelEditorToolBar.PlayToolBar");
+	FToolMenuSection& ToolbarSection = ToolbarMenu->FindOrAddSection("File");
+
+	ToolbarSection.AddEntry(FToolMenuEntry::InitComboButton(
+		TEXT("XjPluginButton"),
+		{},
+		FOnGetContent::CreateRaw(this, &FXJMusicPluginEditorModule::GenerateComboBox),
+		INVTEXT("XJ Music"),
+		INVTEXT("XJ Music plugin options"),
+		FSlateIcon(FXJMusicPluginStyle::GetStyleSetName(), "XJMusicPlugin.PluginAction")
+	));
 }
 
 void FXJMusicPluginEditorModule::ShutdownModule()
@@ -154,32 +158,6 @@ TSharedRef<SWidget> FXJMusicPluginEditorModule::GenerateComboBox()
 						 FExecuteAction::CreateRaw(this, &FXJMusicPluginEditorModule::PluginButtonClicked));
 
 	return Builder.MakeWidget();
-}
-
-void FXJMusicPluginEditorModule::RegisterMenus()
-{
-	FToolMenuOwnerScoped OwnerScoped(this);
-
-	{
-		UToolMenu* Menu = UToolMenus::Get()->ExtendMenu("LevelEditor.MainMenu.Window");
-		{
-			FToolMenuSection& Section = Menu->FindOrAddSection("WindowLayout");
-		}
-	}
-
-	{
-		UToolMenu* ToolbarMenu = UToolMenus::Get()->ExtendMenu("LevelEditor.LevelEditorToolBar");
-		{
-			FToolMenuSection& Section = ToolbarMenu->FindOrAddSection("Settings");
-			{
-				FToolMenuEntry& Entry = 
-					Section.AddEntry(FToolMenuEntry::InitComboButton("XJMusicPlugin.PluginAction", 
-					{}, FOnGetContent::CreateRaw(this, &FXJMusicPluginEditorModule::GenerateComboBox)));
-				Entry.Icon = FSlateIcon(FXJMusicPluginStyle::GetStyleSetName(), "XJMusicPlugin.PluginAction");
-				Entry.Label = INVTEXT("XJ Music");
-			}
-		}
-	}
 }
 
 void FXJMusicPluginEditorModule::OpenFileDialog(const FString& DialogTitle, const FString DefaultPath, TArray<FString>& OutFiles)
