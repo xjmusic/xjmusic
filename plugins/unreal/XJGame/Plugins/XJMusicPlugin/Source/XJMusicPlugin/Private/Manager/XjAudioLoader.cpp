@@ -39,20 +39,15 @@ void FXjAudioWave::LoadData(USoundWave* NewWave)
 	}
 
 	Wave = NewWave;
-
-	while(!Wave->RawData.GetPayload().WaitFor(FTimespan::MaxValue()))
-	{
-		continue;
-	}
 	
-	uint8* RawData = (uint8*)Wave->RawData.GetPayload().Get().GetData();
+	uint8* RawData = const_cast<uint8*>(Wave->GetResourceData());
 	
 	if (!RawData)
 	{
 		return;
 	}
 	
-	int32 RawDataSize = Wave->RawData.GetPayloadSize();
+	int32 RawDataSize = Wave->GetResourceSize();
 	
 	SamplesData = (int16*)RawData;
 	NumSamples = RawDataSize / sizeof(int16);
@@ -60,10 +55,7 @@ void FXjAudioWave::LoadData(USoundWave* NewWave)
 
 void FXjAudioWave::UnLoadData()
 {
-	if (!IsValidToUse())
-	{
-		return;
-	}
+
 }
 
 bool FXjAudioWave::IsValidToUse() const
