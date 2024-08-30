@@ -35,31 +35,45 @@ const FXjAudioWave& FXjAudioWave::operator=(const FXjAudioWave& Other)
 
 void FXjAudioWave::LoadData(USoundWave* NewWave)
 {
-	FAudioDevice* AudioDevice = GEngine->GetMainAudioDeviceRaw();
-	if (AudioDevice)
+	if (!NewWave || NewWave == Wave)
 	{
-		EDecompressionType DecompressionType = NewWave->DecompressionType;
-		NewWave->DecompressionType = DTYPE_Native;
-
-		FByteBulkData* Bulk = NewWave->GetCompressedData(NewWave->GetRuntimeFormat(), NewWave->GetPlatformCompressionOverridesForCurrentPlatform());
-		if (Bulk)
-		{
-			NewWave->InitAudioResource(*Bulk);
-
-			if (NewWave->DecompressionType != DTYPE_RealTime || NewWave->CachedRealtimeFirstBuffer == nullptr)
-			{
-				FAsyncAudioDecompress DecompressTask(NewWave, 128, AudioDevice);
-				DecompressTask.StartSynchronousTask();
-			}
-
-			NewWave->DecompressionType = DecompressionType;
-		}
+		return;
 	}
 
-	TArrayView<SHORT> Arr((SHORT*)NewWave->RawPCMData, NewWave->RawPCMDataSize / 2);
+	Wave = NewWave;
 
+	if (Wave->RawPCMData == nullptr)
+	{
+		FAudioDevice* AudioDevice = GEngine->GetMainAudioDeviceRaw();
+		if (!AudioDevice)
+		{
+			return;
+		}
+
+		EDecompressionType DecompressionType = Wave->DecompressionType;
+		Wave->DecompressionType = DTYPE_Native;
+
+		Bulk = Wave->GetCompressedData(Wave->GetRuntimeFormat(), Wave->GetPlatformCompressionOverridesForCurrentPlatform());
+		if (!Bulk)
+		{
+			return;
+		}
+
+		Wave->InitAudioResource(*Bulk);
+
+		if (Wave->DecompressionType != DTYPE_RealTime || Wave->CachedRealtimeFirstBuffer == nullptr)
+		{
+			FAsyncAudioDecompress DecompressTask(Wave, 128, AudioDevice);
+			DecompressTask.StartSynchronousTask();
+		}
+
+		Wave->DecompressionType = DecompressionType;
+	}
+
+	TArrayView<uint8> Arr((uint8*)Wave->RawPCMData, Wave->RawPCMDataSize / 2);
+	
 	SamplesData = (int16*)Arr.GetData();
-	NumSamples = NewWave->RawPCMDataSize / sizeof(int16);
+	NumSamples = Wave->RawPCMDataSize / sizeof(int16);
 }
 
 void FXjAudioWave::UnLoadData()

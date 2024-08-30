@@ -32,6 +32,10 @@ public:
 	void UnLoadData();
 
 	bool IsValidToUse() const;
+
+private:
+
+	FByteBulkData* Bulk = nullptr;
 };
 
 UCLASS()
