@@ -11,6 +11,8 @@
 #include "Misc/FileHelper.h"
 #include "HAL/PlatformFilemanager.h"
 #include "Misc/Paths.h"
+#include "AudioDecompress.h"
+#include "AudioDevice.h"
 
 FXjAudioWave::~FXjAudioWave()
 {
@@ -35,6 +37,7 @@ const FXjAudioWave& FXjAudioWave::operator=(const FXjAudioWave& Other)
 
 void FXjAudioWave::LoadData(USoundWave* NewWave)
 {
+
 	if (!NewWave || NewWave == Wave)
 	{
 		return;
@@ -42,27 +45,43 @@ void FXjAudioWave::LoadData(USoundWave* NewWave)
 
 	Wave = NewWave;
 
-	uint8* RawData = (uint8*)Wave->RawData.LockReadOnly();
-
-	if (!RawData)
+	if (Wave->RawPCMData == nullptr)
 	{
-		return;
+		FAudioDevice* AudioDevice = GEngine->GetMainAudioDeviceRaw();
+		if (!AudioDevice)
+		{
+			return;
+		}
+
+		EDecompressionType DecompressionType = Wave->DecompressionType;
+		Wave->DecompressionType = DTYPE_Native;
+
+		FByteBulkData* Bulk = Wave->GetCompressedData(AudioDevice->GetRuntimeFormat(Wave), Wave->GetPlatformCompressionOverridesForCurrentPlatform());
+		if (!Bulk)
+		{
+			return;
+		}
+
+		Wave->InitAudioResource(*Bulk);
+
+		if (Wave->DecompressionType != DTYPE_RealTime || Wave->CachedRealtimeFirstBuffer == nullptr)
+		{
+			FAsyncAudioDecompress DecompressTask(Wave, 128, AudioDevice);
+			DecompressTask.StartSynchronousTask();
+		}
+
+		Wave->DecompressionType = DecompressionType;
 	}
 
-	int32 RawDataSize = Wave->RawData.GetBulkDataSize();
+	TArrayView<uint8> Arr((uint8*)Wave->RawPCMData, Wave->RawPCMDataSize / 2);
 
-	SamplesData = (int16*)RawData;
-	NumSamples = RawDataSize / sizeof(int16);
+	SamplesData = (int16*)Arr.GetData();
+	NumSamples = Wave->RawPCMDataSize / sizeof(int16);
 }
 
 void FXjAudioWave::UnLoadData()
 {
-	if (!IsValidToUse() || !Wave->RawData.IsLocked())
-	{
-		return;
-	}
 
-	Wave->RawData.Unlock();
 }
 
 bool FXjAudioWave::IsValidToUse() const

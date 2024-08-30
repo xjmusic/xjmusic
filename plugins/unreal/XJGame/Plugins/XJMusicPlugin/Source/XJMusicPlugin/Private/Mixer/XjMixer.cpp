@@ -40,7 +40,6 @@ private:
 void FMixerAudio::SetupEnvelops(const int32 ReleaseTimeSamples)
 {
 	FadeOutEnvelope = EnvelopsCache::GetInstanceByLength(ReleaseTimeSamples);
-	FadeInEnvelope = EnvelopsCache::GetInstanceByLength(0.1f * UXjMixer::GetSampleRate());
 }
 
 static float ApplyLogarithmicCompression(const float Sample)
@@ -70,8 +69,7 @@ float FMixerAudio::ReadSample(const int32 CurrentSample, const float FrameDelta)
 
 	if(SamplePointer <= FMath::Min((GetEndWithRelease() - StartSamples), Wave.NumSamples))
 	{
-		Sample = ((float)Wave.SamplesData[SamplePointer] / INT16_MAX)
-				* GetAmplitude(FrameDelta) * FadeOutEnvelope->Out(ReleaseDelta) * FadeInEnvelope->In(SamplePointer);
+		Sample = ((float)Wave.SamplesData[SamplePointer] / INT16_MAX) * GetAmplitude(FrameDelta) * FadeOutEnvelope->Out(ReleaseDelta);
 
 		if (CurrentSample > EndSamples)
 		{

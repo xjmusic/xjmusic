@@ -92,7 +92,6 @@ public:
 private:
 	
 	TSharedPtr<Envelope> FadeOutEnvelope;
-	TSharedPtr<Envelope> FadeInEnvelope;
 
 	int32 SamplePointer = 0;
 
