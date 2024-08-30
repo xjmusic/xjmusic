@@ -120,6 +120,88 @@ void TXjMainEngine::DoOverrideTaxonomy(const FString& Taxonomy)
 	}
 }
 
+void TXjMainEngine::DoOverrideMacro(const FString& Macro)
+{
+	std::string Cstr = TCHAR_TO_UTF8(*Macro);
+
+	std::istringstream sstream(Cstr);
+
+	std::set<std::string> Memes;
+
+	while (sstream)
+	{
+		std::string str;
+		sstream >> str;
+
+		Memes.insert(str);
+	}
+
+	const Program* SelectedProgram = nullptr;
+
+	for (const Program*& Program : XjEngine->getAllMacroPrograms())
+	{
+		if (Program->name.c_str() == Macro)
+		{
+			SelectedProgram = Program;
+		}
+	}
+
+	if (XjEngine && SelectedProgram)
+	{
+		XjEngine->doOverrideMacro(SelectedProgram);
+	}
+}
+
+void TXjMainEngine::DoOverrideIntensity(const float Intensity)
+{
+	if (XjEngine)
+	{
+		XjEngine->setIntensityOverride(Intensity);
+	}
+}
+
+TArray<FString> TXjMainEngine::GetAllTaxonomyMemes() const
+{
+	if (!XjEngine)
+	{
+		return {};
+	}
+	
+	TArray<FString> Taxonomies;
+
+	for (const MemeCategory& Category : XjEngine->getTemplateContent()->getMemeTaxonomy().getCategories())
+	{
+		if (!Category.hasMemes())
+		{
+			continue;
+		}
+
+		for (const std::string& Meme : Category.getMemes())
+		{
+			Taxonomies.Add(Meme.c_str());
+		}
+	}
+
+	return Taxonomies;
+}
+
+TArray<FString> TXjMainEngine::GetAllMacros() const
+{
+	if (!XjEngine)
+	{
+		return {};
+	}
+
+	TArray<FString> OutMacros;
+
+	for (const Program*& Macro : XjEngine->getAllMacroPrograms())
+	{
+		OutMacros.Add(Macro->name.c_str());
+	}
+
+	return OutMacros;
+}
+
 FEngineSettings TXjMainEngine::GetSettings() const
 {
 	if (!XjEngine)

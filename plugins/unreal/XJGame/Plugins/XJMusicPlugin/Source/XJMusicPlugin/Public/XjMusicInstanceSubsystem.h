@@ -27,6 +27,19 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void DoOverrideTaxonomy(const FString Taxonomy);
 
+	UFUNCTION(BlueprintCallable)
+	void DoOverrideMacro(const FString Macro);
+
+	UFUNCTION(BlueprintCallable)
+	void DoOverrideIntensity(const float Value);
+
+	UFUNCTION(BlueprintPure)
+	TArray<FString> GetAllTaxonomyMemes() const;
+
+	UFUNCTION(BlueprintPure)
+
+	TArray<FString> GetAllMacros() const;
+
 	void SetupXJ();
 
 	void ShutdownXJ();

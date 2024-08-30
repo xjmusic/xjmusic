@@ -21,6 +21,14 @@ public:
 
 	void DoOverrideTaxonomy(const FString& Taxonomy) override;
 
+	void DoOverrideMacro(const FString& Macro) override;
+
+	void DoOverrideIntensity(const float Intensity) override;
+
+	TArray<FString> GetAllTaxonomyMemes() const override;
+
+	TArray<FString> GetAllMacros() const override;
+
 	FEngineSettings GetSettings() const override;
 
 	FString GetActiveTemplateName() const override;

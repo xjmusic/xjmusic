@@ -94,4 +94,12 @@ public:
 	virtual TimeRecord GetLastMicros() const { return {}; }
 
 	virtual void DoOverrideTaxonomy(const FString& Taxonomy) {}
+
+	virtual void DoOverrideMacro(const FString& Macros) {}
+
+	virtual void DoOverrideIntensity(const float IntensityValue) {}
+
+	virtual TArray<FString> GetAllMacros() const { return {}; }
+
+	virtual TArray<FString> GetAllTaxonomyMemes() const { return {}; }
 };

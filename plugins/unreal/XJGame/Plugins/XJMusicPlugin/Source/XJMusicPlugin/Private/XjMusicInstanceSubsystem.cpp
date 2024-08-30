@@ -43,6 +43,58 @@ void UXjMusicInstanceSubsystem::DoOverrideTaxonomy(const FString Taxonomy)
 	Manager->PushCommand(Command);
 }
 
+void UXjMusicInstanceSubsystem::DoOverrideMacro(const FString Macro)
+{
+	if (!Manager)
+	{
+		return;
+	}
+
+	XjCommand Command;
+	Command.Type = XjCommandType::MacrosChange;
+	Command.Arguments = Macro;
+
+	Manager->PushCommand(Command);
+}
+
+void UXjMusicInstanceSubsystem::DoOverrideIntensity(const float Value)
+{
+	if (!Manager)
+	{
+		return;
+	}
+
+	XjCommand Command;
+	Command.Type = XjCommandType::IntensityChange;
+	Command.FloatValue = Value;
+
+	Manager->PushCommand(Command);
+}
+
+TArray<FString> UXjMusicInstanceSubsystem::GetAllTaxonomyMemes() const
+{
+	if (!Manager)
+	{
+		return {};
+	}
+
+	TSharedPtr<TEngineBase> Engine = Manager->GetActiveEngine().Pin();
+
+	return Engine->GetAllTaxonomyMemes();
+}
+
+TArray<FString> UXjMusicInstanceSubsystem::GetAllMacros() const
+{
+	if (!Manager)
+	{
+		return {};
+	}
+
+	TSharedPtr<TEngineBase> Engine = Manager->GetActiveEngine().Pin();
+
+	return Engine->GetAllMacros();
+}
+
 void UXjMusicInstanceSubsystem::SetupXJ()
 {
 	UXJMusicDefaultSettings* XjSettings = GetMutableDefault<UXJMusicDefaultSettings>();

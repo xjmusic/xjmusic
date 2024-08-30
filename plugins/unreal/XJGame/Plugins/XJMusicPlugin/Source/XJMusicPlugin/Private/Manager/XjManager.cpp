@@ -76,6 +76,14 @@ uint32 FXjRunnable::Run()
 				case XjCommandType::TaxonomyChange:
 					Engine->DoOverrideTaxonomy(Command.Arguments);
 					break;
+
+				case XjCommandType::MacrosChange:
+					Engine->DoOverrideMacro(Command.Arguments);
+					break;
+
+				case XjCommandType::IntensityChange:
+					Engine->DoOverrideIntensity(Command.FloatValue);
+					break;
 			}
 		}
 

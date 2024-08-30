@@ -10,19 +10,25 @@
 
 enum class XjCommandType
 {
-	TaxonomyChange
+	TaxonomyChange,
+	MacrosChange,
+	IntensityChange
 };
 
 struct XjCommand
 {
 	XjCommandType Type;
+
 	FString Arguments;
+
+	float FloatValue = 0.0f;
 };
 
 class FXjRunnable : public FRunnable
 {
 
 public:
+
 	FXjRunnable(UWorld* World);
 
 	virtual bool Init() override;
@@ -108,6 +114,7 @@ public:
 	}
 
 private:
+
 	TSharedPtr<FXjRunnable> XjRunnable;
 	TSharedPtr<FRunnableThread> XjThread;
 };
