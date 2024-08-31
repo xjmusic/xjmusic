@@ -41,7 +41,15 @@ void FXJMusicPluginEditorModule::RegisterMenu()
 {
 	FToolMenuOwnerScoped OwnerScoped(this);
 
-	UToolMenu* ToolbarMenu = UToolMenus::Get()->ExtendMenu("LevelEditor.LevelEditorToolBar.PlayToolBar");
+	FName ToolbarExtendName;
+
+#if ENGINE_MAJOR_VERSION >= 5
+	ToolbarExtendName = "LevelEditor.LevelEditorToolBar.PlayToolBar";
+#else
+	ToolbarExtendName = "LevelEditor.LevelEditorToolBar";
+#endif
+
+	UToolMenu* ToolbarMenu = UToolMenus::Get()->ExtendMenu(ToolbarExtendName);
 	FToolMenuSection& ToolbarSection = ToolbarMenu->FindOrAddSection("File");
 
 	ToolbarSection.AddEntry(FToolMenuEntry::InitComboButton(

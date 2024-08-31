@@ -147,11 +147,11 @@ void UXjMusicInstanceSubsystem::ShutdownXJ()
 	AudioLoader->Shutdown();
 
 
-	Manager->MarkAsGarbage();
+	Manager = nullptr;
 
-	Mixer->MarkAsGarbage();
+	Mixer = nullptr;
 
-	AudioLoader->MarkAsGarbage();
+	AudioLoader = nullptr;
 
 	DeleteRuntimeProjectDirectory();
 }
