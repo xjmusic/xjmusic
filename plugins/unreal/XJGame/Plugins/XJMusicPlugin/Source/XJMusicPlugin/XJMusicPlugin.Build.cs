@@ -10,6 +10,8 @@ public class XJMusicPlugin : ModuleRules
 	{
         CppStandard = CppStandardVersion.Cpp17;
 
+        IncludeOrderVersion = EngineIncludeOrderVersion.Oldest;
+
         PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
 
         PublicDependencyModuleNames.AddRange(
@@ -28,7 +30,8 @@ public class XJMusicPlugin : ModuleRules
 				"Engine",
 				"Slate",
 				"SlateCore",
-                "AudioMixer"
+                "AudioMixer",
+                "AudioExtensions"
             }
 		);
 

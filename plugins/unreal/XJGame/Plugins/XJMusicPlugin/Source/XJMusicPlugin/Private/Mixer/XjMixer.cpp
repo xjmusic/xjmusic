@@ -113,8 +113,8 @@ void UXjMixer::Setup(const bool bDefaultOutput)
 
 void UXjMixer::Shutdown()
 {
-	AudioComponent->MarkPendingKill();
-	Output->MarkPendingKill();
+	AudioComponent = nullptr;
+	Output = nullptr;
 
 	EnvelopsCache::Reset();
 }
@@ -159,7 +159,7 @@ int32 UXjMixer::OnGeneratePCMAudio(TArray<uint8>& OutAudio, int32 NumSamples)
 
 	for (int32 Sample = 0; Sample < NumSamples; ++Sample)
 	{
-		float MixedData = 0;
+		float MixedData = 0.0f;
 
 		for (TPair<FString, FMixerAudio>& Audio : ActiveAudios)
 		{

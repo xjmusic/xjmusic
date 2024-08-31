@@ -25,7 +25,8 @@ public class XJMusicPluginEditor : ModuleRules
                 "AssetTools",
                 "Projects",
                 "InputCore",
-                "Engine"
+                "Engine",
+                "AudioExtensions"
             }
         );
         

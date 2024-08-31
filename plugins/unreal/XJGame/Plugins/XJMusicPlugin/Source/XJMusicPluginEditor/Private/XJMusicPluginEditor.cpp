@@ -7,6 +7,10 @@
 #include "Assets/XjProjectTypeFactory.h"
 #include "Types/XjProject.h"
 #include "IDesktopPlatform.h"
+#include "LevelEditor.h"
+#include "Framework/MultiBox/MultiBoxBuilder.h"
+#include "Framework/Commands/UIAction.h"
+#include "ToolMenus.h"
 #include "DesktopPlatformModule.h"
 
 #define LOCTEXT_NAMESPACE "FXJMusicPluginEditorModule"
@@ -15,11 +19,7 @@ void FXJMusicPluginEditorModule::StartupModule()
 {
 	FXJMusicPluginStyle::Initialize();
 	FXJMusicPluginStyle::ReloadTextures();
-	
-	PluginCommands = MakeShareable(new FUICommandList);
 
-	UToolMenus::RegisterStartupCallback(FSimpleMulticastDelegate::FDelegate::CreateRaw(this, &FXJMusicPluginEditorModule::RegisterMenus));
-	
 	if (ISettingsModule* SettingModule = FModuleManager::GetModulePtr<ISettingsModule>("Settings"))
 	{
 		SettingModule->RegisterSettings("Project", "Plugins", "XJSettings",
@@ -32,6 +32,26 @@ void FXJMusicPluginEditorModule::StartupModule()
 	FAssetToolsModule::GetModule().Get().RegisterAssetTypeActions(XjProjectTypeActions.ToSharedRef());
 
 	LastSelectedBuildDirectory = FPaths::ProjectDir();
+
+	UToolMenus::RegisterStartupCallback(FSimpleMulticastDelegate::FDelegate::CreateRaw(
+		this, &FXJMusicPluginEditorModule::RegisterMenu));
+}
+
+void FXJMusicPluginEditorModule::RegisterMenu()
+{
+	FToolMenuOwnerScoped OwnerScoped(this);
+
+	UToolMenu* ToolbarMenu = UToolMenus::Get()->ExtendMenu("LevelEditor.LevelEditorToolBar.PlayToolBar");
+	FToolMenuSection& ToolbarSection = ToolbarMenu->FindOrAddSection("File");
+
+	ToolbarSection.AddEntry(FToolMenuEntry::InitComboButton(
+		TEXT("XjPluginButton"),
+		{},
+		FOnGetContent::CreateRaw(this, &FXJMusicPluginEditorModule::GenerateComboBox),
+		INVTEXT("XJ Music"),
+		INVTEXT("XJ Music plugin options"),
+		FSlateIcon(FXJMusicPluginStyle::GetStyleSetName(), "XJMusicPlugin.PluginAction")
+	));
 }
 
 void FXJMusicPluginEditorModule::ShutdownModule()
@@ -140,32 +160,6 @@ TSharedRef<SWidget> FXJMusicPluginEditorModule::GenerateComboBox()
 	return Builder.MakeWidget();
 }
 
-void FXJMusicPluginEditorModule::RegisterMenus()
-{
-	FToolMenuOwnerScoped OwnerScoped(this);
-
-	{
-		UToolMenu* Menu = UToolMenus::Get()->ExtendMenu("LevelEditor.MainMenu.Window");
-		{
-			FToolMenuSection& Section = Menu->FindOrAddSection("WindowLayout");
-		}
-	}
-
-	{
-		UToolMenu* ToolbarMenu = UToolMenus::Get()->ExtendMenu("LevelEditor.LevelEditorToolBar");
-		{
-			FToolMenuSection& Section = ToolbarMenu->FindOrAddSection("Settings");
-			{
-				FToolMenuEntry& Entry = 
-					Section.AddEntry(FToolMenuEntry::InitComboButton("XJMusicPlugin.PluginAction", 
-					{}, FOnGetContent::CreateRaw(this, &FXJMusicPluginEditorModule::GenerateComboBox)));
-				Entry.Icon = FSlateIcon(FXJMusicPluginStyle::GetStyleSetName(), "XJMusicPlugin.PluginAction");
-				Entry.Label = INVTEXT("XJ Music");
-			}
-		}
-	}
-}
-
 void FXJMusicPluginEditorModule::OpenFileDialog(const FString& DialogTitle, const FString DefaultPath, TArray<FString>& OutFiles)
 {
 	void* ParentWindowPtr = FSlateApplication::Get().GetActiveTopLevelWindow()->GetNativeWindow()->GetOSWindowHandle();
@@ -186,6 +180,20 @@ void FXJMusicPluginEditorModule::OpenFileDialog(const FString& DialogTitle, cons
 			OutFiles
 		);
 	}
+}
+
+void FXJMusicPluginEditorModule::AddMenuBarButton(FMenuBuilder& MenuBuilder)
+{
+	FUIAction MyAction(
+	FExecuteAction::CreateRaw(this, &FXJMusicPluginEditorModule::BuildButtonClicked)
+);
+	
+	MenuBuilder.AddMenuEntry(
+		FText::FromString("XJ Build"),
+		FText::FromString("Tooltip for My Custom Button"),
+		FSlateIcon(),
+		MyAction
+	);
 }
 
 #undef LOCTEXT_NAMESPACE
