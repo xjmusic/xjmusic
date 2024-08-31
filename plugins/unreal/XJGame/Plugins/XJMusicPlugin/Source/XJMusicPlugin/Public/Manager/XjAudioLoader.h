@@ -6,6 +6,7 @@
 #include "UObject/NoExportTypes.h"
 #include "UObject/SoftObjectPath.h"
 #include "Engine/StreamableManager.h"
+#include "AudioDecompress.h"
 #include "XjAudioLoader.generated.h"
 
 USTRUCT()
@@ -16,7 +17,6 @@ struct FXjAudioWave
 public:
 	
 	FXjAudioWave() = default;
-	~FXjAudioWave();
 
 	FXjAudioWave(const FXjAudioWave& Other);
 	const FXjAudioWave& operator = (const FXjAudioWave& Other);
@@ -28,8 +28,6 @@ public:
 	int16* SamplesData = nullptr;
 
 	void LoadData(USoundWave* NewWave);
-
-	void UnLoadData();
 
 	bool IsValidToUse() const;
 };
@@ -45,7 +43,7 @@ public:
 
 	void Shutdown();
 
-	FXjAudioWave GetSoundById(const FString& Id);
+	TSharedPtr<FXjAudioWave> GetSoundById(const FString& Id);
 
 	bool IsLoading() const
 	{
@@ -61,7 +59,7 @@ private:
 	FCriticalSection StreamAccessCriticalSection;
 	
 	TMap<FString, FSoftObjectPath> AudiosSoftReferences;
-	TMap<FString, FXjAudioWave> CachedAudios;
+	TMap<FString, TSharedPtr<FXjAudioWave>> CachedAudios;
 
 	void RetrieveProjectsContent();
 };

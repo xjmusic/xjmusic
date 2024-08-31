@@ -11,13 +11,9 @@
 #include "Misc/FileHelper.h"
 #include "HAL/PlatformFilemanager.h"
 #include "Misc/Paths.h"
-#include "AudioDecompress.h"
 #include "AudioDevice.h"
-
-FXjAudioWave::~FXjAudioWave()
-{
-	UnLoadData();
-}
+#include "Mixer/XjMixer.h"
+#include "Manager/XjManager.h"
 
 FXjAudioWave::FXjAudioWave(const FXjAudioWave& Other)
 {
@@ -37,7 +33,6 @@ const FXjAudioWave& FXjAudioWave::operator=(const FXjAudioWave& Other)
 
 void FXjAudioWave::LoadData(USoundWave* NewWave)
 {
-
 	if (!NewWave || NewWave == Wave)
 	{
 		return;
@@ -67,21 +62,17 @@ void FXjAudioWave::LoadData(USoundWave* NewWave)
 		if (Wave->DecompressionType != DTYPE_RealTime || Wave->CachedRealtimeFirstBuffer == nullptr)
 		{
 			FAsyncAudioDecompress DecompressTask(Wave, 128, AudioDevice);
+
 			DecompressTask.StartSynchronousTask();
 		}
 
-		Wave->DecompressionType = DecompressionType;
+		Wave->DecompressionType = DTYPE_Native;
 	}
 
 	TArrayView<uint8> Arr((uint8*)Wave->RawPCMData, Wave->RawPCMDataSize / 2);
 
 	SamplesData = (int16*)Arr.GetData();
 	NumSamples = Wave->RawPCMDataSize / sizeof(int16);
-}
-
-void FXjAudioWave::UnLoadData()
-{
-
 }
 
 bool FXjAudioWave::IsValidToUse() const
@@ -107,9 +98,9 @@ void UXjAudioLoader::Shutdown()
 	CachedAudios.Reset();
 }
 
-FXjAudioWave UXjAudioLoader::GetSoundById(const FString& Id)
+TSharedPtr<FXjAudioWave> UXjAudioLoader::GetSoundById(const FString& Id)
 {
-	if (FXjAudioWave* Wave = CachedAudios.Find(Id))
+	if (TSharedPtr<FXjAudioWave>* Wave = CachedAudios.Find(Id))
 	{
 		return *Wave;
 	}
@@ -121,14 +112,17 @@ FXjAudioWave UXjAudioLoader::GetSoundById(const FString& Id)
 	}
 
 	USoundWave* Wave = Cast<USoundWave>(ObjectPath->ResolveObject());
-	check(Wave);
+	if (!Wave)
+	{
+		return {};
+	}
 
-	FXjAudioWave XjAudio;
-	XjAudio.LoadData(Wave);
-
+	TSharedPtr<FXjAudioWave> XjAudio = MakeShared<FXjAudioWave>();
+	XjAudio->LoadData(Wave);
+	
 	CachedAudios.Add(Id, XjAudio);
 
-	return XjAudio;
+	return MoveTemp(XjAudio);
 }
 
 void UXjAudioLoader::RetrieveProjectsContent()

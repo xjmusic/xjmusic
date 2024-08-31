@@ -4,8 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Types/XjTypes.h"
-#include <Engine/EngineBase.h>
-
+#include "Engine/EngineBase.h"
 #include "XjManager.generated.h"
 
 enum class XjCommandType

@@ -79,7 +79,7 @@ public:
 		return EndSamples + FadeOutEnvelope->GetLength();
 	}
 	
-	FXjAudioWave Wave;
+	TSharedPtr<FXjAudioWave> Wave;
 
 	FString Id;
 
