@@ -167,26 +167,23 @@ void UXjMusicInstanceSubsystem::AddActiveAudio(const FAudioPlayer& Audio)
 
 	UpdateDebugChainView();
 
-	AsyncTask(ENamedThreads::GameThread, [this, Audio]()
-		{
-			if (!Mixer || !AudioLoader)
-			{
-				return;
-			}
+	if (!Mixer || !AudioLoader)
+	{
+		return;
+	}
 
-			FMixerAudio MixerAudio;
-			MixerAudio.Id = Audio.Id;
-			MixerAudio.Wave = AudioLoader->GetSoundById(Audio.WaveId);
+	FMixerAudio MixerAudio;
+	MixerAudio.Id = Audio.Id;
+	MixerAudio.Wave = AudioLoader->GetSoundById(Audio.WaveId);
 
-			MixerAudio.StartSamples = Audio.StartTime.GetSamples(UXjMixer::GetSampleRate(), UXjMixer::GetNumChannels());
-			MixerAudio.EndSamples = Audio.EndTime.GetSamples(UXjMixer::GetSampleRate(), UXjMixer::GetNumChannels());
-			MixerAudio.SetupEnvelops(Audio.ReleaseTime.GetSamples(UXjMixer::GetSampleRate(), UXjMixer::GetNumChannels()));
+	MixerAudio.StartSamples = Audio.StartTime.GetSamples(UXjMixer::GetSampleRate(), UXjMixer::GetNumChannels());
+	MixerAudio.EndSamples = Audio.EndTime.GetSamples(UXjMixer::GetSampleRate(), UXjMixer::GetNumChannels());
+	MixerAudio.SetupEnvelops(Audio.ReleaseTime.GetSamples(UXjMixer::GetSampleRate(), UXjMixer::GetNumChannels()));
 
-			MixerAudio.FromVolume = Audio.FromVolume;
-			MixerAudio.ToVolume = Audio.ToVolume;
+	MixerAudio.FromVolume = Audio.FromVolume;
+	MixerAudio.ToVolume = Audio.ToVolume;
 
-			Mixer->AddOrUpdateActiveAudio(MixerAudio);
-		});
+	Mixer->AddOrUpdateActiveAudio(MixerAudio);
 }
 
 void UXjMusicInstanceSubsystem::UpdateActiveAudio(const FAudioPlayer& Audio)
@@ -200,26 +197,23 @@ void UXjMusicInstanceSubsystem::UpdateActiveAudio(const FAudioPlayer& Audio)
 
 	UpdateDebugChainView();
 
-	AsyncTask(ENamedThreads::GameThread, [this, Audio]()
-		{
-			if (!Mixer || !AudioLoader)
-			{
-				return;
-			}
+	if (!Mixer || !AudioLoader)
+	{
+		return;
+	}
 
-			FMixerAudio MixerAudio;
-			MixerAudio.Id = Audio.Id;
-			MixerAudio.Wave = AudioLoader->GetSoundById(Audio.WaveId);
+	FMixerAudio MixerAudio;
+	MixerAudio.Id = Audio.Id;
+	MixerAudio.Wave = AudioLoader->GetSoundById(Audio.WaveId);
 
-			MixerAudio.StartSamples = Audio.StartTime.GetSamples(UXjMixer::GetSampleRate(), UXjMixer::GetNumChannels());
-			MixerAudio.EndSamples = Audio.EndTime.GetSamples(UXjMixer::GetSampleRate(), UXjMixer::GetNumChannels());
-			MixerAudio.SetupEnvelops(Audio.ReleaseTime.GetSamples(UXjMixer::GetSampleRate(), UXjMixer::GetNumChannels()));
+	MixerAudio.StartSamples = Audio.StartTime.GetSamples(UXjMixer::GetSampleRate(), UXjMixer::GetNumChannels());
+	MixerAudio.EndSamples = Audio.EndTime.GetSamples(UXjMixer::GetSampleRate(), UXjMixer::GetNumChannels());
+	MixerAudio.SetupEnvelops(Audio.ReleaseTime.GetSamples(UXjMixer::GetSampleRate(), UXjMixer::GetNumChannels()));
 
-			MixerAudio.FromVolume = Audio.FromVolume;
-			MixerAudio.ToVolume = Audio.ToVolume;
+	MixerAudio.FromVolume = Audio.FromVolume;
+	MixerAudio.ToVolume = Audio.ToVolume;
 
-			Mixer->AddOrUpdateActiveAudio(MixerAudio);
-		});
+	Mixer->AddOrUpdateActiveAudio(MixerAudio);
 }
 
 void UXjMusicInstanceSubsystem::RemoveActiveAudio(const FAudioPlayer& Audio)
