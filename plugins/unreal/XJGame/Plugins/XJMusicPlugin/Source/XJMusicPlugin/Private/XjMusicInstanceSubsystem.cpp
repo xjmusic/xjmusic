@@ -126,7 +126,7 @@ void UXjMusicInstanceSubsystem::SetupXJ()
 	Manager = NewObject<UXjManager>(this);
 	if (Manager)
 	{
-		Manager->Setup();
+		Manager->Setup(this, AudioLoader);
 	}
 
 	if (CVarShowDebugChain->GetInt() > 0)
@@ -231,11 +231,6 @@ void UXjMusicInstanceSubsystem::RemoveActiveAudio(const FAudioPlayer& Audio)
 	{
 		Mixer->RemoveActiveAudio(Audio.Id);
 	}
-}
-
-bool UXjMusicInstanceSubsystem::IsAssetsLoading() const
-{
-	return !AudioLoader || AudioLoader->IsLoading();
 }
 
 void UXjMusicInstanceSubsystem::OnEnabledShowDebugChain(IConsoleVariable* Var)

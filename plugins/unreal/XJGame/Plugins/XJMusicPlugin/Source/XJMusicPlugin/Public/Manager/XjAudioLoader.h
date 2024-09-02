@@ -31,9 +31,20 @@ public:
 
 	bool IsValidToUse() const;
 
+	static bool IsDecompressionInProgress()
+	{
+		return DecompressionSemaphore.Load() != 0;
+	}
+
 private:
 
+	TSharedPtr<FAsyncAudioDecompress> DecompressTask;
+
 	FByteBulkData* Bulk = nullptr;
+
+	void FinishLoad();
+
+	inline static TAtomic<uint8> DecompressionSemaphore = 0;
 };
 
 UCLASS()
@@ -49,19 +60,12 @@ public:
 
 	TSharedPtr<FXjAudioWave> GetSoundById(const FString& Id);
 
-	bool IsLoading() const
-	{
-		return InitialAssetsStream.IsValid() && InitialAssetsStream->IsLoadingInProgress();
-	}
+	TSharedPtr<FStreamableHandle> InitialAssetsStream;
 
 private:
 
 	FStreamableManager StreamableManager;
-	
-	TSharedPtr<FStreamableHandle> InitialAssetsStream;
-
-	FCriticalSection StreamAccessCriticalSection;
-	
+		
 	TMap<FString, FSoftObjectPath> AudiosSoftReferences;
 	TMap<FString, TSharedPtr<FXjAudioWave>> CachedAudios;
 

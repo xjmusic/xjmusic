@@ -60,8 +60,6 @@ public:
 		return RuntimeProjectDir;
 	}
 
-	bool IsAssetsLoading() const;
-	
 	UPROPERTY()
 	UXjProject* XjProjectInstance = nullptr;
 

@@ -68,25 +68,46 @@ void FXjAudioWave::LoadData(USoundWave* NewWave)
 
 		Wave->InitAudioResource(*Bulk);
 
-		if (Wave->DecompressionType != DTYPE_RealTime || Wave->CachedRealtimeFirstBuffer == nullptr)
+		if (Wave->DecompressionType == DTYPE_RealTime || Wave->CachedRealtimeFirstBuffer != nullptr)
 		{
-			FAsyncAudioDecompress DecompressTask(Wave, 128, AudioDevice);
-
-			DecompressTask.StartSynchronousTask();
+			return;
 		}
 
-		Wave->DecompressionType = DTYPE_Native;
-	}
+		DecompressTask = MakeShared<FAsyncAudioDecompress>(Wave, 128, AudioDevice);
 
-	TArrayView<uint8> Arr((uint8*)Wave->RawPCMData, Wave->RawPCMDataSize / 2);
-	
-	SamplesData = (int16*)Arr.GetData();
-	NumSamples = Wave->RawPCMDataSize / sizeof(int16);
+		DecompressionSemaphore.IncrementExchange();
+
+		Async(EAsyncExecution::TaskGraphMainThread, [this]()
+			{
+				DecompressTask->StartSynchronousTask();
+
+				DecompressionSemaphore.DecrementExchange();
+
+				AsyncTask(ENamedThreads::GameThread, [this]()
+					{
+						Wave->DecompressionType = DTYPE_Native;
+
+						FinishLoad();
+					});
+			});
+	}
+	else
+	{
+		FinishLoad();
+	}
 }
 
 bool FXjAudioWave::IsValidToUse() const
 {
 	return Wave && SamplesData;
+}
+
+void FXjAudioWave::FinishLoad()
+{
+	TArrayView<uint8> Arr((uint8*)Wave->RawPCMData, Wave->RawPCMDataSize / 2);
+
+	SamplesData = (int16*)Arr.GetData();
+	NumSamples = Wave->RawPCMDataSize / sizeof(int16);
 }
 
 void UXjAudioLoader::Setup()

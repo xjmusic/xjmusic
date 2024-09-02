@@ -30,7 +30,7 @@ class XJMUSICPLUGIN_API UXjManager : public UObject, public FTickableGameObject
 
 public:
 
-	void Setup();
+	void Setup(class UXjMusicInstanceSubsystem* XjSubsystem, class UXjAudioLoader* AudioLoader);
 
 	void Tick(float DeltaTime) override;
 
@@ -86,6 +86,8 @@ private:
 
 	TSharedPtr<TEngineBase> Engine;
 
+	bool bInitDecompressionHappened = false;
+
 	const float RunCycleInterval = (1.0f / 9.0f);
 
 	float FramTimeAccumulation = RunCycleInterval;
@@ -93,4 +95,6 @@ private:
 	bool bCanTick = false;
 
 	bool TryInitMockEngine();
+
+	void OnAssetsLoaded();
 };

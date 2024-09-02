@@ -7,10 +7,21 @@
 #include "Engine/XjMainEngine.h"
 #include "Tests/MockDataEngine.h"
 #include "Settings/XJMusicDefaultSettings.h"
+#include "Manager/XjAudioLoader.h"
 
-void UXjManager::Setup()
+void UXjManager::Setup(class UXjMusicInstanceSubsystem* XjSubsystem, UXjAudioLoader* AudioLoader)
 {
-	XjMusicSubsystem = GetWorld()->GetGameInstance()->GetSubsystem<UXjMusicInstanceSubsystem>();
+	if (!AudioLoader || !XjSubsystem || !XjSubsystem->XjProjectInstance)
+	{
+		return;
+	}
+
+	if (Engine)
+	{
+		return;
+	}
+
+	XjMusicSubsystem = XjSubsystem;
 
 	XjStartTime.SetInSeconds(FPlatformTime::Seconds());
 
@@ -19,24 +30,21 @@ void UXjManager::Setup()
 		Engine = MakeShared<TXjMainEngine>();
 	}
 
-	if (Engine && XjMusicSubsystem->XjProjectInstance)
-	{
-		Engine->Setup(XjMusicSubsystem->GetRuntimeProjectDirectory() + "/" + XjMusicSubsystem->XjProjectInstance->ProjectName + ".xj");
-	}
+	Engine->Setup(XjMusicSubsystem->GetRuntimeProjectDirectory() + "/" + XjMusicSubsystem->XjProjectInstance->ProjectName + ".xj");
 
-	bCanTick = true;
+	TSharedPtr<FStreamableHandle> StreamHandle = AudioLoader->InitialAssetsStream;
+
+	bool Bound = StreamHandle->BindCompleteDelegate(FStreamableDelegate::CreateUObject(this, &UXjManager::OnAssetsLoaded));
+	if (!Bound)
+	{
+		OnAssetsLoaded();
+	}
 }
  
 void UXjManager::Tick(float DeltaTime)
 {
 	check(Engine);
 	check(XjMusicSubsystem);
-
-	if (XjMusicSubsystem->IsAssetsLoading())
-	{
-		FPlatformProcess::Sleep(0.0f);
-		return;
-	}
 
 	if (FramTimeAccumulation < RunCycleInterval)
 	{
@@ -117,4 +125,10 @@ bool UXjManager::TryInitMockEngine()
 	}
 
 	return false;
+}
+
+void UXjManager::OnAssetsLoaded()
+{
+
+	bCanTick = true;
 }
