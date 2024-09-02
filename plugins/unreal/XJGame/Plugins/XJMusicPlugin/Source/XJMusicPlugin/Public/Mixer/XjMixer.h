@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Types/XjTypes.h"
 #include "Manager/XjAudioLoader.h"
 #include "Math/UnrealMathUtility.h"
 #include "XjMixer.generated.h"
@@ -88,6 +89,8 @@ public:
 
 	float FromVolume;
 	float ToVolume;
+
+	static FMixerAudio CreateMixerAudio(const FAudioPlayer& AudioPlayer, class UXjAudioLoader* AudioLoader);
 
 private:
 	

@@ -147,6 +147,8 @@ TSharedPtr<FXjAudioWave> UXjAudioLoader::GetSoundById(const FString& Id)
 		return {};
 	}
 
+	Wave->LoadingBehavior = ESoundWaveLoadingBehavior::ForceInline;
+
 	TSharedPtr<FXjAudioWave> XjAudio = MakeShared<FXjAudioWave>();
 	XjAudio->LoadData(Wave);
 	

@@ -197,23 +197,12 @@ void UXjMusicInstanceSubsystem::UpdateActiveAudio(const FAudioPlayer& Audio)
 
 	UpdateDebugChainView();
 
-	if (!Mixer || !AudioLoader)
+	if (!Mixer)
 	{
 		return;
 	}
 
-	FMixerAudio MixerAudio;
-	MixerAudio.Id = Audio.Id;
-	MixerAudio.Wave = AudioLoader->GetSoundById(Audio.WaveId);
-
-	MixerAudio.StartSamples = Audio.StartTime.GetSamples(UXjMixer::GetSampleRate(), UXjMixer::GetNumChannels());
-	MixerAudio.EndSamples = Audio.EndTime.GetSamples(UXjMixer::GetSampleRate(), UXjMixer::GetNumChannels());
-	MixerAudio.SetupEnvelops(Audio.ReleaseTime.GetSamples(UXjMixer::GetSampleRate(), UXjMixer::GetNumChannels()));
-
-	MixerAudio.FromVolume = Audio.FromVolume;
-	MixerAudio.ToVolume = Audio.ToVolume;
-
-	Mixer->AddOrUpdateActiveAudio(MixerAudio);
+	Mixer->AddOrUpdateActiveAudio(FMixerAudio::CreateMixerAudio(Audio, AudioLoader));
 }
 
 void UXjMusicInstanceSubsystem::RemoveActiveAudio(const FAudioPlayer& Audio)
@@ -227,10 +216,12 @@ void UXjMusicInstanceSubsystem::RemoveActiveAudio(const FAudioPlayer& Audio)
 
 	UpdateDebugChainView();
 
-	if (Mixer)
+	if (!Mixer)
 	{
-		Mixer->RemoveActiveAudio(Audio.Id);
+		return;
 	}
+
+	Mixer->RemoveActiveAudio(Audio.Id);
 }
 
 void UXjMusicInstanceSubsystem::OnEnabledShowDebugChain(IConsoleVariable* Var)

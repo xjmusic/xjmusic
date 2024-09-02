@@ -3,6 +3,7 @@
 
 #include "Mixer/XjMixer.h"
 #include "Mixer/XjOutput.h"
+#include "Manager/XjAudioLoader.h"
 #include "Components/AudioComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "XjMusicInstanceSubsystem.h"
@@ -78,6 +79,27 @@ float FMixerAudio::ReadSample(const int32 CurrentSample, const float FrameDelta)
 	}
 
 	return Sample;
+}
+
+FMixerAudio FMixerAudio::CreateMixerAudio(const FAudioPlayer& AudioPlayer, UXjAudioLoader* AudioLoader)
+{
+	if (!IsValid(AudioLoader))
+	{
+		return {};
+	}
+
+	FMixerAudio MixerAudio;
+	MixerAudio.Id = AudioPlayer.Id;
+	MixerAudio.Wave = AudioLoader->GetSoundById(AudioPlayer.WaveId);
+
+	MixerAudio.StartSamples = AudioPlayer.StartTime.GetSamples(UXjMixer::GetSampleRate(), UXjMixer::GetNumChannels());
+	MixerAudio.EndSamples = AudioPlayer.EndTime.GetSamples(UXjMixer::GetSampleRate(), UXjMixer::GetNumChannels());
+	MixerAudio.SetupEnvelops(AudioPlayer.ReleaseTime.GetSamples(UXjMixer::GetSampleRate(), UXjMixer::GetNumChannels()));
+
+	MixerAudio.FromVolume = AudioPlayer.FromVolume;
+	MixerAudio.ToVolume = AudioPlayer.ToVolume;
+
+	return MixerAudio;
 }
 
 void UXjMixer::Setup(const bool bDefaultOutput)

@@ -30,7 +30,9 @@ void UXjManager::Setup(class UXjMusicInstanceSubsystem* XjSubsystem, UXjAudioLoa
 		Engine = MakeShared<TXjMainEngine>();
 	}
 
-	Engine->Setup(XjMusicSubsystem->GetRuntimeProjectDirectory() + "/" + XjMusicSubsystem->XjProjectInstance->ProjectName + ".xj");
+	FString PathToProject = XjMusicSubsystem->GetRuntimeProjectDirectory() + "/" + XjMusicSubsystem->XjProjectInstance->ProjectName + ".xj";
+
+	Engine->Setup(PathToProject);
 
 	TSharedPtr<FStreamableHandle> StreamHandle = AudioLoader->InitialAssetsStream;
 
@@ -129,6 +131,5 @@ bool UXjManager::TryInitMockEngine()
 
 void UXjManager::OnAssetsLoaded()
 {
-
 	bCanTick = true;
 }
