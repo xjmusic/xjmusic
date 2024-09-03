@@ -78,7 +78,7 @@ namespace XJ {
 
      @param macroProgram to go to
      */
-    void doOverrideMacro(const Program *macroProgram);
+    bool doOverrideMacro(const Program *macroProgram);
 
     /**
      @return the meme taxonomy from the current template configuration
@@ -96,7 +96,7 @@ namespace XJ {
 
      @param memes specific (assumed allowably) set of taxonomy category memes
      */
-    void doOverrideMemes(const std::set<std::string> &memes);
+    bool doOverrideMemes(const std::set<std::string> &memes);
 
     /**
      Get whether an override happened, and reset its state after getting
