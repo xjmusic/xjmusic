@@ -110,8 +110,13 @@ WorkState WorkManager::getState() const {
   return state;
 }
 
-void WorkManager::doOverrideMacro(const Program *macroProgram) {
+bool WorkManager::doOverrideMacro(const Program *macroProgram) {
+  if (config.controlMode != Fabricator::ControlMode::Macro) {
+    std::cerr << "Cannot override macro program in non-macro control mode" << std::endl;
+    return false;
+  }
   craftWork.doOverrideMacro(macroProgram);
+  return true;
 }
 
 std::optional<MemeTaxonomy> WorkManager::getMemeTaxonomy() const {
@@ -127,8 +132,13 @@ std::vector<const Program *> WorkManager::getAllMacroPrograms() const {
   return sortedPrograms;
 }
 
-void WorkManager::doOverrideMemes(const std::set<std::string> &memes) {
+bool WorkManager::doOverrideMemes(const std::set<std::string> &memes) {
+  if (config.controlMode != Fabricator::ControlMode::Taxonomy) {
+    std::cerr << "Cannot override memes in non-taxonomy control mode" << std::endl;
+    return false;
+  }
   craftWork.doOverrideMemes(memes);
+  return true;
 }
 
 bool WorkManager::getAndResetDidOverride() {
