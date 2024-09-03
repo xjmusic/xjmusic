@@ -9,6 +9,8 @@ public class XJGameEditorTarget : TargetRules
 	{
 		Type = TargetType.Editor;
 		DefaultBuildSettings = BuildSettingsVersion.V2;
-		ExtraModuleNames.AddRange( new string[] { "XJGame" } );
+        bOverrideBuildEnvironment = true;
+
+        ExtraModuleNames.AddRange( new string[] { "XJGame" } );
 	}
 }

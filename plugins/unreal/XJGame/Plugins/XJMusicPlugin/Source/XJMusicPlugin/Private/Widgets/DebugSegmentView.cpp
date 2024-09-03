@@ -140,14 +140,14 @@ void SDebugSegmentView::Update(const FSegmentInfo& Info)
 		MemesStr += Meme + "\n";
 	}
 
-	IdTextBlock->SetText(IdStr);
+	IdTextBlock->SetText(FText::FromString(IdStr));
 	BeginSecondsTextBlock->SetText(FText::FromString(BeginSecondsStr + "s"));
-	TypeTextBlock->SetText(TypeStr);
-	TotalTextBlock->SetText(TotalTimeStr);
-	IntensityTextBlock->SetText(IntensityStr);
-	TempoTextBlock->SetText(TempoStr);
-	KeyTextBlock->SetText(KeyStr);
-	MemesTextBlock->SetText(MemesStr);
+	TypeTextBlock->SetText(FText::FromString(TypeStr));
+	TotalTextBlock->SetText(FText::FromString(TotalTimeStr));
+	IntensityTextBlock->SetText(FText::FromString(IntensityStr));
+	TempoTextBlock->SetText(FText::FromString(TempoStr));
+	KeyTextBlock->SetText(FText::FromString(KeyStr));
+	MemesTextBlock->SetText(FText::FromString(MemesStr));
 
 	if (FirstLevelChoicesVB->GetChildren()->Num() > 0)
 	{
