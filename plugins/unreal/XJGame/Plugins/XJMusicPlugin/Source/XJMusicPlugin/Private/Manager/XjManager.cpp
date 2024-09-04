@@ -50,6 +50,17 @@ uint32 FXjRunnable::Run()
 			FPlatformProcess::Sleep(0.0f);
 			continue;
 		}
+		else if (!bPreDecompression)
+		{
+			bPreDecompression = true;
+			
+			UXjAudioLoader* AudioLoader = XjMusicSubsystem->AudioLoader;
+			check(AudioLoader);
+
+			AudioLoader->DecompressAll();
+
+			LastFramTime = FPlatformTime::Seconds();
+		}
 
 		const double CurrentTime = FPlatformTime::Seconds();
 		const double DeltaTime = CurrentTime - LastFramTime;

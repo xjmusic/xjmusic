@@ -31,20 +31,11 @@ public:
 
 	bool IsValidToUse() const;
 
-	static bool IsDecompressionInProgress()
-	{
-		return DecompressionSemaphore.Load() != 0;
-	}
-
 private:
-
-	TSharedPtr<FAsyncAudioDecompress> DecompressTask;
 
 	FByteBulkData* Bulk = nullptr;
 
 	void FinishLoad();
-
-	inline static TAtomic<uint8> DecompressionSemaphore = 0;
 };
 
 UCLASS()
@@ -57,6 +48,8 @@ public:
 	void Setup();
 
 	void Shutdown();
+
+	void DecompressAll();
 
 	TSharedPtr<FXjAudioWave> GetSoundById(const FString& Id);
 

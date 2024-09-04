@@ -61,6 +61,8 @@ private:
 
 	TSharedPtr<FStreamableHandle> StreamHandle;
 
+	bool bPreDecompression = false;
+
 	double LastFramTime = 0.0f;
 
 	int RunCycleFrequency = 9;

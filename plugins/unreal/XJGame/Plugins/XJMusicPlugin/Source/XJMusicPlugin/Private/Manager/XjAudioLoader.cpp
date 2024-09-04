@@ -73,23 +73,12 @@ void FXjAudioWave::LoadData(USoundWave* NewWave)
 			return;
 		}
 
-		DecompressTask = MakeShared<FAsyncAudioDecompress>(Wave, 128, AudioDevice);
+		FAsyncAudioDecompress DecompressTask(Wave, 128, AudioDevice);
+		DecompressTask.StartSynchronousTask();
 
-		DecompressionSemaphore.IncrementExchange();
+		Wave->DecompressionType = DTYPE_Native;
 
-		Async(EAsyncExecution::TaskGraphMainThread, [this]()
-			{
-				DecompressTask->StartSynchronousTask();
-
-				DecompressionSemaphore.DecrementExchange();
-
-				AsyncTask(ENamedThreads::GameThread, [this]()
-					{
-						Wave->DecompressionType = DTYPE_Native;
-
-						FinishLoad();
-					});
-			});
+		FinishLoad();
 	}
 	else
 	{
@@ -126,6 +115,14 @@ void UXjAudioLoader::Shutdown()
 	AudiosSoftReferences.Reset();
 
 	CachedAudios.Reset();
+}
+
+void UXjAudioLoader::DecompressAll()
+{
+	for (const TPair<FString, FSoftObjectPath>& Info : AudiosSoftReferences)
+	{
+		GetSoundById(Info.Key);
+	}
 }
 
 TSharedPtr<FXjAudioWave> UXjAudioLoader::GetSoundById(const FString& Id)
