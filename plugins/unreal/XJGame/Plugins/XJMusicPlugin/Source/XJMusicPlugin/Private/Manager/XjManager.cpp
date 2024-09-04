@@ -6,7 +6,6 @@
 #include <Math/UnrealMathUtility.h>
 #include <Engine/XjMainEngine.h>
 #include <Tests/MockDataEngine.h>
-#include "Manager/XjAudioLoader.h"
 #include <Settings/XJMusicDefaultSettings.h>
 
 FXjRunnable::FXjRunnable(UWorld* World)
