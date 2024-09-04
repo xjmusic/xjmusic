@@ -2,27 +2,22 @@
 
 
 #include "Manager/XjManager.h"
-#include "XjMusicInstanceSubsystem.h"
-#include "Math/UnrealMathUtility.h"
-#include "Engine/XjMainEngine.h"
-#include "Tests/MockDataEngine.h"
-#include "Settings/XJMusicDefaultSettings.h"
+#include <XjMusicInstanceSubsystem.h>
+#include <Math/UnrealMathUtility.h>
+#include <Engine/XjMainEngine.h>
+#include <Tests/MockDataEngine.h>
 #include "Manager/XjAudioLoader.h"
+#include <Settings/XJMusicDefaultSettings.h>
 
-void UXjManager::Setup(class UXjMusicInstanceSubsystem* XjSubsystem, UXjAudioLoader* AudioLoader)
+FXjRunnable::FXjRunnable(UWorld* World)
 {
-	if (!AudioLoader || !XjSubsystem || !XjSubsystem->XjProjectInstance)
-	{
-		return;
-	}
+	check(World);
 
-	if (Engine)
-	{
-		return;
-	}
+	XjMusicSubsystem = World->GetGameInstance()->GetSubsystem<UXjMusicInstanceSubsystem>();
+}
 
-	XjMusicSubsystem = XjSubsystem;
-
+bool FXjRunnable::Init()
+{
 	XjStartTime.SetInSeconds(FPlatformTime::Seconds());
 
 	if (!TryInitMockEngine())
@@ -30,92 +25,111 @@ void UXjManager::Setup(class UXjMusicInstanceSubsystem* XjSubsystem, UXjAudioLoa
 		Engine = MakeShared<TXjMainEngine>();
 	}
 
-	FString PathToProject = XjMusicSubsystem->GetRuntimeProjectDirectory() + "/" + XjMusicSubsystem->XjProjectInstance->ProjectName + ".xj";
-
-	Engine->Setup(PathToProject);
-
-	TSharedPtr<FStreamableHandle> StreamHandle = AudioLoader->InitialAssetsStream;
-
-	bool Bound = StreamHandle->BindCompleteDelegate(FStreamableDelegate::CreateUObject(this, &UXjManager::OnAssetsLoaded));
-	if (!Bound)
+	if (Engine && XjMusicSubsystem->XjProjectInstance)
 	{
-		OnAssetsLoaded();
+		Engine->Setup(XjMusicSubsystem->GetRuntimeProjectDirectory() + "/" + XjMusicSubsystem->XjProjectInstance->ProjectName + ".xj");
 	}
+
+	StreamHandle = XjMusicSubsystem->AudioLoader->InitialAssetsStream;
+
+	LastFramTime = FPlatformTime::Seconds();
+
+	return true;
 }
- 
-void UXjManager::Tick(float DeltaTime)
+
+uint32 FXjRunnable::Run()
 {
-	check(Engine);
-	check(XjMusicSubsystem);
-
-	if (FramTimeAccumulation < RunCycleInterval)
+	while (!bShouldStop)
 	{
-		FramTimeAccumulation += DeltaTime;
+		check(Engine);
+		check(XjMusicSubsystem);
 
-		FPlatformProcess::Sleep(0.0f);
-		return;
-	}
-
-	while (!Commands.IsEmpty())
-	{
-		if (!Engine)
+		if (StreamHandle->IsLoadingInProgress())
 		{
-			break;
+			LastFramTime = FPlatformTime::Seconds();
+
+			FPlatformProcess::Sleep(0.0f);
+			continue;
 		}
 
-		XjCommand Command;
-		Commands.Dequeue(Command);
+		const double CurrentTime = FPlatformTime::Seconds();
+		const double DeltaTime = CurrentTime - LastFramTime;
 
-		switch (Command.Type)
+		if (DeltaTime < (1.0f / RunCycleFrequency))
 		{
-		case XjCommandType::TaxonomyChange:
-			Engine->DoOverrideTaxonomy(Command.Arguments);
-			break;
-
-		case XjCommandType::MacrosChange:
-			Engine->DoOverrideMacro(Command.Arguments);
-			break;
-
-		case XjCommandType::IntensityChange:
-			Engine->DoOverrideIntensity(Command.FloatValue);
-			break;
+			FPlatformProcess::Sleep(0.0f);
+			continue;
 		}
+
+		LastFramTime = CurrentTime;
+
+
+		while (!Commands.IsEmpty())
+		{
+			if (!Engine)
+			{
+				break;
+			}
+
+			XjCommand Command;
+			Commands.Dequeue(Command);
+
+			switch (Command.Type)
+			{
+			case XjCommandType::TaxonomyChange:
+				Engine->DoOverrideTaxonomy(Command.Arguments);
+				break;
+
+			case XjCommandType::MacrosChange:
+				Engine->DoOverrideMacro(Command.Arguments);
+				break;
+
+			case XjCommandType::IntensityChange:
+				Engine->DoOverrideIntensity(Command.FloatValue);
+				break;
+			}
+		}
+
+
+		TArray<FAudioPlayer> ReceivedAudios = Engine->RunCycle(AtChainMicros.GetMicros());
+
+		for (const FAudioPlayer& Audio : ReceivedAudios)
+		{
+			switch (Audio.Event)
+			{
+			case EAudioEventType::Create:
+				XjMusicSubsystem->AddActiveAudio(Audio);
+				break;
+
+			case EAudioEventType::Update:
+				XjMusicSubsystem->UpdateActiveAudio(Audio);
+				break;
+
+			case EAudioEventType::Delete:
+				XjMusicSubsystem->RemoveActiveAudio(Audio);
+				break;
+
+			}
+		}
+
+		AtChainMicros.SetInSeconds(AtChainMicros.GetSeconds() + DeltaTime);
 	}
 
-
-	TArray<FAudioPlayer> ReceivedAudios = Engine->RunCycle(AtChainMicros.GetMicros());
-
-	for (const FAudioPlayer& Audio : ReceivedAudios)
-	{
-		switch (Audio.Event)
-		{
-		case EAudioEventType::Create:
-			XjMusicSubsystem->AddActiveAudio(Audio);
-			break;
-
-		case EAudioEventType::Update:
-			XjMusicSubsystem->UpdateActiveAudio(Audio);
-			break;
-
-		case EAudioEventType::Delete:
-			XjMusicSubsystem->RemoveActiveAudio(Audio);
-			break;
-
-		}
-	}
-
-	AtChainMicros.SetInSeconds(AtChainMicros.GetSeconds() + FramTimeAccumulation);
-
-	FramTimeAccumulation = 0.0f;
+	return 0;
 }
 
-bool UXjManager::TryInitMockEngine()
+void FXjRunnable::Stop()
+{
+	bShouldStop = true;
+}
+
+bool FXjRunnable::TryInitMockEngine()
 {
 	UXJMusicDefaultSettings* XjSettings = GetMutableDefault<UXJMusicDefaultSettings>();
 	if (XjSettings && XjSettings->bDevelopmentMode)
 	{
 		Engine = MakeShared<TMockDataEngine>();
-		
+
 		if (TMockDataEngine* MockEngine = StaticCast<TMockDataEngine*>(Engine.Get()))
 		{
 			MockEngine->SetMockData(XjSettings->MockDataDT);
@@ -129,7 +143,19 @@ bool UXjManager::TryInitMockEngine()
 	return false;
 }
 
-void UXjManager::OnAssetsLoaded()
+void UXjManager::Setup()
 {
-	bCanTick = true;
+	XjRunnable = MakeShared<FXjRunnable>(GetWorld());
+	XjThread = TSharedPtr<FRunnableThread>(FRunnableThread::Create(XjRunnable.Get(), TEXT("Xj Thread")));
+}
+
+void UXjManager::BeginDestroy()
+{
+	if (XjThread && XjRunnable)
+	{
+		XjRunnable->Stop();
+		XjThread->WaitForCompletion();
+	}
+
+	Super::BeginDestroy();
 }

@@ -126,7 +126,7 @@ void UXjMusicInstanceSubsystem::SetupXJ()
 	Manager = NewObject<UXjManager>(this);
 	if (Manager)
 	{
-		Manager->Setup(this, AudioLoader);
+		Manager->Setup();
 	}
 
 	if (CVarShowDebugChain->GetInt() > 0)

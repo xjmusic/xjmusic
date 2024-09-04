@@ -23,41 +23,16 @@ struct XjCommand
 	float FloatValue = 0.0f;
 };
 
-UCLASS()
-class XJMUSICPLUGIN_API UXjManager : public UObject, public FTickableGameObject
+class FXjRunnable : public FRunnable
 {
-	GENERATED_BODY()
 
 public:
 
-	void Setup(class UXjMusicInstanceSubsystem* XjSubsystem, class UXjAudioLoader* AudioLoader);
+	FXjRunnable(UWorld* World);
 
-	void Tick(float DeltaTime) override;
-
-	bool IsTickableWhenPaused() const override
-	{
-		return true;
-	}
-
-	bool IsTickableInEditor() const override
-	{
-		return false;
-	}
-
-	bool IsTickable() const override 
-	{ 
-		return bCanTick; 
-	}
-
-	TStatId GetStatId() const override
-	{
-		return TStatId();
-	}
-
-	UWorld* GetWorld() const override
-	{
-		return GetOuter()->GetWorld();
-	}
+	virtual bool Init() override;
+	virtual uint32 Run() override;
+	virtual void Stop() override;
 
 	void PushCommand(const XjCommand& NewCommand)
 	{
@@ -75,26 +50,72 @@ public:
 	}
 
 private:
+	bool TryInitMockEngine();
+
+private:
 
 	class UXjMusicInstanceSubsystem* XjMusicSubsystem = nullptr;
+
+	TSharedPtr<TEngineBase> Engine;
+
+	TSharedPtr<FStreamableHandle> StreamHandle;
+
+	double LastFramTime = 0.0f;
+
+	int RunCycleFrequency = 9;
 
 	TimeRecord XjStartTime;
 
 	TimeRecord AtChainMicros;
 
+	FThreadSafeBool bShouldStop = false;
+
 	TQueue<XjCommand> Commands;
+};
 
-	TSharedPtr<TEngineBase> Engine;
+UCLASS()
+class XJMUSICPLUGIN_API UXjManager : public UObject
+{
+	GENERATED_BODY()
 
-	bool bInitDecompressionHappened = false;
+public:
 
-	const float RunCycleInterval = (1.0f / 9.0f);
+	void Setup();
 
-	float FramTimeAccumulation = RunCycleInterval;
+	virtual void BeginDestroy() override;
 
-	bool bCanTick = false;
+	void PushCommand(const XjCommand& NewCommand)
+	{
+		if (!XjRunnable)
+		{
+			return;
+		}
 
-	bool TryInitMockEngine();
+		XjRunnable->PushCommand(NewCommand);
+	}
 
-	void OnAssetsLoaded();
+	TimeRecord GetAtChainMicros() const
+	{
+		if (!XjRunnable)
+		{
+			return {};
+		}
+
+		return XjRunnable->GetAtChainMicros();
+	}
+
+	TWeakPtr<TEngineBase> GetActiveEngine() const
+	{
+		if (!XjRunnable)
+		{
+			return {};
+		}
+
+		return XjRunnable->GetActiveEngine();
+	}
+
+private:
+
+	TSharedPtr<FXjRunnable> XjRunnable;
+	TSharedPtr<FRunnableThread> XjThread;
 };
