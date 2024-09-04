@@ -37,11 +37,11 @@ public class XJMusicPlugin : ModuleRules
 
         if (Target.Configuration == UnrealTargetConfiguration.DebugGame)
 		{
-            PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "../../Lib/Debug/xjmusic.lib"));
+            PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "../../Lib/xjmusic.lib"));
 		}
 		else
 		{
-            PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "../../Lib/Release/xjmusic.lib"));
+            PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "../../Lib/xjmusic.lib"));
         }
     }
 }

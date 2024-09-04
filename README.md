@@ -30,6 +30,8 @@ The source files for the demos are hosted [here](https://github.com/xjmusic/xjmu
 
 When you're ready to integrate XJ music into your game, check out the [C++ playback engine](https://github.com/xjmusic/xjmusic/tree/main/engine/) and [its documentation](https://engine-docs.xjmusic.com/).
 
+## Building
+
 
 ## Patented technology, open source codebase
 
