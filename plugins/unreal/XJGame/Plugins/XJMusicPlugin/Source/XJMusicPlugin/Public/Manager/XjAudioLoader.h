@@ -27,7 +27,7 @@ public:
 	int32 NumSamples = 0;
 	int16* SamplesData = nullptr;
 
-	void LoadData(USoundWave* NewWave);
+	void LoadData(USoundWave* NewWave, const bool bAllowDecompression);
 
 	bool IsValidToUse() const;
 
@@ -51,16 +51,25 @@ public:
 
 	void DecompressAll();
 
-	TSharedPtr<FXjAudioWave> GetSoundById(const FString& Id);
+	TSharedPtr<FXjAudioWave> GetSoundById(const FString& Id, const bool bAllowDecompression = false);
 
-	TSharedPtr<FStreamableHandle> InitialAssetsStream;
+	bool IsLoadingAssets() const
+	{
+		return bLoading.Load();
+	}
 
 private:
 
 	FStreamableManager StreamableManager;
+
+	TSharedPtr<FStreamableHandle> InitialAssetsStream;
+
+	TAtomic<bool> bLoading = true;
 		
 	TMap<FString, FSoftObjectPath> AudiosSoftReferences;
 	TMap<FString, TSharedPtr<FXjAudioWave>> CachedAudios;
 
 	void RetrieveProjectsContent();
+
+	void OnAssetsLoaded();
 };

@@ -31,7 +31,7 @@ const FXjAudioWave& FXjAudioWave::operator=(const FXjAudioWave& Other)
 	return *this;
 }
 
-void FXjAudioWave::LoadData(USoundWave* NewWave)
+void FXjAudioWave::LoadData(USoundWave* NewWave, const bool bAllowDecompression)
 {
 	if (!NewWave || NewWave == Wave)
 	{
@@ -42,6 +42,11 @@ void FXjAudioWave::LoadData(USoundWave* NewWave)
 
 	if (Wave->RawPCMData == nullptr)
 	{
+		if (!bAllowDecompression)
+		{
+			return;
+		}
+
 		FAudioDevice* AudioDevice = GEngine->GetMainAudioDeviceRaw();
 		if (!AudioDevice)
 		{
@@ -121,11 +126,11 @@ void UXjAudioLoader::DecompressAll()
 {
 	for (const TPair<FString, FSoftObjectPath>& Info : AudiosSoftReferences)
 	{
-		GetSoundById(Info.Key);
+		GetSoundById(Info.Key, true);
 	}
 }
 
-TSharedPtr<FXjAudioWave> UXjAudioLoader::GetSoundById(const FString& Id)
+TSharedPtr<FXjAudioWave> UXjAudioLoader::GetSoundById(const FString& Id, const bool bAllowDecompression)
 {
 	if (TSharedPtr<FXjAudioWave>* Wave = CachedAudios.Find(Id))
 	{
@@ -147,7 +152,7 @@ TSharedPtr<FXjAudioWave> UXjAudioLoader::GetSoundById(const FString& Id)
 	Wave->LoadingBehavior = ESoundWaveLoadingBehavior::ForceInline;
 
 	TSharedPtr<FXjAudioWave> XjAudio = MakeShared<FXjAudioWave>();
-	XjAudio->LoadData(Wave);
+	XjAudio->LoadData(Wave, bAllowDecompression);
 	
 	CachedAudios.Add(Id, XjAudio);
 
@@ -174,7 +179,7 @@ void UXjAudioLoader::RetrieveProjectsContent()
    
     AssetRegistry.ScanPathsSynchronous({ ContentDirectory }, true);
     AssetRegistry.GetAssetsByPath(*ContentDirectory, AudioData, true);
-   
+
     for (const FAssetData& Data : AudioData)
     {
     	AudiosSoftReferences.Add(Data.AssetName.ToString() + ".wav", Data.ToSoftObjectPath());
@@ -183,4 +188,16 @@ void UXjAudioLoader::RetrieveProjectsContent()
     TArray<FSoftObjectPath> Paths;
     AudiosSoftReferences.GenerateValueArray(Paths);
     InitialAssetsStream = StreamableManager.RequestAsyncLoad(Paths);
+	
+	if (!InitialAssetsStream->BindCompleteDelegate(FStreamableDelegate::CreateUObject(this, &UXjAudioLoader::OnAssetsLoaded)))
+	{
+		OnAssetsLoaded();
+	}
+}
+
+void UXjAudioLoader::OnAssetsLoaded()
+{
+	DecompressAll();
+
+	bLoading.Store(false);
 }

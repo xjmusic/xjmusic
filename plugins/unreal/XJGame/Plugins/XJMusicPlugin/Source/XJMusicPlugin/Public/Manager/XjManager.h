@@ -57,13 +57,11 @@ private:
 
 	class UXjMusicInstanceSubsystem* XjMusicSubsystem = nullptr;
 
+	class UXjAudioLoader* AudioLoader = nullptr;
+
 	TSharedPtr<TEngineBase> Engine;
 
-	TSharedPtr<FStreamableHandle> StreamHandle;
-
-	bool bPreDecompression = false;
-
-	double LastFramTime = 0.0f;
+	double LastFrameTime = 0.0f;
 
 	int RunCycleFrequency = 9;
 

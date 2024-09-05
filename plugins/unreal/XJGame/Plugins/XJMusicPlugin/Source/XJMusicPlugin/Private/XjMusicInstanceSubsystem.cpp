@@ -167,23 +167,15 @@ void UXjMusicInstanceSubsystem::AddActiveAudio(const FAudioPlayer& Audio)
 
 	UpdateDebugChainView();
 
-	if (!Mixer || !AudioLoader)
+	if (!Mixer)
 	{
 		return;
 	}
 
-	FMixerAudio MixerAudio;
-	MixerAudio.Id = Audio.Id;
-	MixerAudio.Wave = AudioLoader->GetSoundById(Audio.WaveId);
-
-	MixerAudio.StartSamples = Audio.StartTime.GetSamples(UXjMixer::GetSampleRate(), UXjMixer::GetNumChannels());
-	MixerAudio.EndSamples = Audio.EndTime.GetSamples(UXjMixer::GetSampleRate(), UXjMixer::GetNumChannels());
-	MixerAudio.SetupEnvelops(Audio.ReleaseTime.GetSamples(UXjMixer::GetSampleRate(), UXjMixer::GetNumChannels()));
-
-	MixerAudio.FromVolume = Audio.FromVolume;
-	MixerAudio.ToVolume = Audio.ToVolume;
-
-	Mixer->AddOrUpdateActiveAudio(MixerAudio);
+	AsyncTask(ENamedThreads::GameThread, [this, Audio]()
+		{
+			Mixer->AddOrUpdateActiveAudio(FMixerAudio::CreateMixerAudio(Audio, AudioLoader));
+		});
 }
 
 void UXjMusicInstanceSubsystem::UpdateActiveAudio(const FAudioPlayer& Audio)
@@ -202,7 +194,10 @@ void UXjMusicInstanceSubsystem::UpdateActiveAudio(const FAudioPlayer& Audio)
 		return;
 	}
 
-	Mixer->AddOrUpdateActiveAudio(FMixerAudio::CreateMixerAudio(Audio, AudioLoader));
+	AsyncTask(ENamedThreads::GameThread, [this, Audio]()
+		{
+			Mixer->AddOrUpdateActiveAudio(FMixerAudio::CreateMixerAudio(Audio, AudioLoader));
+		});
 }
 
 void UXjMusicInstanceSubsystem::RemoveActiveAudio(const FAudioPlayer& Audio)

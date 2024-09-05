@@ -29,41 +29,30 @@ bool FXjRunnable::Init()
 		Engine->Setup(XjMusicSubsystem->GetRuntimeProjectDirectory() + "/" + XjMusicSubsystem->XjProjectInstance->ProjectName + ".xj");
 	}
 
-	StreamHandle = XjMusicSubsystem->AudioLoader->InitialAssetsStream;
+	AudioLoader = XjMusicSubsystem->AudioLoader;
 
-	LastFramTime = FPlatformTime::Seconds();
+	LastFrameTime = FPlatformTime::Seconds();
 
 	return true;
 }
 
 uint32 FXjRunnable::Run()
 {
+	while(AudioLoader->IsLoadingAssets() && !bShouldStop)
+	{
+		FPlatformProcess::Sleep(0.0f);
+		continue;
+	}
+
+	LastFrameTime = FPlatformTime::Seconds();
+
 	while (!bShouldStop)
 	{
 		check(Engine);
 		check(XjMusicSubsystem);
 
-		if (StreamHandle->IsLoadingInProgress())
-		{
-			LastFramTime = FPlatformTime::Seconds();
-
-			FPlatformProcess::Sleep(0.0f);
-			continue;
-		}
-		else if (!bPreDecompression)
-		{
-			bPreDecompression = true;
-			
-			UXjAudioLoader* AudioLoader = XjMusicSubsystem->AudioLoader;
-			check(AudioLoader);
-
-			AudioLoader->DecompressAll();
-
-			LastFramTime = FPlatformTime::Seconds();
-		}
-
 		const double CurrentTime = FPlatformTime::Seconds();
-		const double DeltaTime = CurrentTime - LastFramTime;
+		const double DeltaTime = CurrentTime - LastFrameTime;
 
 		if (DeltaTime < (1.0f / RunCycleFrequency))
 		{
@@ -71,8 +60,7 @@ uint32 FXjRunnable::Run()
 			continue;
 		}
 
-		LastFramTime = CurrentTime;
-
+		LastFrameTime = CurrentTime;
 
 		while (!Commands.IsEmpty())
 		{
@@ -99,7 +87,6 @@ uint32 FXjRunnable::Run()
 				break;
 			}
 		}
-
 
 		TArray<FAudioPlayer> ReceivedAudios = Engine->RunCycle(AtChainMicros.GetMicros());
 
