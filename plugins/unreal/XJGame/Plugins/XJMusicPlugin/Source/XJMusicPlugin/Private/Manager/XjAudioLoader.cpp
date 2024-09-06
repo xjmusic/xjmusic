@@ -197,7 +197,21 @@ void UXjAudioLoader::RetrieveProjectsContent()
 
 void UXjAudioLoader::OnAssetsLoaded()
 {
+#if ENGINE_MAJOR_VERSION >= 5
+
 	DecompressAll();
 
 	bLoading.Store(false);
+
+#else
+
+	Async(EAsyncExecution::Thread, [this]()
+		{
+			DecompressAll();
+
+			bLoading.Store(false);
+		});
+
+#endif
+
 }
