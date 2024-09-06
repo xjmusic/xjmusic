@@ -142,10 +142,15 @@ void UXjMusicInstanceSubsystem::ShutdownXJ()
 	ActiveAudios.Empty();
 
 
-	Mixer->Shutdown();
+	if (IsValid(Mixer))
+	{
+		Mixer->Shutdown();
+	}
 
-	AudioLoader->Shutdown();
-
+	if (IsValid(AudioLoader))
+	{
+		AudioLoader->Shutdown();
+	}
 
 	Manager = nullptr;
 
