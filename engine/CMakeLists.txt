@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.24)
 # Project name and a few useful settings. Other commands can pick up the results
 project(
         xjmusic
-        VERSION 1.9.5
+        VERSION 1.9.6
         DESCRIPTION "The XJ music engine"
         LANGUAGES CXX)
 
