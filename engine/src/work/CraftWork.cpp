@@ -374,8 +374,10 @@ void CraftWork::doFabricationWork(
 	const std::optional<const Program*> overrideMacroProgram,
 	const std::set<std::string>&		overrideMemes) const
 {
-	// will prepare fabricator
-	const auto retrospective = SegmentRetrospective(store, inputSegment->id);
+  // set up the segment retrospective - unless we are overriding the segment type, in which case load an empty retrospective
+	const auto retrospective = SegmentRetrospective(store, overrideMemes.empty() ? 0 : inputSegment->id);
+
+  // will prepare fabricator
 	auto	   fabricator = Fabricator(content, store, &retrospective, inputSegment->id, overrideSegmentType);
 
 	// will do craft work and fabricate the segment
