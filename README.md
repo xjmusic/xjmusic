@@ -10,7 +10,7 @@
 
 # Adaptive music engine
 
-XJ music enables composers to realize new possibilities in adaptive music for video games.
+XJ music is the first end-to-end solution for adaptive music in video games built specifically and only for music, enabling composers to realize new possibilities.
 
 XJ includes the [XJ music workstation](workstation/README.md), a DAW dedicated to preparing adaptive video game music, and the 
 [XJ music engine](engine/README.md) to integrate the product within your game audio system.
