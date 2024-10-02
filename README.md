@@ -3,6 +3,11 @@
 [![Workstation CI](https://github.com/xjmusic/xjmusic/actions/workflows/workstation_ci.yml/badge.svg)](https://github.com/xjmusic/xjmusic/actions/workflows/workstation_ci.yml)
 [![Workstation Distro](https://github.com/xjmusic/xjmusic/actions/workflows/workstation_distro.yml/badge.svg)](https://github.com/xjmusic/xjmusic/actions/workflows/workstation_distro.yml)
 
+[<a href="[https://github.com/gtreshchev/RuntimeFilesDownloader/blob/main/LICENSE](https://xjmusic.com/license)">![License](https://img.shields.io/badge/license-MIT-brightgreen.svg)</a>](https://img.shields.io/badge/license-free_for_indies-4dc81f)
+<a href="https://georgy.dev/discord">![Discord](https://img.shields.io/discord/1143999288440000522.svg?label=Discord&logo=discord&color=7289DA&labelColor=2C2F33)</a>
+<a href="https://www.unrealengine.com/">![Unreal Engine](https://img.shields.io/badge/Unreal-5.4.4%2B-dea309)</a>
+
+
 <a href="https://xjmusic.com">
   <img width="320" height="320" src="design/xj-music-logo.png" alt="XJ music logo" />
 </a>
