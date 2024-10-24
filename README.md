@@ -33,7 +33,7 @@ Then, read the [getting started documentation](https://docs.xjmusic.com/getting-
 
 The source files for the demos are hosted [here](https://github.com/xjmusic/xjmusic-demos)
 
-When you're ready to integrate XJ music into your game, check out the [C++ playback engine](https://github.com/xjmusic/xjmusic/tree/main/engine/) and [its documentation](https://engine-docs.xjmusic.com/).
+When you're ready to integrate XJ music into your game, check out the [Unreal Engine Plugin](https://github.com/xjmusic/UnrealPlugin/) or go directly for the [C++ playback engine](https://github.com/xjmusic/xjmusic/tree/main/engine/) and [its documentation](https://engine-docs.xjmusic.com/).
 
 
 ## Patented technology, open source codebase
