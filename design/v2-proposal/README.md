@@ -43,6 +43,8 @@ Multi-station synchronization, the part that sounds most exotic, is the *least* 
 | 10 | [10-risks-and-open-questions.md](10-risks-and-open-questions.md) | Risks, alternatives considered, decisions deferred to spikes |
 | 11 | [11-resolutions.md](11-resolutions.md) | Second pass: each open question researched, measured where possible, and resolved to a recommendation |
 | — | [glossary.md](glossary.md) | Terms used across the proposal, including new ones |
+| — | [paperwork/](paperwork/ableton-link-license-request.md) | The week-one license paperwork: a draft request to Ableton for Link, and the Steinberg ASIO agreement checklist |
+| — | [tools/](tools/README.md) | The scripts behind the second pass's measurements and content analysis |
 
 ## How to engage with this proposal
 

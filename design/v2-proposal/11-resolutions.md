@@ -103,7 +103,7 @@ The XJ license is not GPL-compatible (it carries its own patent and trademark te
 
 ### Recommendation
 
-- **Send the email in Phase 0, week one.** It is the cheapest action in the whole plan and unblocks the best feature in the session design.
+- **Send the email in Phase 0, week one.** It is the cheapest action in the whole plan and unblocks the best feature in the session design. A ready-to-send draft is in [paperwork/ableton-link-license-request.md](paperwork/ableton-link-license-request.md).
 - **Design the clock as a trait** (`BeatClock`) with two implementations behind feature flags: `link` (via `rusty_link`) and `session` (a conductor-hosted clock using NTP-style offset estimation over the session connection). The `session` clock is needed regardless, for venues that run no Link peers, and it is what the sessions soak tests run on in CI.
 - **Add MIDI clock out** to the `session` clock so that non-Link hardware can follow an XJ station. This is cheap (`midir` already in the stack) and covers most older gear.
 - Do not build the bridge-process workaround. If Ableton declines, the fallback is `session` plus MIDI clock, and the audience's MPCs follow MIDI clock from a station instead of Link.
@@ -314,7 +314,7 @@ Nothing in 2.0.
 
 No 32-bit builds. No mobile in 2.0.
 
-Submit the ASIO agreement in Phase 0 alongside the Link email; both are paperwork with long tails.
+Submit the ASIO agreement in Phase 0 alongside the Link email; both are paperwork with long tails. The facts, checklist and engineering stance while waiting are in [paperwork/steinberg-asio-agreement.md](paperwork/steinberg-asio-agreement.md).
 
 ### What remains
 
