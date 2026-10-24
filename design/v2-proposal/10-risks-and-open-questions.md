@@ -24,7 +24,7 @@ Everything in this proposal that could be wrong, and the decisions it deliberate
 
 ## Open questions
 
-Decisions this proposal does not make. Each names who decides and when.
+Decisions this proposal does not make. Each names who decides and when. The second pass in [11-resolutions.md](11-resolutions.md) works every one of them through to a recommendation with evidence; this table keeps the original framing so the two can be compared.
 
 | # | Question | Decided by | When |
 |---|---|---|---|
@@ -63,7 +63,7 @@ Decisions this proposal does not make. Each names who decides and when.
 
 ## What would change the proposal's mind
 
-- If the Phase 0 craft-timing spike shows segment craft routinely above 200 ms on target hardware, the commit-horizon design needs a craft-on-another-thread model before Play mode, and Phase 1 grows.
+- ~~If the Phase 0 craft-timing spike shows segment craft routinely above 200 ms on target hardware, the commit-horizon design needs a craft-on-another-thread model before Play mode, and Phase 1 grows.~~ Measured in the second pass: worst case 28 ms on the largest demo project on a fast machine ([11-resolutions.md](11-resolutions.md)). Retired unless a 2019-laptop measurement in Phase 0 contradicts it by an order of magnitude.
 - If no stretch library passes the bake-off, G7 stands, the Commons quality bar gets stricter about multisampling, and Phase 4 gets harder.
 - If both UI spikes miss the 60 fps criterion, the surface is scoped down before any other decision is made.
 - If Ableton declines a license and the fallback clock cannot lock an MPC, the "audience's own gear" story in [07-session-protocol.md](07-session-protocol.md) is dropped and sessions sync only XJ stations.

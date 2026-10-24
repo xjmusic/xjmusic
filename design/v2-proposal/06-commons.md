@@ -43,7 +43,10 @@ license = "CC-BY-4.0"            # SPDX identifier
 description = "Four-on-the-floor drums, sub bass, warm pads. 118–126 bpm."
 tags = ["house", "drums", "bass", "pads"]
 engine = ">=2.0.0"               # minimum engine
-taxonomy = "xj-base@1"           # which shared taxonomy the memes follow
+taxonomy = "xj-base@1"           # which technical conventions the memes follow
+
+[taxonomy]
+palettes = ["ELEMENT[EARTH, WIND, FIRE, WATER]"]   # this pack's exclusive categories
 
 [dependencies]
 xj-starter-drums = "^1.0"        # packs this one binds to or extends
@@ -92,11 +95,12 @@ The lockfile pins every pack to an exact version and hash. When a station joins 
 
 ## Registry
 
-Modeled on a sparse package index, because the problem is the same: name-and-version lookup, immutable artifacts, mirrors, offline use.
+Modeled on a sparse package index, because the problem is the same: name-and-version lookup, immutable artifacts, mirrors, offline use. The hosting decision is worked through in [11-resolutions.md](11-resolutions.md), Q7.
 
-- **Index:** a static JSON tree over HTTPS: `/index/<name>.json` lists versions, hashes, manifests. Readable with no account.
-- **Artifacts:** zipped packs in object storage, addressed by hash. Any mirror that has the bytes is as good as the origin.
-- **Publishing:** packs are signed with the author's key (ed25519, `minisign` style). The index records the public key on first publish; later versions must be signed by the same key or by a maintainer key. No server-side accounts in 2.0.
+- **Index:** a git repository, `xjmusic/commons`, holding a static JSON tree: `/index/<name>.json` lists versions, hashes and manifests. Published through GitHub Pages or served raw; readable with no account. Git history is the audit log, and a mirror of the index is a `git clone`.
+- **Publishing is a pull request** to that repository. CI verifies the signature, runs the lint, renders the preview, uploads the artifact, and only then merges the index entry. This is the same path code contributions take, which is what lets content contributions earn equity on the same terms (Q5).
+- **Artifacts:** zipped packs on Cloudflare R2 behind a custom domain, addressed by content hash. R2 charges no egress, which for a registry is the whole bill: at 100 GB of packs the storage cost is about $1.50 a month. Because artifacts are hash-addressed, any mirror (a venue's NAS, a USB stick, another bucket) is interchangeable and the workstation tries mirrors in order.
+- **Signing:** packs are signed with the author's key (ed25519, `minisign` style). The index records the public key on first publish; later versions must be signed by the same key or by a maintainer key. No server-side accounts in 2.0.
 - **Offline:** the workstation keeps a local mirror of every pack it has fetched. A venue needs no internet once its show is fetched. `xj-content fetch --show show.toml` on one machine and a USB stick is a supported workflow, because that is what venues are actually like.
 - **Later:** a web front-end over the index with search and browser audition via the WebAssembly build mentioned in [03-architecture.md](03-architecture.md).
 
@@ -105,10 +109,10 @@ Modeled on a sparse package index, because the problem is the same: name-and-ver
 Three different things are licensed and the proposal keeps them apart.
 
 1. **The software** keeps the current XJ music license: free for projects under the stated budget, commercial license above it, patent license separate. Nothing here changes it.
-2. **Commons content** carries an SPDX license per pack. The recommended default is CC BY 4.0, so that a performance or a game may use the output with attribution to the pack authors. Packs intended as foundation material that nobody should have to credit on stage may choose CC0. Packs may be more restrictive; the workstation shows the license before a pack is added to a show.
+2. **Commons content** carries an SPDX license per pack. The default is **CC BY 4.0**, worked through in [11-resolutions.md](11-resolutions.md), Q6: its definition of sharing explicitly includes public performance, and its attribution rule ("in any reasonable manner based on the medium, means, and context") is written for exactly what a live set or a game credits screen can provide. The **starter pack is CC0** so that the first thing a new user makes carries no obligations, and any pack may choose CC0. Share-alike and non-commercial variants are not accepted into the Commons: the first would contaminate game soundtracks, the second would forbid a paid show. The workstation shows the license before a pack is added to a show, and it makes attribution automatic by writing a `CREDITS.md` into every capture, bounce, build and exported pack, listing each pack's authors, license and link from its manifest. On publish, the submitter signs a short declaration that they own or have cleared every sample in the pack, and the registry records who declared.
 3. **The output audio** is already granted to the user by the software license provided they own the rights to the inputs. Pack licenses are what make that provision true for Commons content.
 
-Whether contributing content earns equity on the same terms as contributing code is a question for the company, not for this proposal; it is listed in [10-risks-and-open-questions.md](10-risks-and-open-questions.md).
+Whether contributing content earns equity on the same terms as contributing code is the company's decision. The second pass recommends that it does, with no new mechanism: a pack is published through a pull request that carries its hours log and passes the same review and CI gate as code ([11-resolutions.md](11-resolutions.md), Q5).
 
 ## The quality bar
 
@@ -117,7 +121,7 @@ A registry full of mediocre packs is worse than no registry. Publishing to the C
 **Automated (`xj-content lint`):**
 - Every `Event`-mode and `Chord`-mode instrument either covers its declared note range with sampled tones or sets `allowPitchShift` with a stated range.
 - Every `Loop`-mode audio declares `tempo` and `loopBeats`; its length agrees with them within a tolerance.
-- Every program and instrument carries memes from the declared shared taxonomy, or a documented pack-local category.
+- Every program and instrument carries memes that are either technical conventions from `xj-base` or members of a palette category the pack declares; every declared category is used by at least one piece of content.
 - Audio is level-matched to a documented target so packs can be combined without re-balancing.
 - The pack renders ten minutes on each of its templates with zero engine error messages.
 - The manifest validates; the license is a known SPDX identifier; every audio file's hash matches.
@@ -128,16 +132,14 @@ A registry full of mediocre packs is worse than no registry. Publishing to the C
 
 ## A shared taxonomy
 
-Packs combine only if their memes mean the same thing. V1 lets every template define its own `memeTaxonomy`. V2 keeps that freedom and adds a convention: a small published base taxonomy, `xj-base@1`, that Commons packs are expected to tag against. Something like:
+Packs combine only if their memes mean the same thing. V1 lets every template define its own `memeTaxonomy`, and the four demo projects show what artists do with that freedom: each invents its own exclusive palette (seasons, elements, story beats, cities) and none overlaps with another. Underneath those palettes they share technical conventions that nobody wrote down: `85BPM`-style numeric memes for recorded tempo, `3NOTE` and `4NOTE` for voicing density, `SMALL` and `LARGE` for instrument size, `BREAK` on sequence bindings, and the engine's own grammar of `!X`, `X!` and `$X`. The analysis is in [11-resolutions.md](11-resolutions.md), Q4.
 
-```
-ENERGY[LOW, MID, HIGH]
-MOOD[DARK, COOL, WARM, BRIGHT]
-SPACE[DRY, ROOM, WIDE]
-TIME[DAWN, DAY, DUSK, NIGHT]
-```
+V2 therefore does two things rather than inventing mood categories:
 
-The exact categories are a curatorial decision, to be made by people who will author the first packs, not by this document. The engineering requirement is only that the taxonomy be named and versioned in the manifest so a show can check that its packs agree.
+1. **`xj-base@1` codifies the technical conventions**: tempo, density, size, structure, a small open list of harmonic-character memes, and the meme grammar. It is a short document packs cite in their manifest.
+2. **Palettes stay per pack and are declared.** `pack.toml` gains a `[taxonomy]` table listing the pack's exclusive categories in the engine's own `CATEGORY[A, B, C]` syntax. A show's template taxonomy is the union of its packs' categories, which the engine already supports: a Deep House pack and a Lofi pack in one show give the performer two palette rows, ELEMENT and CITY, and nothing conflicts.
+
+The lint checks what the demos show drifts in practice: a declared category whose memes appear on no content fails, as does content using a palette-like meme no declared category contains, as does the same word appearing in two packs' categories with different meanings.
 
 ## Seeding the Commons
 
@@ -152,7 +154,7 @@ A `xj-content` CLI, which is the same crate the workstation uses:
 | `xj-content pack <project>` | Builds a pack from a V1 project: hashes audio, writes the manifest, lints |
 | `xj-content lint <pack>` | Runs the automated quality bar |
 | `xj-content verify <pack>` | Checks signatures and hashes |
-| `xj-content publish <pack>` | Signs and uploads |
+| `xj-content publish <pack>` | Signs, uploads the artifact, and opens the index pull request |
 | `xj-content fetch --show <show.toml>` | Resolves, downloads, writes `show.lock` |
 | `xj-content lock <show.toml>` | Re-resolves and rewrites the lockfile |
 | `xj-content render <pack> --template <t> --minutes 2` | Renders the preview |

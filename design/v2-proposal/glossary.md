@@ -5,6 +5,7 @@ Terms used across the V2 proposal. Terms marked **(new)** are introduced by V2; 
 | Term | Meaning |
 |---|---|
 | **Beat time** (new) | Time in beats on the shared Link timeline. One of the four time bases in [03-architecture.md](03-architecture.md). |
+| **BeatClock** (new) | The transport's clock abstraction, implemented by Ableton Link or by the conductor-hosted session clock. |
 | **Boundary** (new) | A musical moment at which a cue may land: now, beat, bar, segment, main (section), macro. |
 | **Capture** (new) | A recording of a performance as data: seed, show lock, cue log, gesture log, and bounced audio. Replayable. |
 | **Chain** | The unbounded sequence of segments an engine fabricates from a template. |
@@ -55,5 +56,6 @@ Terms used across the V2 proposal. Terms marked **(new)** are introduced by V2; 
 | **Taxonomy** | The template's categories of mutually exclusive memes, e.g. `CITY[CHICAGO,DENVER,PHILADELPHIA]`. |
 | **Tempo policy** (new) | Whether tempo comes from content (as in V1) or from the host (Link). |
 | **Tones** | The pitches recorded in an audio sample or required by an event; the engine matches these to pick samples. |
+| **Variant** (new) | A pre-rendered stretched or pitch-shifted copy of a sample in the cache, keyed by content hash, ratio and semitones. |
 | **Voicing** | The specific notes an instrument type plays for a chord in a segment. |
 | **Why panel** (new) | The UI view of the engine's choice diagnostics: candidates, weights, exclusions. |

@@ -19,11 +19,12 @@ Phases, exit criteria, rough sizing, and what stays running from V1 while V2 is 
 | Spike | Question | Done when |
 |---|---|---|
 | C ABI | Can a Rust binary link the engine statically on Windows, macOS and Linux from `build.rs`, and run the test project through `cpal`? | A 300-line Rust program plays the test project on all three platforms in CI |
-| Craft timing | How long does a segment craft take on a laptop, per craft stage, on the demo projects? | Numbers in a table in this folder; informs horizons |
-| UI toolkit | Candidate A or B ([05-workstation.md](05-workstation.md))? | Both spikes built; criteria scored; decision recorded |
-| Stretch and shift | Does Signalsmith Stretch (or a Rust alternative) sound good enough on loops and tonal samples at ±4 semitones and 0.85–1.2×? | Blind listening by three musicians; decision recorded |
-| Link | Does `rusty_link` lock a Rust process to an MPC and to Ableton Live on a LAN? What is the license path? | Demo on real hardware; legal answer recorded |
-| Taxonomy | What are the base categories? | Drafted with the people who will author the first packs |
+| Craft timing | How long does a segment craft take? | **Measured in the second pass** against the engine as built ([11-resolutions.md](11-resolutions.md)); remaining: repeat on a 2019 laptop and on the largest Commons pack |
+| UI toolkit | Tauri 2 or iced ([11-resolutions.md](11-resolutions.md), Q1)? | Both spikes built on all three platforms; criteria scored; decision recorded |
+| Stretch and shift | Signalsmith Stretch or Bungee, on the fixed material in [11-resolutions.md](11-resolutions.md), Q2? | Blind listening by three musicians; decision recorded |
+| Link | Does `rusty_link` lock a Rust process to an MPC and to Ableton Live on a LAN? | Demo on real hardware |
+| Paperwork | Ableton's proprietary Link license; Steinberg's ASIO agreement | Both requests sent in week one; answers recorded when they arrive |
+| Taxonomy | Are the base categories drafted from the demo content ([11-resolutions.md](11-resolutions.md), Q4) right? | Reviewed and amended by the people who will author the first packs |
 
 **Exit:** every row above has a recorded decision. The C ABI spike becomes the seed of `xj-engine-sys`.
 

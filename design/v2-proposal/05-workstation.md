@@ -79,10 +79,10 @@ Every editor edits the same V1 JSON files the Java workstation writes, so the tw
 |---|---|---|
 | Language | Rust, stable toolchain, workspace of crates as in [03-architecture.md](03-architecture.md) | No nightly features |
 | Engine | C++ via the C ABI, built by `cmake` from `build.rs`, statically linked | One binary |
-| Audio I/O | `cpal` | WASAPI, CoreAudio, ALSA and JACK out of the box; ASIO behind a feature flag because the ASIO SDK has its own license |
+| Audio I/O | `cpal` | WASAPI, CoreAudio, ALSA and JACK out of the box; ASIO behind a feature flag: Steinberg's SDK has been dual GPLv3 or proprietary since October 2025, and official builds enable it only once the proprietary agreement is countersigned ([11-resolutions.md](11-resolutions.md), Q10) |
 | Decoding | `symphonia` | WAV, FLAC, MP3, OGG, AAC; pure Rust; no ffmpeg |
 | Resampling | `rubato` | Sinc-interpolated, pure Rust |
-| Time stretch and pitch shift | Signalsmith Stretch (C++, MIT) via FFI, or a Rust port | Best quality-to-cost ratio under a permissive license; quality to be confirmed in Phase 0 |
+| Time stretch and pitch shift | Signalsmith Stretch (C++, MIT) via the `signalsmith-stretch` crate; Bungee (MPL-2.0) as the comparison | Rendered ahead of time into the cache, never on the audio thread; see [11-resolutions.md](11-resolutions.md), Q2 |
 | MIDI | `midir` | Cross-platform; hot-plug |
 | OSC | `rosc` | For controllers and for integrations such as lighting |
 | Tempo sync | Ableton Link via `rusty_link` | Link is C++, GPLv2 or Ableton's proprietary license; license review required ([10-risks-and-open-questions.md](10-risks-and-open-questions.md)) |
@@ -94,11 +94,13 @@ Every editor edits the same V1 JSON files the Java workstation writes, so the tw
 
 ### The UI toolkit decision
 
-This is deliberately not decided here. It is the decision with the highest product impact and the least engineering certainty, so it gets a two-week spike in Phase 0 that builds the same slice (the scenes grid, the harmony strip with a live commit-horizon line, four layer strips with real meters at 60 fps, driven by a real running engine) in two candidates, then decides on measured criteria.
+This is deliberately not decided here. It is the decision with the highest product impact and the least engineering certainty, so it gets a two-week spike in Phase 0 that builds the same slice (the scenes grid, the harmony strip with a live commit-horizon line, four layer strips with real meters at 60 fps, driven by a real running engine) in two candidates, on all three platforms, then decides on measured criteria.
 
 **Candidate A: Tauri 2 shell with a Svelte front-end and a WebGPU or Canvas surface.** All real-time work is Rust regardless; the web view only draws. Highest visual ceiling (CSS, web fonts, shaders), fastest iteration, largest contributor pool. Risk: web-view feel, startup time, and the discipline needed to keep the UI from ever touching audio.
 
-**Candidate B: a native Rust GPU toolkit**, most likely `iced` or GPUI (the toolkit behind Zed), with `egui` as a fallback. Single language, smallest binary, fastest startup, no web view. Risk: visual ceiling and typography, fewer ready-made components, smaller contributor pool.
+**Candidate B: `iced`**, a native Rust toolkit rendering through wgpu with a software fallback. Single language, smallest binary, fastest startup, no web view. Risk: it describes itself as experimental, has no accessibility story yet, and has a smaller contributor pool. GPUI and egui were considered and dropped in the second pass, GPUI for pre-1.0 churn and thin documentation, egui for its visual ceiling ([11-resolutions.md](11-resolutions.md), Q1).
+
+**Decided without the spike:** the performance surface is a canvas-rendered component in either candidate (Canvas2D or WebGPU in A, wgpu in B), drawn from the station's snapshot stream. The toolkit decision is about chrome and editors, not the instrument.
 
 Criteria, in priority order:
 
@@ -109,6 +111,7 @@ Criteria, in priority order:
 5. Accessibility: keyboard navigation and screen-reader labels on every control.
 6. Cross-platform parity with no per-platform special cases in the surface.
 7. Contributor pool.
+8. No separate code path on Linux, where Candidate A runs on webkit2gtk; the surface keeps a Canvas2D fallback because WebGPU cannot be assumed there.
 
 Default if the spike is a tie: Candidate A, because criterion 2 is where V1 fell shortest, and because the architecture guarantees the real-time path is identical either way.
 
@@ -118,7 +121,7 @@ The engine says what to play and when. `xj-dsp` plays it. It reproduces the Java
 
 ### Voices
 
-A voice is one scheduled playback of one decoded audio buffer. It carries: start frame, stop frame, gain from and gain to (the `ActiveAudio` amplitude ramp), release time, bus, optional pitch shift in semitones and optional stretch ratio. Voices come from a fixed pool (default 256) so the audio thread never allocates. A voice past its stop frame enters release and is reclaimed when silent.
+A voice is one scheduled playback of one decoded audio buffer. It carries: start frame, stop frame, gain from and gain to (the `ActiveAudio` amplitude ramp), release time and bus. When the engine requests a pitch shift or a stretch, `xj-content` renders that variant into the cache ahead of time, keyed by content hash, ratio and semitones, and the voice simply plays the variant; nothing stretches on the audio thread. Voices come from a fixed pool (default 256) so the audio thread never allocates. A voice past its stop frame enters release and is reclaimed when silent.
 
 ### Buses
 
@@ -134,7 +137,7 @@ The contract between the control thread and the audio thread:
 
 | Command | Fields | Source |
 |---|---|---|
-| `StartVoice` | id, buffer, start frame, stop frame, gain from, gain to, release, bus, pitch shift, stretch | Engine schedule event (Create) |
+| `StartVoice` | id, buffer (the sample or a pre-rendered variant), start frame, stop frame, gain from, gain to, release, bus | Engine schedule event (Create) |
 | `UpdateVoice` | id, stop frame, gain to | Engine schedule event (Update) |
 | `StopVoice` | id, release | Engine schedule event (Delete) |
 | `TriggerOneShot` | buffer, frame, gain, bus | Performer gesture |

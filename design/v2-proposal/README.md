@@ -19,9 +19,11 @@ Status: **Proposal / request for comment.** Nothing in this folder is scheduled.
 
 Three things are genuinely hard, and the proposal is honest about them in [10-risks-and-open-questions.md](10-risks-and-open-questions.md):
 
-1. **Latency versus foresight.** The engine plans ahead (craft 20 s, dub 10 s by default). A performer wants the room to react now. The resolution is architectural, not a tuning knob: foundation changes are quantized cues that the engine honors at the next bar or segment, while immediate gestures act on the DSP layer, which knows nothing about segments. The "Three scales, three destinations" section of [08-performer-input.md](08-performer-input.md) spells this out.
+1. **Latency versus foresight.** The engine plans ahead (craft 20 s, dub 10 s by default). A performer wants the room to react now. The resolution is architectural, not a tuning knob: foundation changes are quantized cues that the engine honors at the next bar or segment, while immediate gestures act on the DSP layer, which knows nothing about segments. The second pass measured the engine as built: the worst case observed, a full rewrite of the planned future on the largest demo project, took 28 ms, so the engine's own cost is not what limits responsiveness ([11-resolutions.md](11-resolutions.md)). The "Three scales, three destinations" section of [08-performer-input.md](08-performer-input.md) spells this out.
 2. **Musical quality of a shared commons.** No amount of engineering makes a library sound good. The Commons needs a curatorial process and a quality bar before it needs a registry.
 3. **The workstation has to be excellent, not merely ported.** The toolkit decision (native GPU UI versus web-view shell) is deliberately left as a Phase 0 spike with explicit criteria rather than decided on taste.
+
+A second pass over the fourteen open questions ([11-resolutions.md](11-resolutions.md)) closes four outright, reduces four to a yes-or-no from the company or counsel, and leaves the rest waiting on a third party or on a small experiment that now has a declared default. It also measures the engine's craft cost against the real demo content instead of deferring that to a spike.
 
 Multi-station synchronization, the part that sounds most exotic, is the *least* risky part. Ableton Link solved beat-phase sync on a LAN years ago, and the harmonic timeline is a small, slow, bar-aligned message stream that the engine's existing segment model maps onto cleanly.
 
@@ -39,6 +41,7 @@ Multi-station synchronization, the part that sounds most exotic, is the *least* 
 | 8 | [08-performer-input.md](08-performer-input.md) | How performer gestures become musical decisions and mix changes |
 | 9 | [09-roadmap.md](09-roadmap.md) | Phases, exit criteria, sizing, and what we keep from V1 during transition |
 | 10 | [10-risks-and-open-questions.md](10-risks-and-open-questions.md) | Risks, alternatives considered, decisions deferred to spikes |
+| 11 | [11-resolutions.md](11-resolutions.md) | Second pass: each open question researched, measured where possible, and resolved to a recommendation |
 | — | [glossary.md](glossary.md) | Terms used across the proposal, including new ones |
 
 ## How to engage with this proposal

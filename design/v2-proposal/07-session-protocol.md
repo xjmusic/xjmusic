@@ -39,10 +39,10 @@ How several XJ stations in one room stay in the same tempo and the same chord ch
 Tempo, beat phase and start/stop are synchronized with **Ableton Link**. Reasons:
 
 - It is peer-to-peer on a LAN, with no master, and converges in well under a second.
-- It is what the target audience's gear already speaks. Akai's current MPCs, Ableton Live, Traktor, Reason, and hundreds of apps implement it. An MPC on stage can lock to the same beat grid as the XJ stations, which closes the loop on where this project began.
+- It is what the target audience's gear already speaks. Ableton's list of Link-enabled products includes the Akai Force, MPC One, MPC Live, MPC Live II and MPC X, alongside Ableton Live, monome norns, Denon's Prime 4 and hundreds of apps. An MPC on stage can lock to the same beat grid as the XJ stations, which closes the loop on where this project began.
 - It is open source with a mature Rust binding (`rusty_link`).
 
-Link is GPLv2 or a proprietary license from Ableton. The license path has to be settled before Link ships in a binary distributed under the XJ license; see [10-risks-and-open-questions.md](10-risks-and-open-questions.md). The protocol below does not depend on Link specifically: it depends on every station agreeing on a beat timeline, and Link is the recommended way to get one.
+Link is dual licensed, GPLv2+ or a proprietary license from Ableton, and the XJ license is not GPL-compatible, so the proprietary license is requested in Phase 0 ([11-resolutions.md](11-resolutions.md), Q3). The protocol does not depend on Link. `xj-transport` exposes a `BeatClock` trait with two implementations behind feature flags. `link` wraps Ableton Link through `rusty_link`. `session` is a conductor-hosted clock: followers estimate their offset to the conductor with NTP-style round trips over the session connection, and the conductor's beat timeline is the truth. The `session` clock also emits MIDI clock so non-Link hardware can follow a station. Sessions in CI run on the `session` clock; shows with Link-enabled gear in the room run on `link`.
 
 ### Mapping chain time to beats
 

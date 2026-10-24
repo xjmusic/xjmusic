@@ -63,7 +63,8 @@ typedef struct xj_schedule_event {
   float    from_volume;
   float    to_volume;
   int32_t  release_millis;
-  /* new in 2.0, zero when not applicable */
+  /* new in 2.0, zero when not applicable: the engine's request, which the host
+     resolves to a variant rendered ahead of time (see 05-workstation.md) */
   float    pitch_shift_semitones;  /* requested by craft when content allows */
   float    stretch_ratio;          /* 1.0 = none */
   uint32_t waveform_key_offset;    /* into the string table returned alongside */
@@ -121,6 +122,8 @@ The follower station still has its own libraries of beat, detail, transition and
 | `CraftWork::doFabricationRewrite` | Main program tempo and `cutoffMinimumBars` | Where to cut the current segment | `segment.tempo`; the cutoff bars come from the follower's template |
 
 In follow mode the `Fabricator` answers these three calls from the foundation record. That is the complete list, which is what makes the change small rather than hopeful.
+
+**Bar length is per program, not per station.** `barBeats` lives in `ProgramConfig`, so a follower's beat or detail program may disagree with the segment's bar length. In follow mode, and as a free improvement in internal mode, a candidate program whose `barBeats` differs from the segment's is excluded from the marble bag with a diagnostic, so a 3-beat pattern is never laid over a 4-beat segment ([11-resolutions.md](11-resolutions.md), Q14).
 
 ### Timing
 
@@ -204,7 +207,7 @@ When `allowPitchShift` is set, `NotePicker` ranks exact-tone candidates first an
 
 ## 10. Diagnostics the engine already has, made reachable
 
-`SegmentMessage`s (info, warning, error) and the `WorkState` exist today. They become reachable through the C ABI and are surfaced in the UI. Craft timing per segment is added as a message so the station can tune its horizons from measured data rather than guesses.
+`SegmentMessage`s (info, warning, error) and the `WorkState` exist today. They become reachable through the C ABI and are surfaced in the UI. Craft timing per segment is added as a message so the station can tune its horizons from measured data rather than guesses. A first measurement against the 1.9.6 engine is in [11-resolutions.md](11-resolutions.md): segment craft on the largest demo project peaks around 24 ms and a full rewrite of the future around 28 ms on a fast machine, which is why the commit horizon can be as short as one beat.
 
 ## 11. Testing
 
