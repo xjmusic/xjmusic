@@ -844,6 +844,26 @@
   "url": "https://github.com/xjmusic/xjmusic/issues/652",
   "kind": "task"
  },
+ "p2-ci-abi-bindings-regenerate-diff": {
+  "number": 673,
+  "url": "https://github.com/xjmusic/xjmusic/issues/673",
+  "kind": "task"
+ },
+ "p2-ci-demo-render-fixtures-join-cdn": {
+  "number": 698,
+  "url": "https://github.com/xjmusic/xjmusic/issues/698",
+  "kind": "task"
+ },
+ "p2-ci-offline-render-demos-stats": {
+  "number": 697,
+  "url": "https://github.com/xjmusic/xjmusic/issues/697",
+  "kind": "task"
+ },
+ "p2-ci-soak-8h-scheduled": {
+  "number": 707,
+  "url": "https://github.com/xjmusic/xjmusic/issues/707",
+  "kind": "task"
+ },
  "p2-cont-build-for-engine": {
   "number": 656,
   "url": "https://github.com/xjmusic/xjmusic/issues/656",
@@ -857,6 +877,11 @@
  "p2-cont-config-parser-dialect-port": {
   "number": 654,
   "url": "https://github.com/xjmusic/xjmusic/issues/654",
+  "kind": "task"
+ },
+ "p2-cont-engine-payload-in-memory": {
+  "number": 675,
+  "url": "https://github.com/xjmusic/xjmusic/issues/675",
   "kind": "task"
  },
  "p2-cont-java-roundtrip-ci": {
@@ -874,9 +899,34 @@
   "url": "https://github.com/xjmusic/xjmusic/issues/657",
   "kind": "task"
  },
+ "p2-ctrl-cue-gesture-routing-quantize": {
+  "number": 684,
+  "url": "https://github.com/xjmusic/xjmusic/issues/684",
+  "kind": "task"
+ },
+ "p2-ctrl-gestures-oneshot-fx-stutter-fill": {
+  "number": 685,
+  "url": "https://github.com/xjmusic/xjmusic/issues/685",
+  "kind": "task"
+ },
+ "p2-ctrl-influence-signals": {
+  "number": 686,
+  "url": "https://github.com/xjmusic/xjmusic/issues/686",
+  "kind": "task"
+ },
+ "p2-ctrl-led-feedback-profiles": {
+  "number": 687,
+  "url": "https://github.com/xjmusic/xjmusic/issues/687",
+  "kind": "task"
+ },
  "p2-ctrl-mapping-toml-learn": {
   "number": 661,
   "url": "https://github.com/xjmusic/xjmusic/issues/661",
+  "kind": "task"
+ },
+ "p2-ctrl-midi-clock-out": {
+  "number": 688,
+  "url": "https://github.com/xjmusic/xjmusic/issues/688",
   "kind": "task"
  },
  "p2-ctrl-midi-input-identity-rescan": {
@@ -884,9 +934,19 @@
   "url": "https://github.com/xjmusic/xjmusic/issues/659",
   "kind": "task"
  },
+ "p2-ctrl-moves": {
+  "number": 689,
+  "url": "https://github.com/xjmusic/xjmusic/issues/689",
+  "kind": "task"
+ },
  "p2-ctrl-osc-keyboard-gamepad": {
   "number": 660,
   "url": "https://github.com/xjmusic/xjmusic/issues/660",
+  "kind": "task"
+ },
+ "p2-ctrl-profile-replay-test-ci": {
+  "number": 690,
+  "url": "https://github.com/xjmusic/xjmusic/issues/690",
   "kind": "task"
  },
  "p2-docs-hls-design-note": {
@@ -924,6 +984,11 @@
   "url": "https://github.com/xjmusic/xjmusic/issues/667",
   "kind": "task"
  },
+ "p2-dsp-rt-safety-harness": {
+  "number": 671,
+  "url": "https://github.com/xjmusic/xjmusic/issues/671",
+  "kind": "task"
+ },
  "p2-dsp-sink-cpal-device": {
   "number": 668,
   "url": "https://github.com/xjmusic/xjmusic/issues/668",
@@ -939,9 +1004,749 @@
   "url": "https://github.com/xjmusic/xjmusic/issues/663",
   "kind": "task"
  },
+ "p2-eng-cues-tempo-foundation-methods": {
+  "number": 676,
+  "url": "https://github.com/xjmusic/xjmusic/issues/676",
+  "kind": "task"
+ },
+ "p2-eng-engine-type-lifecycle": {
+  "number": 674,
+  "url": "https://github.com/xjmusic/xjmusic/issues/674",
+  "kind": "task"
+ },
+ "p2-eng-follow-test-rust": {
+  "number": 679,
+  "url": "https://github.com/xjmusic/xjmusic/issues/679",
+  "kind": "task"
+ },
+ "p2-eng-foundation-reload-horizons-diag-methods": {
+  "number": 677,
+  "url": "https://github.com/xjmusic/xjmusic/issues/677",
+  "kind": "task"
+ },
+ "p2-eng-snapshots-serde": {
+  "number": 678,
+  "url": "https://github.com/xjmusic/xjmusic/issues/678",
+  "kind": "task"
+ },
+ "p2-gate-ab-listening-record": {
+  "number": 709,
+  "url": "https://github.com/xjmusic/xjmusic/issues/709",
+  "kind": "task"
+ },
+ "p2-rel-cli-release-checksums": {
+  "number": 705,
+  "url": "https://github.com/xjmusic/xjmusic/issues/705",
+  "kind": "task"
+ },
+ "p2-stn-capture-format": {
+  "number": 694,
+  "url": "https://github.com/xjmusic/xjmusic/issues/694",
+  "kind": "task"
+ },
+ "p2-stn-cli-build": {
+  "number": 704,
+  "url": "https://github.com/xjmusic/xjmusic/issues/704",
+  "kind": "task"
+ },
+ "p2-stn-cli-capture-replay": {
+  "number": 695,
+  "url": "https://github.com/xjmusic/xjmusic/issues/695",
+  "kind": "task"
+ },
+ "p2-stn-cli-play": {
+  "number": 703,
+  "url": "https://github.com/xjmusic/xjmusic/issues/703",
+  "kind": "task"
+ },
+ "p2-stn-cli-render": {
+  "number": 696,
+  "url": "https://github.com/xjmusic/xjmusic/issues/696",
+  "kind": "task"
+ },
+ "p2-stn-first-sound-play-minimal": {
+  "number": 692,
+  "url": "https://github.com/xjmusic/xjmusic/issues/692",
+  "kind": "task"
+ },
+ "p2-stn-latency-measurement": {
+  "number": 706,
+  "url": "https://github.com/xjmusic/xjmusic/issues/706",
+  "kind": "task"
+ },
+ "p2-stn-real-device-overnight": {
+  "number": 708,
+  "url": "https://github.com/xjmusic/xjmusic/issues/708",
+  "kind": "task"
+ },
+ "p2-stn-settings-diagnostics-bundle": {
+  "number": 699,
+  "url": "https://github.com/xjmusic/xjmusic/issues/699",
+  "kind": "task"
+ },
+ "p2-stn-tempo-policy-beatclock-wiring": {
+  "number": 700,
+  "url": "https://github.com/xjmusic/xjmusic/issues/700",
+  "kind": "task"
+ },
+ "p2-stn-tick-loop-scheduler": {
+  "number": 693,
+  "url": "https://github.com/xjmusic/xjmusic/issues/693",
+  "kind": "task"
+ },
+ "p2-stn-variant-resolution-events": {
+  "number": 701,
+  "url": "https://github.com/xjmusic/xjmusic/issues/701",
+  "kind": "task"
+ },
+ "p2-sys-bindgen-build-rs": {
+  "number": 672,
+  "url": "https://github.com/xjmusic/xjmusic/issues/672",
+  "kind": "task"
+ },
+ "p2-ws-cargo-deny-policy-notices": {
+  "number": 680,
+  "url": "https://github.com/xjmusic/xjmusic/issues/680",
+  "kind": "task"
+ },
  "p2-ws-ci-features-caching": {
   "number": 648,
   "url": "https://github.com/xjmusic/xjmusic/issues/648",
+  "kind": "task"
+ },
+ "p2-xport-beatclock-trait-internal": {
+  "number": 683,
+  "url": "https://github.com/xjmusic/xjmusic/issues/683",
+  "kind": "task"
+ },
+ "p2-xport-event-to-command-late-counter": {
+  "number": 691,
+  "url": "https://github.com/xjmusic/xjmusic/issues/691",
+  "kind": "task"
+ },
+ "p2-xport-link-binding-fork": {
+  "number": 681,
+  "url": "https://github.com/xjmusic/xjmusic/issues/681",
+  "kind": "task"
+ },
+ "p2-xport-link-feature-impl": {
+  "number": 702,
+  "url": "https://github.com/xjmusic/xjmusic/issues/702",
+  "kind": "task"
+ },
+ "p2-xport-time-bases-affine": {
+  "number": 682,
+  "url": "https://github.com/xjmusic/xjmusic/issues/682",
+  "kind": "task"
+ },
+ "p3-dec-interim-starter-license": {
+  "number": 710,
+  "url": "https://github.com/xjmusic/xjmusic/issues/710",
+  "kind": "task"
+ },
+ "p3-dec-windows-on-arm": {
+  "number": 719,
+  "url": "https://github.com/xjmusic/xjmusic/issues/719",
+  "kind": "task"
+ },
+ "p3-docs-install-and-ship-mode-guide": {
+  "number": 740,
+  "url": "https://github.com/xjmusic/xjmusic/issues/740",
+  "kind": "task"
+ },
+ "p3-docs-mapping-reference": {
+  "number": 716,
+  "url": "https://github.com/xjmusic/xjmusic/issues/716",
+  "kind": "task"
+ },
+ "p3-docs-play-mode-guide": {
+  "number": 745,
+  "url": "https://github.com/xjmusic/xjmusic/issues/745",
+  "kind": "task"
+ },
+ "p3-first-interim-starter-project": {
+  "number": 711,
+  "url": "https://github.com/xjmusic/xjmusic/issues/711",
+  "kind": "task"
+ },
+ "p3-first-launch-to-sound": {
+  "number": 729,
+  "url": "https://github.com/xjmusic/xjmusic/issues/729",
+  "kind": "task"
+ },
+ "p3-first-play-mode-template": {
+  "number": 712,
+  "url": "https://github.com/xjmusic/xjmusic/issues/712",
+  "kind": "task"
+ },
+ "p3-first-run-tour": {
+  "number": 739,
+  "url": "https://github.com/xjmusic/xjmusic/issues/739",
+  "kind": "task"
+ },
+ "p3-map-controller-panel": {
+  "number": 714,
+  "url": "https://github.com/xjmusic/xjmusic/issues/714",
+  "kind": "task"
+ },
+ "p3-map-learn-mode-ui": {
+  "number": 715,
+  "url": "https://github.com/xjmusic/xjmusic/issues/715",
+  "kind": "task"
+ },
+ "p3-map-moves-editor": {
+  "number": 717,
+  "url": "https://github.com/xjmusic/xjmusic/issues/717",
+  "kind": "task"
+ },
+ "p3-pkg-app-signing-notarization": {
+  "number": 720,
+  "url": "https://github.com/xjmusic/xjmusic/issues/720",
+  "kind": "task"
+ },
+ "p3-pkg-auto-update": {
+  "number": 721,
+  "url": "https://github.com/xjmusic/xjmusic/issues/721",
+  "kind": "task"
+ },
+ "p3-pkg-bundles-three-os": {
+  "number": 718,
+  "url": "https://github.com/xjmusic/xjmusic/issues/718",
+  "kind": "task"
+ },
+ "p3-pkg-crash-reporting-opt-in": {
+  "number": 722,
+  "url": "https://github.com/xjmusic/xjmusic/issues/722",
+  "kind": "task"
+ },
+ "p3-pkg-enable-asio-windows-on-countersign": {
+  "number": 723,
+  "url": "https://github.com/xjmusic/xjmusic/issues/723",
+  "kind": "task"
+ },
+ "p3-pkg-enable-link-official-builds-attribution": {
+  "number": 730,
+  "url": "https://github.com/xjmusic/xjmusic/issues/730",
+  "kind": "task"
+ },
+ "p3-pkg-release-workstation-2-0-0": {
+  "number": 750,
+  "url": "https://github.com/xjmusic/xjmusic/issues/750",
+  "kind": "task"
+ },
+ "p3-shell-app-skeleton": {
+  "number": 713,
+  "url": "https://github.com/xjmusic/xjmusic/issues/713",
+  "kind": "task"
+ },
+ "p3-shell-canvas-surface-component": {
+  "number": 725,
+  "url": "https://github.com/xjmusic/xjmusic/issues/725",
+  "kind": "task"
+ },
+ "p3-shell-make-mode-handoff-java": {
+  "number": 726,
+  "url": "https://github.com/xjmusic/xjmusic/issues/726",
+  "kind": "task"
+ },
+ "p3-shell-station-embed-snapshots": {
+  "number": 724,
+  "url": "https://github.com/xjmusic/xjmusic/issues/724",
+  "kind": "task"
+ },
+ "p3-ship-build-bounce-ui": {
+  "number": 727,
+  "url": "https://github.com/xjmusic/xjmusic/issues/727",
+  "kind": "task"
+ },
+ "p3-ship-capture-export": {
+  "number": 731,
+  "url": "https://github.com/xjmusic/xjmusic/issues/731",
+  "kind": "task"
+ },
+ "p3-surf-advance-hold-capture-header": {
+  "number": 728,
+  "url": "https://github.com/xjmusic/xjmusic/issues/728",
+  "kind": "task"
+ },
+ "p3-surf-gesture-pads-fx": {
+  "number": 733,
+  "url": "https://github.com/xjmusic/xjmusic/issues/733",
+  "kind": "task"
+ },
+ "p3-surf-harmony-strip-chord-picker": {
+  "number": 735,
+  "url": "https://github.com/xjmusic/xjmusic/issues/735",
+  "kind": "task"
+ },
+ "p3-surf-intensity-influence": {
+  "number": 736,
+  "url": "https://github.com/xjmusic/xjmusic/issues/736",
+  "kind": "task"
+ },
+ "p3-surf-keyboard-accessibility": {
+  "number": 743,
+  "url": "https://github.com/xjmusic/xjmusic/issues/743",
+  "kind": "task"
+ },
+ "p3-surf-layer-strips": {
+  "number": 732,
+  "url": "https://github.com/xjmusic/xjmusic/issues/732",
+  "kind": "task"
+ },
+ "p3-surf-one-pad-slice": {
+  "number": 734,
+  "url": "https://github.com/xjmusic/xjmusic/issues/734",
+  "kind": "task"
+ },
+ "p3-surf-pending-tempo-time-in-section": {
+  "number": 737,
+  "url": "https://github.com/xjmusic/xjmusic/issues/737",
+  "kind": "task"
+ },
+ "p3-surf-scenes-grid-palettes": {
+  "number": 738,
+  "url": "https://github.com/xjmusic/xjmusic/issues/738",
+  "kind": "task"
+ },
+ "p3-surf-transport-start-stop-template": {
+  "number": 741,
+  "url": "https://github.com/xjmusic/xjmusic/issues/741",
+  "kind": "task"
+ },
+ "p3-tl-timeline": {
+  "number": 742,
+  "url": "https://github.com/xjmusic/xjmusic/issues/742",
+  "kind": "task"
+ },
+ "p3-tl-why-panel": {
+  "number": 744,
+  "url": "https://github.com/xjmusic/xjmusic/issues/744",
+  "kind": "task"
+ },
+ "p3-ux-five-sessions": {
+  "number": 748,
+  "url": "https://github.com/xjmusic/xjmusic/issues/748",
+  "kind": "task"
+ },
+ "p3-ux-gate-decision": {
+  "number": 749,
+  "url": "https://github.com/xjmusic/xjmusic/issues/749",
+  "kind": "task"
+ },
+ "p3-ux-protocol": {
+  "number": 746,
+  "url": "https://github.com/xjmusic/xjmusic/issues/746",
+  "kind": "task"
+ },
+ "p3-ux-twenty-minute-performance": {
+  "number": 747,
+  "url": "https://github.com/xjmusic/xjmusic/issues/747",
+  "kind": "task"
+ },
+ "p4-cli-fetch-lock": {
+  "number": 760,
+  "url": "https://github.com/xjmusic/xjmusic/issues/760",
+  "kind": "task"
+ },
+ "p4-cli-lint-loudness": {
+  "number": 768,
+  "url": "https://github.com/xjmusic/xjmusic/issues/768",
+  "kind": "task"
+ },
+ "p4-cli-lint-musical": {
+  "number": 769,
+  "url": "https://github.com/xjmusic/xjmusic/issues/769",
+  "kind": "task"
+ },
+ "p4-cli-lint-structural-render": {
+  "number": 756,
+  "url": "https://github.com/xjmusic/xjmusic/issues/756",
+  "kind": "task"
+ },
+ "p4-cli-pack": {
+  "number": 755,
+  "url": "https://github.com/xjmusic/xjmusic/issues/755",
+  "kind": "task"
+ },
+ "p4-cli-publish": {
+  "number": 761,
+  "url": "https://github.com/xjmusic/xjmusic/issues/761",
+  "kind": "task"
+ },
+ "p4-cli-render-preview": {
+  "number": 770,
+  "url": "https://github.com/xjmusic/xjmusic/issues/770",
+  "kind": "task"
+ },
+ "p4-docs-authoring-guide-license-page": {
+  "number": 771,
+  "url": "https://github.com/xjmusic/xjmusic/issues/771",
+  "kind": "task"
+ },
+ "p4-legal-credits-generator": {
+  "number": 753,
+  "url": "https://github.com/xjmusic/xjmusic/issues/753",
+  "kind": "task"
+ },
+ "p4-legal-declaration-review": {
+  "number": 751,
+  "url": "https://github.com/xjmusic/xjmusic/issues/751",
+  "kind": "task"
+ },
+ "p4-pack-dependencies-precedence": {
+  "number": 757,
+  "url": "https://github.com/xjmusic/xjmusic/issues/757",
+  "kind": "task"
+ },
+ "p4-pack-layout-hashed-audio-provenance": {
+  "number": 754,
+  "url": "https://github.com/xjmusic/xjmusic/issues/754",
+  "kind": "task"
+ },
+ "p4-pack-manifest-schema-implicit": {
+  "number": 752,
+  "url": "https://github.com/xjmusic/xjmusic/issues/752",
+  "kind": "task"
+ },
+ "p4-reg-external-contributor-publish": {
+  "number": 773,
+  "url": "https://github.com/xjmusic/xjmusic/issues/773",
+  "kind": "task"
+ },
+ "p4-reg-index-repo-r2": {
+  "number": 758,
+  "url": "https://github.com/xjmusic/xjmusic/issues/758",
+  "kind": "task"
+ },
+ "p4-reg-publish-ci": {
+  "number": 772,
+  "url": "https://github.com/xjmusic/xjmusic/issues/772",
+  "kind": "task"
+ },
+ "p4-reg-signing-keys-verify": {
+  "number": 759,
+  "url": "https://github.com/xjmusic/xjmusic/issues/759",
+  "kind": "task"
+ },
+ "p4-rel-workstation-2-1": {
+  "number": 782,
+  "url": "https://github.com/xjmusic/xjmusic/issues/782",
+  "kind": "task"
+ },
+ "p4-seed-ambient-flow-pack": {
+  "number": 775,
+  "url": "https://github.com/xjmusic/xjmusic/issues/775",
+  "kind": "task"
+ },
+ "p4-seed-engine-fixtures-timing-on-packs": {
+  "number": 778,
+  "url": "https://github.com/xjmusic/xjmusic/issues/778",
+  "kind": "task"
+ },
+ "p4-seed-heros-journey-pack": {
+  "number": 774,
+  "url": "https://github.com/xjmusic/xjmusic/issues/774",
+  "kind": "task"
+ },
+ "p4-seed-human-review-retire-cdn": {
+  "number": 779,
+  "url": "https://github.com/xjmusic/xjmusic/issues/779",
+  "kind": "task"
+ },
+ "p4-seed-lofi-deep-house-packs": {
+  "number": 776,
+  "url": "https://github.com/xjmusic/xjmusic/issues/776",
+  "kind": "task"
+ },
+ "p4-seed-rights-clearance-decision": {
+  "number": 762,
+  "url": "https://github.com/xjmusic/xjmusic/issues/762",
+  "kind": "task"
+ },
+ "p4-seed-starter-pack-commission": {
+  "number": 777,
+  "url": "https://github.com/xjmusic/xjmusic/issues/777",
+  "kind": "task"
+ },
+ "p4-show-byte-identical-test": {
+  "number": 765,
+  "url": "https://github.com/xjmusic/xjmusic/issues/765",
+  "kind": "task"
+ },
+ "p4-show-capture-show-lock": {
+  "number": 766,
+  "url": "https://github.com/xjmusic/xjmusic/issues/766",
+  "kind": "task"
+ },
+ "p4-show-station-loads-offline": {
+  "number": 764,
+  "url": "https://github.com/xjmusic/xjmusic/issues/764",
+  "kind": "task"
+ },
+ "p4-show-taxonomy-union-template": {
+  "number": 763,
+  "url": "https://github.com/xjmusic/xjmusic/issues/763",
+  "kind": "task"
+ },
+ "p4-taxo-xj-base-1-publish": {
+  "number": 767,
+  "url": "https://github.com/xjmusic/xjmusic/issues/767",
+  "kind": "task"
+ },
+ "p4-ui-export-pack": {
+  "number": 780,
+  "url": "https://github.com/xjmusic/xjmusic/issues/780",
+  "kind": "task"
+ },
+ "p4-ui-pack-browser-license": {
+  "number": 781,
+  "url": "https://github.com/xjmusic/xjmusic/issues/781",
+  "kind": "task"
+ },
+ "p5-claims-release": {
+  "number": 792,
+  "url": "https://github.com/xjmusic/xjmusic/issues/792",
+  "kind": "task"
+ },
+ "p5-clock-link-epoch-bar-bridge": {
+  "number": 789,
+  "url": "https://github.com/xjmusic/xjmusic/issues/789",
+  "kind": "task"
+ },
+ "p5-clock-session-ntp-impl": {
+  "number": 788,
+  "url": "https://github.com/xjmusic/xjmusic/issues/788",
+  "kind": "task"
+ },
+ "p5-cue-request-policy": {
+  "number": 796,
+  "url": "https://github.com/xjmusic/xjmusic/issues/796",
+  "kind": "task"
+ },
+ "p5-dec-gate-duet-q13": {
+  "number": 806,
+  "url": "https://github.com/xjmusic/xjmusic/issues/806",
+  "kind": "task"
+ },
+ "p5-docs-venue-setup-guide": {
+  "number": 804,
+  "url": "https://github.com/xjmusic/xjmusic/issues/804",
+  "kind": "task"
+ },
+ "p5-failure-handling": {
+  "number": 798,
+  "url": "https://github.com/xjmusic/xjmusic/issues/798",
+  "kind": "task"
+ },
+ "p5-found-horizon-handshake": {
+  "number": 795,
+  "url": "https://github.com/xjmusic/xjmusic/issues/795",
+  "kind": "task"
+ },
+ "p5-found-publish-consume-retract": {
+  "number": 791,
+  "url": "https://github.com/xjmusic/xjmusic/issues/791",
+  "kind": "task"
+ },
+ "p5-handoff": {
+  "number": 797,
+  "url": "https://github.com/xjmusic/xjmusic/issues/797",
+  "kind": "task"
+ },
+ "p5-legal-performance-venue-review": {
+  "number": 783,
+  "url": "https://github.com/xjmusic/xjmusic/issues/783",
+  "kind": "task"
+ },
+ "p5-proto-conformance-fixtures-reader": {
+  "number": 785,
+  "url": "https://github.com/xjmusic/xjmusic/issues/785",
+  "kind": "task"
+ },
+ "p5-proto-schema-published": {
+  "number": 784,
+  "url": "https://github.com/xjmusic/xjmusic/issues/784",
+  "kind": "task"
+ },
+ "p5-rel-workstation-2-2": {
+  "number": 807,
+  "url": "https://github.com/xjmusic/xjmusic/issues/807",
+  "kind": "task"
+ },
+ "p5-sess-hello-welcome-presence-bye": {
+  "number": 790,
+  "url": "https://github.com/xjmusic/xjmusic/issues/790",
+  "kind": "task"
+ },
+ "p5-sess-mdns-join-code": {
+  "number": 786,
+  "url": "https://github.com/xjmusic/xjmusic/issues/786",
+  "kind": "task"
+ },
+ "p5-sess-quic-tcp-framing": {
+  "number": 787,
+  "url": "https://github.com/xjmusic/xjmusic/issues/787",
+  "kind": "task"
+ },
+ "p5-stn-headless-web-status": {
+  "number": 799,
+  "url": "https://github.com/xjmusic/xjmusic/issues/799",
+  "kind": "task"
+ },
+ "p5-stn-session-integration-cli": {
+  "number": 793,
+  "url": "https://github.com/xjmusic/xjmusic/issues/793",
+  "kind": "task"
+ },
+ "p5-test-handoff-soak": {
+  "number": 800,
+  "url": "https://github.com/xjmusic/xjmusic/issues/800",
+  "kind": "task"
+ },
+ "p5-test-real-gear-duet": {
+  "number": 805,
+  "url": "https://github.com/xjmusic/xjmusic/issues/805",
+  "kind": "task"
+ },
+ "p5-test-simulated-network-harness": {
+  "number": 794,
+  "url": "https://github.com/xjmusic/xjmusic/issues/794",
+  "kind": "task"
+ },
+ "p5-test-three-station-soak": {
+  "number": 801,
+  "url": "https://github.com/xjmusic/xjmusic/issues/801",
+  "kind": "task"
+ },
+ "p5-ui-claims-horizon-indicators": {
+  "number": 802,
+  "url": "https://github.com/xjmusic/xjmusic/issues/802",
+  "kind": "task"
+ },
+ "p5-ui-session-panel": {
+  "number": 803,
+  "url": "https://github.com/xjmusic/xjmusic/issues/803",
+  "kind": "task"
+ },
+ "p6-edit-config-and-memes": {
+  "number": 811,
+  "url": "https://github.com/xjmusic/xjmusic/issues/811",
+  "kind": "task"
+ },
+ "p6-edit-crud-service-cascades": {
+  "number": 810,
+  "url": "https://github.com/xjmusic/xjmusic/issues/810",
+  "kind": "task"
+ },
+ "p6-edit-library-browser": {
+  "number": 812,
+  "url": "https://github.com/xjmusic/xjmusic/issues/812",
+  "kind": "task"
+ },
+ "p6-edit-one-field-roundtrip-slice": {
+  "number": 809,
+  "url": "https://github.com/xjmusic/xjmusic/issues/809",
+  "kind": "task"
+ },
+ "p6-edit-undo-redo-command-stack": {
+  "number": 808,
+  "url": "https://github.com/xjmusic/xjmusic/issues/808",
+  "kind": "task"
+ },
+ "p6-inst-allowances-audition-batch": {
+  "number": 816,
+  "url": "https://github.com/xjmusic/xjmusic/issues/816",
+  "kind": "task"
+ },
+ "p6-inst-audio-editor-waveform-markers": {
+  "number": 815,
+  "url": "https://github.com/xjmusic/xjmusic/issues/815",
+  "kind": "task"
+ },
+ "p6-inst-audio-import-any-format": {
+  "number": 814,
+  "url": "https://github.com/xjmusic/xjmusic/issues/814",
+  "kind": "task"
+ },
+ "p6-inst-instrument-editor": {
+  "number": 813,
+  "url": "https://github.com/xjmusic/xjmusic/issues/813",
+  "kind": "task"
+ },
+ "p6-par-java-archive-and-roundtrip-retire": {
+  "number": 827,
+  "url": "https://github.com/xjmusic/xjmusic/issues/827",
+  "kind": "task"
+ },
+ "p6-par-migration-guide": {
+  "number": 826,
+  "url": "https://github.com/xjmusic/xjmusic/issues/826",
+  "kind": "task"
+ },
+ "p6-par-parity-audit-and-author-sessions": {
+  "number": 825,
+  "url": "https://github.com/xjmusic/xjmusic/issues/825",
+  "kind": "task"
+ },
+ "p6-prog-bind-mode": {
+  "number": 818,
+  "url": "https://github.com/xjmusic/xjmusic/issues/818",
+  "kind": "task"
+ },
+ "p6-prog-chord-edit-mode": {
+  "number": 819,
+  "url": "https://github.com/xjmusic/xjmusic/issues/819",
+  "kind": "task"
+ },
+ "p6-prog-event-edit-mode": {
+  "number": 820,
+  "url": "https://github.com/xjmusic/xjmusic/issues/820",
+  "kind": "task"
+ },
+ "p6-prog-event-productivity": {
+  "number": 821,
+  "url": "https://github.com/xjmusic/xjmusic/issues/821",
+  "kind": "task"
+ },
+ "p6-prog-shell-sequences": {
+  "number": 817,
+  "url": "https://github.com/xjmusic/xjmusic/issues/817",
+  "kind": "task"
+ },
+ "p6-rel-workstation-2-3-instrument-editor": {
+  "number": 822,
+  "url": "https://github.com/xjmusic/xjmusic/issues/822",
+  "kind": "task"
+ },
+ "p6-tmpl-editor-fields-bindings": {
+  "number": 823,
+  "url": "https://github.com/xjmusic/xjmusic/issues/823",
+  "kind": "task"
+ },
+ "p6-tmpl-taxonomy-intensity-mixer-horizon-export": {
+  "number": 824,
+  "url": "https://github.com/xjmusic/xjmusic/issues/824",
+  "kind": "task"
+ },
+ "p7-show-artist-onboarding-rehearsal": {
+  "number": 830,
+  "url": "https://github.com/xjmusic/xjmusic/issues/830",
+  "kind": "task"
+ },
+ "p7-show-network-kit-and-show-lock": {
+  "number": 829,
+  "url": "https://github.com/xjmusic/xjmusic/issues/829",
+  "kind": "task"
+ },
+ "p7-show-night-recording-release": {
+  "number": 831,
+  "url": "https://github.com/xjmusic/xjmusic/issues/831",
+  "kind": "task"
+ },
+ "p7-show-production-plan": {
+  "number": 828,
+  "url": "https://github.com/xjmusic/xjmusic/issues/828",
   "kind": "task"
  },
  "umbrella": {
