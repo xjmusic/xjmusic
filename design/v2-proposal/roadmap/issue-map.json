@@ -1,0 +1,337 @@
+{
+ "e0-c-abi-spike": {
+  "number": 491,
+  "url": "https://github.com/xjmusic/xjmusic/issues/491",
+  "kind": "epic"
+ },
+ "e0-controller-spike": {
+  "number": 497,
+  "url": "https://github.com/xjmusic/xjmusic/issues/497",
+  "kind": "epic"
+ },
+ "e0-craft-timing": {
+  "number": 492,
+  "url": "https://github.com/xjmusic/xjmusic/issues/492",
+  "kind": "epic"
+ },
+ "e0-decisions": {
+  "number": 481,
+  "url": "https://github.com/xjmusic/xjmusic/issues/481",
+  "kind": "epic"
+ },
+ "e0-link-spike": {
+  "number": 495,
+  "url": "https://github.com/xjmusic/xjmusic/issues/495",
+  "kind": "epic"
+ },
+ "e0-paperwork": {
+  "number": 490,
+  "url": "https://github.com/xjmusic/xjmusic/issues/490",
+  "kind": "epic"
+ },
+ "e0-stretch-bakeoff": {
+  "number": 494,
+  "url": "https://github.com/xjmusic/xjmusic/issues/494",
+  "kind": "epic"
+ },
+ "e0-taxonomy-draft": {
+  "number": 496,
+  "url": "https://github.com/xjmusic/xjmusic/issues/496",
+  "kind": "epic"
+ },
+ "e0-tracker-ci-baseline": {
+  "number": 498,
+  "url": "https://github.com/xjmusic/xjmusic/issues/498",
+  "kind": "epic"
+ },
+ "e0-ui-toolkit-spike": {
+  "number": 493,
+  "url": "https://github.com/xjmusic/xjmusic/issues/493",
+  "kind": "epic"
+ },
+ "e1-abi-snapshots": {
+  "number": 506,
+  "url": "https://github.com/xjmusic/xjmusic/issues/506",
+  "kind": "epic"
+ },
+ "e1-c-abi-core": {
+  "number": 501,
+  "url": "https://github.com/xjmusic/xjmusic/issues/501",
+  "kind": "epic"
+ },
+ "e1-c-abi-hardening": {
+  "number": 502,
+  "url": "https://github.com/xjmusic/xjmusic/issues/502",
+  "kind": "epic"
+ },
+ "e1-content-fields": {
+  "number": 507,
+  "url": "https://github.com/xjmusic/xjmusic/issues/507",
+  "kind": "epic"
+ },
+ "e1-cues": {
+  "number": 503,
+  "url": "https://github.com/xjmusic/xjmusic/issues/503",
+  "kind": "epic"
+ },
+ "e1-determinism": {
+  "number": 499,
+  "url": "https://github.com/xjmusic/xjmusic/issues/499",
+  "kind": "epic"
+ },
+ "e1-engine-docs": {
+  "number": 509,
+  "url": "https://github.com/xjmusic/xjmusic/issues/509",
+  "kind": "epic"
+ },
+ "e1-engine-release-ci": {
+  "number": 508,
+  "url": "https://github.com/xjmusic/xjmusic/issues/508",
+  "kind": "epic"
+ },
+ "e1-foundation": {
+  "number": 504,
+  "url": "https://github.com/xjmusic/xjmusic/issues/504",
+  "kind": "epic"
+ },
+ "e1-port-fixes": {
+  "number": 500,
+  "url": "https://github.com/xjmusic/xjmusic/issues/500",
+  "kind": "epic"
+ },
+ "e1-preview-diagnostics": {
+  "number": 505,
+  "url": "https://github.com/xjmusic/xjmusic/issues/505",
+  "kind": "epic"
+ },
+ "e2-content-audio-cache": {
+  "number": 513,
+  "url": "https://github.com/xjmusic/xjmusic/issues/513",
+  "kind": "epic"
+ },
+ "e2-content-v1-io": {
+  "number": 512,
+  "url": "https://github.com/xjmusic/xjmusic/issues/512",
+  "kind": "epic"
+ },
+ "e2-control": {
+  "number": 517,
+  "url": "https://github.com/xjmusic/xjmusic/issues/517",
+  "kind": "epic"
+ },
+ "e2-dsp-core": {
+  "number": 515,
+  "url": "https://github.com/xjmusic/xjmusic/issues/515",
+  "kind": "epic"
+ },
+ "e2-dsp-fx-sinks": {
+  "number": 516,
+  "url": "https://github.com/xjmusic/xjmusic/issues/516",
+  "kind": "epic"
+ },
+ "e2-release-early": {
+  "number": 520,
+  "url": "https://github.com/xjmusic/xjmusic/issues/520",
+  "kind": "epic"
+ },
+ "e2-rust-engine": {
+  "number": 511,
+  "url": "https://github.com/xjmusic/xjmusic/issues/511",
+  "kind": "epic"
+ },
+ "e2-rust-workspace": {
+  "number": 510,
+  "url": "https://github.com/xjmusic/xjmusic/issues/510",
+  "kind": "epic"
+ },
+ "e2-station-ci-soak": {
+  "number": 519,
+  "url": "https://github.com/xjmusic/xjmusic/issues/519",
+  "kind": "epic"
+ },
+ "e2-station-runtime": {
+  "number": 518,
+  "url": "https://github.com/xjmusic/xjmusic/issues/518",
+  "kind": "epic"
+ },
+ "e2-transport": {
+  "number": 514,
+  "url": "https://github.com/xjmusic/xjmusic/issues/514",
+  "kind": "epic"
+ },
+ "e3-docs-workstation": {
+  "number": 530,
+  "url": "https://github.com/xjmusic/xjmusic/issues/530",
+  "kind": "epic"
+ },
+ "e3-first-run": {
+  "number": 525,
+  "url": "https://github.com/xjmusic/xjmusic/issues/525",
+  "kind": "epic"
+ },
+ "e3-mapping-ui": {
+  "number": 524,
+  "url": "https://github.com/xjmusic/xjmusic/issues/524",
+  "kind": "epic"
+ },
+ "e3-packaging": {
+  "number": 527,
+  "url": "https://github.com/xjmusic/xjmusic/issues/527",
+  "kind": "epic"
+ },
+ "e3-release": {
+  "number": 528,
+  "url": "https://github.com/xjmusic/xjmusic/issues/528",
+  "kind": "epic"
+ },
+ "e3-shell": {
+  "number": 521,
+  "url": "https://github.com/xjmusic/xjmusic/issues/521",
+  "kind": "epic"
+ },
+ "e3-ship-mode": {
+  "number": 526,
+  "url": "https://github.com/xjmusic/xjmusic/issues/526",
+  "kind": "epic"
+ },
+ "e3-surface": {
+  "number": 522,
+  "url": "https://github.com/xjmusic/xjmusic/issues/522",
+  "kind": "epic"
+ },
+ "e3-timeline-why": {
+  "number": 523,
+  "url": "https://github.com/xjmusic/xjmusic/issues/523",
+  "kind": "epic"
+ },
+ "e3-usability": {
+  "number": 529,
+  "url": "https://github.com/xjmusic/xjmusic/issues/529",
+  "kind": "epic"
+ },
+ "e4-commons-ui": {
+  "number": 538,
+  "url": "https://github.com/xjmusic/xjmusic/issues/538",
+  "kind": "epic"
+ },
+ "e4-content-cli": {
+  "number": 532,
+  "url": "https://github.com/xjmusic/xjmusic/issues/532",
+  "kind": "epic"
+ },
+ "e4-pack-format": {
+  "number": 531,
+  "url": "https://github.com/xjmusic/xjmusic/issues/531",
+  "kind": "epic"
+ },
+ "e4-registry-infra": {
+  "number": 533,
+  "url": "https://github.com/xjmusic/xjmusic/issues/533",
+  "kind": "epic"
+ },
+ "e4-registry-publishing": {
+  "number": 534,
+  "url": "https://github.com/xjmusic/xjmusic/issues/534",
+  "kind": "epic"
+ },
+ "e4-seed-content": {
+  "number": 537,
+  "url": "https://github.com/xjmusic/xjmusic/issues/537",
+  "kind": "epic"
+ },
+ "e4-shows": {
+  "number": 535,
+  "url": "https://github.com/xjmusic/xjmusic/issues/535",
+  "kind": "epic"
+ },
+ "e4-taxonomy-licensing": {
+  "number": 536,
+  "url": "https://github.com/xjmusic/xjmusic/issues/536",
+  "kind": "epic"
+ },
+ "e5-foundation-claims-cues": {
+  "number": 541,
+  "url": "https://github.com/xjmusic/xjmusic/issues/541",
+  "kind": "epic"
+ },
+ "e5-legal-docs-gate": {
+  "number": 545,
+  "url": "https://github.com/xjmusic/xjmusic/issues/545",
+  "kind": "epic"
+ },
+ "e5-protocol-spec-docs": {
+  "number": 539,
+  "url": "https://github.com/xjmusic/xjmusic/issues/539",
+  "kind": "epic"
+ },
+ "e5-session-clock": {
+  "number": 542,
+  "url": "https://github.com/xjmusic/xjmusic/issues/542",
+  "kind": "epic"
+ },
+ "e5-session-testing": {
+  "number": 544,
+  "url": "https://github.com/xjmusic/xjmusic/issues/544",
+  "kind": "epic"
+ },
+ "e5-session-transport": {
+  "number": 540,
+  "url": "https://github.com/xjmusic/xjmusic/issues/540",
+  "kind": "epic"
+ },
+ "e5-session-ui": {
+  "number": 543,
+  "url": "https://github.com/xjmusic/xjmusic/issues/543",
+  "kind": "epic"
+ },
+ "e6-editor-infra": {
+  "number": 546,
+  "url": "https://github.com/xjmusic/xjmusic/issues/546",
+  "kind": "epic"
+ },
+ "p0-dec-company-questions": {
+  "number": 483,
+  "url": "https://github.com/xjmusic/xjmusic/issues/483",
+  "kind": "task"
+ },
+ "p0-dec-convention-and-closed-questions": {
+  "number": 482,
+  "url": "https://github.com/xjmusic/xjmusic/issues/482",
+  "kind": "task"
+ },
+ "p0-dec-go-no-go-gate": {
+  "number": 488,
+  "url": "https://github.com/xjmusic/xjmusic/issues/488",
+  "kind": "task"
+ },
+ "p0-dec-q10-platforms-audio-backends": {
+  "number": 484,
+  "url": "https://github.com/xjmusic/xjmusic/issues/484",
+  "kind": "task"
+ },
+ "p0-dec-reference-behavior-1-9-6": {
+  "number": 487,
+  "url": "https://github.com/xjmusic/xjmusic/issues/487",
+  "kind": "task"
+ },
+ "p0-dec-v2-fields-transition": {
+  "number": 485,
+  "url": "https://github.com/xjmusic/xjmusic/issues/485",
+  "kind": "task"
+ },
+ "p0-dec-versioning-tag-scheme": {
+  "number": 486,
+  "url": "https://github.com/xjmusic/xjmusic/issues/486",
+  "kind": "task"
+ },
+ "p0-docs-amend-proposal-after-spikes": {
+  "number": 489,
+  "url": "https://github.com/xjmusic/xjmusic/issues/489",
+  "kind": "task"
+ },
+ "umbrella": {
+  "number": 480,
+  "url": "https://github.com/xjmusic/xjmusic/issues/480",
+  "kind": "umbrella"
+ }
+}
