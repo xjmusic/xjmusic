@@ -348,13 +348,13 @@
  "p6-par-migration-guide": "reviewed",
  "p6-par-java-archive-and-roundtrip-retire": "reviewed",
  "p7-show-production-plan": "draft",
- "p7-show-handoff-offer-target": "placeholder",
+ "p7-show-handoff-offer-target": "draft",
  "p7-show-artist-packs-pair-render": "draft",
  "p7-show-network-kit-and-show-lock": "draft",
  "p7-show-release-tooling": "draft",
  "p7-show-artist-onboarding-rehearsal": "draft",
  "p7-show-final-freeze": "draft",
  "p7-show-night-recording-release": "draft",
- "p7-show-mix-release": "placeholder",
- "p7-show-retrospective": "placeholder"
+ "p7-show-mix-release": "draft",
+ "p7-show-retrospective": "draft"
 }

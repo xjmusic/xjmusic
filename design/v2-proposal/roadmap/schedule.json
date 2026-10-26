@@ -86,7 +86,7 @@
   },
   "e2-content-audio-cache": {
    "start": "2027-06-11",
-   "target": "2027-09-06"
+   "target": "2027-09-01"
   },
   "e2-content-v1-io": {
    "start": "2027-06-02",
@@ -102,7 +102,7 @@
   },
   "e2-dsp-fx-sinks": {
    "start": "2027-06-18",
-   "target": "2027-09-02"
+   "target": "2027-08-31"
   },
   "e2-release-early": {
    "start": "2027-10-08",
@@ -117,7 +117,7 @@
    "target": "2027-10-08"
   },
   "e2-station-ci-soak": {
-   "start": "2027-08-25",
+   "start": "2027-08-23",
    "target": "2027-09-24"
   },
   "e2-station-runtime": {
@@ -238,7 +238,7 @@
   },
   "e6-parity-archive": {
    "start": "2028-10-27",
-   "target": "2028-11-09"
+   "target": "2028-12-04"
   },
   "e6-program-editor": {
    "start": "2028-09-08",
@@ -249,8 +249,8 @@
    "target": "2028-10-27"
   },
   "e7-show": {
-   "start": "2028-07-12",
-   "target": "2028-08-02"
+   "start": "2028-07-07",
+   "target": "2028-10-26"
   }
  },
  "milestones": {
@@ -279,12 +279,12 @@
    "start": "2028-02-29"
   },
   "v2 \u00b7 Phase 6 \u00b7 Make mode parity": {
-   "due": "2028-11-09",
+   "due": "2028-12-04",
    "start": "2028-07-06"
   },
   "v2 \u00b7 Phase 7 \u00b7 The show": {
-   "due": "2028-08-02",
-   "start": "2028-07-12"
+   "due": "2028-10-26",
+   "start": "2028-07-07"
   }
  },
  "tasks": {
@@ -709,8 +709,8 @@
    "target": "2027-06-16"
   },
   "p2-cache-variant-render-signalsmith": {
-   "start": "2027-08-31",
-   "target": "2027-09-06"
+   "start": "2027-08-26",
+   "target": "2027-09-01"
   },
   "p2-ci-abi-bindings-regenerate-diff": {
    "start": "2027-10-07",
@@ -721,8 +721,8 @@
    "target": "2027-09-10"
   },
   "p2-ci-offline-render-demos-stats": {
-   "start": "2027-08-25",
-   "target": "2027-08-30"
+   "start": "2027-08-23",
+   "target": "2027-08-26"
   },
   "p2-ci-soak-8h-scheduled": {
    "start": "2027-09-14",
@@ -753,8 +753,8 @@
    "target": "2027-06-08"
   },
   "p2-cont-v1-writer-canonical-sidecar": {
-   "start": "2027-08-16",
-   "target": "2027-08-23"
+   "start": "2027-09-01",
+   "target": "2027-09-08"
   },
   "p2-ctrl-cue-gesture-routing-quantize": {
    "start": "2027-07-14",
@@ -809,8 +809,8 @@
    "target": "2027-05-31"
   },
   "p2-dsp-golden-render-tests": {
-   "start": "2027-08-18",
-   "target": "2027-08-20"
+   "start": "2027-08-16",
+   "target": "2027-08-18"
   },
   "p2-dsp-insert-fx": {
    "start": "2027-07-06",
@@ -825,8 +825,8 @@
    "target": "2027-08-05"
   },
   "p2-dsp-rt-safety-harness": {
-   "start": "2027-08-30",
-   "target": "2027-09-02"
+   "start": "2027-08-26",
+   "target": "2027-08-31"
   },
   "p2-dsp-sink-cpal-device": {
    "start": "2027-06-18",
@@ -869,24 +869,24 @@
    "target": "2027-10-13"
   },
   "p2-stn-capture-format": {
-   "start": "2027-08-20",
-   "target": "2027-08-25"
+   "start": "2027-08-18",
+   "target": "2027-08-23"
   },
   "p2-stn-cli-build": {
    "start": "2027-10-06",
    "target": "2027-10-07"
   },
   "p2-stn-cli-capture-replay": {
-   "start": "2027-09-02",
-   "target": "2027-09-08"
+   "start": "2027-08-31",
+   "target": "2027-09-06"
   },
   "p2-stn-cli-play": {
-   "start": "2027-08-25",
-   "target": "2027-08-31"
+   "start": "2027-08-20",
+   "target": "2027-08-26"
   },
   "p2-stn-cli-render": {
-   "start": "2027-08-23",
-   "target": "2027-08-25"
+   "start": "2027-08-18",
+   "target": "2027-08-20"
   },
   "p2-stn-first-sound-play-minimal": {
    "start": "2027-07-12",
@@ -1381,16 +1381,16 @@
    "target": "2028-08-23"
   },
   "p6-par-java-archive-and-roundtrip-retire": {
-   "start": "2028-11-07",
-   "target": "2028-11-09"
+   "start": "2028-11-16",
+   "target": "2028-12-04"
   },
   "p6-par-migration-guide": {
-   "start": "2028-11-02",
-   "target": "2028-11-07"
+   "start": "2028-11-10",
+   "target": "2028-11-16"
   },
   "p6-par-parity-audit-and-author-sessions": {
    "start": "2028-10-27",
-   "target": "2028-11-02"
+   "target": "2028-11-10"
   },
   "p6-prog-bind-mode": {
    "start": "2028-10-03",
@@ -1429,20 +1429,44 @@
    "target": "2028-10-27"
   },
   "p7-show-artist-onboarding-rehearsal": {
-   "start": "2028-07-20",
-   "target": "2028-07-26"
+   "start": "2028-07-28",
+   "target": "2028-08-04"
+  },
+  "p7-show-artist-packs-pair-render": {
+   "start": "2028-07-17",
+   "target": "2028-07-21"
+  },
+  "p7-show-final-freeze": {
+   "start": "2028-08-04",
+   "target": "2028-08-08"
+  },
+  "p7-show-handoff-offer-target": {
+   "start": "2028-10-25",
+   "target": "2028-10-26"
+  },
+  "p7-show-mix-release": {
+   "start": "2028-08-11",
+   "target": "2028-08-17"
   },
   "p7-show-network-kit-and-show-lock": {
-   "start": "2028-07-17",
-   "target": "2028-07-20"
+   "start": "2028-07-21",
+   "target": "2028-07-28"
   },
   "p7-show-night-recording-release": {
-   "start": "2028-07-26",
-   "target": "2028-08-02"
+   "start": "2028-08-08",
+   "target": "2028-08-11"
   },
   "p7-show-production-plan": {
    "start": "2028-07-12",
    "target": "2028-07-17"
+  },
+  "p7-show-release-tooling": {
+   "start": "2028-07-07",
+   "target": "2028-07-14"
+  },
+  "p7-show-retrospective": {
+   "start": "2028-08-17",
+   "target": "2028-08-21"
   }
  }
 }

@@ -1744,6 +1744,26 @@
   "url": "https://github.com/xjmusic/xjmusic/issues/830",
   "kind": "task"
  },
+ "p7-show-artist-packs-pair-render": {
+  "number": 835,
+  "url": "https://github.com/xjmusic/xjmusic/issues/835",
+  "kind": "task"
+ },
+ "p7-show-final-freeze": {
+  "number": 837,
+  "url": "https://github.com/xjmusic/xjmusic/issues/837",
+  "kind": "task"
+ },
+ "p7-show-handoff-offer-target": {
+  "number": 834,
+  "url": "https://github.com/xjmusic/xjmusic/issues/834",
+  "kind": "task"
+ },
+ "p7-show-mix-release": {
+  "number": 838,
+  "url": "https://github.com/xjmusic/xjmusic/issues/838",
+  "kind": "task"
+ },
  "p7-show-network-kit-and-show-lock": {
   "number": 829,
   "url": "https://github.com/xjmusic/xjmusic/issues/829",
@@ -1757,6 +1777,16 @@
  "p7-show-production-plan": {
   "number": 828,
   "url": "https://github.com/xjmusic/xjmusic/issues/828",
+  "kind": "task"
+ },
+ "p7-show-release-tooling": {
+  "number": 836,
+  "url": "https://github.com/xjmusic/xjmusic/issues/836",
+  "kind": "task"
+ },
+ "p7-show-retrospective": {
+  "number": 839,
+  "url": "https://github.com/xjmusic/xjmusic/issues/839",
   "kind": "task"
  },
  "umbrella": {

@@ -6260,8 +6260,8 @@
       "epic": "e6-parity-archive",
       "phase": "6",
       "area": "docs",
-      "size": "M",
-      "estimate_days": 4,
+      "size": "L",
+      "estimate_days": 10,
       "summary": "Walk the Java editor inventory (browser, Cmd modal, instrument, audio, template, program bind/chord/event, project actions) and tick each operation against the Rust editor with a test or a recording; run three sessions with pack authors building a pack end to end in Make mode on the 2.3 release (the first with the instrument and audio editor) and file the findings.",
       "blocked_by": [
         "p6-inst-allowances-audition-batch",
@@ -6281,8 +6281,8 @@
       "epic": "e6-parity-archive",
       "phase": "6",
       "area": "docs",
-      "size": "S",
-      "estimate_days": 3,
+      "size": "M",
+      "estimate_days": 4,
       "summary": "Opening existing projects, where V2 fields now live after the sidecar transition ends, what changed (undo, hashes, content-addressed audio, loop proposals), the keyboard shortcuts, and how Build for engine and Export map; published before the archive.",
       "blocked_by": [
         "p6-par-parity-audit-and-author-sessions"
@@ -6298,8 +6298,8 @@
       "epic": "e6-parity-archive",
       "phase": "6",
       "area": "ci-release",
-      "size": "S",
-      "estimate_days": 2,
+      "size": "L",
+      "estimate_days": 12,
       "summary": "Final 1.9.x maintenance release, fold the V2 sidecar fields into the primary files, retire the Java round-trip job, archive workstation/ (and the Java engine, mixer and ship code) with a README pointer to the Rust workstation and the migration guide, and release the Rust workstation 2.x that completes Make mode.",
       "blocked_by": [
         "p6-par-migration-guide",
