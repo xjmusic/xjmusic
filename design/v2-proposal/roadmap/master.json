@@ -310,10 +310,11 @@
    "phase": "2",
    "area": "content",
    "summary": "Replaces the Java AudioCache and ffmpeg: symphonia decoding with the features the demos need and robustness against their real chunk layouts, rubato resampling (88.2 to 48 kHz is the dominant case), a BLAKE3-keyed disk cache with eviction sized against 27.7 GB of decoded demos, variant rendering with Signalsmith on the I/O thread, and a preload worker pool.",
-   "exit": "All 3,000 demo WAVs decode and resample with no audio-thread involvement; the cache is keyed by (contentHash, rate, channels, ratio, semitones) and never decodes a sample twice on a machine.",
+   "exit": "All 3,000 demo WAVs decode and the 1,024 off-rate ones resample to 48 kHz with no audio-thread involvement; the cache is keyed by (contentHash, rate, channels, ratio, semitones), never resamples, renders or decodes a compressed sample twice on a machine (device-rate PCM is re-read), and gives bit-identical buffers cold or warm.",
    "blocked_by": [
     "e0-stretch-bakeoff",
-    "e2-rust-workspace"
+    "e2-rust-workspace",
+    "e2-dsp-core"
    ]
   },
   {
@@ -376,7 +377,7 @@
    "phase": "2",
    "area": "station",
    "summary": "The control thread that ties engine, transport, DSP, content and control together at 10 to 20 Hz, publishes snapshots, and runs as a CLI. `xj-station play` is the first thing in V2 that makes music (R1); `capture` and `replay` prove determinism end to end; the latency measurement puts numbers on R3. The station also owns the tempo seam: whichever BeatClock is active either feeds the engine's External tempo policy or is driven by the engine's segment tempo.",
-   "exit": "`xj-station play` on a V1 demo with a MIDI controller makes music; `replay` of a capture reproduces its chain byte for byte; gesture-to-audible is measured under 10 ms at 256 frames.",
+   "exit": "`xj-station play` on a V1 demo with a MIDI controller makes music; `replay` of a capture reproduces its chain byte for byte; gesture-to-audible at 256 frames is measured and published per platform against the unrelaxed 10 ms budget, with quantized gestures within one frame of the beat and cues at their boundary.",
    "blocked_by": [
     "e0-ui-toolkit-spike",
     "e1-cues",
@@ -409,7 +410,7 @@
    "title": "Ship CLI releases on every tag so the desktop app inherits the pipeline; archive HLS",
    "phase": "2",
    "area": "ci-release",
-   "summary": "R13 wants the release pipeline early. Release the xj-station CLI on three OS per tag with checksums and notices so Phase 3 only adds signing, notarization and bundles to a working workflow. Also archives the HLS design per Q9 while the sinks are fresh.",
+   "summary": "R1 wants a CLI that makes music before any UI, and 09 Principle 2 wants Build for engine in the first Rust release. Release the xj-station CLI on three OS per tag with checksums and notices so Phase 3 only adds signing, notarization and bundles (R13) to a working workflow. Also archives the HLS design per Q9 while the sinks are fresh.",
    "exit": "A tagged commit produces CLI archives for three OS with checksums; the HLS note is in the repository.",
    "blocked_by": [
     "e0-decisions",
@@ -3198,11 +3199,13 @@
    "epic": "e2-content-audio-cache",
    "phase": "2",
    "area": "content",
-   "size": "S",
-   "estimate_days": 3,
+   "size": "M",
+   "estimate_days": 4,
    "summary": "Enable `wav`, `pcm`, `flac`, `ogg`, `vorbis` plus `mp3`, `aac`, `isomp4`, `aiff` explicitly (defaults exclude MP3, AAC, MP4, AIFF, ALAC); state that HE-AAC, Opus and WavPack are unsupported. Decode 24-bit packed PCM and 32-bit float, trust the `data` chunk size, and add fixtures for the layouts found in the demos: JUNK-first (2,256 files), Broadcast Wave with bext/minf/elm1 and a 1,024-byte data offset, cue/LIST/smpl chunks, odd data sizes, trailing chunks.",
    "blocked_by": [
-    "p2-ws-ci-features-caching"
+    "p2-ws-ci-features-caching",
+    "p2-dsp-command-ring",
+    "p2-ws-cargo-deny-policy-notices"
    ],
    "proposal_refs": [
     "05-workstation.md Technology stack Decoding",
@@ -3219,23 +3222,41 @@
    "estimate_days": 3,
    "summary": "Async sinc resampling via `process_into_buffer` only (allocation-free), mono stays mono (the Java cache up-mixed mono at the wrong rate to stereo), pinned to rubato 5 and audioadapter 5. Benchmark the realistic case: 815 of 3,000 demo files are 88.2 kHz, so Deep House's 4.5 GB at 88.2 to 48 is the cache-fill benchmark, not 44.1 to 48.",
    "blocked_by": [
-    "p2-cache-symphonia-decode"
+    "p2-cache-symphonia-decode",
+    "p2-ws-cargo-deny-policy-notices"
    ],
    "proposal_refs": [
     "05-workstation.md Technology stack Resampling"
    ]
   },
   {
-   "key": "p2-cache-blake3-disk-cache-preload",
-   "title": "Build the content-hash disk cache with eviction and a preload worker pool",
+   "key": "p2-cache-hash-xjpcm-disk-tier",
+   "title": "Hash sources with BLAKE3 and store exact device-rate entries in a budgeted disk tier",
    "epic": "e2-content-audio-cache",
    "phase": "2",
    "area": "content",
    "size": "M",
-   "estimate_days": 4,
-   "summary": "Hash every file with BLAKE3; key the disk cache by (contentHash, targetRate, channels, stretchRatio, semitones) with no instrumentId (the Java key had no content identity, so replaced samples were invisible); store i16 or 24-bit PCM, not f32, because the four demos decode to 27.7 GB at f32; evict by budget. A decode worker pool preloads audio for picks inside the dub window, as Java's doAudioCacheMaintenance did, and hands immutable Arc buffers to the DSP by reference.",
+   "estimate_days": 5,
+   "summary": "ContentHash with buffered reads (no mmap of user files) and a persistent (len, mtime) hash index; CacheKey and a total VariantSpec::from_event with no instrumentId (the Java key had no content identity, so replaced samples were invisible); the .xjpcm format storing i24 or i16 with 6 dB headroom and exact ties-even quantization so cold and warm caches give bit-identical buffers; the passthrough rule for device-rate PCM; a disk tier with cross-process mtime LRU eviction and an ENOSPC fallback, sized against 27.7 GB of decoded demos; one blocking materialize call.",
    "blocked_by": [
     "p2-cache-rubato-resample"
+   ],
+   "proposal_refs": [
+    "06-commons.md What it replaces",
+    "06-commons.md Pack format"
+   ]
+  },
+  {
+   "key": "p2-cache-blake3-disk-cache-preload",
+   "title": "Build the memory tier, preload worker pool and AudioCache API over the disk tier",
+   "epic": "e2-content-audio-cache",
+   "phase": "2",
+   "area": "content",
+   "size": "M",
+   "estimate_days": 5,
+   "summary": "A memory tier with a pinned working set and budget, a deadline-ordered decode worker pool that preloads audio for picks inside the craft-ahead window (as Java's doAudioCacheMaintenance did) and hands immutable Arc<SampleBuffer>s to the DSP by reference, revalidation that detects replaced source files during a session, and the AudioCache API (try_get with queue-on-miss, warm with variants, retarget after a device rate change, fingerprint for replay). The UI reads stats from the station snapshot, never through a shared mutex.",
+   "blocked_by": [
+    "p2-cache-hash-xjpcm-disk-tier"
    ],
    "proposal_refs": [
     "06-commons.md What it replaces",
@@ -3249,8 +3270,8 @@
    "phase": "2",
    "area": "content",
    "size": "M",
-   "estimate_days": 4,
-   "summary": "Vendor the library the Q2 decision chose via `cc`: Signalsmith Stretch 1.3.2 from upstream by default (the crates.io wrapper pins a June 2025 commit; `process()` can allocate, which confirms it must never run on the audio thread), or Bungee if the blind session chose it (MPL-2.0 file-level copyleft noted in cargo-deny, C++ via `cc`, no maintained Rust binding), behind one `Stretcher` trait so the choice is a build detail. Render a variant for each (hash, ratio, semitones) the engine requests via `pitch_shift_semitones`/`stretch_ratio`, compensate input/output latency, store in the cache, and expose a lookup the station uses when converting schedule events. Loop stretch is scoped to Loop-mode instruments.",
+   "estimate_days": 6,
+   "summary": "Vendor Signalsmith Stretch 1.3.2 and Signalsmith Linear from upstream via `cc` (the crates.io wrapper pins a June 2025 commit; `process()` can allocate, which confirms it must never run on the audio thread) behind one `Stretcher` trait, using upstream's seeded constructor and whole-buffer `exact()` call for reproducible, latency-compensated offline renders. If the Q2 blind session chooses Bungee (MPL-2.0, grain API, CMake build, no maintained Rust binding), this task is re-specified before it starts. Render a variant for each (hash, ratio, semitones) the engine requests via `pitch_shift_semitones`/`stretch_ratio`, store it in the cache, and expose the lookups the station uses when converting schedule events. Loop stretch is scoped to Loop-mode instruments.",
    "blocked_by": [
     "p2-cache-blake3-disk-cache-preload",
     "p0-stretch-blind-listening-decide"
@@ -3266,8 +3287,8 @@
    "epic": "e2-transport",
    "phase": "2",
    "area": "transport",
-   "size": "M",
-   "estimate_days": 4,
+   "size": "L",
+   "estimate_days": 8,
    "summary": "Chain micros as an affine function of device frames, re-estimated continuously; a per-stream `StreamInstant` to host-microsecond regression (512 points like HostTimeFilter) with a direct-conversion fast path on macOS and WASAPI after a startup sanity check; beat time from the BeatClock. Segment chain begins derive from `time_at_beat(beginBeat)` rather than summed durations so Link's integer micros-per-beat and the engine's rounding cannot drift apart over a show. Nothing outside xj-transport converts. The structural facts (per-stream StreamInstant regression; direct conversion only on macOS and WASAPI) come from source reading; the per-device output-latency trim values arrive from the Phase 0 AUDIOENGINE-1 measurement as settings consumed by the `link` implementation, so this task does not wait on that hardware measurement.",
    "blocked_by": [
     "p2-ws-ci-features-caching"
@@ -3283,9 +3304,9 @@
    "epic": "e2-transport",
    "phase": "2",
    "area": "transport",
-   "size": "S",
-   "estimate_days": 3,
-   "summary": "Trait methods per the gap map's mapping table: now_micros, beat_at(t, quantum), phase_at, time_at_beat, next_downbeat_after, tempo_bpm, set_tempo, anchor_beat, is_playing, peers, on_tempo/on_peers callbacks bridged to the control loop by channel, stream_to_host, output_latency, dac_time_of_buffer_start. The internal implementation runs a station alone with quantum equal to the current barBeats.",
+   "size": "M",
+   "estimate_days": 5,
+   "summary": "Trait methods per the gap map's mapping table: now_micros, beat_at(t, quantum), phase_at, time_at_beat, next_downbeat_after, tempo_bpm, set_tempo, anchor_beat, is_playing, peers, ClockEvent::Tempo/Peers/Transport/Resync drained from events() once per control tick (no on_* callbacks into station code), refresh and host_clock from BeatTimeline, as_any/as_any_mut, stream_to_host, output_latency, dac_time_of_buffer_start. The internal implementation runs a station alone with quantum equal to the current barBeats.",
    "blocked_by": [
     "p2-xport-time-bases-affine"
    ],
@@ -3301,12 +3322,12 @@
    "phase": "2",
    "area": "transport",
    "size": "M",
-   "estimate_days": 5,
+   "estimate_days": 7,
    "blocked_by": [
     "p0-link-epoch-and-path-decision",
     "p2-ws-ci-features-caching"
    ],
-   "summary": "rusty_link 0.4.9 on crates.io vendors Link 4.0.0b3 (its `abl_link_create` returns a LinkAudio instance), is GPL-2.0-or-later, and is a one-person project last touched 2026-01. Fork it under the XJ workspace as recorded in Phase 0, pin Ableton/link 4.1.1 (CMake 3.18, C++17), keep LinkAudio disabled, fix HostTimeFilter::reset allocation and the two asserts that would panic in the callback, and confirm by packet capture that a LinkAudio-disabled instance interoperates with Link 3 peers (MPC firmware). The fork is what the proprietary license must cover.",
+   "summary": "rusty_link 0.4.9 on crates.io vendors Link 4.0.0b3 (its `abl_link_create` returns a LinkAudio instance), is GPL-2.0-or-later, and is a one-person project last touched 2026-01. Fork it under the XJ workspace as recorded in Phase 0, pin Ableton/link 4.1.1 (CMake 3.18, C++17), keep LinkAudio disabled, fix HostTimeFilter::reset allocation and the two asserts that would panic in the callback, and confirm by packet capture that a LinkAudio-disabled instance interoperates with Link 3 peers (MPC firmware). Ableton's grant can cover the vendored Link and abl_link; the rusty_link-derived Rust files are isolated in src/derived/ and need their author's relicense or the Phase 3 rewrite.",
    "proposal_refs": [
     "11-resolutions.md Q3",
     "07-session-protocol.md Clock",
@@ -3319,9 +3340,9 @@
    "epic": "e2-transport",
    "phase": "2",
    "area": "transport",
-   "size": "M",
-   "estimate_days": 5,
-   "summary": "Over the binding fork pinned to Link 4.1.1: SessionState allocated once outside the callback and moved in; all commits from exactly one side (audio thread via a lock-free command queue, as LinkHut does); construct with the current bpm and never push a template tempo when peers > 0 (TEMPO-2/3/5); keep the last tempo on disable; quantum equals barBeats and changes with the main program while the grid does not move; start/stop sync off by default; re-anchoring gated on stable peers. Compiled only with `--features link`, which is enabled in official builds only once the license is on file. The per-host output-latency offsets and the DAC-time rule come from the Phase 0 AUDIOENGINE-1 measurement, and the tempo range policy (20 to 999 bpm, or the documented ×2/÷2 lock) is applied by the station's tempo wiring, which waits for the engine's External tempo tests; the clock itself does not.",
+   "size": "L",
+   "estimate_days": 8,
+   "summary": "Over the binding fork pinned to Link 4.1.1: SessionState allocated once outside the callback and moved in; all commits from exactly one side (audio thread via a lock-free command queue, as LinkHut does); construct with the current bpm and never push a template tempo when peers > 0 (TEMPO-2/3/5); keep the last tempo on disable; magnitudes use the quantum pinned at construction and phase uses the current barBeats, so a barBeats change never moves the grid; start/stop sync off by default; no re-anchoring (request_beat_at_time is never called, Q3 Decision 4). Compiled only with `--features link`, which is enabled in official builds only once the license is on file. The per-host output-latency offsets and the DAC-time rule come from the Phase 0 AUDIOENGINE-1 measurement, and the tempo range policy (20 to 999 bpm, or the documented ×2/÷2 lock) is applied by the station's tempo wiring, which waits for the engine's External tempo tests; the clock itself does not.",
    "blocked_by": [
     "p2-xport-beatclock-trait-internal",
     "p2-xport-link-binding-fork",
@@ -3339,13 +3360,14 @@
    "epic": "e2-transport",
    "phase": "2",
    "area": "transport",
-   "size": "S",
-   "estimate_days": 3,
+   "size": "M",
+   "estimate_days": 4,
    "summary": "Each Create/Update/Delete becomes StartVoice/UpdateVoice/StopVoice stamped with an absolute device frame from the affine map, placing the file's onset (the engine pre-shifts by transientSeconds) on the beat with the buffer handle the station supplies (plain decoded audio first; pre-rendered variants once the station resolves them). Commands whose frame is already past are applied at the next buffer and counted; the counter is the first diagnostic to look at when something feels late. Tests simulate drift and tempo change and assert zero late commands and beat-accurate frames.",
    "blocked_by": [
     "p2-xport-time-bases-affine",
     "p2-dsp-command-ring",
-    "p2-eng-engine-type-lifecycle"
+    "p2-eng-engine-type-lifecycle",
+    "p2-xport-beatclock-trait-internal"
    ],
    "proposal_refs": [
     "03-architecture.md Data flow in one engine cycle",
@@ -3358,8 +3380,8 @@
    "epic": "e2-dsp-core",
    "phase": "2",
    "area": "dsp",
-   "size": "S",
-   "estimate_days": 2,
+   "size": "M",
+   "estimate_days": 4,
    "summary": "rtrb (>= 0.4.0) single-producer single-consumer ring carrying the register's command set (StartVoice, UpdateVoice, StopVoice, TriggerOneShot, SetBusGain/Mute/Solo, SetFxParam, SetMasterParams, CaptureStart/Stop), each with an absolute device frame; commands in the past apply at the next buffer boundary and increment a counter the meter ring reports. Written down as the second contract.",
    "blocked_by": [
     "p2-ws-ci-features-caching"
@@ -3392,11 +3414,12 @@
    "epic": "e2-dsp-core",
    "phase": "2",
    "area": "dsp",
-   "size": "S",
-   "estimate_days": 2,
+   "size": "M",
+   "estimate_days": 4,
    "summary": "Buses are allocated up front for the ten `Instrument::Type` strings (not ordinals, which differ between C++ and Java) plus a master; each has gain from dubMasterVolume, mute and solo with ramp frames, and per-bus peak, RMS and momentary-loudness meters written to a ring buffer the UI reads at frame rate. `SetBusGain`, `SetBusMute` and `SetBusSolo` carry bus, value and ramp_frames per the command set.",
    "blocked_by": [
-    "p2-dsp-voice-pool-envelopes"
+    "p2-dsp-voice-pool-envelopes",
+    "p0-ui-spike-snapshot-fixture"
    ],
    "proposal_refs": [
     "05-workstation.md Buses",
@@ -3411,9 +3434,10 @@
    "area": "dsp",
    "size": "M",
    "estimate_days": 4,
-   "summary": "Port MathUtil.logarithmicCompression and the compressor (ratio re-targeted every dspBufferSize frames from a look-ahead peak scan, second-order smoothed per frame) with SetMasterParams populated from TemplateConfig only. Record that under template defaults (ratioMax 1.0 after the log stage) the compressor is a unity stage, define V2 look-ahead semantics with a true ring buffer (constant 50 ms master latency) since bit-identity with the chunked Java version is impossible, and decide whether to keep the inert defaults.",
+   "summary": "Port MathUtil.logarithmicCompression and the compressor (ratio re-targeted every dspBufferSize frames from a look-ahead peak scan, second-order smoothed per frame) with SetMasterParams populated from TemplateConfig only. Record that under template defaults (ratioMax 1.0 after the log stage) the compressor is a unity stage, define V2 look-ahead semantics with a true ring buffer (50 ms offline; 1 ms live with a window that scans every frame, inside the 10 ms gesture budget) since bit-identity with the chunked Java version is impossible, and record where the demos' non-default mixerCompressToAmplitude makes live and offline differ, and decide whether to keep the inert defaults.",
    "blocked_by": [
-    "p2-dsp-buses-master-meters"
+    "p2-dsp-buses-master-meters",
+    "p0-dec-convention-and-closed-questions"
    ],
    "proposal_refs": [
     "05-workstation.md Master",
@@ -3430,7 +3454,8 @@
    "estimate_days": 5,
    "summary": "Filters: no high-pass or low-pass DSP exists in the Java mixer (`mixerHighpassThresholdHz` and `mixerLowpassThresholdHz` were parsed and never read), and both keys are present in every template (TemplateConfig::DEFAULT sets 30 Hz and 15 kHz), so implement second-order Butterworth filters from those keys and enable them only when the station passes `filters_enabled` in SetMasterParams (the station reads the new `mixerFiltersEnabled` key from the template config JSON; the DSP never reads the engine), and state in the release notes that enabling them changes the sound of existing templates. Limiter: no mature true-peak limiter crate exists; implement a look-ahead limiter with 4x oversampled peak detection at the master output, ceiling -1.0 dBTP, verified with `ebur128` (Mode::TRUE_PEAK) over the golden renders and an hour of random content. This replaces the Java path where 16-bit conversion wrapped above full scale.",
    "blocked_by": [
-    "p2-dsp-master-dynamics-port"
+    "p2-dsp-master-dynamics-port",
+    "p1-cue-template-config-fields"
    ],
    "proposal_refs": [
     "05-workstation.md Master",
@@ -3444,8 +3469,8 @@
    "epic": "e2-dsp-fx-sinks",
    "phase": "2",
    "area": "dsp",
-   "size": "S",
-   "estimate_days": 3,
+   "size": "L",
+   "estimate_days": 8,
    "summary": "A test harness with a counting global allocator and a lock detector runs the full graph, including the capture sink's audio-thread half (CaptureStart/CaptureStop and the hand-off to the writer thread), for minutes of simulated callbacks and fails on any allocation or lock; add xrun and late-command counters; use cpal's `realtime` feature for thread promotion (Linux needs CAP_SYS_NICE, rtprio or `realtime-dbus`). Rules enforced by construction per 03-architecture.",
    "blocked_by": [
     "p2-dsp-insert-fx",
@@ -3481,12 +3506,13 @@
    "epic": "e2-dsp-fx-sinks",
    "phase": "2",
    "area": "dsp",
-   "size": "M",
-   "estimate_days": 4,
+   "size": "L",
+   "estimate_days": 9,
    "summary": "cpal 0.18.2: streams must be `play()`ed, default config prefers 48 kHz, DeviceChanged notification was reverted so device loss is detected from the stream error callback and followed by rescan and reopen with transport re-estimation; ALSA `default` fails with DeviceBusy under PipeWire, so on Linux the sink enumerates hosts and the station settings expose a host choice (PipeWire, the default and the supported tier; JACK through cpal's `jack` feature, built into official Linux binaries; ALSA direct) with the chosen host's devices listed, per the Q10 record's Linux tiers (PipeWire supported, JACK and ALSA best-effort) so a venue running JACK or bare ALSA has a stated path; the `asio` feature compiles only behind the flag and downloads Steinberg's SDK at build time, so official builds leave it off until countersignature. Buffer size configurable, default 256 frames.",
    "blocked_by": [
     "p2-dsp-voice-pool-envelopes",
-    "p0-dec-q10-platforms-audio-backends"
+    "p0-dec-q10-platforms-audio-backends",
+    "p2-xport-time-bases-affine"
    ],
    "proposal_refs": [
     "05-workstation.md Sinks",
@@ -3505,7 +3531,10 @@
    "estimate_days": 5,
    "summary": "WAV: a writer thread fed from the audio thread writes master and optionally per-bus WAVs with hound 3.5.1 (Int24 or Float32, which switches the header to WAVEFORMATEXTENSIBLE); hound's data length is u32 with no RF64, so 3.1 h of f32 overflows silently: segment files at a size threshold snapped to segment, main or macro boundaries, reinstating the V1 nexus OutputFileMode behavior, with CaptureStart/CaptureStop commands and a manifest of segments per capture. Null: a sink that consumes buffers against a synthetic clock so the same graph renders N minutes as fast as the CPU allows, advancing chain time deterministically for Ship-mode bounce, lint renders and CI.",
    "blocked_by": [
-    "p2-dsp-buses-master-meters"
+    "p2-dsp-buses-master-meters",
+    "p2-dsp-sink-cpal-device",
+    "p2-dsp-master-filters-true-peak-limiter",
+    "p2-xport-time-bases-affine"
    ],
    "proposal_refs": [
     "05-workstation.md Sinks",
@@ -3519,13 +3548,14 @@
    "epic": "e2-dsp-fx-sinks",
    "phase": "2",
    "area": "dsp",
-   "size": "S",
-   "estimate_days": 2,
+   "size": "M",
+   "estimate_days": 5,
    "summary": "Reuse DemoIT's 16-step 121 bpm drum pattern and source WAVs as a cross-implementation fixture compared with a tolerance (the resampler differs, so byte identity is not a goal), and add statistics helpers (silence detection, clipping, integrated loudness via ebur128, true peak) used by CI render jobs and the lint.",
    "blocked_by": [
     "p2-dsp-master-dynamics-port",
     "p2-dsp-master-filters-true-peak-limiter",
-    "p2-dsp-sinks-wav-capture-null-offline"
+    "p2-dsp-sinks-wav-capture-null-offline",
+    "p2-cache-rubato-resample"
    ],
    "proposal_refs": [
     "09-roadmap.md Phase 2 CI",
@@ -3538,8 +3568,8 @@
    "epic": "e2-control",
    "phase": "2",
    "area": "control",
-   "size": "M",
-   "estimate_days": 4,
+   "size": "L",
+   "estimate_days": 8,
    "summary": "midir has no hot-plug callback on any backend: rescan `ports()` on a 1 to 2 s timer, detect loss by set difference, recreate `MidiInput` on macOS. Identity is a tiered key: port-name glob (tolerating ALSA's 31-char truncation and Windows' 'MIDIIN2 (...)'), Universal Device Inquiry reply, optional best-effort USB VID:PID; never persist `id()`. Pair input and output by name stem confirmed by the inquiry round trip; parse `9n` velocity 0 as release; re-stamp every event with the station's monotonic clock.",
    "blocked_by": [
     "p2-ws-ci-features-caching",
@@ -3557,8 +3587,8 @@
    "epic": "e2-control",
    "phase": "2",
    "area": "control",
-   "size": "S",
-   "estimate_days": 2,
+   "size": "M",
+   "estimate_days": 6,
    "summary": "rosc is a codec only: add the UDP transport with bundles and timetags, plus sending for integrations such as lighting desks. gilrs for gamepads (polling, hot-plug supported) and a raw-mode keyboard reader for the CLI so the whole surface can be driven without a controller.",
    "blocked_by": [
     "p2-ws-ci-features-caching"
@@ -3656,7 +3686,9 @@
    "blocked_by": [
     "p2-ctrl-mapping-toml-learn",
     "p0-ctrl-led-protocol-hardware-verify",
-    "p2-ctrl-cue-gesture-routing-quantize"
+    "p2-ctrl-cue-gesture-routing-quantize",
+    "p2-ctrl-moves",
+    "p2-ctrl-gestures-oneshot-fx-stutter-fill"
    ],
    "proposal_refs": [
     "08-performer-input.md Feedback to the controller"
@@ -3673,7 +3705,8 @@
    "blocked_by": [
     "p2-ctrl-led-feedback-profiles",
     "p2-ctrl-gestures-oneshot-fx-stutter-fill",
-    "p0-ctrl-led-protocol-hardware-verify"
+    "p0-ctrl-led-protocol-hardware-verify",
+    "p2-ctrl-moves"
    ],
    "summary": "Replay the raw MIDI byte logs the Phase 0 hardware verification recorded from the Launchpad Mini MK3 and the MPD218 through xj-control with each default profile on every PR, asserting the emitted cues, gestures and LED messages against a golden; this is how a mapping profile is tested in CI without a human, and it also guards the velocity-zero release rule and the name-resolution flags.",
    "proposal_refs": [
@@ -3687,12 +3720,13 @@
    "epic": "e2-control",
    "phase": "2",
    "area": "control",
-   "size": "S",
-   "estimate_days": 2,
+   "size": "M",
+   "estimate_days": 4,
    "summary": "A dedicated high-priority thread sends F8 at 24 ppqn from `time_at_beat(k/24)`, FA just before the downbeat's clock, FC/F2/FB for re-sync (Song Position Pointer wraps after 16,384 sixteenths, about 33 minutes at 124 bpm), through midir out, aiming at ±1 ms jitter. Also sent to any controller whose profile declares `blink = device` so the Launchpad's armed flash lands on the beat.",
    "blocked_by": [
     "p2-xport-beatclock-trait-internal",
-    "p2-ctrl-midi-input-identity-rescan"
+    "p2-ctrl-midi-input-identity-rescan",
+    "p2-ctrl-mapping-toml-learn"
    ],
    "proposal_refs": [
     "11-resolutions.md Q3",
@@ -3729,7 +3763,9 @@
     "p2-cont-engine-payload-in-memory",
     "p2-cache-rubato-resample",
     "p2-xport-event-to-command-late-counter",
-    "p2-dsp-sink-cpal-device"
+    "p2-dsp-sink-cpal-device",
+    "p1-fix-persistence-window-dub-intensity",
+    "p2-xport-beatclock-trait-internal"
    ],
    "summary": "The R1 vertical slice before buses, FX, control, cues or variants exist: load Hero's Journey through xj-content, start the engine, decode and resample each referenced WAV on demand, convert run_cycle events to StartVoice/UpdateVoice/StopVoice at absolute device frames and play them through the cpal sink from a 100 ms control loop. Done when a maintainer hears the demo on all three OS and the late-command counter stays at zero for ten minutes.",
    "proposal_refs": [
@@ -3744,8 +3780,8 @@
    "epic": "e2-station-runtime",
    "phase": "2",
    "area": "station",
-   "size": "M",
-   "estimate_days": 5,
+   "size": "L",
+   "estimate_days": 9,
    "summary": "At 10 to 20 Hz: read now in every base from the transport, apply pending cues whose landing falls within the craft-ahead window (the craft horizon, not the commit horizon; forwarding follow-mode refusals), call run_cycle, convert events to DSP commands, push them (plus SetMasterParams from the template config's thresholds and `mixerFiltersEnabled`, and the BeatClock tempo to the synced delay through SetFxParam), read the segment and message snapshot when changed (at most 10 Hz), publish an arc-swap snapshot for the UI. Craft runs inline on this thread; the 28 ms worst case leaves headroom. The published snapshot is the view-model defined in the Phase 0 fixture, so the Phase 3 surface draws the same shape it was prototyped against.",
    "blocked_by": [
     "p2-stn-first-sound-play-minimal",
@@ -3755,7 +3791,9 @@
     "p0-ui-spike-snapshot-fixture",
     "p2-dsp-buses-master-meters",
     "p2-xport-beatclock-trait-internal",
-    "p1-cue-template-config-fields"
+    "p1-cue-template-config-fields",
+    "p2-dsp-insert-fx",
+    "p2-cont-config-parser-dialect-port"
    ],
    "proposal_refs": [
     "03-architecture.md Data flow in one engine cycle",
@@ -3789,14 +3827,17 @@
    "phase": "2",
    "area": "station",
    "size": "M",
-   "estimate_days": 4,
+   "estimate_days": 6,
    "summary": "`xj-station play <project.xj> --template <t> [--link] [--profile <toml>]` loads the project through xj-content, starts the engine, opens the device sink, attaches controllers and plays. `--link` selects the `link` BeatClock implementation (this is the station-side demonstration of the Phase 2 'Link integration behind a feature flag') and is present only in binaries built with `--features link`; a build without it rejects the flag with the Q3 fallback message (session clock plus MIDI clock out), and whichever clock is active drives or follows the engine tempo through the station's tempo wiring. This is the R1 slice: something musical ships before any UI exists. Includes `--list-devices`, `--buffer-frames` and a text status line with late and xrun counters.",
    "blocked_by": [
     "p2-stn-tick-loop-scheduler",
     "p2-ctrl-cue-gesture-routing-quantize",
     "p2-ctrl-gestures-oneshot-fx-stutter-fill",
     "p2-stn-tempo-policy-beatclock-wiring",
-    "p2-xport-link-feature-impl"
+    "p2-xport-link-feature-impl",
+    "p2-dsp-rt-safety-harness",
+    "p2-stn-variant-resolution-events",
+    "p2-ctrl-midi-clock-out"
    ],
    "proposal_refs": [
     "09-roadmap.md Phase 2 Exit",
@@ -3827,13 +3868,14 @@
    "epic": "e2-station-runtime",
    "phase": "2",
    "area": "station",
-   "size": "S",
-   "estimate_days": 3,
+   "size": "M",
+   "estimate_days": 5,
    "summary": "A versioned capture directory whose header carries the engine version, the ABI version and the drawn chain seed, then: the sorted segment-store dump written incrementally per crafted segment (from `xj_engine_get_segments_json` through the serde snapshot types, in determinism mode omitting createdAt/updatedAt) so `replay` has a recorded chain to compare against, as 05-workstation's Capture ('starts recording the chain (segment store), the seed, the cue log and the bounced audio') requires; the content lock (project content hashes now, `show.lock` once shows exist), the cue log with beat timestamps and landing acknowledgements, the gesture and move log with device-frame timestamps, the influence log, the segmented bounced audio manifest, and a `CREDITS.md` slot. Written incrementally so a crash keeps what was recorded; the Phase 4 show task adds show.lock to the same header.",
    "blocked_by": [
     "p2-stn-tick-loop-scheduler",
     "p2-dsp-sinks-wav-capture-null-offline",
-    "p2-ctrl-cue-gesture-routing-quantize"
+    "p2-ctrl-cue-gesture-routing-quantize",
+    "p2-stn-cli-render"
    ],
    "proposal_refs": [
     "08-performer-input.md Capture and replay",
@@ -3851,7 +3893,10 @@
    "summary": "`capture` wraps play with the capture format; `replay <capture>` re-runs the engine with the recorded seed and cue log and compares its sorted store dump byte for byte against the dump recorded in the capture (the comparison target is the capture's own chain dump, not a second live run), then replays the gesture log through the DSP into a render and reports the audio difference. A CI job captures then replays on every PR.",
    "blocked_by": [
     "p2-stn-capture-format",
-    "p2-ctrl-moves"
+    "p2-ctrl-moves",
+    "p2-stn-cli-render",
+    "p2-stn-variant-resolution-events",
+    "p2-stn-tempo-policy-beatclock-wiring"
    ],
    "proposal_refs": [
     "09-roadmap.md Phase 2 Exit",
@@ -3864,14 +3909,17 @@
    "epic": "e2-station-runtime",
    "phase": "2",
    "area": "station",
-   "size": "S",
-   "estimate_days": 2,
+   "size": "M",
+   "estimate_days": 4,
    "summary": "Settings in the platform config directory (audio host on Linux and device and buffer, controller profiles, horizons, paths); the horizons setting carries craft-ahead, dub-ahead, deadline and the commit horizon, and the station applies the Play-mode defaults of 04 §6 (commit horizon 1.0 beat, craft-ahead 8 s, dub-ahead 2 s) through `set_horizons()` whenever the template omits `commitHorizonBeats` and the station is not in Ship mode's bounce or Build, so every V1 project opened in Play mode reacts within a beat; an explicit template key or an explicit settings value overrides the default; `tracing` logs with the engine's log callback wired in; a diagnostics bundle (logs, engine messages, current content lock, last capture, system info) exportable from the CLI and later the Help menu, per Q11. A `diagnostics` setting turns the engine's choice diagnostics on through the ABI flag: on by default in Play mode and in the CLI, off for game hosts, which never pass through the station.",
    "blocked_by": [
     "p2-stn-tick-loop-scheduler",
     "p2-stn-capture-format",
     "p2-dsp-sink-cpal-device",
-    "p2-eng-foundation-reload-horizons-diag-methods"
+    "p2-eng-foundation-reload-horizons-diag-methods",
+    "p2-dsp-rt-safety-harness",
+    "p2-stn-cli-play",
+    "p2-stn-cli-render"
    ],
    "proposal_refs": [
     "11-resolutions.md Q11",
@@ -3886,12 +3934,15 @@
    "epic": "e2-station-runtime",
    "phase": "2",
    "area": "station",
-   "size": "S",
-   "estimate_days": 2,
+   "size": "M",
+   "estimate_days": 4,
    "summary": "A loopback measurement of the 08-performer-input budget: unquantized gesture under 10 ms at 256 frames, beat-quantized gesture within one frame of the beat, intensity cue at the next beat, foundation cue at the chosen boundary and never sooner than the commit horizon. Publish the numbers per platform; they are the quantitative half of R3 before musicians judge the qualitative half in Phase 3.",
    "blocked_by": [
     "p2-stn-cli-play",
-    "p2-dsp-rt-safety-harness"
+    "p2-dsp-rt-safety-harness",
+    "p2-stn-cli-render",
+    "p2-stn-settings-diagnostics-bundle",
+    "p2-ctrl-cue-gesture-routing-quantize"
    ],
    "proposal_refs": [
     "08-performer-input.md Latency, end to end",
@@ -3903,8 +3954,8 @@
    "title": "Wire BeatClock tempo into the engine's External policy and engine tempo into the clock",
    "epic": "e2-station-runtime",
    "area": "station",
-   "size": "S",
-   "estimate_days": 3,
+   "size": "M",
+   "estimate_days": 4,
    "summary": "07-session-protocol says tempo is owned by Link and the conductor's and followers' engines run with the tempo policy External so their foundation records carry the Link tempo; nothing in the station did that. When the active clock owns tempo (`link`, or `session` as a follower) the station sets `set_tempo_policy(External)` and forwards every `on_tempo` change that passes the 20 to 999 bpm rule to `set_external_tempo`; when the station owns tempo (the internal clock, or `session` as conductor) the policy stays Content and each new segment's tempo is pushed to the clock's `set_tempo` at the segment boundary. The pending external tempo and its landing boundary are published in the station snapshot for the header and the Phase 5 records. Done when a test on the internal clock shows a template tempo change reaching `tempo_bpm()` at the boundary, and a test with a scripted BeatClock shows a tempo nudge landing in the next crafted segment and nowhere earlier; the Link path itself is exercised later through the `link` feature.",
    "blocked_by": [
     "p2-stn-tick-loop-scheduler",
@@ -3941,8 +3992,8 @@
    "epic": "e2-station-ci-soak",
    "phase": "2",
    "area": "ci-release",
-   "size": "S",
-   "estimate_days": 3,
+   "size": "M",
+   "estimate_days": 5,
    "summary": "A PR job that renders ten minutes of the engine test project and of Hero's Journey (0.6 GB, the only demo small enough to be a committed fixture; rendered from the CDN export `audio.xj.io/vgm.json`, the only demo export with lengthSeconds, with its hub-era `vgm-<uuid>.wav` keyed audio fetched from object storage, not from the GitHub repo JSON whose rewritten waveformKeys do not match the CDN, and not a 17.6 GB git clone; the fixture switches to the Hero's Journey pack when Phase 4 publishes it) and asserts no silence, no clipping, integrated loudness within a band, true peak at or below -1 dBTP, zero engine Error messages.",
    "blocked_by": [
     "p2-stn-cli-render",
@@ -3959,15 +4010,15 @@
    "epic": "e2-station-ci-soak",
    "phase": "2",
    "area": "ci-release",
-   "size": "S",
-   "estimate_days": 3,
+   "size": "L",
+   "estimate_days": 9,
    "summary": "Nightly: `xj-station play` on the null sink with a simulated device clock and a scripted performer sending cues and gestures for eight hours; assert zero dropouts, zero late commands, zero xruns, bounded memory and cache size, and a valid segmented capture. Chain time past 36 minutes on Windows is exercised here. This null-sink soak is the regression proxy; the real-device evidence for the Phase 2 exit comes from the overnight run on maintainers' machines. The same nightly job also renders ten minutes of all four demos through the joined fixtures (repo JSON with `lengthSeconds`, CDN audio by id: Deep House with its delta arcs and 88.2 kHz audio, Lofi with its loop outliers, Ambient Flow and Hero's Journey) and asserts the per-PR render statistics on each, since only the two small fixtures render on every PR; this closes 09's 'offline render of the demo projects' before the Phase 2 gate.",
    "blocked_by": [
     "p2-ci-offline-render-demos-stats",
-    "p2-stn-latency-measurement",
     "p2-stn-cli-capture-replay",
     "p2-dsp-rt-safety-harness",
-    "p2-ci-demo-render-fixtures-join-cdn"
+    "p2-ci-demo-render-fixtures-join-cdn",
+    "p2-stn-settings-diagnostics-bundle"
    ],
    "proposal_refs": [
     "09-roadmap.md Phase 2 CI 8-hour soak",
@@ -3990,7 +4041,8 @@
     "p2-ctrl-profile-replay-test-ci",
     "p2-stn-variant-resolution-events",
     "p2-dsp-rt-safety-harness",
-    "p2-stn-real-device-overnight"
+    "p2-stn-real-device-overnight",
+    "p2-stn-latency-measurement"
    ],
    "proposal_refs": [
     "09-roadmap.md Decision gates",
@@ -4002,14 +4054,17 @@
    "title": "Run xj-station play eight hours on a real audio device on each OS before the Phase 2 gate",
    "epic": "e2-station-ci-soak",
    "area": "station",
-   "size": "XS",
-   "estimate_days": 1,
+   "size": "S",
+   "estimate_days": 3,
    "summary": "The CI soak runs on the null sink and cannot observe device xruns or dropouts. On maintainers' machines (CoreAudio, WASAPI shared, PipeWire) run `xj-station play` for eight hours with the default profile, the device sink and a scripted performer, and collect the xrun, late-command and dropout counters plus the diagnostics bundle. Done when the three runs are attached to the gate record with zero dropouts, or the device-level hazard (R7) is filed.",
    "blocked_by": [
     "p2-stn-cli-play",
     "p2-dsp-sink-cpal-device",
     "p2-dsp-rt-safety-harness",
-    "p2-stn-settings-diagnostics-bundle"
+    "p2-stn-settings-diagnostics-bundle",
+    "p2-ci-soak-8h-scheduled",
+    "p2-ctrl-led-feedback-profiles",
+    "p2-ci-offline-render-demos-stats"
    ],
    "proposal_refs": [
     "09-roadmap.md Phase 2 Exit",
@@ -4022,8 +4077,8 @@
    "title": "Build render fixtures for the large demos: join repo JSON lengthSeconds to CDN audio by id",
    "epic": "e2-station-ci-soak",
    "area": "ci-release",
-   "size": "S",
-   "estimate_days": 2,
+   "size": "M",
+   "estimate_days": 5,
    "summary": "The CDN exports bump_deep.json, slaps_lofi.json and space_flow.json carry no `lengthSeconds` and use the hub-era `{demo:true, projects:[...]}` shape, so rendering them directly would make every one-shot pick zero-length (DubWork.cpp:144-151 computes stop = start). Build a fixture generator that reads each demo's GitHub-repo JSON (which has `lengthSeconds` and the same audio ids), reads the CDN JSON with a small adapter of its own (the V1 reader never learns the hub-era shape) only to map audio id to CDN waveform key, and writes a build-layout payload whose keys resolve to the object-storage URLs, cached by hash; vgm.json already has `lengthSeconds` and keeps its direct path. Done when all four demos render ten minutes with drum content audible and the fixture generator runs in the nightly job before the render; the fixtures switch to the Commons packs when Phase 4 publishes them.",
    "blocked_by": [
     "p2-cont-v1-reader",
@@ -4042,9 +4097,9 @@
    "epic": "e2-release-early",
    "phase": "2",
    "area": "ci-release",
-   "size": "S",
-   "estimate_days": 3,
-   "summary": "cargo-dist (community-maintained, v0.33) on `workstation-v2.0.0-alpha.N` pre-release tags per the Phase 0 tag scheme: build on three OS (the binary carries `play`, `render`, `capture`, `replay` and `build`), publish archives with SHA-256 checksums and third-party notices from cargo-deny, pinned to engine-v2.0.0. Signing and notarization are set up in Phase 3 per R13, on top of this workflow; developer builds for the soak and the gate come from here.",
+   "size": "M",
+   "estimate_days": 6,
+   "summary": "cargo-dist (community-maintained, v0.33) on `workstation-v2.0.0-alpha.N` pre-release tags per the Phase 0 tag scheme: build on three OS (the binary carries `play`, `render`, `capture`, `replay` and `build`), publish archives with SHA-256 checksums and third-party notices from cargo-deny, pinned to engine-v2.0.0. Signing and notarization are set up in Phase 3 per R13, on top of this workflow; the overnight runs may use these alphas, while the CI soak and the gate build from source.",
    "blocked_by": [
     "p2-stn-cli-play",
     "p1-ci-decouple-version-gate-tags",
@@ -4053,6 +4108,7 @@
     "p2-stn-cli-build"
    ],
    "proposal_refs": [
+    "10-risks R1",
     "10-risks R13",
     "09-roadmap.md Phase 2"
    ]
@@ -4080,8 +4136,8 @@
    "epic": "e3-shell",
    "phase": "3",
    "area": "workstation-ui",
-   "size": "M",
-   "estimate_days": 7,
+   "size": "L",
+   "estimate_days": 8,
    "summary": "In the Q1 toolkit: a window with Play, Make and Ship mode navigation, settings screens (audio device and buffer, MIDI devices, paths, horizons including the commit horizon in beats, shown with the Play-mode defaults and applied at the next segment boundary through `set_horizons()`, clock source (internal, `link` when built in, `session` in Phase 5) and the MIDI clock out port, crash-report toggle) over the station's TOML settings, an About panel with version and commit hash for bug reports, command-line open of a project (#463; file association is wired in packaging), recent projects, and window state. Make and Ship are placeholders that already show the running project.",
    "blocked_by": [
     "p0-ui-spike-score-decide",
@@ -4103,8 +4159,8 @@
    "epic": "e3-shell",
    "phase": "3",
    "area": "workstation-ui",
-   "size": "M",
-   "estimate_days": 4,
+   "size": "L",
+   "estimate_days": 9,
    "summary": "The UI thread reads arc-swap snapshots at frame rate and the meter ring buffer, and sends commands (cues, gestures, settings) to the control thread through a channel; no mutex is shared. Mode switches never stop the music; content edits apply at the next segment boundary via `xj_engine_reload_content`.",
    "blocked_by": [
     "p3-shell-app-skeleton",
@@ -4122,12 +4178,13 @@
    "epic": "e3-shell",
    "phase": "3",
    "area": "workstation-ui",
-   "size": "S",
-   "estimate_days": 2,
+   "size": "M",
+   "estimate_days": 6,
    "blocked_by": [
     "p3-shell-app-skeleton",
     "p3-shell-station-embed-snapshots",
-    "p2-eng-foundation-reload-horizons-diag-methods"
+    "p2-eng-foundation-reload-horizons-diag-methods",
+    "p1-java-maintenance-mode"
    ],
    "summary": "Workstation 2.0.0 ships no editors and the Java workstation remains the editor of record, so 05's 'Make mode is one click away' is honored by launching the installed Java 1.9.x workstation on the current project (it accepts the path as its first command-line argument, #463) and watching the project files; a Java save is re-read by xj-content and applied through the engine's reload at the next segment boundary without stopping the music. Opening on the instrument playing now is a Phase 6 behavior and is noted as such in the tour.",
    "proposal_refs": [
@@ -4142,8 +4199,8 @@
    "epic": "e3-shell",
    "phase": "3",
    "area": "workstation-ui",
-   "size": "M",
-   "estimate_days": 5,
+   "size": "L",
+   "estimate_days": 9,
    "summary": "The performance surface is a canvas component in either toolkit (Canvas2D with a WebGL2 option in Tauri since WebKitGTK has no WebGPU; wgpu in iced), drawn from the Phase 0 snapshot view-model so the instrument is portable between hosts (R2). Benchmark sustained 60 fps with meters, animated chord strip and 200 timeline elements on the 2019 laptop and time-to-window under 2 s; fail CI on regression where a representative runner exists.",
    "blocked_by": [
     "p3-shell-station-embed-snapshots",
@@ -4160,8 +4217,8 @@
    "epic": "e3-surface",
    "phase": "3",
    "area": "workstation-ui",
-   "size": "M",
-   "estimate_days": 4,
+   "size": "L",
+   "estimate_days": 8,
    "summary": "Every control reachable and operable from a laptop keyboard (the demo and fallback path), with focus order, shortcuts for scenes, palettes, boundary, advance, hold, capture, transport, the one-shot pads, bus gain, FX, stutter and fill (08: the whole surface is drivable from a laptop keyboard), and accessible names and states on every control. On iced this is new work; on Tauri it is ARIA on the DOM chrome plus an accessible overlay for the canvas. It waits for every surface element, the timeline and the controller panel so nothing it must reach is built after it.",
    "blocked_by": [
     "p3-shell-canvas-surface-component",
@@ -4172,7 +4229,9 @@
     "p3-tl-timeline",
     "p3-map-controller-panel",
     "p3-surf-gesture-pads-fx",
-    "p3-surf-transport-start-stop-template"
+    "p3-surf-transport-start-stop-template",
+    "p3-surf-intensity-influence",
+    "p3-surf-pending-tempo-time-in-section"
    ],
    "proposal_refs": [
     "05-workstation.md Criteria 5",
@@ -4185,8 +4244,8 @@
    "epic": "e3-surface",
    "phase": "3",
    "area": "workstation-ui",
-   "size": "S",
-   "estimate_days": 3,
+   "size": "M",
+   "estimate_days": 5,
    "blocked_by": [
     "p3-shell-canvas-surface-component",
     "p2-eng-cues-tempo-foundation-methods",
@@ -4269,7 +4328,8 @@
     "p3-shell-canvas-surface-component",
     "p2-ctrl-gestures-oneshot-fx-stutter-fill",
     "p2-dsp-buses-master-meters",
-    "p2-ctrl-cue-gesture-routing-quantize"
+    "p2-ctrl-cue-gesture-routing-quantize",
+    "p3-surf-one-pad-slice"
    ],
    "proposal_refs": [
     "05-workstation.md Layers",
@@ -4288,7 +4348,8 @@
    "summary": "Advance and Hold section cues; Capture start and stop writing the capture format; a header showing Link state, tempo, beat position and session placeholder; and the first-run 'what is playing' overlay naming macro program, key and tempo. Leave room on the header for the Link name and logo attribution Ableton's brand guideline will require, and a slot for the Phase 5 session status.",
    "blocked_by": [
     "p3-shell-canvas-surface-component",
-    "p2-stn-capture-format"
+    "p2-stn-capture-format",
+    "p3-surf-one-pad-slice"
    ],
    "proposal_refs": [
     "05-workstation.md Advance and Hold",
@@ -4300,8 +4361,8 @@
    "title": "Show the pending external tempo with its landing boundary and the time-in-section hint",
    "epic": "e3-surface",
    "area": "workstation-ui",
-   "size": "XS",
-   "estimate_days": 1,
+   "size": "S",
+   "estimate_days": 2,
    "summary": "While an External tempo is pending the header reads, for example, '124 to 126 at next segment (in 2 bars)' from the station snapshot's pending-tempo field (filled by the station's tempo wiring from the engine's tempo-landing message) and `earliest_landing(SEGMENT)`; beside Advance, 'N bars in this section' with a gentle overdue hint when the influence layer is on, suggesting only and never acting on its own. Done when a Link tempo change shows its landing before it takes effect and the hint appears after the configured bars.",
    "blocked_by": [
     "p3-surf-advance-hold-capture-header",
@@ -4339,8 +4400,8 @@
    "title": "Add Play-mode transport: start and stop the station, pick the template, restart the chain",
    "epic": "e3-surface",
    "area": "workstation-ui",
-   "size": "XS",
-   "estimate_days": 1,
+   "size": "S",
+   "estimate_days": 3,
    "summary": "05-workstation lists transport among the Play-mode elements and 03 gives start and stop to xj-transport, but no surface element started or stopped the station or chose the template the engine starts on (the CLI has `--template`). Add start and finish through the station with the trailing Delete events honored (voices release, no click), a template picker over `xj_engine_list_macro_programs_json` and the template introspection JSON, and a restart that reseeds the chain; the header shows the running state.",
    "blocked_by": [
     "p3-surf-advance-hold-capture-header",
@@ -4398,12 +4459,13 @@
    "epic": "e3-mapping-ui",
    "phase": "3",
    "area": "workstation-ui",
-   "size": "M",
-   "estimate_days": 4,
+   "size": "L",
+   "estimate_days": 9,
    "summary": "List detected controllers with their resolved identity, offer the matching default profile on plug-in, assign instance slots when two identical devices appear, and show connection state from the rescan.",
    "blocked_by": [
     "p3-shell-app-skeleton",
-    "p2-ctrl-led-feedback-profiles"
+    "p2-ctrl-led-feedback-profiles",
+    "p3-shell-station-embed-snapshots"
    ],
    "proposal_refs": [
     "05-workstation.md First run 4",
@@ -4416,8 +4478,8 @@
    "epic": "e3-mapping-ui",
    "phase": "3",
    "area": "workstation-ui",
-   "size": "M",
-   "estimate_days": 4,
+   "size": "L",
+   "estimate_days": 9,
    "summary": "Touch a control, choose a cue, gesture, move or session action, see the LED states it will show, and write the profile; names that do not resolve against the loaded show are flagged inline.",
    "blocked_by": [
     "p3-map-controller-panel",
@@ -4434,8 +4496,8 @@
    "epic": "e3-mapping-ui",
    "phase": "3",
    "area": "workstation-ui",
-   "size": "S",
-   "estimate_days": 3,
+   "size": "M",
+   "estimate_days": 6,
    "summary": "Compose steps of cues and gestures at beat, bar, segment or bar+N, bind the move to a control, preview the engine's cue previews and the gesture text, and save into the profile so moves travel with it.",
    "blocked_by": [
     "p3-map-learn-mode-ui",
@@ -4451,13 +4513,18 @@
    "epic": "e3-first-run",
    "phase": "3",
    "area": "workstation-ui",
-   "size": "S",
-   "estimate_days": 3,
+   "size": "M",
+   "estimate_days": 6,
    "summary": "Bundle the interim starter the license decision allows: Hero's Journey (98 audios, Macro/Main only, the Unreal showcase) as a V1 project, restricted to the instruments the inventory classifies as original or cleared if the decision says so, with its 14 loop metadata fixes (loopBeats under-declared by an exact integer factor for 11 of them; the other three are files that are exactly 64 beats at 115 bpm declared at 95, so their fix is tempo 115 instead of 95) applied once here and consumed by the Phase 4 pack. Show the license text the decision chose and the credits on first run; the swap to the commissioned CC0 starter pack is a Phase 4 task.",
    "blocked_by": [
     "p2-cont-v1-reader",
     "p0-paper-demo-rights-inventory",
-    "p3-dec-interim-starter-license"
+    "p3-dec-interim-starter-license",
+    "p2-cont-v1-writer-canonical-sidecar",
+    "p2-stn-cli-render",
+    "p2-cont-java-roundtrip-ci",
+    "p2-ci-demo-render-fixtures-join-cdn",
+    "p3-shell-app-skeleton"
    ],
    "proposal_refs": [
     "05-workstation.md First run 2",
@@ -4470,14 +4537,15 @@
    "epic": "e3-first-run",
    "phase": "3",
    "area": "workstation-ui",
-   "size": "M",
-   "estimate_days": 4,
+   "size": "L",
+   "estimate_days": 9,
    "summary": "Open the window in under 2 s, load the starter (the largest demo loads in about 110 ms and starts in 60 ms, so the budget is decoding and UI), preload the first dub window, start the device and show the overlay; sound within 10 s of launch on the 2019 laptop, measured on every release candidate and once in CI on a representative runner.",
    "blocked_by": [
     "p3-first-interim-starter-project",
     "p3-shell-station-embed-snapshots",
     "p2-cache-blake3-disk-cache-preload",
-    "p3-surf-advance-hold-capture-header"
+    "p3-surf-advance-hold-capture-header",
+    "p3-first-play-mode-template"
    ],
    "proposal_refs": [
     "09-roadmap.md Phase 3 Exit",
@@ -4490,14 +4558,17 @@
    "epic": "e3-first-run",
    "phase": "3",
    "area": "workstation-ui",
-   "size": "S",
-   "estimate_days": 3,
+   "size": "M",
+   "estimate_days": 5,
    "summary": "Press a scene pad, drag intensity, press a palette button, each showing its preview before it lands; then prompt to plug in a controller and show Make mode one click away (it opens the Java editor on the project; opening on the playing instrument is Phase 6). Follow #309's checklist (welcome, 'don't show again', skip) with 'starter pack already here' replacing 'clone a demo'. Steps 4 and 5 of the first run (plug in a controller and get a default layout; Make mode one click away) are reached from the tour's last screen.",
    "blocked_by": [
     "p3-surf-scenes-grid-palettes",
     "p3-surf-intensity-influence",
     "p3-shell-make-mode-handoff-java",
-    "p3-map-controller-panel"
+    "p3-map-controller-panel",
+    "p3-first-launch-to-sound",
+    "p3-first-interim-starter-project",
+    "p3-surf-keyboard-accessibility"
    ],
    "proposal_refs": [
     "05-workstation.md First run 3",
@@ -4529,14 +4600,16 @@
    "title": "Add a Play-mode template and station defaults to the interim starter for usability",
    "epic": "e3-first-run",
    "area": "commons-content",
-   "size": "S",
-   "estimate_days": 2,
-   "summary": "The usability program judges R3 on the interim starter, so it must not run on the game template's defaults. Add a template variant with commitHorizonBeats = 1.0 and shorter main sequences, keeping the game template for Ship mode; the station's Play-mode defaults (one-beat commit horizon, craft-ahead 8 s, dub-ahead 2 s) already apply through the settings task when a template omits the key, so this variant exists for the shorter sequences and so the template itself documents the horizon it was tuned for. Done when the first-run overlay names the Play-mode template and a Macro cue lands within one bar at 120 bpm.",
+   "size": "M",
+   "estimate_days": 4,
+   "summary": "The usability program judges R3 on the interim starter, so it must not run on the game template's defaults. Add a template variant with commitHorizonBeats = 1.0 and shorter main sequences, keeping the game template for Ship mode; the station's Play-mode defaults (one-beat commit horizon, craft-ahead 8 s, dub-ahead 2 s) already apply through the settings task when a template omits the key, so this variant exists for the shorter sequences and so the template itself documents the horizon it was tuned for. Done when a Bar-boundary Macro cue on it lands within one bar plus the one-beat horizon (at most 5 beats, median at most 4) at 95, 115, 135 and 120 bpm, and Build for engine of the starter omits it so the Unreal plugin never plays it.",
    "blocked_by": [
     "p3-first-interim-starter-project",
     "p1-cue-template-config-fields",
     "p1-cue-horizon-earliest-landing",
-    "p2-stn-settings-diagnostics-bundle"
+    "p2-stn-settings-diagnostics-bundle",
+    "p3-ship-build-bounce-ui",
+    "p2-cont-java-roundtrip-ci"
    ],
    "proposal_refs": [
     "04-engine.md §6",

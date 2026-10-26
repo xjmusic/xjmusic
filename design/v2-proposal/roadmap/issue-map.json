@@ -839,6 +839,11 @@
   "url": "https://github.com/xjmusic/xjmusic/issues/651",
   "kind": "task"
  },
+ "p2-cache-hash-xjpcm-disk-tier": {
+  "number": 842,
+  "url": "https://github.com/xjmusic/xjmusic/issues/842",
+  "kind": "task"
+ },
  "p2-cache-rubato-resample": {
   "number": 650,
   "url": "https://github.com/xjmusic/xjmusic/issues/650",
