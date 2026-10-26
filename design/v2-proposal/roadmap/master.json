@@ -6160,12 +6160,13 @@
    "phase": "6",
    "area": "workstation-ui",
    "size": "M",
-   "estimate_days": 4,
+   "estimate_days": 7,
    "summary": "Name, type (with the confirmed cascade), state, key (validated by the grammar), tempo, memes, config; sequence selector and actions (create, delete when unreferenced, duplicate); current-sequence name, total, key, intensity; grid choices 1/2 to 1/32, zoom 5 to 400 percent, snap; mode toggles Bind (Macro and Main) and Edit (not Macro).",
    "blocked_by": [
     "p6-edit-library-browser",
     "p6-edit-config-and-memes",
-    "p2-cont-chord-note-grammar-port"
+    "p2-cont-chord-note-grammar-port",
+    "p6-inst-audio-editor-waveform-markers"
    ],
    "proposal_refs": [
     "05-workstation.md Editors 3"
@@ -6178,7 +6179,7 @@
    "phase": "6",
    "area": "workstation-ui",
    "size": "M",
-   "estimate_days": 4,
+   "estimate_days": 5,
    "summary": "Columns per offset 0 to max+1, add a sequence binding from the program's sequences, per-binding memes, delete refused while memes exist, and drag of bindings between offsets, which the Java editor lacked.",
    "blocked_by": [
     "p6-prog-shell-sequences"
@@ -6220,16 +6221,32 @@
    ]
   },
   {
+   "key": "p6-prog-event-selection-clipboard",
+   "title": "Add multi-select, group edit, the event properties dialog, and copy and paste of events and patterns",
+   "epic": "e6-program-editor",
+   "phase": "6",
+   "area": "workstation-ui",
+   "size": "L",
+   "estimate_days": 9,
+   "summary": "Multi-select and group edit of events (#317) with marquee, group move and edge drags constrained per pattern, Delete with confirmation; the event properties dialog for one or many events (tones, velocity as percent, 1-based position, duration, all validated); copy and paste of events and patterns across programs and projects through a versioned text/plain clipboard format with a JSON Schema and refusal rules.",
+   "blocked_by": [
+    "p6-prog-event-edit-mode"
+   ],
+   "proposal_refs": [
+    "09-roadmap.md Phase 6"
+   ]
+  },
+  {
    "key": "p6-prog-event-productivity",
-   "title": "Add multi-select, copy and paste, keyboard note entry and voice/track drag reorder",
+   "title": "Add keyboard note entry and voice/track drag reorder, and make the Rust program editor the default",
    "epic": "e6-program-editor",
    "phase": "6",
    "area": "workstation-ui",
    "size": "M",
-   "estimate_days": 5,
-   "summary": "Multi-select and group edit of events (#317), copy and paste of events and patterns, keyboard entry of tones, and drag to reorder voices and tracks (#312), none of which the Java editor had. Includes the event properties dialog (tones, velocity as percent, 1-based position display, duration).",
+   "estimate_days": 6,
+   "summary": "Keyboard step entry of tones on physical key positions, drag to reorder voices and tracks (#312) with a minimal-change order rule, the scripted program_editor_session over the four demos, the consolidated parity test-id list, and the default route of programs to the Rust editor (the Java handoff stays until the archive).",
    "blocked_by": [
-    "p6-prog-event-edit-mode",
+    "p6-prog-event-selection-clipboard",
     "p6-prog-bind-mode",
     "p6-prog-chord-edit-mode"
    ],
