@@ -6318,7 +6318,7 @@
       "area": "show",
       "size": "S",
       "estimate_days": 3,
-      "summary": "Choose the venue and date from the Phase 5 gate, recruit three or more artists who were not involved in building the software, define the running order with handoffs, and plan FOH integration (each station feeds the mixer like any instrument) and the recording.",
+      "summary": "Choose the venue and date from the Phase 5 gate, recruit three or more artists who were not involved in building the software plus a standby, define the running order with handoffs and claims, and plan FOH integration (each station feeds the mixer like any instrument) and the recording. The plan baseline, checked by check_plan.py, merges by T\u22128 w; later dated items belong to the tasks that consume it.",
       "blocked_by": [
         "p5-dec-gate-duet-q13",
         "p4-rel-workstation-2-1",
@@ -6327,6 +6327,47 @@
       "proposal_refs": [
         "09-roadmap.md Phase 7",
         "01-vision.md"
+      ],
+      "calendar": "T\u221212 w to T\u22128 w (baseline merged by T\u22128 w)"
+    },
+    {
+      "key": "p7-show-handoff-offer-target",
+      "title": "Add an optional target to the mapping handoff_offer action",
+      "epic": "e7-show",
+      "phase": "7",
+      "area": "control",
+      "size": "XS",
+      "estimate_days": 1,
+      "calendar": "by T\u22125 w (in a 2.2.x patch before the T\u22124 w kit build)",
+      "summary": "Add the optional key `to` to the mapping form `session = { type = \"handoff_offer\" }`, so an OSC or controller binding can offer the conductor role to a named station. This is the house station's primary handoff path for the show; the wall-keyed script remains the fallback.",
+      "blocked_by": [
+        "p5-ui-claims-horizon-indicators",
+        "p2-ctrl-mapping-toml-learn"
+      ],
+      "proposal_refs": [
+        "08-performer-input.md Mapping",
+        "07-session-protocol.md Roles and handoff"
+      ]
+    },
+    {
+      "key": "p7-show-artist-packs-pair-render",
+      "title": "Bring each artist's pack into the show and pair-render every combination",
+      "epic": "e7-show",
+      "phase": "7",
+      "area": "show",
+      "size": "M",
+      "estimate_days": 4,
+      "calendar": "T\u22128 w to T\u22125 w (pair renders at T\u22126 w)",
+      "summary": "Each outside artist's material becomes a lint-clean pack on the commons or show-private route, with a license fit for a ticketed show and a published recording; show.toml composes; tools/show/pair_render.py plays every ordered template pair and every solo run, so clashes lint cannot see are heard before the lock.",
+      "blocked_by": [
+        "p7-show-production-plan",
+        "p4-ui-export-pack",
+        "p4-show-taxonomy-union-template"
+      ],
+      "proposal_refs": [
+        "01-vision.md What the vision actually requires",
+        "06-commons.md Three tiers",
+        "06-commons.md Shows"
       ]
     },
     {
@@ -6335,17 +6376,41 @@
       "epic": "e7-show",
       "phase": "7",
       "area": "show",
-      "size": "S",
-      "estimate_days": 3,
-      "summary": "A managed switch, cables, a NAS mirror of every pack, USB sticks with the show, the show.toml and show.lock frozen and verified on every station, and a Link peer test with the artists' own gear.",
+      "size": "M",
+      "estimate_days": 5,
+      "summary": "A switch, cables, a NAS mirror of every pack, USB sticks with the show, the house station's committed launch and cold spare, phase7-lock-1 frozen from the packs task's show.toml and verified on every station (with redacted evidence only in the public folder), and a Link or MIDI-clock peer test with the artists' own stations and gear at the kit build.",
       "blocked_by": [
         "p7-show-production-plan",
+        "p7-show-artist-packs-pair-render",
         "p4-show-station-loads-offline",
         "p5-docs-venue-setup-guide"
       ],
       "proposal_refs": [
         "07-session-protocol.md Transport Wired recommended",
         "06-commons.md Shows"
+      ],
+      "calendar": "T\u22126 w to T\u22124 w (kit build day at T\u22124 w)"
+    },
+    {
+      "key": "p7-show-release-tooling",
+      "title": "Build the show's credits, loudness, repair-alignment and capture-scrub tools",
+      "epic": "e7-show",
+      "phase": "7",
+      "area": "show",
+      "size": "M",
+      "estimate_days": 5,
+      "calendar": "T\u22126 w to T\u221210 d",
+      "summary": "xj-content credits (show and capture modes), the loudness_report example, the align-repair tool for declared repairs, and tools/show/scrub_capture.py, tested on three OS and landed in a 2.2.x tag before the T\u22127 d freeze.",
+      "blocked_by": [
+        "p4-legal-credits-generator",
+        "p4-cli-pack",
+        "p4-show-capture-show-lock",
+        "p2-dsp-golden-render-tests"
+      ],
+      "proposal_refs": [
+        "06-commons.md Licensing",
+        "11-resolutions.md Q6",
+        "08-performer-input.md Capture and replay"
       ]
     },
     {
@@ -6355,33 +6420,90 @@
       "phase": "7",
       "area": "show",
       "size": "M",
-      "estimate_days": 4,
-      "summary": "Each artist brings material as a pack that passes lint, maps their controller, learns cues, claims and handoffs in a rehearsal on the venue network; fix what breaks; capture the rehearsal.",
+      "estimate_days": 5,
+      "summary": "Each artist maps their controller and learns cues, claims, cue requests and handoffs on the kit; the full running order is rehearsed with captures on every station, plus targeted follower-loss and house-loss drills; findings are triaged and show-blockers patched in 2.2.x; the Q13 revisit records its evidence while the night keeps accept_all.",
       "blocked_by": [
-        "p7-show-network-kit-and-show-lock",
-        "p4-ui-export-pack"
+        "p7-show-network-kit-and-show-lock"
       ],
       "proposal_refs": [
         "01-vision.md What the vision actually requires",
         "09-roadmap.md Phase 7"
+      ],
+      "calendar": "T\u22123 w to T\u22122 w"
+    },
+    {
+      "key": "p7-show-final-freeze",
+      "title": "Freeze the show build and the final lock at T\u22127 d",
+      "epic": "e7-show",
+      "phase": "7",
+      "area": "show",
+      "size": "S",
+      "estimate_days": 2,
+      "calendar": "T\u22128 d to T\u22127 d",
+      "summary": "After the rehearsal's show-blockers are patched and the release tooling is in a build, freeze one exact workstation-v2.2.N and the final phase7-lock-<n>, install them on every station and the house spare, re-run the station check, and publish the pre-show credits.",
+      "blocked_by": [
+        "p7-show-artist-onboarding-rehearsal",
+        "p7-show-release-tooling",
+        "p7-show-network-kit-and-show-lock"
+      ],
+      "proposal_refs": [
+        "09-roadmap.md Phase 7",
+        "06-commons.md Shows"
       ]
     },
     {
       "key": "p7-show-night-recording-release",
-      "title": "Run the show night with captures on every station, then release the recording with credits",
+      "title": "Run the show night with captures on every station and collect the evidence",
       "epic": "e7-show",
       "phase": "7",
       "area": "show",
-      "size": "M",
-      "estimate_days": 5,
-      "summary": "The night: three or more stations, outside artists, an audience; captures running on every station plus a room recording; a human listening for drift; the diagnostics bundles collected afterwards. Then, from the captures: a mixed recording with CREDITS.md for every pack, published as the proof beside Live in Boulder, and a retrospective recording what the stations, protocol and content did and did not do, filed as issues for 2.x.",
+      "size": "S",
+      "estimate_days": 3,
+      "summary": "The night: three or more stations, outside artists, an audience; captures on every station plus a recorder multitrack; a drift listener; the incident procedure and house-loss runbook. Afterwards: copying and hashing, pre/post diagnostics bundles and counter deltas, capture-header verification, drift, replay and Q13 analysis. Mix, release and retrospective are separate tasks.",
       "blocked_by": [
-        "p7-show-artist-onboarding-rehearsal",
-        "p4-legal-credits-generator"
+        "p7-show-final-freeze"
       ],
       "proposal_refs": [
         "09-roadmap.md Phase 7 Exit",
         "06-commons.md Licensing"
+      ],
+      "calendar": "T (show day) to T+3 d"
+    },
+    {
+      "key": "p7-show-mix-release",
+      "title": "Mix and master the recording and publish the release with credits",
+      "epic": "e7-show",
+      "phase": "7",
+      "area": "show",
+      "size": "M",
+      "estimate_days": 4,
+      "calendar": "T+1 d to T+5 w (includes a 7-day approval window)",
+      "summary": "Mix from the recorder multitrack under the edit policy, repairing only declared sections from the captures, master to the loudness targets, generate CREDITS.md from every capture, scrub the capture data, and publish release phase7-show-<yyyymmdd> with the docs page and roadmap line.",
+      "blocked_by": [
+        "p7-show-night-recording-release",
+        "p7-show-release-tooling"
+      ],
+      "proposal_refs": [
+        "09-roadmap.md Phase 7 Exit",
+        "06-commons.md Licensing"
+      ]
+    },
+    {
+      "key": "p7-show-retrospective",
+      "title": "Write the Phase 7 retrospective and file its findings for 2.x",
+      "epic": "e7-show",
+      "phase": "7",
+      "area": "show",
+      "size": "S",
+      "estimate_days": 2,
+      "calendar": "T+5 w to T+6 w",
+      "summary": "The retro-phase-7 decision record: what the stations, protocol, content and production did and did not do, from the night's evidence; findings filed with the phase7-show profile; the Q13 outcome; 09-roadmap.md links it.",
+      "blocked_by": [
+        "p7-show-mix-release"
+      ],
+      "proposal_refs": [
+        "09-roadmap.md Phase 7 Exit",
+        "11-resolutions.md Q13"
       ]
     }
   ]
