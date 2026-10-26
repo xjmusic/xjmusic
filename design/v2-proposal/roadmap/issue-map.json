@@ -799,6 +799,11 @@
   "url": "https://github.com/xjmusic/xjmusic/issues/605",
   "kind": "task"
  },
+ "p1-rel-release-gate-script": {
+  "number": 840,
+  "url": "https://github.com/xjmusic/xjmusic/issues/840",
+  "kind": "task"
+ },
  "p1-tempo-policy-external": {
   "number": 629,
   "url": "https://github.com/xjmusic/xjmusic/issues/629",
@@ -822,6 +827,11 @@
  "p1-unreal-plugin-build-on-every-engine-tag": {
   "number": 646,
   "url": "https://github.com/xjmusic/xjmusic/issues/646",
+  "kind": "task"
+ },
+ "p1-unreal-selfhosted-ue-runner": {
+  "number": 841,
+  "url": "https://github.com/xjmusic/xjmusic/issues/841",
   "kind": "task"
  },
  "p2-cache-blake3-disk-cache-preload": {
