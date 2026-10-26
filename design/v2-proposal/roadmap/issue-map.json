@@ -1669,6 +1669,11 @@
   "url": "https://github.com/xjmusic/xjmusic/issues/814",
   "kind": "task"
  },
+ "p6-inst-audition-variants": {
+  "number": 832,
+  "url": "https://github.com/xjmusic/xjmusic/issues/832",
+  "kind": "task"
+ },
  "p6-inst-instrument-editor": {
   "number": 813,
   "url": "https://github.com/xjmusic/xjmusic/issues/813",
@@ -1707,6 +1712,11 @@
  "p6-prog-event-productivity": {
   "number": 821,
   "url": "https://github.com/xjmusic/xjmusic/issues/821",
+  "kind": "task"
+ },
+ "p6-prog-event-selection-clipboard": {
+  "number": 833,
+  "url": "https://github.com/xjmusic/xjmusic/issues/833",
   "kind": "task"
  },
  "p6-prog-shell-sequences": {

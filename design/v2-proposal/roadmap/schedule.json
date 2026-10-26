@@ -74,7 +74,7 @@
   },
   "e1-foundation": {
    "start": "2027-03-12",
-   "target": "2027-05-06"
+   "target": "2027-05-11"
   },
   "e1-port-fixes": {
    "start": "2026-12-28",
@@ -86,23 +86,23 @@
   },
   "e2-content-audio-cache": {
    "start": "2027-06-11",
-   "target": "2027-09-09"
+   "target": "2027-09-06"
   },
   "e2-content-v1-io": {
    "start": "2027-06-02",
-   "target": "2027-10-07"
+   "target": "2027-10-06"
   },
   "e2-control": {
    "start": "2027-06-14",
-   "target": "2027-10-05"
+   "target": "2027-09-30"
   },
   "e2-dsp-core": {
    "start": "2027-05-27",
-   "target": "2027-08-10"
+   "target": "2027-08-05"
   },
   "e2-dsp-fx-sinks": {
    "start": "2027-06-18",
-   "target": "2027-09-03"
+   "target": "2027-09-02"
   },
   "e2-release-early": {
    "start": "2027-10-08",
@@ -114,38 +114,38 @@
   },
   "e2-rust-workspace": {
    "start": "2027-05-26",
-   "target": "2027-10-07"
+   "target": "2027-10-08"
   },
   "e2-station-ci-soak": {
    "start": "2027-08-25",
-   "target": "2027-09-28"
+   "target": "2027-09-24"
   },
   "e2-station-runtime": {
    "start": "2027-07-12",
-   "target": "2027-10-08"
+   "target": "2027-10-07"
   },
   "e2-transport": {
    "start": "2027-06-08",
-   "target": "2027-08-17"
+   "target": "2027-08-12"
   },
   "e3-docs-workstation": {
-   "start": "2027-12-31",
+   "start": "2027-12-21",
    "target": "2028-01-11"
   },
   "e3-first-run": {
-   "start": "2027-09-28",
-   "target": "2027-12-30"
+   "start": "2027-09-24",
+   "target": "2028-01-04"
   },
   "e3-mapping-ui": {
-   "start": "2027-11-15",
-   "target": "2028-01-05"
+   "start": "2027-11-02",
+   "target": "2028-01-07"
   },
   "e3-packaging": {
-   "start": "2027-11-30",
+   "start": "2027-12-01",
    "target": "2028-01-10"
   },
   "e3-release": {
-   "start": "2027-12-06",
+   "start": "2027-12-07",
    "target": "2028-01-12"
   },
   "e3-shell": {
@@ -153,23 +153,23 @@
    "target": "2027-11-02"
   },
   "e3-ship-mode": {
-   "start": "2027-12-21",
-   "target": "2027-12-27"
+   "start": "2027-12-07",
+   "target": "2027-12-29"
   },
   "e3-surface": {
    "start": "2027-11-02",
-   "target": "2027-12-31"
+   "target": "2027-12-21"
   },
   "e3-timeline-why": {
-   "start": "2027-11-10",
-   "target": "2027-12-09"
+   "start": "2027-11-17",
+   "target": "2027-12-14"
   },
   "e3-usability": {
-   "start": "2027-12-03",
-   "target": "2027-12-23"
+   "start": "2027-12-02",
+   "target": "2027-12-30"
   },
   "e4-commons-ui": {
-   "start": "2028-03-02",
+   "start": "2028-02-29",
    "target": "2028-03-17"
   },
   "e4-content-cli": {
@@ -185,72 +185,72 @@
    "target": "2028-01-28"
   },
   "e4-registry-publishing": {
-   "start": "2028-02-23",
-   "target": "2028-03-14"
+   "start": "2028-02-24",
+   "target": "2028-03-13"
   },
   "e4-seed-content": {
-   "start": "2027-10-01",
+   "start": "2027-09-29",
    "target": "2028-03-15"
   },
   "e4-shows": {
    "start": "2028-01-25",
-   "target": "2028-03-15"
+   "target": "2028-03-14"
   },
   "e4-taxonomy-licensing": {
-   "start": "2027-09-28",
-   "target": "2028-02-25"
+   "start": "2027-09-24",
+   "target": "2028-02-24"
   },
   "e5-foundation-claims-cues": {
-   "start": "2028-04-07",
-   "target": "2028-05-10"
+   "start": "2028-04-18",
+   "target": "2028-06-08"
   },
   "e5-legal-docs-gate": {
-   "start": "2027-12-23",
-   "target": "2028-05-31"
+   "start": "2028-02-29",
+   "target": "2028-07-12"
   },
   "e5-protocol-spec-docs": {
-   "start": "2028-03-15",
-   "target": "2028-05-29"
+   "start": "2028-03-13",
+   "target": "2028-07-06"
   },
   "e5-session-clock": {
-   "start": "2028-03-31",
-   "target": "2028-05-19"
+   "start": "2028-04-05",
+   "target": "2028-05-05"
   },
   "e5-session-testing": {
-   "start": "2028-05-04",
-   "target": "2028-05-25"
+   "start": "2028-06-02",
+   "target": "2028-07-05"
   },
   "e5-session-transport": {
-   "start": "2028-03-21",
-   "target": "2028-04-07"
+   "start": "2028-03-17",
+   "target": "2028-04-05"
   },
   "e5-session-ui": {
-   "start": "2028-05-09",
-   "target": "2028-05-30"
+   "start": "2028-05-23",
+   "target": "2028-06-19"
   },
   "e6-editor-infra": {
-   "start": "2028-05-29",
-   "target": "2028-06-20"
+   "start": "2028-07-06",
+   "target": "2028-08-17"
   },
   "e6-instrument-audio-editor": {
-   "start": "2028-06-20",
-   "target": "2028-07-28"
+   "start": "2028-08-17",
+   "target": "2028-10-25"
   },
   "e6-parity-archive": {
-   "start": "2028-07-31",
-   "target": "2028-08-11"
+   "start": "2028-10-27",
+   "target": "2028-11-09"
   },
   "e6-program-editor": {
-   "start": "2028-06-20",
-   "target": "2028-07-27"
+   "start": "2028-09-08",
+   "target": "2028-10-24"
   },
   "e6-template-editor": {
-   "start": "2028-07-14",
-   "target": "2028-07-31"
+   "start": "2028-10-10",
+   "target": "2028-10-27"
   },
   "e7-show": {
-   "start": "2028-05-31",
-   "target": "2028-06-21"
+   "start": "2028-07-12",
+   "target": "2028-08-02"
   }
  },
  "milestones": {
@@ -268,23 +268,23 @@
   },
   "v2 \u00b7 Phase 3 \u00b7 Workstation 2.0, Play mode": {
    "due": "2028-01-12",
-   "start": "2027-09-28"
+   "start": "2027-09-24"
   },
   "v2 \u00b7 Phase 4 \u00b7 Commons": {
    "due": "2028-03-17",
-   "start": "2027-09-28"
+   "start": "2027-09-24"
   },
   "v2 \u00b7 Phase 5 \u00b7 Sessions": {
-   "due": "2028-05-31",
-   "start": "2027-12-23"
+   "due": "2028-07-12",
+   "start": "2028-02-29"
   },
   "v2 \u00b7 Phase 6 \u00b7 Make mode parity": {
-   "due": "2028-08-11",
-   "start": "2028-05-29"
+   "due": "2028-11-09",
+   "start": "2028-07-06"
   },
   "v2 \u00b7 Phase 7 \u00b7 The show": {
-   "due": "2028-06-21",
-   "start": "2028-05-31"
+   "due": "2028-08-02",
+   "start": "2028-07-12"
   }
  },
  "tasks": {
@@ -449,8 +449,8 @@
    "target": "2027-04-26"
   },
   "p1-abi-fuzz-harness": {
-   "start": "2027-05-04",
-   "target": "2027-05-11"
+   "start": "2027-04-29",
+   "target": "2027-05-06"
   },
   "p1-abi-header-conventions": {
    "start": "2027-02-01",
@@ -645,8 +645,8 @@
    "target": "2027-04-21"
   },
   "p1-found-follow-test-two-engines": {
-   "start": "2027-04-29",
-   "target": "2027-05-06"
+   "start": "2027-05-04",
+   "target": "2027-05-11"
   },
   "p1-found-hold-rejoin": {
    "start": "2027-04-07",
@@ -709,92 +709,92 @@
    "target": "2027-06-16"
   },
   "p2-cache-variant-render-signalsmith": {
-   "start": "2027-09-03",
-   "target": "2027-09-09"
+   "start": "2027-08-31",
+   "target": "2027-09-06"
   },
   "p2-ci-abi-bindings-regenerate-diff": {
    "start": "2027-10-07",
    "target": "2027-10-08"
   },
   "p2-ci-demo-render-fixtures-join-cdn": {
-   "start": "2027-09-09",
-   "target": "2027-09-13"
+   "start": "2027-09-08",
+   "target": "2027-09-10"
   },
   "p2-ci-offline-render-demos-stats": {
    "start": "2027-08-25",
    "target": "2027-08-30"
   },
   "p2-ci-soak-8h-scheduled": {
-   "start": "2027-09-17",
-   "target": "2027-09-22"
+   "start": "2027-09-14",
+   "target": "2027-09-17"
   },
   "p2-cont-build-for-engine": {
-   "start": "2027-10-01",
-   "target": "2027-10-07"
+   "start": "2027-09-30",
+   "target": "2027-10-06"
   },
   "p2-cont-chord-note-grammar-port": {
-   "start": "2027-09-27",
-   "target": "2027-10-01"
+   "start": "2027-09-30",
+   "target": "2027-10-06"
   },
   "p2-cont-config-parser-dialect-port": {
-   "start": "2027-08-30",
-   "target": "2027-09-03"
+   "start": "2027-09-22",
+   "target": "2027-09-28"
   },
   "p2-cont-engine-payload-in-memory": {
    "start": "2027-06-23",
    "target": "2027-06-28"
   },
   "p2-cont-java-roundtrip-ci": {
-   "start": "2027-09-28",
-   "target": "2027-10-01"
+   "start": "2027-09-23",
+   "target": "2027-09-28"
   },
   "p2-cont-v1-reader": {
    "start": "2027-06-02",
    "target": "2027-06-08"
   },
   "p2-cont-v1-writer-canonical-sidecar": {
-   "start": "2027-07-14",
-   "target": "2027-07-21"
+   "start": "2027-08-16",
+   "target": "2027-08-23"
   },
   "p2-ctrl-cue-gesture-routing-quantize": {
-   "start": "2027-07-16",
-   "target": "2027-07-22"
+   "start": "2027-07-14",
+   "target": "2027-07-20"
   },
   "p2-ctrl-gestures-oneshot-fx-stutter-fill": {
-   "start": "2027-08-02",
-   "target": "2027-08-06"
+   "start": "2027-07-29",
+   "target": "2027-08-04"
   },
   "p2-ctrl-influence-signals": {
-   "start": "2027-10-01",
-   "target": "2027-10-05"
+   "start": "2027-09-28",
+   "target": "2027-09-30"
   },
   "p2-ctrl-led-feedback-profiles": {
-   "start": "2027-09-09",
-   "target": "2027-09-15"
+   "start": "2027-09-06",
+   "target": "2027-09-10"
   },
   "p2-ctrl-mapping-toml-learn": {
    "start": "2027-06-28",
    "target": "2027-07-02"
   },
   "p2-ctrl-midi-clock-out": {
-   "start": "2027-09-23",
-   "target": "2027-09-27"
+   "start": "2027-09-21",
+   "target": "2027-09-23"
   },
   "p2-ctrl-midi-input-identity-rescan": {
    "start": "2027-06-14",
    "target": "2027-06-18"
   },
   "p2-ctrl-moves": {
-   "start": "2027-08-17",
-   "target": "2027-08-23"
+   "start": "2027-08-12",
+   "target": "2027-08-18"
   },
   "p2-ctrl-osc-keyboard-gamepad": {
    "start": "2027-06-16",
    "target": "2027-06-18"
   },
   "p2-ctrl-profile-replay-test-ci": {
-   "start": "2027-09-22",
-   "target": "2027-09-24"
+   "start": "2027-09-17",
+   "target": "2027-09-21"
   },
   "p2-docs-hls-design-note": {
    "start": "2027-10-08",
@@ -817,24 +817,24 @@
    "target": "2027-07-14"
   },
   "p2-dsp-master-dynamics-port": {
-   "start": "2027-07-21",
-   "target": "2027-07-27"
+   "start": "2027-07-16",
+   "target": "2027-07-22"
   },
   "p2-dsp-master-filters-true-peak-limiter": {
-   "start": "2027-08-03",
-   "target": "2027-08-10"
+   "start": "2027-07-29",
+   "target": "2027-08-05"
   },
   "p2-dsp-rt-safety-harness": {
-   "start": "2027-08-31",
-   "target": "2027-09-03"
+   "start": "2027-08-30",
+   "target": "2027-09-02"
   },
   "p2-dsp-sink-cpal-device": {
    "start": "2027-06-18",
    "target": "2027-06-24"
   },
   "p2-dsp-sinks-wav-capture-null-offline": {
-   "start": "2027-08-06",
-   "target": "2027-08-13"
+   "start": "2027-08-04",
+   "target": "2027-08-11"
   },
   "p2-dsp-voice-pool-envelopes": {
    "start": "2027-05-31",
@@ -849,20 +849,20 @@
    "target": "2027-06-11"
   },
   "p2-eng-follow-test-rust": {
-   "start": "2027-09-24",
-   "target": "2027-09-28"
+   "start": "2027-09-28",
+   "target": "2027-09-30"
   },
   "p2-eng-foundation-reload-horizons-diag-methods": {
-   "start": "2027-09-13",
-   "target": "2027-09-15"
+   "start": "2027-09-10",
+   "target": "2027-09-14"
   },
   "p2-eng-snapshots-serde": {
-   "start": "2027-07-22",
-   "target": "2027-07-26"
+   "start": "2027-07-20",
+   "target": "2027-07-22"
   },
   "p2-gate-ab-listening-record": {
-   "start": "2027-09-24",
-   "target": "2027-09-28"
+   "start": "2027-09-22",
+   "target": "2027-09-24"
   },
   "p2-rel-cli-release-checksums": {
    "start": "2027-10-08",
@@ -873,12 +873,12 @@
    "target": "2027-08-25"
   },
   "p2-stn-cli-build": {
-   "start": "2027-10-07",
-   "target": "2027-10-08"
+   "start": "2027-10-06",
+   "target": "2027-10-07"
   },
   "p2-stn-cli-capture-replay": {
-   "start": "2027-09-03",
-   "target": "2027-09-09"
+   "start": "2027-09-02",
+   "target": "2027-09-08"
   },
   "p2-stn-cli-play": {
    "start": "2027-08-25",
@@ -893,36 +893,36 @@
    "target": "2027-07-16"
   },
   "p2-stn-latency-measurement": {
-   "start": "2027-09-15",
-   "target": "2027-09-17"
+   "start": "2027-09-10",
+   "target": "2027-09-14"
   },
   "p2-stn-real-device-overnight": {
-   "start": "2027-09-22",
-   "target": "2027-09-23"
+   "start": "2027-09-21",
+   "target": "2027-09-22"
   },
   "p2-stn-settings-diagnostics-bundle": {
-   "start": "2027-09-15",
-   "target": "2027-09-17"
+   "start": "2027-09-14",
+   "target": "2027-09-16"
   },
   "p2-stn-tempo-policy-beatclock-wiring": {
-   "start": "2027-08-13",
-   "target": "2027-08-18"
+   "start": "2027-08-11",
+   "target": "2027-08-16"
   },
   "p2-stn-tick-loop-scheduler": {
-   "start": "2027-07-27",
-   "target": "2027-08-03"
+   "start": "2027-07-22",
+   "target": "2027-07-29"
   },
   "p2-stn-variant-resolution-events": {
-   "start": "2027-09-17",
-   "target": "2027-09-22"
+   "start": "2027-09-16",
+   "target": "2027-09-21"
   },
   "p2-sys-bindgen-build-rs": {
    "start": "2027-05-27",
    "target": "2027-06-02"
   },
   "p2-ws-cargo-deny-policy-notices": {
-   "start": "2027-10-05",
-   "target": "2027-10-07"
+   "start": "2027-10-06",
+   "target": "2027-10-08"
   },
   "p2-ws-ci-features-caching": {
    "start": "2027-05-26",
@@ -937,76 +937,76 @@
    "target": "2027-06-29"
   },
   "p2-xport-link-binding-fork": {
-   "start": "2027-07-26",
-   "target": "2027-08-02"
+   "start": "2027-07-22",
+   "target": "2027-07-29"
   },
   "p2-xport-link-feature-impl": {
-   "start": "2027-08-10",
-   "target": "2027-08-17"
+   "start": "2027-08-05",
+   "target": "2027-08-12"
   },
   "p2-xport-time-bases-affine": {
    "start": "2027-06-08",
    "target": "2027-06-14"
   },
   "p3-dec-interim-starter-license": {
-   "start": "2027-09-28",
-   "target": "2027-09-30"
+   "start": "2027-09-24",
+   "target": "2027-09-28"
   },
   "p3-dec-windows-on-arm": {
-   "start": "2027-12-06",
-   "target": "2027-12-07"
+   "start": "2027-12-07",
+   "target": "2027-12-08"
   },
   "p3-docs-install-and-ship-mode-guide": {
-   "start": "2028-01-05",
-   "target": "2028-01-07"
-  },
-  "p3-docs-mapping-reference": {
    "start": "2028-01-07",
    "target": "2028-01-11"
   },
-  "p3-docs-play-mode-guide": {
-   "start": "2027-12-31",
-   "target": "2028-01-05"
-  },
-  "p3-first-interim-starter-project": {
-   "start": "2027-11-05",
-   "target": "2027-11-10"
-  },
-  "p3-first-launch-to-sound": {
-   "start": "2027-12-24",
+  "p3-docs-mapping-reference": {
+   "start": "2027-12-28",
    "target": "2027-12-30"
   },
+  "p3-docs-play-mode-guide": {
+   "start": "2027-12-21",
+   "target": "2027-12-24"
+  },
+  "p3-first-interim-starter-project": {
+   "start": "2027-11-22",
+   "target": "2027-11-25"
+  },
+  "p3-first-launch-to-sound": {
+   "start": "2027-12-29",
+   "target": "2028-01-04"
+  },
   "p3-first-play-mode-template": {
-   "start": "2027-11-10",
-   "target": "2027-11-12"
+   "start": "2027-11-25",
+   "target": "2027-11-29"
   },
   "p3-first-run-tour": {
-   "start": "2027-11-30",
-   "target": "2027-12-03"
+   "start": "2027-11-12",
+   "target": "2027-11-17"
   },
   "p3-map-controller-panel": {
-   "start": "2027-11-15",
-   "target": "2027-11-19"
+   "start": "2027-11-02",
+   "target": "2027-11-08"
   },
   "p3-map-learn-mode-ui": {
+   "start": "2027-12-10",
+   "target": "2027-12-16"
+  },
+  "p3-map-moves-editor": {
+   "start": "2028-01-04",
+   "target": "2028-01-07"
+  },
+  "p3-pkg-app-signing-notarization": {
    "start": "2027-12-14",
    "target": "2027-12-20"
   },
-  "p3-map-moves-editor": {
-   "start": "2027-12-31",
+  "p3-pkg-auto-update": {
+   "start": "2027-12-30",
    "target": "2028-01-05"
   },
-  "p3-pkg-app-signing-notarization": {
-   "start": "2027-12-09",
-   "target": "2027-12-15"
-  },
-  "p3-pkg-auto-update": {
-   "start": "2027-12-27",
-   "target": "2027-12-31"
-  },
   "p3-pkg-bundles-three-os": {
-   "start": "2027-11-30",
-   "target": "2027-12-06"
+   "start": "2027-12-01",
+   "target": "2027-12-07"
   },
   "p3-pkg-crash-reporting-opt-in": {
    "start": "2028-01-05",
@@ -1017,8 +1017,8 @@
    "target": "2028-01-12"
   },
   "p3-pkg-enable-link-official-builds-attribution": {
-   "start": "2027-12-20",
-   "target": "2027-12-22"
+   "start": "2027-12-16",
+   "target": "2027-12-20"
   },
   "p3-pkg-release-workstation-2-0-0": {
    "start": "2028-01-11",
@@ -1041,76 +1041,76 @@
    "target": "2027-10-26"
   },
   "p3-ship-build-bounce-ui": {
-   "start": "2027-12-21",
-   "target": "2027-12-24"
+   "start": "2027-12-24",
+   "target": "2027-12-29"
   },
   "p3-ship-capture-export": {
-   "start": "2027-12-22",
-   "target": "2027-12-27"
-  },
-  "p3-surf-advance-hold-capture-header": {
-   "start": "2027-11-19",
-   "target": "2027-11-24"
-  },
-  "p3-surf-gesture-pads-fx": {
-   "start": "2027-11-24",
-   "target": "2027-11-30"
-  },
-  "p3-surf-harmony-strip-chord-picker": {
-   "start": "2027-11-18",
-   "target": "2027-11-25"
-  },
-  "p3-surf-intensity-influence": {
-   "start": "2027-11-25",
-   "target": "2027-11-30"
-  },
-  "p3-surf-keyboard-accessibility": {
-   "start": "2027-12-06",
+   "start": "2027-12-07",
    "target": "2027-12-10"
   },
+  "p3-surf-advance-hold-capture-header": {
+   "start": "2027-11-17",
+   "target": "2027-11-22"
+  },
+  "p3-surf-gesture-pads-fx": {
+   "start": "2027-11-25",
+   "target": "2027-12-01"
+  },
+  "p3-surf-harmony-strip-chord-picker": {
+   "start": "2027-11-25",
+   "target": "2027-12-02"
+  },
+  "p3-surf-intensity-influence": {
+   "start": "2027-11-08",
+   "target": "2027-11-11"
+  },
+  "p3-surf-keyboard-accessibility": {
+   "start": "2027-12-03",
+   "target": "2027-12-09"
+  },
   "p3-surf-layer-strips": {
-   "start": "2027-11-02",
-   "target": "2027-11-08"
+   "start": "2027-11-11",
+   "target": "2027-11-17"
   },
   "p3-surf-one-pad-slice": {
    "start": "2027-11-02",
    "target": "2027-11-05"
   },
   "p3-surf-pending-tempo-time-in-section": {
-   "start": "2027-12-30",
-   "target": "2027-12-31"
-  },
-  "p3-surf-scenes-grid-palettes": {
-   "start": "2027-11-08",
-   "target": "2027-11-15"
-  },
-  "p3-surf-transport-start-stop-template": {
-   "start": "2027-12-03",
-   "target": "2027-12-06"
-  },
-  "p3-tl-timeline": {
-   "start": "2027-11-10",
-   "target": "2027-11-18"
-  },
-  "p3-tl-why-panel": {
-   "start": "2027-12-06",
-   "target": "2027-12-09"
-  },
-  "p3-ux-five-sessions": {
-   "start": "2027-12-15",
+   "start": "2027-12-20",
    "target": "2027-12-21"
   },
-  "p3-ux-gate-decision": {
-   "start": "2027-12-21",
-   "target": "2027-12-23"
+  "p3-surf-scenes-grid-palettes": {
+   "start": "2027-11-05",
+   "target": "2027-11-12"
   },
-  "p3-ux-protocol": {
-   "start": "2027-12-10",
+  "p3-surf-transport-start-stop-template": {
+   "start": "2027-12-02",
+   "target": "2027-12-03"
+  },
+  "p3-tl-timeline": {
+   "start": "2027-11-17",
+   "target": "2027-11-25"
+  },
+  "p3-tl-why-panel": {
+   "start": "2027-12-09",
    "target": "2027-12-14"
   },
+  "p3-ux-five-sessions": {
+   "start": "2027-12-22",
+   "target": "2027-12-28"
+  },
+  "p3-ux-gate-decision": {
+   "start": "2027-12-28",
+   "target": "2027-12-30"
+  },
+  "p3-ux-protocol": {
+   "start": "2027-12-20",
+   "target": "2027-12-22"
+  },
   "p3-ux-twenty-minute-performance": {
-   "start": "2027-12-03",
-   "target": "2027-12-07"
+   "start": "2027-12-02",
+   "target": "2027-12-06"
   },
   "p4-cli-fetch-lock": {
    "start": "2028-01-28",
@@ -1125,12 +1125,12 @@
    "target": "2028-02-18"
   },
   "p4-cli-lint-structural-render": {
-   "start": "2028-02-02",
-   "target": "2028-02-08"
+   "start": "2028-02-04",
+   "target": "2028-02-10"
   },
   "p4-cli-pack": {
-   "start": "2028-01-28",
-   "target": "2028-02-02"
+   "start": "2028-02-01",
+   "target": "2028-02-04"
   },
   "p4-cli-publish": {
    "start": "2028-02-16",
@@ -1141,16 +1141,16 @@
    "target": "2028-02-23"
   },
   "p4-docs-authoring-guide-license-page": {
-   "start": "2028-02-25",
-   "target": "2028-03-01"
+   "start": "2028-02-24",
+   "target": "2028-02-29"
   },
   "p4-legal-credits-generator": {
-   "start": "2028-02-23",
-   "target": "2028-02-25"
+   "start": "2028-02-22",
+   "target": "2028-02-24"
   },
   "p4-legal-declaration-review": {
-   "start": "2027-09-28",
-   "target": "2027-10-01"
+   "start": "2027-09-24",
+   "target": "2027-09-29"
   },
   "p4-pack-dependencies-precedence": {
    "start": "2028-01-21",
@@ -1165,16 +1165,16 @@
    "target": "2028-01-17"
   },
   "p4-reg-external-contributor-publish": {
-   "start": "2028-03-10",
-   "target": "2028-03-14"
+   "start": "2028-03-09",
+   "target": "2028-03-13"
   },
   "p4-reg-index-repo-r2": {
    "start": "2028-01-17",
    "target": "2028-01-19"
   },
   "p4-reg-publish-ci": {
-   "start": "2028-02-23",
-   "target": "2028-02-29"
+   "start": "2028-02-24",
+   "target": "2028-03-01"
   },
   "p4-reg-signing-keys-verify": {
    "start": "2028-01-21",
@@ -1205,20 +1205,20 @@
    "target": "2028-03-08"
   },
   "p4-seed-rights-clearance-decision": {
-   "start": "2027-10-01",
-   "target": "2027-10-06"
+   "start": "2027-09-29",
+   "target": "2027-10-04"
   },
   "p4-seed-starter-pack-commission": {
    "start": "2028-02-23",
    "target": "2028-03-02"
   },
   "p4-show-byte-identical-test": {
-   "start": "2028-03-13",
-   "target": "2028-03-15"
+   "start": "2028-03-10",
+   "target": "2028-03-14"
   },
   "p4-show-capture-show-lock": {
-   "start": "2028-03-01",
-   "target": "2028-03-02"
+   "start": "2028-02-23",
+   "target": "2028-02-24"
   },
   "p4-show-station-loads-offline": {
    "start": "2028-02-03",
@@ -1229,212 +1229,220 @@
    "target": "2028-01-28"
   },
   "p4-taxo-xj-base-1-publish": {
-   "start": "2028-02-08",
-   "target": "2028-02-10"
+   "start": "2028-01-28",
+   "target": "2028-02-01"
   },
   "p4-ui-export-pack": {
-   "start": "2028-03-08",
-   "target": "2028-03-13"
+   "start": "2028-03-06",
+   "target": "2028-03-09"
   },
   "p4-ui-pack-browser-license": {
-   "start": "2028-03-02",
-   "target": "2028-03-08"
+   "start": "2028-02-29",
+   "target": "2028-03-06"
   },
   "p5-claims-release": {
-   "start": "2028-04-21",
-   "target": "2028-04-26"
+   "start": "2028-05-05",
+   "target": "2028-05-12"
   },
   "p5-clock-link-epoch-bar-bridge": {
-   "start": "2028-05-16",
-   "target": "2028-05-19"
+   "start": "2028-04-18",
+   "target": "2028-04-25"
   },
   "p5-clock-session-ntp-impl": {
-   "start": "2028-03-31",
-   "target": "2028-04-06"
+   "start": "2028-04-05",
+   "target": "2028-04-18"
   },
   "p5-cue-request-policy": {
-   "start": "2028-04-21",
-   "target": "2028-04-27"
+   "start": "2028-05-17",
+   "target": "2028-05-23"
   },
   "p5-dec-gate-duet-q13": {
-   "start": "2028-05-25",
-   "target": "2028-05-29"
-  },
-  "p5-docs-venue-setup-guide": {
-   "start": "2028-05-19",
-   "target": "2028-05-24"
-  },
-  "p5-failure-handling": {
-   "start": "2028-05-04",
-   "target": "2028-05-10"
-  },
-  "p5-found-horizon-handshake": {
-   "start": "2028-04-14",
-   "target": "2028-04-21"
-  },
-  "p5-found-publish-consume-retract": {
-   "start": "2028-04-07",
-   "target": "2028-04-14"
-  },
-  "p5-handoff": {
-   "start": "2028-04-27",
-   "target": "2028-05-04"
-  },
-  "p5-legal-performance-venue-review": {
-   "start": "2027-12-23",
-   "target": "2027-12-28"
-  },
-  "p5-proto-conformance-fixtures-reader": {
-   "start": "2028-05-24",
-   "target": "2028-05-29"
-  },
-  "p5-proto-schema-published": {
-   "start": "2028-03-15",
-   "target": "2028-03-21"
-  },
-  "p5-rel-workstation-2-2": {
-   "start": "2028-05-30",
-   "target": "2028-05-31"
-  },
-  "p5-sess-hello-welcome-presence-bye": {
-   "start": "2028-03-31",
-   "target": "2028-04-07"
-  },
-  "p5-sess-mdns-join-code": {
-   "start": "2028-03-21",
-   "target": "2028-03-27"
-  },
-  "p5-sess-quic-tcp-framing": {
-   "start": "2028-03-27",
-   "target": "2028-03-31"
-  },
-  "p5-stn-headless-web-status": {
-   "start": "2028-05-25",
-   "target": "2028-05-30"
-  },
-  "p5-stn-session-integration-cli": {
-   "start": "2028-04-14",
-   "target": "2028-04-21"
-  },
-  "p5-test-handoff-soak": {
-   "start": "2028-05-04",
-   "target": "2028-05-09"
-  },
-  "p5-test-real-gear-duet": {
-   "start": "2028-05-19",
-   "target": "2028-05-25"
-  },
-  "p5-test-simulated-network-harness": {
-   "start": "2028-04-06",
-   "target": "2028-04-12"
-  },
-  "p5-test-three-station-soak": {
-   "start": "2028-05-10",
-   "target": "2028-05-16"
-  },
-  "p5-ui-claims-horizon-indicators": {
-   "start": "2028-05-09",
-   "target": "2028-05-15"
-  },
-  "p5-ui-session-panel": {
-   "start": "2028-05-15",
-   "target": "2028-05-19"
-  },
-  "p6-edit-config-and-memes": {
-   "start": "2028-06-14",
-   "target": "2028-06-20"
-  },
-  "p6-edit-crud-service-cascades": {
-   "start": "2028-06-06",
-   "target": "2028-06-14"
-  },
-  "p6-edit-library-browser": {
-   "start": "2028-06-14",
-   "target": "2028-06-20"
-  },
-  "p6-edit-one-field-roundtrip-slice": {
-   "start": "2028-06-02",
-   "target": "2028-06-06"
-  },
-  "p6-edit-undo-redo-command-stack": {
-   "start": "2028-05-29",
-   "target": "2028-06-02"
-  },
-  "p6-inst-allowances-audition-batch": {
-   "start": "2028-07-18",
-   "target": "2028-07-25"
-  },
-  "p6-inst-audio-editor-waveform-markers": {
-   "start": "2028-07-07",
-   "target": "2028-07-14"
-  },
-  "p6-inst-audio-import-any-format": {
-   "start": "2028-06-26",
-   "target": "2028-06-30"
-  },
-  "p6-inst-instrument-editor": {
-   "start": "2028-06-20",
-   "target": "2028-06-26"
-  },
-  "p6-par-java-archive-and-roundtrip-retire": {
-   "start": "2028-08-09",
-   "target": "2028-08-11"
-  },
-  "p6-par-migration-guide": {
-   "start": "2028-08-04",
-   "target": "2028-08-09"
-  },
-  "p6-par-parity-audit-and-author-sessions": {
-   "start": "2028-07-31",
-   "target": "2028-08-04"
-  },
-  "p6-prog-bind-mode": {
-   "start": "2028-07-12",
-   "target": "2028-07-18"
-  },
-  "p6-prog-chord-edit-mode": {
-   "start": "2028-06-30",
-   "target": "2028-07-12"
-  },
-  "p6-prog-event-edit-mode": {
-   "start": "2028-06-26",
+   "start": "2028-07-05",
    "target": "2028-07-07"
   },
-  "p6-prog-event-productivity": {
-   "start": "2028-07-20",
-   "target": "2028-07-27"
+  "p5-docs-venue-setup-guide": {
+   "start": "2028-06-26",
+   "target": "2028-07-03"
   },
-  "p6-prog-shell-sequences": {
-   "start": "2028-06-20",
+  "p5-failure-handling": {
+   "start": "2028-06-02",
+   "target": "2028-06-08"
+  },
+  "p5-found-horizon-handshake": {
+   "start": "2028-05-10",
+   "target": "2028-05-17"
+  },
+  "p5-found-publish-consume-retract": {
+   "start": "2028-04-18",
+   "target": "2028-04-27"
+  },
+  "p5-handoff": {
+   "start": "2028-05-23",
+   "target": "2028-06-02"
+  },
+  "p5-legal-performance-venue-review": {
+   "start": "2028-02-29",
+   "target": "2028-03-03"
+  },
+  "p5-proto-conformance-fixtures-reader": {
+   "start": "2028-07-03",
+   "target": "2028-07-06"
+  },
+  "p5-proto-schema-published": {
+   "start": "2028-03-13",
+   "target": "2028-03-17"
+  },
+  "p5-rel-workstation-2-2": {
+   "start": "2028-07-07",
+   "target": "2028-07-12"
+  },
+  "p5-sess-hello-welcome-presence-bye": {
+   "start": "2028-03-29",
+   "target": "2028-04-05"
+  },
+  "p5-sess-mdns-join-code": {
+   "start": "2028-03-17",
+   "target": "2028-03-23"
+  },
+  "p5-sess-quic-tcp-framing": {
+   "start": "2028-03-23",
+   "target": "2028-03-29"
+  },
+  "p5-stn-headless-web-status": {
+   "start": "2028-06-14",
+   "target": "2028-06-19"
+  },
+  "p5-stn-session-integration-cli": {
+   "start": "2028-04-27",
+   "target": "2028-05-10"
+  },
+  "p5-test-handoff-soak": {
+   "start": "2028-06-02",
+   "target": "2028-06-12"
+  },
+  "p5-test-real-gear-duet": {
+   "start": "2028-06-26",
+   "target": "2028-07-05"
+  },
+  "p5-test-simulated-network-harness": {
+   "start": "2028-04-25",
+   "target": "2028-05-05"
+  },
+  "p5-test-three-station-soak": {
+   "start": "2028-06-12",
    "target": "2028-06-26"
   },
-  "p6-rel-workstation-2-3-instrument-editor": {
-   "start": "2028-07-27",
-   "target": "2028-07-28"
+  "p5-ui-claims-horizon-indicators": {
+   "start": "2028-05-23",
+   "target": "2028-05-29"
   },
-  "p6-tmpl-editor-fields-bindings": {
-   "start": "2028-07-14",
-   "target": "2028-07-20"
-  },
-  "p6-tmpl-taxonomy-intensity-mixer-horizon-export": {
-   "start": "2028-07-25",
-   "target": "2028-07-31"
-  },
-  "p7-show-artist-onboarding-rehearsal": {
+  "p5-ui-session-panel": {
    "start": "2028-06-08",
    "target": "2028-06-14"
   },
+  "p6-edit-config-and-memes": {
+   "start": "2028-08-11",
+   "target": "2028-08-17"
+  },
+  "p6-edit-crud-service-cascades": {
+   "start": "2028-07-25",
+   "target": "2028-08-07"
+  },
+  "p6-edit-library-browser": {
+   "start": "2028-08-07",
+   "target": "2028-08-11"
+  },
+  "p6-edit-one-field-roundtrip-slice": {
+   "start": "2028-07-19",
+   "target": "2028-07-25"
+  },
+  "p6-edit-undo-redo-command-stack": {
+   "start": "2028-07-06",
+   "target": "2028-07-19"
+  },
+  "p6-inst-allowances-audition-batch": {
+   "start": "2028-09-08",
+   "target": "2028-09-21"
+  },
+  "p6-inst-audio-editor-waveform-markers": {
+   "start": "2028-08-29",
+   "target": "2028-09-08"
+  },
+  "p6-inst-audio-import-any-format": {
+   "start": "2028-08-23",
+   "target": "2028-08-29"
+  },
+  "p6-inst-audition-variants": {
+   "start": "2028-10-13",
+   "target": "2028-10-23"
+  },
+  "p6-inst-instrument-editor": {
+   "start": "2028-08-17",
+   "target": "2028-08-23"
+  },
+  "p6-par-java-archive-and-roundtrip-retire": {
+   "start": "2028-11-07",
+   "target": "2028-11-09"
+  },
+  "p6-par-migration-guide": {
+   "start": "2028-11-02",
+   "target": "2028-11-07"
+  },
+  "p6-par-parity-audit-and-author-sessions": {
+   "start": "2028-10-27",
+   "target": "2028-11-02"
+  },
+  "p6-prog-bind-mode": {
+   "start": "2028-10-03",
+   "target": "2028-10-10"
+  },
+  "p6-prog-chord-edit-mode": {
+   "start": "2028-09-21",
+   "target": "2028-10-03"
+  },
+  "p6-prog-event-edit-mode": {
+   "start": "2028-09-19",
+   "target": "2028-10-02"
+  },
+  "p6-prog-event-productivity": {
+   "start": "2028-10-16",
+   "target": "2028-10-24"
+  },
+  "p6-prog-event-selection-clipboard": {
+   "start": "2028-10-02",
+   "target": "2028-10-13"
+  },
+  "p6-prog-shell-sequences": {
+   "start": "2028-09-08",
+   "target": "2028-09-19"
+  },
+  "p6-rel-workstation-2-3-instrument-editor": {
+   "start": "2028-10-24",
+   "target": "2028-10-25"
+  },
+  "p6-tmpl-editor-fields-bindings": {
+   "start": "2028-10-10",
+   "target": "2028-10-16"
+  },
+  "p6-tmpl-taxonomy-intensity-mixer-horizon-export": {
+   "start": "2028-10-23",
+   "target": "2028-10-27"
+  },
+  "p7-show-artist-onboarding-rehearsal": {
+   "start": "2028-07-20",
+   "target": "2028-07-26"
+  },
   "p7-show-network-kit-and-show-lock": {
-   "start": "2028-06-05",
-   "target": "2028-06-08"
+   "start": "2028-07-17",
+   "target": "2028-07-20"
   },
   "p7-show-night-recording-release": {
-   "start": "2028-06-14",
-   "target": "2028-06-21"
+   "start": "2028-07-26",
+   "target": "2028-08-02"
   },
   "p7-show-production-plan": {
-   "start": "2028-05-31",
-   "target": "2028-06-05"
+   "start": "2028-07-12",
+   "target": "2028-07-17"
   }
  }
 }
