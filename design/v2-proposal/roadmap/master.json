@@ -769,7 +769,9 @@
    "blocked_by": [
     "e2-transport",
     "e2-station-runtime",
-    "e5-session-transport"
+    "e5-session-transport",
+    "e1-foundation",
+    "e2-rust-engine"
    ]
   },
   {
@@ -5482,14 +5484,15 @@
    "phase": "5",
    "area": "session",
    "size": "M",
-   "estimate_days": 5,
+   "estimate_days": 7,
    "summary": "Every follower's engine runs with the tempo policy External through the station's tempo wiring; the conductor's runs External only when the active BeatClock owns tempo (`link`, 07 §Clock's Link-room case) and Content otherwise (the `session` clock this task is built on, where the conductor's segment tempo drives the clock), so each record carries the session tempo in both cases. The conductor reads `xj_engine_get_foundation_json` after each craft, wraps it with session and seq, and broadcasts; followers push records into `push_foundation_json` translated through the epoch (conductor bar identity plus conductor clock micros, mapped with the session clock's offset estimate; Link is not required); when a cue rewrites the conductor's future it sends retract(from segment N) and republishes. Followers discard retracted records they have not crafted against; retracts inside a follower's horizon are impossible by construction. Built first as two stations in one process over an in-memory transport, reusing the Rust follow test, then over the LAN connection; this is the protocol's own two-engines test.",
    "blocked_by": [
     "p5-sess-hello-welcome-presence-bye",
     "p5-clock-session-ntp-impl",
     "p2-eng-foundation-reload-horizons-diag-methods",
     "p2-eng-follow-test-rust",
-    "p2-stn-tempo-policy-beatclock-wiring"
+    "p2-stn-tempo-policy-beatclock-wiring",
+    "p2-stn-capture-format"
    ],
    "proposal_refs": [
     "07-session-protocol.md Messages foundation retract",
@@ -5509,7 +5512,8 @@
     "p5-found-publish-consume-retract",
     "p1-found-hold-rejoin",
     "p5-test-simulated-network-harness",
-    "p2-eng-foundation-reload-horizons-diag-methods"
+    "p2-eng-foundation-reload-horizons-diag-methods",
+    "p5-stn-session-integration-cli"
    ],
    "proposal_refs": [
     "07-session-protocol.md Timing budget",
@@ -5523,12 +5527,14 @@
    "epic": "e5-foundation-claims-cues",
    "phase": "5",
    "area": "session",
-   "size": "S",
-   "estimate_days": 3,
+   "size": "M",
+   "estimate_days": 5,
    "summary": "claim/release flow through the conductor to all; every other station's engine receives a Layer Mute cue for that type at the next segment and its bus mutes at the next bar; release reverses both; a station may override locally ('doubling allowed') and the UI shows the clash; the default two-station claim set (A: Drum and Bass) ships as a preset.",
    "blocked_by": [
     "p5-found-publish-consume-retract",
-    "p2-ctrl-cue-gesture-routing-quantize"
+    "p2-ctrl-cue-gesture-routing-quantize",
+    "p5-test-simulated-network-harness",
+    "p2-stn-capture-format"
    ],
    "proposal_refs": [
     "07-session-protocol.md Layer claims",
@@ -5546,7 +5552,8 @@
    "summary": "A follower's engine refuses Macro, Memes, Chord, Advance and Hold with the follow-mode status; the station forwards a cue_request; the conductor applies the policy (accept all with the sender shown by default per Q13, a named trust list, or ask the conductor's performer) and returns cue_result with the landing time, which the requester shows exactly like a local cue. Collisions at one boundary apply in arrival order and are shown.",
    "blocked_by": [
     "p5-found-horizon-handshake",
-    "p1-found-follow-rejects-foundation-cues"
+    "p1-found-follow-rejects-foundation-cues",
+    "p5-stn-session-integration-cli"
    ],
    "proposal_refs": [
     "07-session-protocol.md Cue requests",
@@ -5559,8 +5566,8 @@
    "epic": "e5-foundation-claims-cues",
    "phase": "5",
    "area": "session",
-   "size": "M",
-   "estimate_days": 5,
+   "size": "L",
+   "estimate_days": 8,
    "summary": "handoff_offer names the candidate and the earliest segment beyond the conductor's horizon and the candidate's craft lead; handoff_accept confirms the candidate can conduct from there; handoff_commit names the segment, at which the candidate switches foundation source External to Internal and publishes a NextMacro segment while the old conductor switches Internal to External, both through the station's boundary switch (the one producer, from the station integration task) so audio is continuous. Everyone else sees a new sender on the same timeline; epoch continuity is preserved.",
    "blocked_by": [
     "p5-cue-request-policy",
@@ -5585,7 +5592,12 @@
     "p5-sess-hello-welcome-presence-bye",
     "p1-found-hold-rejoin",
     "p5-found-horizon-handshake",
-    "p5-test-simulated-network-harness"
+    "p5-test-simulated-network-harness",
+    "p5-clock-link-epoch-bar-bridge",
+    "p5-ui-claims-horizon-indicators",
+    "p3-tl-timeline",
+    "p1-found-richer-fixture-beat-detail",
+    "p5-stn-session-integration-cli"
    ],
    "proposal_refs": [
     "07-session-protocol.md Failure handling",
@@ -5597,14 +5609,16 @@
    "title": "Wire xj-session into the xj-station loop and CLI: host, join, role, boundary switch",
    "epic": "e5-foundation-claims-cues",
    "area": "station",
-   "size": "M",
-   "estimate_days": 5,
-   "summary": "Network I/O (connect, hello/welcome, foundation publish/consume, claims, cue requests, presence) runs on the tokio I/O thread that owns the QUIC/TCP connection (03 §Threads: xj-session is event-driven and may block on disk and network); messages cross to the control thread through a channel and are applied at the 10 to 20 Hz tick, so a blocking connect or a slow peer never stalls craft or cue scheduling, and nothing touches the audio thread. CLI flags: `--session <name>` or `--host <ip:port>`, `--join-code`, `--role conduct|follow`; a headless conductor prints and serves its join code. Joining switches the engine's foundation source Internal to External at the conductor-aligned NextMacro boundary while audio keeps playing; leaving reverses the switch at a segment boundary and sends `bye`. Done when a test asserts zero dropouts and zero late commands across a join and a leave of a running station.",
+   "size": "L",
+   "estimate_days": 9,
+   "summary": "Network I/O (connect, hello/welcome, foundation publish/consume, claims, cue requests, presence) runs on the tokio I/O thread that owns the QUIC/TCP connection (03 §Threads: xj-session is event-driven and may block on disk and network); messages cross to the control thread through a channel and are applied at the 10 to 20 Hz tick, so a blocking connect or a slow peer never stalls craft or cue scheduling, and nothing touches the audio thread. CLI flags: `--session <name>` or `--connect <ip:port>`, `--join-code`, `--role conduct|follow`; a headless conductor prints and serves its join code. Joining switches the engine's foundation source Internal to External at the conductor-aligned NextMacro boundary while audio keeps playing; leaving reverses the switch at a segment boundary and sends `bye`. Done when a test asserts zero dropouts and zero late commands across a join and a leave of a running station.",
    "blocked_by": [
     "p5-sess-hello-welcome-presence-bye",
     "p5-found-publish-consume-retract",
     "p2-stn-cli-play",
-    "p2-stn-tick-loop-scheduler"
+    "p2-stn-tick-loop-scheduler",
+    "p5-clock-session-ntp-impl",
+    "p5-clock-link-epoch-bar-bridge"
    ],
    "proposal_refs": [
     "03-architecture.md xj-station",
@@ -5620,13 +5634,14 @@
    "epic": "e5-session-clock",
    "phase": "5",
    "area": "transport",
-   "size": "M",
-   "estimate_days": 4,
+   "size": "L",
+   "estimate_days": 9,
    "summary": "Followers estimate their offset to the conductor with round trips over the session connection (filtered, outlier-rejected), and the conductor's beat timeline is the truth; the trait methods from Phase 2 are implemented over it; MIDI clock out from Phase 2 runs on it for non-Link hardware through the trait, without this task depending on the emitter. This is the CI clock and the Q3 fallback. The station's tempo wiring sets the conductor's engine to Content policy (its segment tempo drives this clock) and every follower's to External.",
    "blocked_by": [
     "p2-xport-beatclock-trait-internal",
     "p5-sess-quic-tcp-framing",
-    "p2-stn-tempo-policy-beatclock-wiring"
+    "p2-stn-tempo-policy-beatclock-wiring",
+    "p5-sess-hello-welcome-presence-bye"
    ],
    "proposal_refs": [
     "07-session-protocol.md Clock Ableton Link",
@@ -5639,8 +5654,8 @@
    "epic": "e5-session-clock",
    "phase": "5",
    "area": "transport",
-   "size": "S",
-   "estimate_days": 3,
+   "size": "M",
+   "estimate_days": 5,
    "summary": "Followers in a Link room translate (conductor bar, conductor Link micros at that downbeat) through the offset estimate into local time and snap to the nearest grid downbeat with time_at_beat, keeping a private bar-to-beat map and never re-anchoring Link; bars are about 2 s so a 100 ms offset error cannot pick the wrong bar. Where no Link peer exists but gear wants Link, `force_beat_at_time` bridges the session clock into a Link instance, the only place it is allowed.",
    "blocked_by": [
     "p5-clock-session-ntp-impl",
@@ -5657,12 +5672,15 @@
    "epic": "e5-session-clock",
    "phase": "5",
    "area": "ci-release",
-   "size": "M",
-   "estimate_days": 4,
+   "size": "L",
+   "estimate_days": 8,
    "summary": "A test transport implementing the session transport trait that injects configurable latency, jitter, loss and reordering; the harness ships with the transport trait and the session clock so the foundation, horizon and failure-table tasks write their hold, rejoin, retract-race and claim-timeout tests on it; two- and three-station tests assert identical foundations per span and bounded late records on every PR before any soak exists.",
    "blocked_by": [
     "p5-sess-quic-tcp-framing",
-    "p5-clock-session-ntp-impl"
+    "p5-clock-session-ntp-impl",
+    "p2-eng-foundation-reload-horizons-diag-methods",
+    "p1-found-hold-rejoin",
+    "p2-eng-follow-test-rust"
    ],
    "proposal_refs": [
     "07-session-protocol.md Testing Simulated network",
@@ -5884,13 +5902,16 @@
    "epic": "e6-editor-infra",
    "phase": "6",
    "area": "workstation-ui",
-   "size": "M",
-   "estimate_days": 4,
+   "size": "L",
+   "estimate_days": 9,
    "summary": "Every edit is a command with inverse applied to the in-memory content and saved through xj-content; N-step undo and redo (#315), grouping of drag operations, and edits taking effect in the running engine at the next segment boundary through `xj_engine_reload_content`.",
    "blocked_by": [
     "p3-shell-app-skeleton",
     "p2-cont-v1-writer-canonical-sidecar",
-    "p2-eng-foundation-reload-horizons-diag-methods"
+    "p2-eng-foundation-reload-horizons-diag-methods",
+    "p3-shell-station-embed-snapshots",
+    "p3-shell-make-mode-handoff-java",
+    "p2-cont-engine-payload-in-memory"
    ],
    "proposal_refs": [
     "05-workstation.md Editors",
@@ -5903,11 +5924,13 @@
    "epic": "e6-editor-infra",
    "phase": "6",
    "area": "workstation-ui",
-   "size": "S",
-   "estimate_days": 2,
+   "size": "M",
+   "estimate_days": 4,
    "blocked_by": [
     "p6-edit-undo-redo-command-stack",
-    "p2-cont-java-roundtrip-ci"
+    "p2-cont-java-roundtrip-ci",
+    "p3-shell-make-mode-handoff-java",
+    "p1-java-maintenance-mode"
    ],
    "summary": "The Make-mode thin slice: a single rename through the command stack, saved by the canonical writer with the V2 sidecar untouched, reopened in the Java 1.9.x workstation with the parsed tree identical and the audio folder relocated by the same slug rule; undo restores the file. It exercises the R14 round-trip job with editor-produced files for the first time.",
    "proposal_refs": [
@@ -5921,12 +5944,14 @@
    "epic": "e6-editor-infra",
    "phase": "6",
    "area": "workstation-ui",
-   "size": "M",
-   "estimate_days": 6,
-   "summary": "Port the business rules verbatim: program type change cascades (to Main deletes tracks/patterns/events; to Macro also chords, voicings, voices; to Beat/Detail deletes bindings, binding memes, chords, voicings) with confirmation; shrinking a pattern total deletes out-of-range events after confirm; a sequence total cannot shrink below any pattern total; deleting a sequence is refused while bound or patterned; deleting a binding is refused while it has memes; new entities inherit defaults from siblings (tempo, key, type, loopBeats). Dirtiness from content hashes, not 'any view'. Project-level actions come with it: new, open, open recent, save, save as (re-homing audio), close and quit with the save prompt, and migration of the legacy single-file layout; once these exist the Make button no longer hands off to Java.",
+   "size": "L",
+   "estimate_days": 9,
+   "summary": "Port the business rules verbatim: program type change cascades (to Main deletes tracks/patterns/events; to Macro also chords, voicings, voices; to Beat/Detail deletes bindings, binding memes, chords, voicings) with confirmation; shrinking a pattern total deletes out-of-range events after confirm; a sequence total cannot shrink below any pattern total; deleting a sequence is refused while bound or patterned; deleting a binding is refused while it has memes; new entities inherit defaults from siblings (tempo, key, type, loopBeats). Dirtiness from content hashes, not 'any view'. Project-level actions come with it: new, open, open recent, save, save as (re-homing audio), close and quit with the save prompt, and migration of the legacy single-file layout; `MakeBackend::Native` is implemented here and becomes the default with the library browser.",
    "blocked_by": [
     "p6-edit-one-field-roundtrip-slice",
-    "p3-shell-make-mode-handoff-java"
+    "p3-shell-make-mode-handoff-java",
+    "p2-cont-config-parser-dialect-port",
+    "p4-taxo-xj-base-1-publish"
    ],
    "proposal_refs": [
     "05-workstation.md Editors",
@@ -5941,9 +5966,11 @@
    "area": "workstation-ui",
    "size": "M",
    "estimate_days": 4,
-   "summary": "Libraries, programs and instruments tables (or a tree, #319), double-click to edit, quick actions for Edit, Duplicate, Move, Delete with the Java warnings (counts of programs, instruments and bindings; 'cannot be undone' now 'undoable'), the Cmd modal equivalents, and route history. Entering Make mode opens the browser on the instrument that is playing right now (first-run step 5).",
+   "summary": "Libraries, programs and instruments tables (or a tree, #319), double-click to edit, quick actions for Edit, Duplicate, Move, Delete with the Java warnings (counts of programs, instruments and bindings; 'cannot be undone' now 'undoable'), the Cmd modal equivalents, and route history. Entering Make mode opens the browser on the instrument that is playing right now (first-run step 5). It makes `MakeBackend::Native` the default, so the Make button no longer hands off to Java.",
    "blocked_by": [
-    "p6-edit-crud-service-cascades"
+    "p6-edit-crud-service-cascades",
+    "p3-first-run-tour",
+    "p3-surf-layer-strips"
    ],
    "proposal_refs": [
     "05-workstation.md Editors",
@@ -5962,7 +5989,9 @@
    "blocked_by": [
     "p6-edit-crud-service-cascades",
     "p2-cont-config-parser-dialect-port",
-    "p4-taxo-xj-base-1-publish"
+    "p4-taxo-xj-base-1-publish",
+    "p6-edit-library-browser",
+    "p4-pack-manifest-schema-implicit"
    ],
    "proposal_refs": [
     "05-workstation.md Editors",
@@ -6098,7 +6127,8 @@
    "estimate_days": 4,
    "summary": "Name, shipKey (lower-scored), config, the bindings table (type, name, jump to target, delete), the add-binding flow (library, then optional program or instrument) with a duplicate-binding check the Java editor lacked.",
    "blocked_by": [
-    "p6-edit-library-browser"
+    "p6-edit-library-browser",
+    "p6-edit-config-and-memes"
    ],
    "proposal_refs": [
     "05-workstation.md Editors 2"
