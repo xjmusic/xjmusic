@@ -840,7 +840,7 @@
    "title": "Build the instrument and audio editor first, because packs need it",
    "phase": "6",
    "area": "workstation-ui",
-   "summary": "Every operation of the Java instrument and audio editors plus what pack authors need: import of any symphonia-decodable format (the Java editor failed on MP3/FLAC), a waveform with transient and loop markers, loopBeats proposed from the file length so the 4.0 default stops producing bad loops, the new pitch-shift and stretch allowances, audition playback, and batch processing.",
+   "summary": "Every operation of the Java instrument and audio editors plus what pack authors need: import of any symphonia-decodable format (the Java dialog offered MP3, AAC and FLAC and then failed on them), a waveform with transient and loop markers, loopBeats proposed from the file length for Loop-mode instruments so the inherited 4.0 default stops producing bad loops, the new pitch-shift and stretch allowances, audition playback of originals and variants, inline lint, and batch processing.",
    "exit": "A pack author imports, tags, marks, auditions and lint-checks an instrument without the Java workstation (no destructive trimming: 01's non-goal excludes editing audio; the lint's 'else trim' diagnosis points at an external editor).",
    "blocked_by": [
     "e2-content-v1-io",
@@ -849,7 +849,8 @@
     "e4-pack-format",
     "e4-content-cli",
     "e5-legal-docs-gate",
-    "e6-editor-infra"
+    "e6-editor-infra",
+    "e4-commons-ui"
    ]
   },
   {
@@ -964,7 +965,7 @@
    "area": "decision",
    "size": "S",
    "estimate_days": 2,
-   "summary": "Create design/v2-proposal/decisions/ with a numbered, dated ADR template (context, options, decision, consequences, evidence) and an index that maps each Q1 to Q14 and each gate to a record. Write the four already-closed records from 11-resolutions: Q7 registry hosting (git index plus R2), Q8 Unreal stays on the C++ API so the C++ API remains a first-class documented surface, Q9 HLS archived with a one-page design note, Q14 barBeats handled by candidate filtering, and Q13's declared default (accept all cue requests with the sender shown, per-station trust toggles, an 'ask' mode, collisions at one boundary in arrival order with the second winning), which needs no experiment and is only revisited after the duet. Write one dated 'deferred, not scheduled' record for each item the proposal explicitly defers, with its trigger: the browser demo (wasm32 build and web audition front-end, 03 \u00a7Deployment shapes and 06 \u00a7Registry 'Later'), CLAP/VST3 hosting in 2.x (10-risks R12 and \u00a7Alternatives), deterministic lockstep as a future mode (07 \u00a7Alternative considered), and a C ABI for xj-dsp so the Unreal plugin or a MetaSounds node could render through xj-dsp (03 \u00a7Contracts, 03 \u00a7What happens to each V1 piece, 11 Q8; UnrealPlugin#4): trigger, plugin maintainers want xj-dsp rendering; prerequisite, the DSP command set frozen by the Phase 2 command-ring task; so later phases cite a record rather than a chapter aside.",
+   "summary": "Create design/v2-proposal/decisions/ with a numbered, dated ADR template (context, options, decision, consequences, evidence) and an index that maps each Q1 to Q14 and each gate to a record. Write the four already-closed records from 11-resolutions: Q7 registry hosting (git index plus R2), Q8 Unreal stays on the C++ API so the C++ API remains a first-class documented surface, Q9 HLS archived with a one-page design note, Q14 barBeats handled by candidate filtering, and Q13's declared default (accept all cue requests with the sender shown, per-station trust toggles, an 'ask' mode, collisions at one boundary in arrival order with the second winning), which needs no experiment and is only revisited after the duet. Write one dated 'deferred, not scheduled' record for each item the proposal explicitly defers, with its trigger: the browser demo (wasm32 build and web audition front-end, 03 §Deployment shapes and 06 §Registry 'Later'), CLAP/VST3 hosting in 2.x (10-risks R12 and §Alternatives), deterministic lockstep as a future mode (07 §Alternative considered), and a C ABI for xj-dsp so the Unreal plugin or a MetaSounds node could render through xj-dsp (03 §Contracts, 03 §What happens to each V1 piece, 11 Q8; UnrealPlugin#4): trigger, plugin maintainers want xj-dsp rendering; prerequisite, the DSP command set frozen by the Phase 2 command-ring task; so later phases cite a record rather than a chapter aside.",
    "blocked_by": [],
    "proposal_refs": [
     "09-roadmap.md Principles",
@@ -1018,13 +1019,13 @@
    "area": "decision",
    "size": "S",
    "estimate_days": 2,
-   "summary": "04-engine \u00a75 promises 'behavior-preserving by default', but the map of port regressions shows eleven C++-only or regressed behaviors (persistence window stored as micros, delta never advancing so intensity is pinned at 0.2, store put never overwriting, mute probability throwing at 1.0, delta-arc defects, UB sort comparator) and four inherited quirks. Record the ruling: Java 1.x craft is the reference where the port diverged (rows 1, 2, 2b, 4, 7, 8c, 9a-c, 10) and the common behavior otherwise (rows 5, 6, 8, 8b, 11, 12, 15); add row 16, craft candidate scope (C++ phase 2 of chooseFreshProgram/chooseFreshInstrument draws from every Published entity in projectContent, while the Java workstation handed the engine the forTemplate subset, so the Unreal plugin today can pick from unbound libraries) and rule for the Java reference as a create-time setting: the C++ seconds-taking constructor defaults to the 1.9.6 behavior so Unreal hosts do not change, the ABI defaults to the Java forTemplate behavior; decide 2c (two-decimal intensity floor), 5 (dub intensity from the segment spanning `at` versus Java's one-segment lag from segments.at(0)) and 8c ('BIG' vs 'LARGE' event label) explicitly because they change golden values. The in-tree timing harness dump is the runtime evidence for row 2.",
+   "summary": "04-engine §5 promises 'behavior-preserving by default', but the map of port regressions shows eleven C++-only or regressed behaviors (persistence window stored as micros, delta never advancing so intensity is pinned at 0.2, store put never overwriting, mute probability throwing at 1.0, delta-arc defects, UB sort comparator) and four inherited quirks. Record the ruling: Java 1.x craft is the reference where the port diverged (rows 1, 2, 2b, 4, 7, 8c, 9a-c, 10) and the common behavior otherwise (rows 5, 6, 8, 8b, 11, 12, 15); add row 16, craft candidate scope (C++ phase 2 of chooseFreshProgram/chooseFreshInstrument draws from every Published entity in projectContent, while the Java workstation handed the engine the forTemplate subset, so the Unreal plugin today can pick from unbound libraries) and rule for the Java reference as a create-time setting: the C++ seconds-taking constructor defaults to the 1.9.6 behavior so Unreal hosts do not change, the ABI defaults to the Java forTemplate behavior; decide 2c (two-decimal intensity floor), 5 (dub intensity from the segment spanning `at` versus Java's one-segment lag from segments.at(0)) and 8c ('BIG' vs 'LARGE' event label) explicitly because they change golden values. The in-tree timing harness dump is the runtime evidence for row 2.",
    "blocked_by": [
     "p0-dec-convention-and-closed-questions",
     "p0-timing-harness-in-tree"
    ],
    "proposal_refs": [
-    "04-engine.md \u00a75 \u00a712",
+    "04-engine.md §5 §12",
     "10-risks R9"
    ]
   },
@@ -1041,7 +1042,7 @@
     "p0-dec-convention-and-closed-questions"
    ],
    "proposal_refs": [
-    "04-engine.md \u00a79",
+    "04-engine.md §9",
     "06-commons.md Pack format",
     "10-risks R14",
     "05-workstation.md Editors"
@@ -1061,7 +1062,7 @@
    "summary": "engine_distro.yml and workstation_distro.yml fire on every tag and fail unless workstation/gradle.properties, engine/CMakeLists.txt VERSION and the tag agree, which makes 09-roadmap's version plan impossible. Record the scheme: `engine-v2.0.0` (with the C ABI version in the release notes), `workstation-v2.x` for the Rust workstation with `workstation-v2.0.0-alpha.N` pre-release tags for the Phase 2 xj-station CLI releases (so the stable 2.0 line is not consumed before Phase 3), `v1.9.x` kept for the Java workstation, and the Unreal plugin's existing `<plugin>-<engine>` convention. Phase 1 rewrites the verify jobs against this record.",
    "proposal_refs": [
     "09-roadmap.md Version numbers",
-    "04-engine.md \u00a712"
+    "04-engine.md §12"
    ]
   },
   {
@@ -1123,7 +1124,7 @@
    "summary": "engine/CMakeLists.txt declares LANGUAGES CXX only, has no install() or export anywhere, and adds example/ unconditionally so every consumer configures SDL2 from a vendored tarball. Add enable_language(C), a throwaway `xjmusic_c` target exposing create/start/run_cycle/finish behind extern \"C\", CMAKE_POSITION_INDEPENDENT_CODE ON, an install() rule, and an XJ_BUILD_EXAMPLE option defaulting OFF when not top-level. Done when `cmake --install` produces a header plus static archive on all three platforms.",
    "blocked_by": [],
    "proposal_refs": [
-    "04-engine.md \u00a71 Build integration",
+    "04-engine.md §1 Build integration",
     "09-roadmap.md Phase 0"
    ]
   },
@@ -1159,7 +1160,7 @@
    ],
    "proposal_refs": [
     "11-resolutions.md A measurement that changes a risk",
-    "04-engine.md \u00a710"
+    "04-engine.md §10"
    ]
   },
   {
@@ -1190,8 +1191,8 @@
    "summary": "xjmusic-demos commits no build/ folder and the engine reads only `.xj` plus `build/**/*.json`, yet the timing harness, the compatibility fixture and the fuzz corpus all want 'the demo build payloads'. Write a script that merges each demo's libraries/ and templates/ JSON into one HubContent-shaped `build/<slug>.json` exactly as the Java Build does for the JSON half (orphans removed, waveformKey rewritten to `<audioId>.ext`), with no audio, and check the four files (about 4 MB) into engine/test/_data/demos/ with the script and the demos commit hash recorded; a test loads each through the path loader. Done when the harness and the compatibility fixture run on them in CI without any audio present.",
    "blocked_by": [],
    "proposal_refs": [
-    "04-engine.md \u00a710",
-    "04-engine.md \u00a712",
+    "04-engine.md §10",
+    "04-engine.md §12",
     "09-roadmap.md Phase 0 Craft timing"
    ],
    "phase": "0"
@@ -1386,7 +1387,7 @@
    "area": "commons",
    "size": "S",
    "estimate_days": 2,
-   "summary": "Before xj-base@1 freezes a level target, measure every demo WAV (fetched from audio.xj.io, since the repo audio is not local) with the `ebur128` crate: integrated loudness for sustained audio (Loop mode or at least 3 s), max momentary loudness for one-shots (zero-padded under 400 ms), and true peak, in the playback channel layout and at the effective level (file plus 20\u00b7log10(audio.volume \u00d7 instrument.volume)). Publish the distribution per demo and per instrument mode; the lint's -18 LUFS \u00b13 LU proposal is adopted or replaced by the demo median rounded to the nearest LU.",
+   "summary": "Before xj-base@1 freezes a level target, measure every demo WAV (fetched from audio.xj.io, since the repo audio is not local) with the `ebur128` crate: integrated loudness for sustained audio (Loop mode or at least 3 s), max momentary loudness for one-shots (zero-padded under 400 ms), and true peak, in the playback channel layout and at the effective level (file plus 20·log10(audio.volume × instrument.volume)). Publish the distribution per demo and per instrument mode; the lint's -18 LUFS ±3 LU proposal is adopted or replaced by the demo median rounded to the nearest LU.",
    "proposal_refs": [
     "06-commons.md The quality bar level-matched",
     "11-resolutions.md Q4"
@@ -1483,7 +1484,7 @@
    "summary": "Every `readAll*` on SegmentEntityStore returns `std::set<const T*>` ordered by pointer address, and `selectAudioIntensityLayers` sorts pointer-ordered audio sets by intensity with pointer-order ties (Craft.cpp:405-409), so a seed alone cannot make craft reproducible. Return vectors sorted by (segmentId, id) or sort at every consumer, tie-break the intensity sort by id, and add a test that shuffles allocation order and asserts identical choices. This is the prerequisite the determinism tests need to be meaningful.",
    "blocked_by": [],
    "proposal_refs": [
-    "04-engine.md \u00a75 \u00a711",
+    "04-engine.md §5 §11",
     "10-risks R9"
    ]
   },
@@ -1500,8 +1501,8 @@
     "p1-det-store-ordered-reads"
    ],
    "proposal_refs": [
-    "04-engine.md \u00a71 Snapshot",
-    "04-engine.md \u00a711 Determinism tests"
+    "04-engine.md §1 Snapshot",
+    "04-engine.md §11 Determinism tests"
    ]
   },
   {
@@ -1526,7 +1527,7 @@
     "p1-det-per-engine-128-bit-ids"
    ],
    "proposal_refs": [
-    "04-engine.md \u00a711",
+    "04-engine.md §11",
     "10-risks R9"
    ]
   },
@@ -1538,10 +1539,10 @@
    "area": "engine",
    "size": "S",
    "estimate_days": 3,
-   "summary": "`std::uniform_int_distribution`, `uniform_real_distribution` and `std::shuffle` are implementation-defined and differ between libc++, libstdc++ and MSVC, so a shared mt19937_64 seed alone would give different stores per CI runner. Implement `xj::Rng` (mt19937_64) with `bounded(n)` (Lemire multiply-high with rejection, written out), `unit()` and `fisher_yates()`, with golden vectors asserted on all three platforms. Also add the chain seed field, a public documented `XJ::Engine::setSeed(uint64_t)` valid only before start (an error afterwards) and `XJ::Engine::getSeed()` reporting the drawn seed when unset, with the seed drawn once at start; no craft site uses the Rng yet, so this lands before the red determinism tests and the swap PR, which then contains nothing but the generator swap (04 \u00a75, R9).",
+   "summary": "`std::uniform_int_distribution`, `uniform_real_distribution` and `std::shuffle` are implementation-defined and differ between libc++, libstdc++ and MSVC, so a shared mt19937_64 seed alone would give different stores per CI runner. Implement `xj::Rng` (mt19937_64) with `bounded(n)` (Lemire multiply-high with rejection, written out), `unit()` and `fisher_yates()`, with golden vectors asserted on all three platforms. Also add the chain seed field, a public documented `XJ::Engine::setSeed(uint64_t)` valid only before start (an error afterwards) and `XJ::Engine::getSeed()` reporting the drawn seed when unset, with the seed drawn once at start; no craft site uses the Rng yet, so this lands before the red determinism tests and the swap PR, which then contains nothing but the generator swap (04 §5, R9).",
    "blocked_by": [],
    "proposal_refs": [
-    "04-engine.md \u00a75",
+    "04-engine.md §5",
     "10-risks R9"
    ]
   },
@@ -1560,7 +1561,7 @@
     "p1-fix-delta-arcs"
    ],
    "proposal_refs": [
-    "04-engine.md \u00a75",
+    "04-engine.md §5",
     "10-risks R9"
    ]
   },
@@ -1577,8 +1578,8 @@
     "p1-det-rng-primitives"
    ],
    "proposal_refs": [
-    "04-engine.md \u00a711 Follow-mode tests",
-    "04-engine.md \u00a71 identifiers"
+    "04-engine.md §11 Follow-mode tests",
+    "04-engine.md §1 identifiers"
    ]
   },
   {
@@ -1594,8 +1595,8 @@
     "p1-det-swap-one-pr"
    ],
    "proposal_refs": [
-    "04-engine.md \u00a75",
-    "04-engine.md \u00a77"
+    "04-engine.md §5",
+    "04-engine.md §7"
    ]
   },
   {
@@ -1613,8 +1614,8 @@
     "p1-found-richer-fixture-beat-detail"
    ],
    "proposal_refs": [
-    "04-engine.md \u00a75",
-    "04-engine.md \u00a711"
+    "04-engine.md §5",
+    "04-engine.md §11"
    ]
   },
   {
@@ -1630,7 +1631,7 @@
     "p0-dec-reference-behavior-1-9-6"
    ],
    "proposal_refs": [
-    "04-engine.md \u00a75",
+    "04-engine.md §5",
     "02-where-v1-stands.md Work"
    ]
   },
@@ -1648,7 +1649,7 @@
    "summary": "03-architecture retires the Java engine only after its tests are mined. Walk io.xj.engine's craft, fabricator and work tests and port every expectation the gtest matrix does not assert (CraftFoundationContinueTest's 0.23 intensity, delta advance, cutoff trimming of straddling picks, store put replacement, the mute roll at probability 1) as new or corrected gtest cases, expected-fail where the port regressed. These are the acceptance tests the fixes turn green.",
    "proposal_refs": [
     "03-architecture.md What happens to each V1 piece",
-    "04-engine.md \u00a711"
+    "04-engine.md §11"
    ]
   },
   {
@@ -1666,7 +1667,7 @@
     "p1-det-mine-java-craft-tests"
    ],
    "proposal_refs": [
-    "04-engine.md \u00a75",
+    "04-engine.md §5",
     "05-workstation.md Intensity"
    ]
   },
@@ -1683,7 +1684,7 @@
     "p0-dec-reference-behavior-1-9-6"
    ],
    "proposal_refs": [
-    "04-engine.md \u00a712",
+    "04-engine.md §12",
     "09-roadmap.md Principles 2"
    ]
   },
@@ -1701,8 +1702,8 @@
     "p1-det-mine-java-craft-tests"
    ],
    "proposal_refs": [
-    "04-engine.md \u00a76",
-    "04-engine.md \u00a71 Cycle"
+    "04-engine.md §6",
+    "04-engine.md §1 Cycle"
    ]
   },
   {
@@ -1719,8 +1720,8 @@
     "p1-det-mine-java-craft-tests"
    ],
    "proposal_refs": [
-    "04-engine.md \u00a76 Layer mute",
-    "04-engine.md \u00a712"
+    "04-engine.md §6 Layer mute",
+    "04-engine.md §12"
    ]
   },
   {
@@ -1753,8 +1754,8 @@
     "p1-unreal-cpp-api-compat-tests"
    ],
    "proposal_refs": [
-    "04-engine.md \u00a71 Shape",
-    "04-engine.md \u00a76 commit horizon"
+    "04-engine.md §1 Shape",
+    "04-engine.md §6 commit horizon"
    ]
   },
   {
@@ -1771,7 +1772,7 @@
     "p0-timing-demo-build-payload-fixtures"
    ],
    "proposal_refs": [
-    "04-engine.md \u00a711",
+    "04-engine.md §11",
     "06-commons.md Seeding the Commons"
    ]
   },
@@ -1805,7 +1806,7 @@
     "p1-unreal-cpp-api-compat-tests"
    ],
    "proposal_refs": [
-    "04-engine.md \u00a75 \u00a712",
+    "04-engine.md §5 §12",
     "09-roadmap.md Principles 2",
     "11-resolutions.md Q8"
    ],
@@ -1824,7 +1825,7 @@
     "p0-abi-spike-rust-plays-three-os"
    ],
    "proposal_refs": [
-    "04-engine.md \u00a71 Shape",
+    "04-engine.md §1 Shape",
     "03-architecture.md Contracts"
    ]
   },
@@ -1836,7 +1837,7 @@
    "area": "c-abi",
    "size": "M",
    "estimate_days": 5,
-   "summary": "`xj_engine_create` and `xj_engine_destroy` own the handle; create takes settings in micros (sub-second horizons), `xj_engine_load_project` accepts a path or an in-memory JSON payload through a new `Engine::loadProjectContent(json, audioRoot)` (today only the path loader exists and it reads `.xj` plus `build/**/*.json`), `xj_engine_start` clears the segment store as Engine.h:40 already claims and hands the chosen template to CraftWork instead of an arbitrary pointer-ordered one, with the ABI's create settings defaulting `craftCandidateScope` to StartedTemplate (the candidate scoping itself is the port-fixes task's), and `xj_engine_finish` keeps the 1.9.6 contract: it stops crafting and the next `xj_engine_run_cycle` returns the trailing Delete events (engine-api-lifecycle \u00a73), stated in the header doc comments and the host guide rather than adding out-pointers the register does not give it. Add `xj_engine_set_control_mode` (valid only before `xj_engine_start`, returning an `xj_status` error afterwards, because Fabricator::ControlMode is consulted exactly once in WorkManager::start to pre-apply an override; in 2.0 it is a convenience over the Macro/Memes cue path), `xj_engine_override_macro`, `xj_engine_override_memes`, `xj_engine_set_intensity_override`.",
+   "summary": "`xj_engine_create` and `xj_engine_destroy` own the handle; create takes settings in micros (sub-second horizons), `xj_engine_load_project` accepts a path or an in-memory JSON payload through a new `Engine::loadProjectContent(json, audioRoot)` (today only the path loader exists and it reads `.xj` plus `build/**/*.json`), `xj_engine_start` clears the segment store as Engine.h:40 already claims and hands the chosen template to CraftWork instead of an arbitrary pointer-ordered one, with the ABI's create settings defaulting `craftCandidateScope` to StartedTemplate (the candidate scoping itself is the port-fixes task's), and `xj_engine_finish` keeps the 1.9.6 contract: it stops crafting and the next `xj_engine_run_cycle` returns the trailing Delete events (engine-api-lifecycle §3), stated in the header doc comments and the host guide rather than adding out-pointers the register does not give it. Add `xj_engine_set_control_mode` (valid only before `xj_engine_start`, returning an `xj_status` error afterwards, because Fabricator::ControlMode is consulted exactly once in WorkManager::start to pre-apply an override; in 2.0 it is a convenience over the Macro/Memes cue path), `xj_engine_override_macro`, `xj_engine_override_memes`, `xj_engine_set_intensity_override`.",
    "blocked_by": [
     "p1-abi-header-conventions",
     "p1-fix-micros-int64",
@@ -1845,9 +1846,9 @@
     "p1-fix-craft-candidates-scoped-to-template"
    ],
    "proposal_refs": [
-    "04-engine.md \u00a71 Lifecycle",
-    "04-engine.md \u00a71 Control",
-    "04-engine.md \u00a75"
+    "04-engine.md §1 Lifecycle",
+    "04-engine.md §1 Control",
+    "04-engine.md §5"
    ]
   },
   {
@@ -1865,8 +1866,8 @@
     "p1-det-per-engine-128-bit-ids"
    ],
    "proposal_refs": [
-    "04-engine.md \u00a71 Cycle",
-    "04-engine.md \u00a71 flat event struct"
+    "04-engine.md §1 Cycle",
+    "04-engine.md §1 flat event struct"
    ]
   },
   {
@@ -1882,8 +1883,8 @@
     "p1-abi-lifecycle-control"
    ],
    "proposal_refs": [
-    "04-engine.md \u00a710",
-    "04-engine.md \u00a71"
+    "04-engine.md §10",
+    "04-engine.md §1"
    ]
   },
   {
@@ -1900,7 +1901,7 @@
     "p0-abi-spike-cmake-c-target"
    ],
    "proposal_refs": [
-    "04-engine.md \u00a71 Build integration",
+    "04-engine.md §1 Build integration",
     "09-roadmap.md Phase 1"
    ]
   },
@@ -1919,8 +1920,8 @@
     "p1-abi-status-log-callback"
    ],
    "proposal_refs": [
-    "04-engine.md \u00a71 Build integration",
-    "04-engine.md \u00a711 C ABI tests"
+    "04-engine.md §1 Build integration",
+    "04-engine.md §11 C ABI tests"
    ]
   },
   {
@@ -1937,7 +1938,7 @@
    ],
    "proposal_refs": [
     "10-risks R8",
-    "04-engine.md \u00a711"
+    "04-engine.md §11"
    ]
   },
   {
@@ -1958,7 +1959,7 @@
    ],
    "proposal_refs": [
     "10-risks R8",
-    "04-engine.md \u00a711"
+    "04-engine.md §11"
    ]
   },
   {
@@ -1968,7 +1969,7 @@
    "area": "ci-release",
    "size": "S",
    "estimate_days": 2,
-   "summary": "04-engine \u00a712 says the C ABI follows semver strictly (additive functions bump minor, any change to an existing struct or signature bumps major) but nothing enforced the freeze after engine-v2.0.0. Store the header's declarations (parsed, not textual) and the exported symbol list as a baseline at the tag, diff them on every PR, require a minor bump in the generated version header for additions and a major bump for any changed signature, enum value or struct layout; the Rust-side witness (regenerating and diffing the checked-in bindgen bindings) is a Phase 2 CI task once xj-engine-sys exists. Done when a PR that renames a field fails without a major bump and one that adds a function fails without a minor bump.",
+   "summary": "04-engine §12 says the C ABI follows semver strictly (additive functions bump minor, any change to an existing struct or signature bumps major) but nothing enforced the freeze after engine-v2.0.0. Store the header's declarations (parsed, not textual) and the exported symbol list as a baseline at the tag, diff them on every PR, require a minor bump in the generated version header for additions and a major bump for any changed signature, enum value or struct layout; the Rust-side witness (regenerating and diffing the checked-in bindgen bindings) is a Phase 2 CI task once xj-engine-sys exists. Done when a PR that renames a field fails without a major bump and one that adds a function fails without a minor bump.",
    "blocked_by": [
     "p1-abi-cue-tempo-functions",
     "p1-abi-foundation-functions",
@@ -1979,7 +1980,7 @@
     "p1-abi-preview-function-c-test"
    ],
    "proposal_refs": [
-    "04-engine.md \u00a712",
+    "04-engine.md §12",
     "09-roadmap.md Phase 1 Exit"
    ],
    "phase": "1"
@@ -1995,8 +1996,8 @@
    "summary": "Parse `commitHorizonBeats` (float, default reproducing 1.9.x behavior, i.e. the implicit deadline-derived horizon) `followHoldMaxBars` (int) and `mixerFiltersEnabled` (bool, default false; the new name that lets xj-dsp's master filters be opted into, since the threshold keys are always present) in TemplateConfig.cpp with getters, emit them in `toString()` so the C++ formatter does not drop them, and add ConfigParser tests. Note the parser types by literal shape: `1` is int, `1.0` is float, and the typed getters throw on mismatch.",
    "blocked_by": [],
    "proposal_refs": [
-    "04-engine.md \u00a79",
-    "04-engine.md \u00a76"
+    "04-engine.md §9",
+    "04-engine.md §6"
    ]
   },
   {
@@ -2013,7 +2014,7 @@
     "p1-fix-micros-int64"
    ],
    "proposal_refs": [
-    "04-engine.md \u00a76",
+    "04-engine.md §6",
     "08-performer-input.md Legibility"
    ]
   },
@@ -2025,13 +2026,13 @@
    "area": "engine",
    "size": "M",
    "estimate_days": 7,
-   "summary": "Add the cue struct (type, boundary, payload; `xj_cue` is its ABI mirror), a pending-cue queue in CraftWork, public documented `XJ::Engine::cue()`, `cancelCue()` and `earliestLanding()` methods (Q8: the C++ API remains first-class, so Unreal reaches cues without the ABI), `cue()` landing the cue at `earliest_landing(boundary)`, the first boundary of that kind at or beyond the commit horizon (a BAR cue whose next downbeat is inside the horizon lands on the following bar and the UI says 'lands in 2 bars'), returning a refusal status only for XJ_BOUNDARY_NOW (or an absolute landing, if one is ever added) that falls inside the horizon, and `cancel_cue()`. Generalize doFabricationRewrite and doCutoffLastSegment to cut the current segment at the chosen boundary rather than at `barBeats \u00d7 cutoffMinimumBars` after the deadline (one exact beats-to-micros formula replaces the three; the legacy cut point stays available as an internal landing rule for the override wrappers), and record a landing acknowledgement (cue id, landing chain micros) as a message. Two foundation cues at the same boundary apply in arrival order, second wins, with a collision message (Q13).",
+   "summary": "Add the cue struct (type, boundary, payload; `xj_cue` is its ABI mirror), a pending-cue queue in CraftWork, public documented `XJ::Engine::cue()`, `cancelCue()` and `earliestLanding()` methods (Q8: the C++ API remains first-class, so Unreal reaches cues without the ABI), `cue()` landing the cue at `earliest_landing(boundary)`, the first boundary of that kind at or beyond the commit horizon (a BAR cue whose next downbeat is inside the horizon lands on the following bar and the UI says 'lands in 2 bars'), returning a refusal status only for XJ_BOUNDARY_NOW (or an absolute landing, if one is ever added) that falls inside the horizon, and `cancel_cue()`. Generalize doFabricationRewrite and doCutoffLastSegment to cut the current segment at the chosen boundary rather than at `barBeats × cutoffMinimumBars` after the deadline (one exact beats-to-micros formula replaces the three; the legacy cut point stays available as an internal landing rule for the override wrappers), and record a landing acknowledgement (cue id, landing chain micros) as a message. Two foundation cues at the same boundary apply in arrival order, second wins, with a collision message (Q13).",
    "blocked_by": [
     "p1-cue-horizon-earliest-landing",
     "p1-fix-store-put-overwrite"
    ],
    "proposal_refs": [
-    "04-engine.md \u00a76",
+    "04-engine.md §6",
     "11-resolutions.md Q13"
    ]
   },
@@ -2046,9 +2047,9 @@
    "blocked_by": [
     "p1-cue-queue-landing-rewrite"
    ],
-   "summary": "The existing override functions become thin wrappers that enqueue a Macro or Memes cue with an internal, non-ABI landing rule `legacy_cutoff` (the next multiple of barBeats \u00d7 cutoffMinimumBars after at + deadlineMicros, engine-api-lifecycle \u00a78) that no `xj_boundary` value expresses, so `xj_engine_override_*` and the C++ overrides keep 1.9.6 timing exactly while new hosts use the cue boundaries, preserving in addition the two quirks (an overridden macro starts at its second binding offset; a meme override empties the retrospective) so EngineTest, the Unreal plugin and the Java-era control modes behave exactly as before. Document both quirks in the cue spec as inherited behavior.",
+   "summary": "The existing override functions become thin wrappers that enqueue a Macro or Memes cue with an internal, non-ABI landing rule `legacy_cutoff` (the next multiple of barBeats × cutoffMinimumBars after at + deadlineMicros, engine-api-lifecycle §8) that no `xj_boundary` value expresses, so `xj_engine_override_*` and the C++ overrides keep 1.9.6 timing exactly while new hosts use the cue boundaries, preserving in addition the two quirks (an overridden macro starts at its second binding offset; a meme override empties the retrospective) so EngineTest, the Unreal plugin and the Java-era control modes behave exactly as before. Document both quirks in the cue spec as inherited behavior.",
    "proposal_refs": [
-    "04-engine.md \u00a76",
+    "04-engine.md §6",
     "11-resolutions.md Q8"
    ]
   },
@@ -2065,7 +2066,7 @@
     "p1-cue-queue-landing-rewrite"
    ],
    "proposal_refs": [
-    "04-engine.md \u00a76",
+    "04-engine.md §6",
     "08-performer-input.md Cues"
    ]
   },
@@ -2077,13 +2078,13 @@
    "area": "engine",
    "size": "M",
    "estimate_days": 5,
-   "summary": "A Chord cue cuts at the boundary and crafts the next segment with its first chord forced; main-program selection prefers a sequence whose first chord matches, else transposes. The optional key (04 \u00a76, 08 \u00a7Cues: 'chord name, optional key') is the target key when present: main-program selection prefers a sequence in that key whose first chord matches, else the chosen sequence is transposed into it, and it is written as the next segment's `Segment.key`; when the key is null only the first chord is forced and the segment key is left to the chosen main program as today. The engine has no `Chord::transpose`: add one (shift root and slash pitch class with Step::step, keep the description verbatim, inherit the source accidental), parse incoming names with `Chord::of` and store canonical names, and use the explicit no-chord representation the segment serializer task owns (an explicit null, since `NC` has no stable spelling). Tests cover slash chords and enharmonic equality via `Chord::operator==`.",
+   "summary": "A Chord cue cuts at the boundary and crafts the next segment with its first chord forced; main-program selection prefers a sequence whose first chord matches, else transposes. The optional key (04 §6, 08 §Cues: 'chord name, optional key') is the target key when present: main-program selection prefers a sequence in that key whose first chord matches, else the chosen sequence is transposed into it, and it is written as the next segment's `Segment.key`; when the key is null only the first chord is forced and the segment key is left to the chosen main program as today. The engine has no `Chord::transpose`: add one (shift root and slash pitch class with Step::step, keep the description verbatim, inherit the source accidental), parse incoming names with `Chord::of` and store canonical names, and use the explicit no-chord representation the segment serializer task owns (an explicit null, since `NC` has no stable spelling). Tests cover slash chords and enharmonic equality via `Chord::operator==`.",
    "blocked_by": [
     "p1-cue-queue-landing-rewrite",
     "p1-det-segment-entity-json"
    ],
    "proposal_refs": [
-    "04-engine.md \u00a76",
+    "04-engine.md §6",
     "08-performer-input.md Three scales"
    ]
   },
@@ -2103,7 +2104,7 @@
     "p1-fix-persistence-window-dub-intensity"
    ],
    "proposal_refs": [
-    "04-engine.md \u00a76",
+    "04-engine.md §6",
     "08-performer-input.md Cues"
    ]
   },
@@ -2124,7 +2125,7 @@
     "p1-det-segment-subseed"
    ],
    "proposal_refs": [
-    "04-engine.md \u00a711 Cue tests",
+    "04-engine.md §11 Cue tests",
     "11-resolutions.md Ambient content"
    ]
   },
@@ -2136,13 +2137,13 @@
    "area": "engine",
    "size": "M",
    "estimate_days": 5,
-   "summary": "Add the Content|External policy and a pending external tempo as public documented `XJ::Engine::setTempoPolicy()` and `setExternalTempo()` methods (Q8). In External mode MacroMainCraft writes the external tempo to the segment; CraftWork.cpp:300 (rewrite) must read `lastSegment->tempo` instead of `currentMainProgram->tempo` so it agrees with doCutoffLastSegment at :336 (edited after the horizon task has unified the three beats-to-micros formulas, so the two tasks touch those lines in order); and the segment tempo must be written before the Fabricator's first beats-to-micros call because getMicrosPerBeat caches the first tempo it sees. Main programs are still chosen by memes; their nominal tempo becomes advisory. Tests assert that a tempo change affects only segments crafted after it, that scheduled audio micros are unchanged, that the engine either runs across Link's 20 to 999 bpm range or applies a documented \u00d72/\u00f72 lock (TEST-PLAN TEMPO-4), and that Link's integer micros-per-beat quantization (124 bpm is 483,871 \u00b5s) is tolerated by comparing beats, not micros. The pending external tempo and the boundary at which it lands are recorded as a SegmentMessage so hosts read them through `xj_engine_get_messages_json`; no further ABI function is introduced for tempo state.",
+   "summary": "Add the Content|External policy and a pending external tempo as public documented `XJ::Engine::setTempoPolicy()` and `setExternalTempo()` methods (Q8). In External mode MacroMainCraft writes the external tempo to the segment; CraftWork.cpp:300 (rewrite) must read `lastSegment->tempo` instead of `currentMainProgram->tempo` so it agrees with doCutoffLastSegment at :336 (edited after the horizon task has unified the three beats-to-micros formulas, so the two tasks touch those lines in order); and the segment tempo must be written before the Fabricator's first beats-to-micros call because getMicrosPerBeat caches the first tempo it sees. Main programs are still chosen by memes; their nominal tempo becomes advisory. Tests assert that a tempo change affects only segments crafted after it, that scheduled audio micros are unchanged, that the engine either runs across Link's 20 to 999 bpm range or applies a documented ×2/÷2 lock (TEST-PLAN TEMPO-4), and that Link's integer micros-per-beat quantization (124 bpm is 483,871 µs) is tolerated by comparing beats, not micros. The pending external tempo and the boundary at which it lands are recorded as a SegmentMessage so hosts read them through `xj_engine_get_messages_json`; no further ABI function is introduced for tempo state.",
    "blocked_by": [
     "p1-fix-micros-int64",
     "p1-cue-horizon-earliest-landing"
    ],
    "proposal_refs": [
-    "04-engine.md \u00a72",
+    "04-engine.md §2",
     "07-session-protocol.md Clock"
    ]
   },
@@ -2159,7 +2160,7 @@
     "p1-det-segment-entity-json"
    ],
    "proposal_refs": [
-    "04-engine.md \u00a73 What the foundation is",
+    "04-engine.md §3 What the foundation is",
     "07-session-protocol.md The foundation record"
    ]
   },
@@ -2176,7 +2177,7 @@
     "p1-found-record-schema-serializer"
    ],
    "proposal_refs": [
-    "04-engine.md \u00a74"
+    "04-engine.md §4"
    ]
   },
   {
@@ -2194,8 +2195,8 @@
     "p1-tempo-policy-external"
    ],
    "proposal_refs": [
-    "04-engine.md \u00a73 How it works",
-    "04-engine.md \u00a73 Overrides in follow mode"
+    "04-engine.md §3 How it works",
+    "04-engine.md §3 Overrides in follow mode"
    ]
   },
   {
@@ -2212,7 +2213,7 @@
    ],
    "summary": "When the foundation source is External, `cue()` refuses Macro, Memes, Chord, Advance and Hold with a distinct follow-mode status so the station can forward them as cue requests; Intensity and Layer Mute are accepted and applied locally because intensity and layering are per-station decisions. Tests cover every cue type in both sources and the switch between them at a segment boundary.",
    "proposal_refs": [
-    "04-engine.md \u00a73 Overrides in follow mode",
+    "04-engine.md §3 Overrides in follow mode",
     "07-session-protocol.md Cue requests"
    ]
   },
@@ -2224,14 +2225,14 @@
    "area": "engine",
    "size": "S",
    "estimate_days": 3,
-   "summary": "The verified list of content reads that bypass segment entities: `barBeats` at Craft.cpp:85 and TransitionCraft.cpp:85, current and previous main-sequence identity at TransitionCraft.cpp:45-51, and the rewrite's `barBeats \u00d7 cutoffMinimumBars` plus tempo in CraftWork.cpp:283-300. In follow mode the Fabricator answers the first two from the current and previous records, and the rewrite takes bar length from the record and cutoffMinimumBars from the follower's template. The fourth reader is 2.0's own: `earliest_landing(BAR)` and the cue cut take `barBeats` from the current main program, and in External mode there is none, so both read `segment.barBeats` from the current record. Tests per site, including a BAR cue on a follower.",
+   "summary": "The verified list of content reads that bypass segment entities: `barBeats` at Craft.cpp:85 and TransitionCraft.cpp:85, current and previous main-sequence identity at TransitionCraft.cpp:45-51, and the rewrite's `barBeats × cutoffMinimumBars` plus tempo in CraftWork.cpp:283-300. In follow mode the Fabricator answers the first two from the current and previous records, and the rewrite takes bar length from the record and cutoffMinimumBars from the follower's template. The fourth reader is 2.0's own: `earliest_landing(BAR)` and the cue cut take `barBeats` from the current main program, and in External mode there is none, so both read `segment.barBeats` from the current record. Tests per site, including a BAR cue on a follower.",
    "blocked_by": [
     "p1-found-external-foundation-craft",
     "p1-cue-queue-landing-rewrite",
     "p1-cue-horizon-earliest-landing"
    ],
    "proposal_refs": [
-    "04-engine.md \u00a73 Unchanged caveat table"
+    "04-engine.md §3 Unchanged caveat table"
    ]
   },
   {
@@ -2248,7 +2249,7 @@
    ],
    "proposal_refs": [
     "11-resolutions.md Q14",
-    "04-engine.md \u00a73 Bar length"
+    "04-engine.md §3 Bar length"
    ]
   },
   {
@@ -2266,7 +2267,7 @@
     "p1-cue-queue-landing-rewrite"
    ],
    "proposal_refs": [
-    "04-engine.md \u00a73 When the timeline runs dry",
+    "04-engine.md §3 When the timeline runs dry",
     "07-session-protocol.md Failure handling"
    ]
   },
@@ -2288,7 +2289,7 @@
     "p1-found-barbeats-candidate-filter"
    ],
    "proposal_refs": [
-    "04-engine.md \u00a711 Follow-mode tests",
+    "04-engine.md §11 Follow-mode tests",
     "09-roadmap.md Phase 1 Exit"
    ]
   },
@@ -2308,8 +2309,8 @@
     "p1-cue-tests"
    ],
    "proposal_refs": [
-    "04-engine.md \u00a77",
-    "04-engine.md \u00a711 Preview tests"
+    "04-engine.md §7",
+    "04-engine.md §11 Preview tests"
    ]
   },
   {
@@ -2325,7 +2326,7 @@
     "p1-det-swap-one-pr"
    ],
    "proposal_refs": [
-    "04-engine.md \u00a78",
+    "04-engine.md §8",
     "05-workstation.md The timeline and the why panel"
    ]
   },
@@ -2342,8 +2343,8 @@
     "p0-timing-harness-in-tree"
    ],
    "proposal_refs": [
-    "04-engine.md \u00a710",
-    "04-engine.md \u00a71 Snapshot"
+    "04-engine.md §10",
+    "04-engine.md §1 Snapshot"
    ]
   },
   {
@@ -2363,8 +2364,8 @@
     "p1-abi-c-compiler-test-ci"
    ],
    "proposal_refs": [
-    "04-engine.md \u00a71 Snapshot",
-    "04-engine.md \u00a71 Introspection"
+    "04-engine.md §1 Snapshot",
+    "04-engine.md §1 Introspection"
    ]
   },
   {
@@ -2387,8 +2388,8 @@
    ],
    "summary": "Add `xj_cue` (type, boundary, payload; the Chord payload carries the chord name and the optional key with an explicit null), the `xj_boundary` and `xj_cue_type` enums, `xj_engine_cue`, `xj_engine_cancel_cue`, `xj_engine_earliest_landing(boundary, out_chain_micros)`, `xj_tempo_policy` with `xj_engine_set_tempo_policy` and `xj_engine_set_external_tempo`, and `xj_engine_set_seed` / `xj_engine_get_seed` (wrapping the existing `Engine::setSeed`/`getSeed`: the seed must be set before `xj_engine_start`; the drawn seed is reported when unset). Every function returns `xj_status`; the NOW-inside-horizon refusal has its own code (the follow-mode refusal code is added with the foundation ABI group); every other boundary lands at `earliest_landing` and is never refused for timing. Extend the C11 test program for each function.",
    "proposal_refs": [
-    "04-engine.md \u00a71 Surface Cues Tempo Determinism",
-    "04-engine.md \u00a75 \u00a76"
+    "04-engine.md §1 Surface Cues Tempo Determinism",
+    "04-engine.md §5 §6"
    ]
   },
   {
@@ -2409,8 +2410,8 @@
    ],
    "summary": "Each function wraps a public documented `XJ::Engine` method (`setFoundationSource`, `pushFoundationJson`, `getFoundationJson`) so Unreal reaches follow mode through the C++ API (Q8). Add the `xj_foundation_source` enum {Internal, External}, `xj_engine_set_foundation_source`, `xj_engine_push_foundation_json` (queued records, validated against the schema, with a status for a record that arrives too late to craft against, the engine-side rule for which, hold that one segment and warn, is the hold/rejoin task's) and `xj_engine_get_foundation_json` (the record for a crafted segment, engine side without the session envelope). The follow-mode refusal of `xj_engine_cue` (Macro, Memes, Chord, Advance, Hold while the source is External) gets its own `xj_status` code here, distinct from the NOW-inside-horizon code. C tests push a conductor's records into a second handle and read them back, and assert the follow-mode code on a Macro cue sent to the follower. With this group and the preview wrapper the surface listed in the register is complete; the 1.0.0 freeze is the baseline the stability check captures at the tag.",
    "proposal_refs": [
-    "04-engine.md \u00a71 Surface Foundation",
-    "04-engine.md \u00a73 \u00a74",
+    "04-engine.md §1 Surface Foundation",
+    "04-engine.md §3 §4",
     "07-session-protocol.md The foundation record"
    ]
   },
@@ -2430,7 +2431,7 @@
    "summary": "05-workstation assumes that 'edits to content take effect at the next segment boundary, which is already how the engine reloads'; no such path exists (projectContent is loaded once in the constructor and ActiveAudio holds raw pointers into it). Add `xj_engine_reload_content(json, len)` (part of ABI 1.0.0 since it blocks the 2.0.0 tag; one of the register's new names, listed in the rationale) that parses a replacement payload off the hot path, swaps it in between cycles at the next segment boundary, keeps the previous store alive until no scheduled audio references it, and rejects payloads that drop the running template. Consumed by the Java-handoff reload in Phase 3 and by the Rust editors in Phase 6. Extend the C11 test program: reload a payload mid-chain and assert the swap lands at the boundary and the running template cannot be dropped.",
    "proposal_refs": [
     "05-workstation.md Modes",
-    "04-engine.md \u00a71 Lifecycle"
+    "04-engine.md §1 Lifecycle"
    ]
   },
   {
@@ -2447,8 +2448,8 @@
     "p1-abi-c-compiler-test-ci"
    ],
    "proposal_refs": [
-    "04-engine.md \u00a76",
-    "04-engine.md \u00a73 How it works",
+    "04-engine.md §6",
+    "04-engine.md §3 How it works",
     "07-session-protocol.md Timing budget",
     "05-workstation.md Latency budget",
     "08-performer-input.md Latency, end to end"
@@ -2462,7 +2463,7 @@
    "area": "c-abi",
    "size": "XS",
    "estimate_days": 1,
-   "summary": "04-engine \u00a78 puts choice diagnostics behind a flag so game integrations pay nothing, and the why panel wants it on in Play mode, but no ABI function or create-time setting sets it. Add `diagnostics_enabled` to the create settings struct and `xj_engine_set_diagnostics(bool)` over a public `XJ::Engine::setDiagnostics(bool)` applied at the next segment boundary (both listed among the register's new names beside `xj_engine_reload_content` and `xj_engine_set_horizons`), default off, and extend the C11 test program to turn it on and read an `xj.choice.*` SegmentMeta back through `xj_engine_get_segments_json`, and to assert no such meta appears when it is off.",
+   "summary": "04-engine §8 puts choice diagnostics behind a flag so game integrations pay nothing, and the why panel wants it on in Play mode, but no ABI function or create-time setting sets it. Add `diagnostics_enabled` to the create settings struct and `xj_engine_set_diagnostics(bool)` over a public `XJ::Engine::setDiagnostics(bool)` applied at the next segment boundary (both listed among the register's new names beside `xj_engine_reload_content` and `xj_engine_set_horizons`), default off, and extend the C11 test program to turn it on and read an `xj.choice.*` SegmentMeta back through `xj_engine_get_segments_json`, and to assert no such meta appears when it is off.",
    "blocked_by": [
     "p1-diag-marblebag-recording-flag",
     "p1-abi-lifecycle-control",
@@ -2470,7 +2471,7 @@
     "p1-abi-snapshot-introspection-json"
    ],
    "proposal_refs": [
-    "04-engine.md \u00a78",
+    "04-engine.md §8",
     "05-workstation.md The timeline and the why panel"
    ],
    "phase": "1"
@@ -2489,9 +2490,9 @@
     "p1-abi-c-compiler-test-ci"
    ],
    "proposal_refs": [
-    "04-engine.md \u00a71 Surface Preview",
-    "04-engine.md \u00a77",
-    "04-engine.md \u00a711 C ABI tests"
+    "04-engine.md §1 Surface Preview",
+    "04-engine.md §7",
+    "04-engine.md §11 C ABI tests"
    ],
    "phase": "1"
   },
@@ -2506,7 +2507,7 @@
    "summary": "Add the three InstrumentConfig keys with defaults that reproduce today's behavior, emit them in toString(), and make the content loader tolerate `contentHash` on InstrumentAudio and `originPack`/`originVersion` on every entity (unknown keys are already ignored on read; this records them). Document the HOCON-subset typing rule for the new float.",
    "blocked_by": [],
    "proposal_refs": [
-    "04-engine.md \u00a79",
+    "04-engine.md §9",
     "06-commons.md Pack format"
    ]
   },
@@ -2525,7 +2526,7 @@
     "p1-abi-run-cycle-events"
    ],
    "proposal_refs": [
-    "04-engine.md \u00a79",
+    "04-engine.md §9",
     "11-resolutions.md Q2"
    ]
   },
@@ -2537,7 +2538,7 @@
    "area": "engine",
    "size": "S",
    "estimate_days": 2,
-   "summary": "Load the four checked-in demo build payloads, the engine test project and the richer fixture through both the path and in-memory loaders; assert identical choices with and without the new fields present, that unknown keys are ignored, that voice and track names load, that `\"tempo\": 120` reads as 120, and that non-UUID content ids map to stable 16-byte ids with a warning. This is the acceptance test for 04-engine \u00a712's promise.",
+   "summary": "Load the four checked-in demo build payloads, the engine test project and the richer fixture through both the path and in-memory loaders; assert identical choices with and without the new fields present, that unknown keys are ignored, that voice and track names load, that `\"tempo\": 120` reads as 120, and that non-UUID content ids map to stable 16-byte ids with a warning. This is the acceptance test for 04-engine §12's promise.",
    "blocked_by": [
     "p1-fix-voice-track-json-keys",
     "p1-fix-small-api-loader-defects",
@@ -2547,7 +2548,7 @@
     "p0-timing-demo-build-payload-fixtures"
    ],
    "proposal_refs": [
-    "04-engine.md \u00a712",
+    "04-engine.md §12",
     "09-roadmap.md Principles 2"
    ]
   },
@@ -2583,7 +2584,7 @@
    ],
    "proposal_refs": [
     "09-roadmap.md Version numbers",
-    "04-engine.md \u00a712"
+    "04-engine.md §12"
    ]
   },
   {
@@ -2601,8 +2602,8 @@
     "p1-abi-cmake-target-install"
    ],
    "proposal_refs": [
-    "04-engine.md \u00a71 Build integration",
-    "04-engine.md \u00a712"
+    "04-engine.md §1 Build integration",
+    "04-engine.md §12"
    ]
   },
   {
@@ -2657,7 +2658,7 @@
    ],
    "proposal_refs": [
     "09-roadmap.md Phase 1 Exit",
-    "04-engine.md \u00a712"
+    "04-engine.md §12"
    ]
   },
   {
@@ -2754,7 +2755,7 @@
    ],
    "proposal_refs": [
     "09-roadmap.md Phase 1 Doxygen",
-    "04-engine.md \u00a71"
+    "04-engine.md §1"
    ]
   },
   {
@@ -2803,7 +2804,7 @@
    "area": "ci-release",
    "size": "S",
    "estimate_days": 2,
-   "summary": "Extend the Phase 0 cargo-deny baseline into the full policy: allow MIT, Apache-2.0, BSD and MPL-2.0 (with the MPL file-level copyleft noted for symphonia and triple_buffer); the Link binding fork carries a `LicenseRef-Ableton-Link-Proprietary` identifier once the proprietary grant is on file (allowed only with `--features link`), while GPL-2.0-or-later is allowed only in non-distributed developer builds (a `deny` exception keyed to a `developer` profile), because the XJ license is not GPL-compatible (Q3, 07 \u00a7Clock) and official builds cannot ship the fork under GPL; ban vorbis-sys, vorbis-encoder and audiopus; pin rubato 5 with audioadapter 5, rtrb >= 0.4.0, cpal 0.18, symphonia 0.6, tauri-plugin-updater >= 2.12.0. Generate THIRD_PARTY notices for every build and the installer.",
+   "summary": "Extend the Phase 0 cargo-deny baseline into the full policy: allow MIT, Apache-2.0, BSD and MPL-2.0 (with the MPL file-level copyleft noted for symphonia and triple_buffer); the Link binding fork carries a `LicenseRef-Ableton-Link-Proprietary` identifier once the proprietary grant is on file (allowed only with `--features link`), while GPL-2.0-or-later is allowed only in non-distributed developer builds (a `deny` exception keyed to a `developer` profile), because the XJ license is not GPL-compatible (Q3, 07 §Clock) and official builds cannot ship the fork under GPL; ban vorbis-sys, vorbis-encoder and audiopus; pin rubato 5 with audioadapter 5, rtrb >= 0.4.0, cpal 0.18, symphonia 0.6, tauri-plugin-updater >= 2.12.0. Generate THIRD_PARTY notices for every build and the installer.",
    "blocked_by": [
     "p2-ws-ci-features-caching"
    ],
@@ -2828,7 +2829,7 @@
    ],
    "proposal_refs": [
     "03-architecture.md xj-engine-sys",
-    "04-engine.md \u00a71"
+    "04-engine.md §1"
    ]
   },
   {
@@ -2865,7 +2866,7 @@
    ],
    "proposal_refs": [
     "03-architecture.md xj-engine",
-    "04-engine.md \u00a71 Surface"
+    "04-engine.md §1 Surface"
    ]
   },
   {
@@ -2884,7 +2885,7 @@
     "p1-found-record-schema-serializer"
    ],
    "proposal_refs": [
-    "04-engine.md \u00a71 Snapshot",
+    "04-engine.md §1 Snapshot",
     "07-session-protocol.md The foundation record"
    ]
   },
@@ -2904,7 +2905,7 @@
     "p2-eng-foundation-reload-horizons-diag-methods"
    ],
    "proposal_refs": [
-    "04-engine.md \u00a711",
+    "04-engine.md §11",
     "07-session-protocol.md Testing"
    ]
   },
@@ -2925,7 +2926,7 @@
    ],
    "proposal_refs": [
     "03-architecture.md xj-engine",
-    "04-engine.md \u00a71 Surface"
+    "04-engine.md §1 Surface"
    ],
    "phase": "2"
   },
@@ -2942,7 +2943,7 @@
     "p2-sys-bindgen-build-rs"
    ],
    "proposal_refs": [
-    "04-engine.md \u00a712",
+    "04-engine.md §12",
     "03-architecture.md xj-engine-sys"
    ],
    "phase": "2"
@@ -2955,7 +2956,7 @@
    "area": "content",
    "size": "M",
    "estimate_days": 4,
-   "summary": "Glob `libraries/**/*.json`, `templates/**/*.json` and the single `*.xj`, merge by UUID like HubContent.combine, tolerate legacy keys (`users`, `projectUsers`, `errors`) and the pre-#335 single-file layout, keep config strings verbatim, normalize Unicode accidentals (\u266f \u2192 #, \u266d \u2192 b; issue #415) at the boundary, and read `name`/`order` on voices and tracks. Entity ids stay UUID strings.",
+   "summary": "Glob `libraries/**/*.json`, `templates/**/*.json` and the single `*.xj`, merge by UUID like HubContent.combine, tolerate legacy keys (`users`, `projectUsers`, `errors`) and the pre-#335 single-file layout, keep config strings verbatim, normalize Unicode accidentals (♯ → #, ♭ → b; issue #415) at the boundary, and read `name`/`order` on voices and tracks. Entity ids stay UUID strings.",
    "blocked_by": [
     "p2-ws-ci-features-caching"
    ],
@@ -3013,7 +3014,7 @@
     "p2-eng-engine-type-lifecycle"
    ],
    "proposal_refs": [
-    "04-engine.md \u00a71 Lifecycle",
+    "04-engine.md §1 Lifecycle",
     "06-commons.md Shows"
    ]
   },
@@ -3066,7 +3067,7 @@
     "p2-ws-ci-features-caching"
    ],
    "proposal_refs": [
-    "04-engine.md \u00a79",
+    "04-engine.md §9",
     "06-commons.md The quality bar Automated",
     "05-workstation.md Editors"
    ],
@@ -3201,7 +3202,7 @@
    "area": "transport",
    "size": "M",
    "estimate_days": 5,
-   "summary": "Over the binding fork pinned to Link 4.1.1: SessionState allocated once outside the callback and moved in; all commits from exactly one side (audio thread via a lock-free command queue, as LinkHut does); construct with the current bpm and never push a template tempo when peers > 0 (TEMPO-2/3/5); keep the last tempo on disable; quantum equals barBeats and changes with the main program while the grid does not move; start/stop sync off by default; re-anchoring gated on stable peers. Compiled only with `--features link`, which is enabled in official builds only once the license is on file. The per-host output-latency offsets and the DAC-time rule come from the Phase 0 AUDIOENGINE-1 measurement, and the tempo range policy (20 to 999 bpm, or the documented \u00d72/\u00f72 lock) is applied by the station's tempo wiring, which waits for the engine's External tempo tests; the clock itself does not.",
+   "summary": "Over the binding fork pinned to Link 4.1.1: SessionState allocated once outside the callback and moved in; all commits from exactly one side (audio thread via a lock-free command queue, as LinkHut does); construct with the current bpm and never push a template tempo when peers > 0 (TEMPO-2/3/5); keep the last tempo on disable; quantum equals barBeats and changes with the main program while the grid does not move; start/stop sync off by default; re-anchoring gated on stable peers. Compiled only with `--features link`, which is enabled in official builds only once the license is on file. The per-host output-latency offsets and the DAC-time rule come from the Phase 0 AUDIOENGINE-1 measurement, and the tempo range policy (20 to 999 bpm, or the documented ×2/÷2 lock) is applied by the station's tempo wiring, which waits for the engine's External tempo tests; the clock itself does not.",
    "blocked_by": [
     "p2-xport-beatclock-trait-internal",
     "p2-xport-link-binding-fork",
@@ -3257,7 +3258,7 @@
    "area": "dsp",
    "size": "M",
    "estimate_days": 5,
-   "summary": "256 pre-allocated voices playing immutable buffers by reference; gain glides from gain_from to gain_to over an explicit frame span (V1 ramped per 1 s chunk, which the spec records as the behavior being replaced); release is the Java quarter-sine `sin(pi/2 * i/N)` fade of the still-playing source, default 5 ms; an attack ramp exists as an opt-in voice parameter that defaults to 0 frames (05 \u00a7Voices defines the envelope as the gain span plus release and V1 had no attack; 2,905 of 3,000 demo audios have transientSeconds 0, so a default attack would soften every drum hit), used only as click protection when a voice is stopped before it started; mono sources duplicate to both channels and stereo-to-mono sums per a stated rule. A voice past its stop enters release and is reclaimed when silent.",
+   "summary": "256 pre-allocated voices playing immutable buffers by reference; gain glides from gain_from to gain_to over an explicit frame span (V1 ramped per 1 s chunk, which the spec records as the behavior being replaced); release is the Java quarter-sine `sin(pi/2 * i/N)` fade of the still-playing source, default 5 ms; an attack ramp exists as an opt-in voice parameter that defaults to 0 frames (05 §Voices defines the envelope as the gain span plus release and V1 had no attack; 2,905 of 3,000 demo audios have transientSeconds 0, so a default attack would soften every drum hit), used only as click protection when a voice is stopped before it started; mono sources duplicate to both channels and stereo-to-mono sums per a stated rule. A voice past its stop enters release and is reclaimed when silent.",
    "blocked_by": [
     "p2-dsp-command-ring"
    ],
@@ -3478,7 +3479,7 @@
     "p2-dsp-command-ring",
     "p2-eng-cues-tempo-foundation-methods"
    ],
-   "summary": "Cues (Macro, Memes, Intensity, Chord, Advance, Hold, LayerMute) go to the station scheduler with their boundary and carry the preview and landing-time metadata the UI shows; gestures become DSP commands stamped with the device frame of the next buffer or quantized to none, beat, half-beat or bar through the transport, so they are audible within one buffer and the engine never learns of them. A layer mute sends both the gesture and the cue. Every input is re-stamped with the station's monotonic clock on receipt, since midir timestamps are per-backend. A `[[map]]` entry or move step that omits `boundary` takes 08's default per cue type (Macro, Memes, Advance, Hold and Layer Mute: Segment; Intensity: Beat; Chord: Bar); the surface's cue-boundary selector overrides that default for foundation cues sent from the screen (05 \u00a7Cue boundary).",
+   "summary": "Cues (Macro, Memes, Intensity, Chord, Advance, Hold, LayerMute) go to the station scheduler with their boundary and carry the preview and landing-time metadata the UI shows; gestures become DSP commands stamped with the device frame of the next buffer or quantized to none, beat, half-beat or bar through the transport, so they are audible within one buffer and the engine never learns of them. A layer mute sends both the gesture and the cue. Every input is re-stamped with the station's monotonic clock on receipt, since midir timestamps are per-backend. A `[[map]]` entry or move step that omits `boundary` takes 08's default per cue type (Macro, Memes, Advance, Hold and Layer Mute: Segment; Intensity: Beat; Chord: Bar); the surface's cue-boundary selector overrides that default for foundation cues sent from the screen (05 §Cue boundary).",
    "proposal_refs": [
     "08-performer-input.md Three scales",
     "03-architecture.md Data flow in one engine cycle",
@@ -3568,7 +3569,7 @@
    "area": "control",
    "size": "S",
    "estimate_days": 2,
-   "summary": "A dedicated high-priority thread sends F8 at 24 ppqn from `time_at_beat(k/24)`, FA just before the downbeat's clock, FC/F2/FB for re-sync (Song Position Pointer wraps after 16,384 sixteenths, about 33 minutes at 124 bpm), through midir out, aiming at \u00b11 ms jitter. Also sent to any controller whose profile declares `blink = device` so the Launchpad's armed flash lands on the beat.",
+   "summary": "A dedicated high-priority thread sends F8 at 24 ppqn from `time_at_beat(k/24)`, FA just before the downbeat's clock, FC/F2/FB for re-sync (Song Position Pointer wraps after 16,384 sixteenths, about 33 minutes at 124 bpm), through midir out, aiming at ±1 ms jitter. Also sent to any controller whose profile declares `blink = device` so the Launchpad's armed flash lands on the beat.",
    "blocked_by": [
     "p2-xport-beatclock-trait-internal",
     "p2-ctrl-midi-input-identity-rescan"
@@ -3654,11 +3655,11 @@
     "p2-cache-variant-render-signalsmith",
     "p1-content-shift-stretch-requests"
    ],
-   "summary": "When a schedule event carries `pitch_shift_semitones` or `stretch_ratio`, the station asks xj-content for the variant keyed by (content hash, ratio, semitones), preloads it ahead of the start frame on the I/O thread, and hands the voice the variant buffer; a variant that is not ready by its start frame falls back to the unshifted buffer and is counted. Tests cover a 5 percent stretch loop and a \u00b14 semitone shift against Signalsmith's clean range.",
+   "summary": "When a schedule event carries `pitch_shift_semitones` or `stretch_ratio`, the station asks xj-content for the variant keyed by (content hash, ratio, semitones), preloads it ahead of the start frame on the I/O thread, and hands the voice the variant buffer; a variant that is not ready by its start frame falls back to the unshifted buffer and is counted. Tests cover a 5 percent stretch loop and a ±4 semitone shift against Signalsmith's clean range.",
    "proposal_refs": [
     "05-workstation.md Voices",
     "11-resolutions.md Q2",
-    "04-engine.md \u00a79"
+    "04-engine.md §9"
    ]
   },
   {
@@ -3734,7 +3735,7 @@
    ],
    "proposal_refs": [
     "09-roadmap.md Phase 2 Exit",
-    "04-engine.md \u00a75"
+    "04-engine.md §5"
    ]
   },
   {
@@ -3745,7 +3746,7 @@
    "area": "station",
    "size": "S",
    "estimate_days": 2,
-   "summary": "Settings in the platform config directory (audio host on Linux and device and buffer, controller profiles, horizons, paths); the horizons setting carries craft-ahead, dub-ahead, deadline and the commit horizon, and the station applies the Play-mode defaults of 04 \u00a76 (commit horizon 1.0 beat, craft-ahead 8 s, dub-ahead 2 s) through `set_horizons()` whenever the template omits `commitHorizonBeats` and the station is not in Ship mode's bounce or Build, so every V1 project opened in Play mode reacts within a beat; an explicit template key or an explicit settings value overrides the default; `tracing` logs with the engine's log callback wired in; a diagnostics bundle (logs, engine messages, current content lock, last capture, system info) exportable from the CLI and later the Help menu, per Q11. A `diagnostics` setting turns the engine's choice diagnostics on through the ABI flag: on by default in Play mode and in the CLI, off for game hosts, which never pass through the station.",
+   "summary": "Settings in the platform config directory (audio host on Linux and device and buffer, controller profiles, horizons, paths); the horizons setting carries craft-ahead, dub-ahead, deadline and the commit horizon, and the station applies the Play-mode defaults of 04 §6 (commit horizon 1.0 beat, craft-ahead 8 s, dub-ahead 2 s) through `set_horizons()` whenever the template omits `commitHorizonBeats` and the station is not in Ship mode's bounce or Build, so every V1 project opened in Play mode reacts within a beat; an explicit template key or an explicit settings value overrides the default; `tracing` logs with the engine's log callback wired in; a diagnostics bundle (logs, engine messages, current content lock, last capture, system info) exportable from the CLI and later the Help menu, per Q11. A `diagnostics` setting turns the engine's choice diagnostics on through the ABI flag: on by default in Play mode and in the CLI, off for game hosts, which never pass through the station.",
    "blocked_by": [
     "p2-stn-tick-loop-scheduler",
     "p2-stn-capture-format",
@@ -3755,7 +3756,7 @@
    "proposal_refs": [
     "11-resolutions.md Q11",
     "05-workstation.md Technology stack Settings",
-    "04-engine.md \u00a76",
+    "04-engine.md §6",
     "08-performer-input.md Latency, end to end"
    ]
   },
@@ -3792,7 +3793,7 @@
    ],
    "proposal_refs": [
     "07-session-protocol.md Clock",
-    "04-engine.md \u00a72"
+    "04-engine.md §2"
    ],
    "phase": "2"
   },
@@ -4142,7 +4143,7 @@
    "area": "workstation-ui",
    "size": "M",
    "estimate_days": 4,
-   "summary": "One strip per instrument type with the bus meter, mute and solo buttons that send the bus gesture quantized to the surface's quantize choice (none, beat, bar; 08 \u00a7Gestures, and 07 \u00a7Layer's 'mutes at the next bar' for claims) through xj-control's routing, together with the Layer Mute cue, and a claim indicator placeholder the session panel fills in Phase 5.",
+   "summary": "One strip per instrument type with the bus meter, mute and solo buttons that send the bus gesture quantized to the surface's quantize choice (none, beat, bar; 08 §Gestures, and 07 §Layer's 'mutes at the next bar' for claims) through xj-control's routing, together with the Layer Mute cue, and a claim indicator placeholder the session panel fills in Phase 5.",
    "blocked_by": [
     "p3-shell-canvas-surface-component",
     "p2-ctrl-gestures-oneshot-fx-stutter-fill",
@@ -4187,7 +4188,7 @@
     "p2-stn-tempo-policy-beatclock-wiring"
    ],
    "proposal_refs": [
-    "04-engine.md \u00a72",
+    "04-engine.md §2",
     "08-performer-input.md Decision information beyond buttons"
    ],
    "phase": "3"
@@ -4247,7 +4248,7 @@
    ],
    "proposal_refs": [
     "05-workstation.md Timeline",
-    "04-engine.md \u00a710",
+    "04-engine.md §10",
     "05-workstation.md Latency budget"
    ]
   },
@@ -4267,7 +4268,7 @@
    ],
    "proposal_refs": [
     "05-workstation.md The timeline and the why panel",
-    "04-engine.md \u00a78"
+    "04-engine.md §8"
    ]
   },
   {
@@ -4417,7 +4418,7 @@
     "p2-stn-settings-diagnostics-bundle"
    ],
    "proposal_refs": [
-    "04-engine.md \u00a76",
+    "04-engine.md §6",
     "10-risks R3",
     "05-workstation.md First run"
    ],
@@ -4797,7 +4798,7 @@
    ],
    "proposal_refs": [
     "06-commons.md Pack format Rules",
-    "04-engine.md \u00a79"
+    "04-engine.md §9"
    ]
   },
   {
@@ -4861,7 +4862,7 @@
    "area": "commons",
    "size": "M",
    "estimate_days": 6,
-   "summary": "Event and Chord instruments cover the note range their templates' voicings demand (derived from `NoteRange::ofStrings` of voicings per type, since V1 content declares no range) or set allowPitchShift with a range; every Loop audio's length agrees with loopBeats \u00d7 60 / tempo within 1 percent, else diagnose (integer multiple means fix loopBeats; whole beats at another declared tempo means fix tempo; else trim) and refuse allowStretch while any loop fails; memes are xj-base conventions or members of a declared palette, every declared category is used, palette-like memes are declared, case variants (`EARTH`/`Earth`) are flagged, and the same word in two packs' categories with different meanings fails; chord descriptions outside the 41 canonical forms, atonal program keys (UUIDs, `c`) and lowercase `x` tones warn with fixes.",
+   "summary": "Event and Chord instruments cover the note range their templates' voicings demand (derived from `NoteRange::ofStrings` of voicings per type, since V1 content declares no range) or set allowPitchShift with a range; every Loop audio's length agrees with loopBeats × 60 / tempo within 1 percent, else diagnose (integer multiple means fix loopBeats; whole beats at another declared tempo means fix tempo; else trim) and refuse allowStretch while any loop fails; memes are xj-base conventions or members of a declared palette, every declared category is used, palette-like memes are declared, case variants (`EARTH`/`Earth`) are flagged, and the same word in two packs' categories with different meanings fails; chord descriptions outside the 41 canonical forms, atonal program keys (UUIDs, `c`) and lowercase `x` tones warn with fixes.",
    "blocked_by": [
     "p4-cli-lint-structural-render",
     "p2-cont-chord-note-grammar-port",
@@ -4880,7 +4881,7 @@
    "area": "commons",
    "size": "M",
    "estimate_days": 4,
-   "summary": "Classify audio as sustained (Loop mode or at least 3 s) or one-shot; measure sustained audio with BS.1770-4 integrated loudness via `ebur128`, one-shots by max momentary loudness (zero-padding under 400 ms, since integrated returns -inf) and true peak; measure in the playback channel layout; compute the effective level by adding 20\u00b7log10(audio.volume \u00d7 instrument.volume) because a third of demo audio relies on non-unity volume; true peak at or below -1.0 dBTP for every file. The statistics helpers (silence, clipping, integrated loudness via ebur128, true peak) are the ones the golden render tests ship. The target (proposal -18 LUFS \u00b13 LU, or the demo median) is the one the Phase 0 baseline measurement calibrated and xj-base@1 published; this task implements it and ships `--report`, whose run on the four demos confirms the calibration rather than setting it.",
+   "summary": "Classify audio as sustained (Loop mode or at least 3 s) or one-shot; measure sustained audio with BS.1770-4 integrated loudness via `ebur128`, one-shots by max momentary loudness (zero-padding under 400 ms, since integrated returns -inf) and true peak; measure in the playback channel layout; compute the effective level by adding 20·log10(audio.volume × instrument.volume) because a third of demo audio relies on non-unity volume; true peak at or below -1.0 dBTP for every file. The statistics helpers (silence, clipping, integrated loudness via ebur128, true peak) are the ones the golden render tests ship. The target (proposal -18 LUFS ±3 LU, or the demo median) is the one the Phase 0 baseline measurement calibrated and xj-base@1 published; this task implements it and ships `--report`, whose run on the four demos confirms the calibration rather than setting it.",
    "blocked_by": [
     "p4-cli-lint-structural-render",
     "p0-taxo-measure-demo-loudness-baseline",
@@ -5052,7 +5053,7 @@
    "area": "commons",
    "size": "S",
    "estimate_days": 3,
-   "summary": "Union the packs' `[taxonomy] palettes` into the structured `memeTaxonomy` list-of-objects form the C++ TemplateConfig parses (not the compact `;`-separated string), apply `commit_horizon_beats` and `follow_hold_max_bars` from `[session]`, resolve `pack/Template` references to template ids before the engine sees them, and produce exactly one template per station: a show.toml lists several templates, show composition resolves `pack/Template` to one template id per station, and the engine is started on that template. Composition refuses a show whose packs cite a different xj-base version from `[session].taxonomy` (06 \u00a7A shared taxonomy: packs combine only if their memes mean the same thing), naming the pack and both versions; the same check runs in the structural lint over a show manifest. The show's `[session]` commit_horizon_beats and follow_hold_max_bars are applied to the composed template's config so every station runs the same horizon settings.",
+   "summary": "Union the packs' `[taxonomy] palettes` into the structured `memeTaxonomy` list-of-objects form the C++ TemplateConfig parses (not the compact `;`-separated string), apply `commit_horizon_beats` and `follow_hold_max_bars` from `[session]`, resolve `pack/Template` references to template ids before the engine sees them, and produce exactly one template per station: a show.toml lists several templates, show composition resolves `pack/Template` to one template id per station, and the engine is started on that template. Composition refuses a show whose packs cite a different xj-base version from `[session].taxonomy` (06 §A shared taxonomy: packs combine only if their memes mean the same thing), naming the pack and both versions; the same check runs in the structural lint over a show manifest. The show's `[session]` commit_horizon_beats and follow_hold_max_bars are applied to the composed template's config so every station runs the same horizon settings.",
    "blocked_by": [
     "p4-pack-manifest-schema-implicit",
     "p1-cue-template-config-fields",
@@ -5203,7 +5204,7 @@
    "area": "commons-content",
    "size": "M",
    "estimate_days": 4,
-   "summary": "The smallest demo (98 audios, 0.6 GB, Macro/Main only, two palette rows, already the Unreal showcase) becomes the first pack: pack the corrected project (the 14 loop metadata fixes from gap-demo-audio-facts \u00a73: loopBeats multiplied by the exact factor, and tempo 115 instead of 95 on the three 64-beat loops; were made in Phase 3 if the interim-starter decision shipped Hero's Journey; if it substituted other material, apply the 14 fixes here, once), declare ACTION and HEROSJOURNEY palettes, pack, lint, render the preview, and publish it through `xj-content publish` as the first index PR.",
+   "summary": "The smallest demo (98 audios, 0.6 GB, Macro/Main only, two palette rows, already the Unreal showcase) becomes the first pack: pack the corrected project (the 14 loop metadata fixes from gap-demo-audio-facts §3: loopBeats multiplied by the exact factor, and tempo 115 instead of 95 on the three 64-beat loops; were made in Phase 3 if the interim-starter decision shipped Hero's Journey; if it substituted other material, apply the 14 fixes here, once), declare ACTION and HEROSJOURNEY palettes, pack, lint, render the preview, and publish it through `xj-content publish` as the first index PR.",
    "blocked_by": [
     "p4-cli-pack",
     "p4-cli-lint-musical",
@@ -5482,7 +5483,7 @@
    "area": "session",
    "size": "M",
    "estimate_days": 5,
-   "summary": "Every follower's engine runs with the tempo policy External through the station's tempo wiring; the conductor's runs External only when the active BeatClock owns tempo (`link`, 07 \u00a7Clock's Link-room case) and Content otherwise (the `session` clock this task is built on, where the conductor's segment tempo drives the clock), so each record carries the session tempo in both cases. The conductor reads `xj_engine_get_foundation_json` after each craft, wraps it with session and seq, and broadcasts; followers push records into `push_foundation_json` translated through the epoch (conductor bar identity plus conductor clock micros, mapped with the session clock's offset estimate; Link is not required); when a cue rewrites the conductor's future it sends retract(from segment N) and republishes. Followers discard retracted records they have not crafted against; retracts inside a follower's horizon are impossible by construction. Built first as two stations in one process over an in-memory transport, reusing the Rust follow test, then over the LAN connection; this is the protocol's own two-engines test.",
+   "summary": "Every follower's engine runs with the tempo policy External through the station's tempo wiring; the conductor's runs External only when the active BeatClock owns tempo (`link`, 07 §Clock's Link-room case) and Content otherwise (the `session` clock this task is built on, where the conductor's segment tempo drives the clock), so each record carries the session tempo in both cases. The conductor reads `xj_engine_get_foundation_json` after each craft, wraps it with session and seq, and broadcasts; followers push records into `push_foundation_json` translated through the epoch (conductor bar identity plus conductor clock micros, mapped with the session clock's offset estimate; Link is not required); when a cue rewrites the conductor's future it sends retract(from segment N) and republishes. Followers discard retracted records they have not crafted against; retracts inside a follower's horizon are impossible by construction. Built first as two stations in one process over an in-memory transport, reusing the Rust follow test, then over the LAN connection; this is the protocol's own two-engines test.",
    "blocked_by": [
     "p5-sess-hello-welcome-presence-bye",
     "p5-clock-session-ntp-impl",
@@ -5492,7 +5493,7 @@
    ],
    "proposal_refs": [
     "07-session-protocol.md Messages foundation retract",
-    "04-engine.md \u00a73 \u00a74"
+    "04-engine.md §3 §4"
    ]
   },
   {
@@ -5598,7 +5599,7 @@
    "area": "station",
    "size": "M",
    "estimate_days": 5,
-   "summary": "Network I/O (connect, hello/welcome, foundation publish/consume, claims, cue requests, presence) runs on the tokio I/O thread that owns the QUIC/TCP connection (03 \u00a7Threads: xj-session is event-driven and may block on disk and network); messages cross to the control thread through a channel and are applied at the 10 to 20 Hz tick, so a blocking connect or a slow peer never stalls craft or cue scheduling, and nothing touches the audio thread. CLI flags: `--session <name>` or `--host <ip:port>`, `--join-code`, `--role conduct|follow`; a headless conductor prints and serves its join code. Joining switches the engine's foundation source Internal to External at the conductor-aligned NextMacro boundary while audio keeps playing; leaving reverses the switch at a segment boundary and sends `bye`. Done when a test asserts zero dropouts and zero late commands across a join and a leave of a running station.",
+   "summary": "Network I/O (connect, hello/welcome, foundation publish/consume, claims, cue requests, presence) runs on the tokio I/O thread that owns the QUIC/TCP connection (03 §Threads: xj-session is event-driven and may block on disk and network); messages cross to the control thread through a channel and are applied at the 10 to 20 Hz tick, so a blocking connect or a slow peer never stalls craft or cue scheduling, and nothing touches the audio thread. CLI flags: `--session <name>` or `--host <ip:port>`, `--join-code`, `--role conduct|follow`; a headless conductor prints and serves its join code. Joining switches the engine's foundation source Internal to External at the conductor-aligned NextMacro boundary while audio keeps playing; leaving reverses the switch at a segment boundary and sends `bye`. Done when a test asserts zero dropouts and zero late commands across a join and a leave of a running station.",
    "blocked_by": [
     "p5-sess-hello-welcome-presence-bye",
     "p5-found-publish-consume-retract",
@@ -5736,12 +5737,14 @@
    "epic": "e5-session-testing",
    "phase": "5",
    "area": "ci-release",
-   "size": "S",
-   "estimate_days": 3,
+   "size": "M",
+   "estimate_days": 6,
    "summary": "Transfer the role between two in-process stations every N segments for an hour on the session clock; assert no gaps, no duplicate publishers, epoch continuity and identical foundations.",
    "blocked_by": [
     "p5-test-simulated-network-harness",
-    "p5-handoff"
+    "p5-handoff",
+    "p2-ci-soak-8h-scheduled",
+    "p4-cli-pack"
    ],
    "proposal_refs": [
     "07-session-protocol.md Testing Handoff"
@@ -5753,8 +5756,8 @@
    "epic": "e5-session-testing",
    "phase": "5",
    "area": "ci-release",
-   "size": "M",
-   "estimate_days": 4,
+   "size": "L",
+   "estimate_days": 10,
    "summary": "Nightly: three headless stations, one an `xj-station` CLI in a container, eight hours on the session clock with a scripted performer sending cues and claims and injecting every row of the failure table (vanishing conductor, vanishing follower, late records, lock mismatch at hello); assert zero late records on the wired path and bounded late records on the lossy simulation, zero dropouts, valid captures on all three.",
    "blocked_by": [
     "p5-test-handoff-soak",
@@ -5774,7 +5777,7 @@
    "phase": "5",
    "area": "session",
    "size": "M",
-   "estimate_days": 4,
+   "estimate_days": 7,
    "summary": "In one room on a wired switch: two workstations, an MPC on Link (requires the Link license on file; otherwise the MPC follows MIDI clock from a station), a 30-minute duet with two handoffs, a human listening for drift, captures recorded on both stations and the recording published as the proof. This is the Phase 5 exit demonstration and is not automated.",
    "blocked_by": [
     "p5-test-three-station-soak",
@@ -5784,7 +5787,9 @@
     "p2-ctrl-midi-clock-out",
     "p5-stn-session-integration-cli",
     "p3-pkg-enable-link-official-builds-attribution",
-    "p4-show-capture-show-lock"
+    "p4-show-capture-show-lock",
+    "p3-ship-capture-export",
+    "p4-legal-credits-generator"
    ],
    "proposal_refs": [
     "09-roadmap.md Phase 5 Exit",
@@ -5801,7 +5806,10 @@
    "estimate_days": 3,
    "summary": "Questions: does a paid live performance count as output audio under section 2 of the software license (the proposal assumes yes by the license's own text); what does section 3's no-patent-license clause mean for a venue running several stations that are not embedded in a commercial product; does CC BY attribution via CREDITS.md satisfy a venue's obligations. File the written position and update the licensing page; required before 2.2 ships.",
    "blocked_by": [
-    "p4-legal-declaration-review"
+    "p4-legal-declaration-review",
+    "p4-legal-credits-generator",
+    "p4-docs-authoring-guide-license-page",
+    "p3-pkg-enable-link-official-builds-attribution"
    ],
    "proposal_refs": [
     "10-risks R11",
@@ -5831,12 +5839,16 @@
    "epic": "e5-legal-docs-gate",
    "phase": "5",
    "area": "docs",
-   "size": "S",
-   "estimate_days": 3,
+   "size": "M",
+   "estimate_days": 5,
    "summary": "Cable, switch and mirror advice ('wired recommended' said loudly), join codes, who conducts, what the effective horizon means for cue latency in a session, every failure row and what the UI shows, and how to run a headless station.",
    "blocked_by": [
     "p5-failure-handling",
-    "p5-ui-session-panel"
+    "p5-ui-session-panel",
+    "p5-stn-headless-web-status",
+    "p5-test-three-station-soak",
+    "p3-docs-play-mode-guide",
+    "p3-docs-mapping-reference"
    ],
    "proposal_refs": [
     "07-session-protocol.md Transport",
@@ -5849,8 +5861,8 @@
    "epic": "e5-legal-docs-gate",
    "phase": "5",
    "area": "ci-release",
-   "size": "XS",
-   "estimate_days": 1,
+   "size": "S",
+   "estimate_days": 3,
    "summary": "Tag `workstation-v2.2.0` once the duet is recorded, the legal review is filed, the protocol is published and the soaks are green.",
    "blocked_by": [
     "p5-test-real-gear-duet",
@@ -5968,7 +5980,8 @@
    "summary": "Name, type, mode (locked to valid modes per type, #339), state, volume, memes, config, open folder, the audios table with the Java columns and context actions, and import audio that creates the InstrumentAudio with inherited defaults and navigates to the audio editor.",
    "blocked_by": [
     "p6-edit-library-browser",
-    "p6-edit-config-and-memes"
+    "p6-edit-config-and-memes",
+    "p4-cli-lint-structural-render"
    ],
    "proposal_refs": [
     "05-workstation.md Editors 1",
@@ -5983,11 +5996,12 @@
    "area": "workstation-ui",
    "size": "M",
    "estimate_days": 4,
-   "summary": "Decode with symphonia on import (WAV, AIFF, FLAC, MP3, AAC, OGG), compute lengthSeconds from frames, content-hash the file, and for Loop-mode instruments compute fileBeats = lengthSeconds \u00d7 tempo / 60 and propose loopBeats (or flag a tempo mismatch) instead of silently defaulting to 4.0, which produced 30 of the 35 bad demo loops. Store the `audio/<blake3>.toml` format sidecar.",
+   "summary": "Decode with symphonia on import (WAV, AIFF, FLAC, MP3, AAC, OGG), compute lengthSeconds from frames, content-hash the file, and for Loop-mode instruments compute fileBeats = lengthSeconds × tempo / 60 and propose loopBeats (or flag a tempo mismatch) instead of silently defaulting to 4.0, which produced 30 of the 35 bad demo loops. Store the `audio/<blake3>.toml` format sidecar.",
    "blocked_by": [
     "p6-inst-instrument-editor",
     "p2-cache-symphonia-decode",
-    "p4-pack-layout-hashed-audio-provenance"
+    "p4-pack-layout-hashed-audio-provenance",
+    "p4-cli-lint-musical"
    ],
    "proposal_refs": [
     "05-workstation.md Editors 1",
@@ -6000,8 +6014,8 @@
    "epic": "e6-instrument-audio-editor",
    "phase": "6",
    "area": "workstation-ui",
-   "size": "M",
-   "estimate_days": 5,
+   "size": "L",
+   "estimate_days": 8,
    "summary": "Name, event, volume, tones (validated by the grammar port: uppercase roots, octave required for Event mode, `X` not `x`), tempo, intensity, transientSeconds, lengthSeconds (read-only), loopBeats; a waveform with per-channel lanes, beat grid from tempo, click-to-set transient, loop-length marker, zoom; open folder and file.",
    "blocked_by": [
     "p6-inst-audio-import-any-format",
@@ -6013,13 +6027,13 @@
   },
   {
    "key": "p6-inst-allowances-audition-batch",
-   "title": "Add pitch-shift and stretch allowance controls, audition playback and batch processing",
+   "title": "Add pitch-shift and stretch allowance controls, inline lint with fixes, and batch processing",
    "epic": "e6-instrument-audio-editor",
    "phase": "6",
    "area": "workstation-ui",
-   "size": "M",
-   "estimate_days": 5,
-   "summary": "allowPitchShift with pitchShiftRange and allowStretch (enabled only when the instrument's loops pass the length rule), with the lint verdict shown inline; audition the audio and its rendered variants through the DSP one-shot path, which the Java editor could not do. Batch processing: import a folder as an instrument, parse tones and events from filenames by a user pattern, set tempo or intensity across a selection, run the lint rules on the instrument and show fixes (#329).",
+   "size": "L",
+   "estimate_days": 9,
+   "summary": "allowPitchShift with pitchShiftRange and allowStretch (enabled only when the instrument's loops pass the length rule), with the lint verdict shown inline; an instrument-scoped lint over the unsaved document with structured multi-field fixes applied as undoable edits; batch processing: import a folder as an instrument, parse tones and events from filenames by a user pattern, set fields across a selection (#329). Audition moved to p6-inst-audition-variants.",
    "blocked_by": [
     "p6-inst-audio-editor-waveform-markers",
     "p2-cache-variant-render-signalsmith",
@@ -6027,9 +6041,31 @@
     "p4-cli-lint-musical"
    ],
    "proposal_refs": [
-    "04-engine.md \u00a79",
+    "04-engine.md §9",
     "05-workstation.md Editors 1",
     "09-roadmap.md Phase 6"
+   ]
+  },
+  {
+   "key": "p6-inst-audition-variants",
+   "title": "Audition audios and their rendered variants through the running graph",
+   "epic": "e6-instrument-audio-editor",
+   "phase": "6",
+   "area": "workstation-ui",
+   "size": "M",
+   "estimate_days": 6,
+   "summary": "Play an audio, its pitch-shift and stretch variants, and its loop as Dub schedules it, through reserved audition voices on the one open graph, with a playhead. Extends AuditionCommand with scheduled, grouped starts, and gives the station an editor_wants input (sources and wants merged into the working set on every tick) so the cache renders what the editor asks for even with the transport stopped.",
+   "blocked_by": [
+    "p6-inst-allowances-audition-batch",
+    "p2-cache-variant-render-signalsmith",
+    "p2-stn-variant-resolution-events",
+    "p2-stn-tick-loop-scheduler",
+    "p4-ui-pack-browser-license"
+   ],
+   "proposal_refs": [
+    "04-engine.md §9",
+    "05-workstation.md Editors 1",
+    "05-workstation.md Command set"
    ]
   },
   {
@@ -6043,7 +6079,8 @@
    "blocked_by": [
     "p6-inst-allowances-audition-batch",
     "p6-edit-library-browser",
-    "p5-rel-workstation-2-2"
+    "p5-rel-workstation-2-2",
+    "p6-inst-audition-variants"
    ],
    "proposal_refs": [
     "09-roadmap.md Version numbers",
@@ -6083,7 +6120,7 @@
    ],
    "proposal_refs": [
     "05-workstation.md Editors 2",
-    "04-engine.md \u00a79"
+    "04-engine.md §9"
    ]
   },
   {
