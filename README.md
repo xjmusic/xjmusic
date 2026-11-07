@@ -1,3 +1,34 @@
+# XJ music V2: a room full of stations, one song
+
+**Play adaptive music like an instrument. Share a library like a crew. Keep a whole room in the same tempo and the same chord changes.**
+
+XJ music began with two samplers wired to one hard drive: one machine holding the groove, the other tearing it apart, both playing the same show. Version 2 builds that room for real. The patented engine that composes adaptive soundtracks for games becomes the heart of a live performance workstation.
+
+**The mission:** lift the performer above the sequencer. The machine handles the lowest level of the music, so you get to do the part that matters: steer it, play it, and connect with the audience and the other players.
+
+**Where it stands:** the plan is public and open for comment. Work starts with Phase 0 spikes that end in a go or no-go on the plan, then Engine 2.0. Today's download is XJ music 1.9, and it is the best way to start making adaptive music now.
+
+## For musicians
+
+- **It makes music within seconds of launch.** No project to build first. The workstation opens in Play mode with a starter pack already playing.
+- **You steer, it composes.** Cue where the music goes next and land changes on the beat, the bar or the section. Fire drops, sweeps, fills and stutters in the moment, from a pad controller, a keyboard or the screen.
+- **You always know what it will do.** Every choice the engine makes is on screen, and every control shows what it will do before you touch it.
+- **Bring your sound, share the stage.** Bring your own material and draw on the open Commons, a library of signed, licensed packs that maintainers approve by ear. Everything you play is chosen against the shared harmony and tempo, so it fits.
+- **Two stations, one song.** Join a session on the venue network and every station follows the same tempo and chord changes. Claim the drums and bass, and the other station plays everything else. Trade the lead back and forth at a section boundary, with no dropout. Ableton Link, once Ableton licenses it, or MIDI clock keeps your other gear on the beat.
+- **Still made for games.** A game soundtrack and a live set are the same content, and the workstation keeps building adaptive music for Unreal and other game engines.
+
+## For hackers
+
+- **Engine 2.0.** The C++ craft engine stays the single source of musical truth, behind a stable C ABI, with seeded randomness so a performance can be replayed and two stations compared.
+- **A Rust workstation on a station runtime** that also runs headless, in a venue rack or in CI: real-time DSP, Link, MIDI and OSC mapping, capture and replay.
+- **The Commons.** Versioned, content-addressed, signed packs, a static registry with no server to run, and a lint that understands music.
+- **Sessions.** An open protocol for a venue network, in which one station conducts a harmonic timeline published bars ahead of the beat and every other station crafts its own layers against it.
+- **Designed in the open, down to the acceptance criteria.** Read [the V2 proposal](design/v2-proposal/README.md), browse [the roadmap](https://github.com/xjmusic/xjmusic/issues/480), which indexes every phase, epic and task, pick an issue, and build it with us. Log your hours against your pull request; if it merges, each hour earns one point of equity in XJ music, as [described below](#earning-equity-in-xj-music).
+
+The 1.9 workstation stays the editor of record until the new editors reach parity, and moves to maintenance once Engine 2.0 ships. Nothing you make today is left behind: both read and write the same project files.
+
+---
+
 [![Engine CI](https://github.com/xjmusic/xjmusic/actions/workflows/engine_ci.yaml/badge.svg)](https://github.com/xjmusic/xjmusic/actions/workflows/engine_ci.yaml)
 [![Engine Distro](https://github.com/xjmusic/xjmusic/actions/workflows/engine_distro.yml/badge.svg)](https://github.com/xjmusic/xjmusic/actions/workflows/engine_distro.yml)<br/>
 [![Workstation CI](https://github.com/xjmusic/xjmusic/actions/workflows/workstation_ci.yml/badge.svg)](https://github.com/xjmusic/xjmusic/actions/workflows/workstation_ci.yml)
