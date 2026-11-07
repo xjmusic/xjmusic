@@ -16,6 +16,12 @@ PROPOSAL = os.path.dirname(ROOT)
 REPO_URL = "https://github.com/xjmusic/xjmusic"
 PHASES = [("0", "Spikes and decisions"), ("1", "Engine 2.0"), ("2", "Station core"), ("3", "Workstation 2.0, Play mode"), ("4", "Commons"), ("5", "Sessions"), ("6", "Make mode parity"), ("7", "The show")]
 BANDS = {"0": "1.5–2.5", "1": "3–4", "2": "4–5", "3": "5–7", "4": "2–3", "5": "3–4", "6": "5–8", "7": "not engineering"}
+BAND_RANGE = {"0": (1.5, 2.5), "1": (3, 4), "2": (4, 5), "3": (5, 7), "4": (2, 3), "5": (3, 4), "6": (5, 8)}
+
+
+def cell(text):
+    """Make a title safe inside a Markdown table cell: GitHub drops unknown HTML tags and | ends a cell."""
+    return text.replace("<", "&lt;").replace(">", "&gt;").replace("|", "\\|")
 
 
 def topo(tasks):
@@ -98,7 +104,22 @@ def main():
         msd = sched["milestones"].get(f"v2 · Phase {p} · {name}", {})
         L.append(f"| {p} · {name} | {len(epics)} | {len(tasks)} | {days:g} | {days / 21:.1f} | {BANDS[p]} | {msd.get('start', '?')} → {msd.get('due', '?')} |")
     L.append("")
-    L.append("Engineer-months divide days by 21. Phase 1 exceeds 09's band because the grounded research found port regressions, seven randomness sites and ABI hardening the proposal did not know about; Phase 6 undershoots it because the shared editing infrastructure absorbs most of the Java editors (see [roadmap/decomposition-rationale.md](roadmap/decomposition-rationale.md)).")
+    above = [p for p, _ in PHASES if p in BAND_RANGE and sum(t["estimate_days"] for t in m["tasks"] if t["phase"] == p) / 21 > BAND_RANGE[p][1]]
+    within = [p for p, _ in PHASES if p in BAND_RANGE and p not in above and sum(t["estimate_days"] for t in m["tasks"] if t["phase"] == p) / 21 >= BAND_RANGE[p][0]]
+    below = [p for p, _ in PHASES if p in BAND_RANGE and p not in above and p not in within]
+
+    def phases(ps):
+        names = [f"Phase {p}" for p in ps]
+        return names[0] if len(names) == 1 else ", ".join(names[:-1]) + " and " + names[-1]
+
+    verdict = []
+    if above:
+        verdict.append(f"{phases(above)} {'exceeds' if len(above) == 1 else 'exceed'} 09's band")
+    if within:
+        verdict.append(f"{phases(within)} {'falls' if len(within) == 1 else 'fall'} inside it")
+    if below:
+        verdict.append(f"{phases(below)} {'falls' if len(below) == 1 else 'fall'} below it")
+    L.append("Engineer-months divide days by 21. " + "; ".join(verdict) + ". The bands were sized before the specifications existed; the grounded research and the written designs found work the proposal did not know about (port regressions, seven randomness sites, ABI hardening, the registry's publishing pipeline, the session conformance suite), as [roadmap/decomposition-rationale.md](roadmap/decomposition-rationale.md) records round by round.")
     L.append("")
     L.append("## Critical path")
     L.append("")
@@ -109,7 +130,7 @@ def main():
     L.append("|---|---|")
     for k in crit:
         cum += tk[k]["estimate_days"]
-        L.append(f"| {cum:g} | {ref(k)} {tk[k]['title']} |")
+        L.append(f"| {cum:g} | {ref(k)} {cell(tk[k]['title'])} |")
     L.append("")
     L.append("## Epic dependency graph")
     L.append("")
@@ -129,7 +150,7 @@ def main():
 
     shown = [(a, b) for a in E for b in sorted(E[a]) if not implied(a, b)]
     total_edges = sum(len(v) for v in E.values())
-    L.append(f"Each box is an epic; an arrow means *blocked by*. The tracker holds {total_edges} epic edges, computed from the tasks' edges (an edge that would close a cycle between two epics whose tasks interleave is left out). The graph draws the {len(shown)} that no longer path already implies, so every dependency path is still visible.")
+    L.append(f"Each box is an epic; an arrow from one epic to another means the second is blocked by the first. The tracker holds {total_edges} epic edges, computed from the tasks' edges (an edge that would close a cycle between two epics whose tasks interleave is left out). The graph draws the {len(shown)} that no longer path already implies, so every dependency path is still visible.")
     L.append("")
     L.append("```mermaid")
     L.append("flowchart LR")
@@ -153,7 +174,7 @@ def main():
                 continue
             tasks = by_epic[e["key"]]
             L.append("")
-            L.append(f"### {ref(e['key'])} {e['title']}")
+            L.append(f"### {ref(e['key'])} {cell(e['title'])}")
             L.append("")
             bb = ", ".join(num(b) for b in e.get("blocked_by", [])) or "nothing"
             L.append(f"Area `{e['area']}` · {len(tasks)} tasks · {sum(t['estimate_days'] for t in tasks):g} engineer-days · blocked by {bb}.")
@@ -163,7 +184,7 @@ def main():
             for t in tasks:
                 d = sched["tasks"].get(t["key"], {})
                 bbt = ", ".join(num(b) for b in t.get("blocked_by", [])) or "—"
-                L.append(f"| {ref(t['key'])} {t['title']} | {t['size']} | {t['estimate_days']:g} | {bbt} | {d.get('start', '?')} → {d.get('target', '?')} |")
+                L.append(f"| {ref(t['key'])} {cell(t['title'])} | {t['size']} | {t['estimate_days']:g} | {bbt} | {d.get('start', '?')} → {d.get('target', '?')} |")
     L.append("")
     L.append("## How this chapter is kept current")
     L.append("")

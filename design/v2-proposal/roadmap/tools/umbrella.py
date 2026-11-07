@@ -7,11 +7,33 @@
 Reads master.json, schedule.json and issue-map.json beside this folder. Milestone
 numbers are looked up from GitHub by title (they are not stored in the tracker).
 """
-import collections, json, os, subprocess, sys, tempfile
+import collections, json, os, re, subprocess, sys, tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
-REPO = os.environ.get("XJ_REPO", "xjmusic/xjmusic")
+ISSUE_URL_RE = re.compile(r"^https://github\.com/([^/]+/[^/]+)/issues/(\d+)$")
+
+
+def repo_of(imap):
+    """The owner/repo every issue in issue-map.json lives in; refuse a mixed map or a mismatched XJ_REPO."""
+    repos = set()
+    for key, v in imap.items():
+        m = ISSUE_URL_RE.match(v.get("url", ""))
+        if not m or int(m.group(2)) != v["number"]:
+            raise SystemExit(f"issue-map.json: unexpected url for {key}: {v.get('url')!r}")
+        repos.add(m.group(1))
+    if len(repos) != 1:
+        raise SystemExit(f"issue-map.json mixes repositories: {sorted(repos)}")
+    repo = repos.pop()
+    env = os.environ.get("XJ_REPO")
+    if env and env != repo:
+        raise SystemExit(f"XJ_REPO={env} but issue-map.json maps issues in {repo}; refusing to mix them")
+    return repo
+
+
+def cell(text):
+    """Make a title safe inside a Markdown table cell: GitHub drops unknown HTML tags and | ends a cell."""
+    return text.replace("<", "&lt;").replace(">", "&gt;").replace("|", "\\|")
 PHASES = [("0", "Spikes and decisions"), ("1", "Engine 2.0"), ("2", "Station core"), ("3", "Workstation 2.0, Play mode"), ("4", "Commons"), ("5", "Sessions"), ("6", "Make mode parity"), ("7", "The show")]
 EXIT = {
     "0": "every spike row has a recorded decision; the C ABI spike seeds `xj-engine-sys`. Gate: toolkit, stretch library, Link path, go/no-go on the plan.",
@@ -28,8 +50,10 @@ RELEASES = {"1": ["p1-rel-engine-2-0-0-tag"], "2": ["p2-rel-cli-release-checksum
 AMEND = {"1": "p1-docs-amend-proposal-phase-1", "2": "p2-docs-amend-proposal-phase-2", "3": "p3-docs-amend-proposal-phase-3", "4": "p4-docs-amend-proposal-phase-4", "5": "p5-docs-amend-proposal-phase-5"}
 
 
-def milestone_numbers():
-    r = subprocess.run(["gh", "api", f"repos/{REPO}/milestones?state=all&per_page=100", "--jq", ".[] | [.number, .title] | @tsv"], capture_output=True, text=True)
+def milestone_numbers(repo):
+    r = subprocess.run(["gh", "api", "--paginate", f"repos/{repo}/milestones?state=all&per_page=100", "--jq", ".[] | [.number, .title] | @tsv"], capture_output=True, text=True)
+    if r.returncode != 0:
+        raise SystemExit(f"could not list milestones of {repo}: {r.stderr.strip()}")
     out = {}
     for line in r.stdout.splitlines():
         num, title = line.split("\t", 1)
@@ -37,11 +61,38 @@ def milestone_numbers():
     return out
 
 
-def render():
+def phase_edges(m):
+    """Phase-level edges from the task graph (blocker phase -> dependent phase), without those a longer path implies."""
+    phase = {t["key"]: t["phase"] for t in m["tasks"]}
+    E = collections.defaultdict(set)
+    for t in m["tasks"]:
+        for b in t.get("blocked_by", []):
+            if phase[b] != t["phase"]:
+                E[t["phase"]].add(phase[b])
+
+    def implied(a, b):
+        seen, stack = set(), [x for x in E.get(a, ()) if x != b]
+        while stack:
+            x = stack.pop()
+            if x == b:
+                return True
+            if x not in seen:
+                seen.add(x)
+                stack.extend(E.get(x, ()))
+        return False
+
+    E = dict(E)
+    return sorted((b, a) for a in E for b in E[a] if not implied(a, b))
+
+
+def render(repo):
     m = json.load(open(os.path.join(ROOT, "master.json")))
     imap = json.load(open(os.path.join(ROOT, "issue-map.json")))
     sched = json.load(open(os.path.join(ROOT, "schedule.json")))
-    ms = milestone_numbers()
+    ms = milestone_numbers(repo)
+    missing = [f"v2 · Phase {p} · {name}" for p, name in PHASES if f"v2 · Phase {p} · {name}" not in ms]
+    if missing:
+        raise SystemExit(f"milestones not found in {repo}: {missing}")
     tasks_by_epic = collections.defaultdict(list)
     for t in m["tasks"]:
         tasks_by_epic[t["epic"]].append(t)
@@ -58,7 +109,7 @@ def render():
     out.append("## How to read the tracker")
     out.append("")
     out.append("- **Milestones** are the phases of [09-roadmap.md](https://github.com/xjmusic/xjmusic/blob/main/design/v2-proposal/09-roadmap.md); a phase is done when its exit demonstration below has happened, not when its issues are closed.")
-    out.append("- **Epics** (type Feature, label `epic`) group one capability per phase. Each epic body lists its tasks in dependency order. **Tasks** (type Task) are 1 to 12 engineer-days each and carry a full specification: context, scope, design, acceptance criteria, test plan, dependencies, risks, references.")
+    out.append("- **Epics** (type Feature, label `epic`) group one capability per phase. Each epic body lists its tasks in dependency order. **Tasks** (type Task) are half a day to 12 engineer-days each and carry a full specification: context, scope, design, acceptance criteria, test plan, dependencies, risks, references.")
     out.append("- **Labels:** `v2` on everything; `area/<crate or discipline>`; `spike` for time-boxed experiments; `decision` for decision records. **Fields:** Start date, Target date, Effort and Priority come from the schedule.")
     out.append("- **Spec status** is the first line of every body: 🚧 placeholder, 📝 draft, 🔍 reviewed, ✅ consistent. Edit issues freely; when the shape of the plan changes, regenerate the tracker from `design/v2-proposal/roadmap/`.")
     out.append("- **Decision gates** close a phase and may re-plan the next one: " + ", ".join(f"after Phase {p} ({ref(k)})" for p, k in GATES.items()) + ". After each gate, one task writes the phase's recorded departures back into the proposal chapters, so the proposal stays the single description of the plan: " + ", ".join(ref(k) for k in AMEND.values()) + ".")
@@ -70,7 +121,7 @@ def render():
         days = sum(t["estimate_days"] for e in epics for t in tasks_by_epic[e["key"]])
         title = f"v2 · Phase {p} · {name}"
         msd = sched["milestones"].get(title, {})
-        mslink = f"[Milestone](https://github.com/{REPO}/milestone/{ms[title]})" if title in ms else "Milestone"
+        mslink = f"[Milestone](https://github.com/{repo}/milestone/{ms[title]})"
         out.append("")
         out.append(f"### Phase {p} · {name}")
         out.append("")
@@ -90,28 +141,20 @@ def render():
         out.append("|---|---|---|---|---|")
         for e in epics:
             bb = ", ".join(ref(b) for b in e.get("blocked_by", [])) or "—"
-            out.append(f"| {ref(e['key'])} {e['title']} | `{e['area']}` | {len(tasks_by_epic[e['key']])} | {sum(t['estimate_days'] for t in tasks_by_epic[e['key']]):g} | {bb} |")
+            out.append(f"| {ref(e['key'])} {cell(e['title'])} | `{e['area']}` | {len(tasks_by_epic[e['key']])} | {sum(t['estimate_days'] for t in tasks_by_epic[e['key']]):g} | {bb} |")
     out.append("")
     out.append("## Phase dependencies")
     out.append("")
+    short = {"0": "Spikes", "1": "Engine 2.0", "2": "Station core", "3": "Play mode", "4": "Commons", "5": "Sessions", "6": "Make parity", "7": "The show"}
     out.append("```mermaid")
     out.append("flowchart LR")
-    out.append("  P0[Phase 0<br/>Spikes] --> P1[Phase 1<br/>Engine 2.0]")
-    out.append("  P0 --> P2[Phase 2<br/>Station core]")
-    out.append("  P1 --> P2")
-    out.append("  P2 --> P3[Phase 3<br/>Play mode]")
-    out.append("  P2 --> P4[Phase 4<br/>Commons]")
-    out.append("  P3 --> P4")
-    out.append("  P1 --> P5[Phase 5<br/>Sessions]")
-    out.append("  P2 --> P5")
-    out.append("  P3 --> P5")
-    out.append("  P4 --> P5")
-    out.append("  P3 --> P6[Phase 6<br/>Make parity]")
-    out.append("  P4 --> P7[Phase 7<br/>The show]")
-    out.append("  P5 --> P7")
+    for p, _ in PHASES:
+        out.append(f"  P{p}[\"Phase {p}<br/>{short[p]}\"]")
+    for b, a in phase_edges(m):
+        out.append(f"  P{b} --> P{a}")
     out.append("```")
     out.append("")
-    out.append("The P3→P4 and P4→P5 edges are real in the task graph (the Commons UI ships after 2.0.0, and 2.2 ships after 2.1) and are written back into 09-roadmap.md by " + ref("p0-docs-amend-proposal-after-spikes") + ".")
+    out.append("Computed from the task dependencies: an arrow from one phase to another means some task in the second is blocked by a task in the first. Arrows that a longer path already implies are not drawn.")
     out.append("")
     out.append("## Versions along the way")
     out.append("")
@@ -130,15 +173,18 @@ def render():
 
 
 def main():
-    body = render()
+    imap = json.load(open(os.path.join(ROOT, "issue-map.json")))
+    repo = repo_of(imap)
+    body = render(repo)
     if "--push" in sys.argv:
-        imap = json.load(open(os.path.join(ROOT, "issue-map.json")))
         num = imap["umbrella"]["number"]
         fd, tmp = tempfile.mkstemp(suffix=".json")
         json.dump({"body": body}, os.fdopen(fd, "w"))
-        r = subprocess.run(["gh", "api", "-X", "PATCH", f"repos/{REPO}/issues/{num}", "--input", tmp, "--jq", ".number"], capture_output=True, text=True)
+        r = subprocess.run(["gh", "api", "-X", "PATCH", f"repos/{repo}/issues/{num}", "--input", tmp, "--jq", ".number"], capture_output=True, text=True)
         os.unlink(tmp)
-        print("pushed" if r.returncode == 0 else f"failed: {r.stderr.strip()}", f"#{num}")
+        if r.returncode != 0:
+            raise SystemExit(f"failed to update #{num}: {r.stderr.strip()}")
+        print("pushed", f"#{num}")
     else:
         sys.stdout.write(body)
 

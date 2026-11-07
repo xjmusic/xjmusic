@@ -19,7 +19,7 @@ The plan of [09-roadmap.md](09-roadmap.md) as a waterfall of issues: one milesto
 | 6 · Make mode parity | 5 | 22 | 140 | 6.7 | 5–8 | 2029-01-30 → 2029-06-28 |
 | 7 · The show | 1 | 10 | 34 | 1.6 | not engineering | 2029-01-25 → 2029-05-22 |
 
-Engineer-months divide days by 21. Phase 1 exceeds 09's band because the grounded research found port regressions, seven randomness sites and ABI hardening the proposal did not know about; Phase 6 undershoots it because the shared editing infrastructure absorbs most of the Java editors (see [roadmap/decomposition-rationale.md](roadmap/decomposition-rationale.md)).
+Engineer-months divide days by 21. Phase 0, Phase 1, Phase 2, Phase 3, Phase 4 and Phase 5 exceed 09's band; Phase 6 falls inside it. The bands were sized before the specifications existed; the grounded research and the written designs found work the proposal did not know about (port regressions, seven randomness sites, ABI hardening, the registry's publishing pipeline, the session conformance suite), as [roadmap/decomposition-rationale.md](roadmap/decomposition-rationale.md) records round by round.
 
 ## Critical path
 
@@ -71,7 +71,7 @@ The longest chain of estimates, with unlimited parallelism, is 231 engineer-days
 
 ## Epic dependency graph
 
-Each box is an epic; an arrow means *blocked by*. The tracker holds 342 epic edges, computed from the tasks' edges (an edge that would close a cycle between two epics whose tasks interleave is left out). The graph draws the 92 that no longer path already implies, so every dependency path is still visible.
+Each box is an epic; an arrow from one epic to another means the second is blocked by the first. The tracker holds 342 epic edges, computed from the tasks' edges (an edge that would close a cycle between two epics whose tasks interleave is left out). The graph draws the 92 that no longer path already implies, so every dependency path is still visible.
 
 ```mermaid
 flowchart LR
@@ -547,7 +547,7 @@ Area `content` · 7 tasks · 42 engineer-days · blocked by #492, #481, #506, #5
 | [#657](https://github.com/xjmusic/xjmusic/issues/657) Implement the canonical V1 writer and the V2 sidecar for additive fields | L | 9 | #655, #485 | 2028-01-28 → 2028-02-10 |
 | [#658](https://github.com/xjmusic/xjmusic/issues/658) Run a Java-Rust-Java round-trip of every demo project on each PR until Java is archived | M | 5 | #657 | 2028-02-10 → 2028-02-17 |
 | [#675](https://github.com/xjmusic/xjmusic/issues/675) Synthesize the merged engine payload in memory and map waveform keys to audio paths | S | 3 | #655, #674, #582, #630 | 2027-09-23 → 2027-09-28 |
-| [#656](https://github.com/xjmusic/xjmusic/issues/656) Implement Build for engine: build/<audioId>.wav at 48 kHz 16-bit stereo plus merged JSON | L | 8 | #655, #649, #650, #606, #674 | 2028-02-01 → 2028-02-11 |
+| [#656](https://github.com/xjmusic/xjmusic/issues/656) Implement Build for engine: build/&lt;audioId&gt;.wav at 48 kHz 16-bit stereo plus merged JSON | L | 8 | #655, #649, #650, #606, #674 | 2028-02-01 → 2028-02-11 |
 
 ### [#513](https://github.com/xjmusic/xjmusic/issues/513) Decode, resample and cache audio by content hash, rendering variants ahead of time
 

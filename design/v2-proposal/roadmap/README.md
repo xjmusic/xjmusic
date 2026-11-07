@@ -30,7 +30,7 @@ The issues are the home of the specifications. `tools/gh_sync.py` is idempotent:
 
 One writing rule applies to issue bodies: never put an exclamation mark directly before an opening square bracket. Some GitHub integrations strip that sequence as Markdown image syntax, so the specifications write a Rust inner attribute as `#! [attr]`, an empty vector as `Vec::new()`, and a negative lookbehind on a character class as an anchored lookbehind on its complement. Issues in other repositories are cited as `owner/repo#N`, because a bare `#N` links to this repository.
 
-Once people start working the issues, the tracker is the source of truth for status and detail. Change an issue first; regenerate this folder's data only when the shape of the plan changes, then rerun `schedule.py`, `umbrella.py --push`, `work_breakdown.py` and `chapter_links.py` so the dates, the index issue, chapter 12 and the chapter appendices agree with it.
+Once people start working the issues, the tracker is the source of truth for status and detail. Change an issue first; regenerate this folder's data only when the shape of the plan changes, then rerun `schedule.py`, a `gh_sync.py` pass (which also moves the milestones' due dates and the issue fields), `umbrella.py --push`, `work_breakdown.py` and `chapter_links.py` so the dates, the index issue, chapter 12 and the chapter appendices agree with it.
 
 ## How the proposal stays true
 

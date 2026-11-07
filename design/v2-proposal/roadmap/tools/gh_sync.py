@@ -196,17 +196,23 @@ def ensure_labels(m):
 
 def ensure_milestones():
     sched = json.load(open(SCHED)) if os.path.exists(SCHED) else {"milestones": {}}
-    existing = {x["title"]: x["number"] for x in (api("GET", f"repos/{REPO}/milestones?state=all&per_page=100") or [])}
+    existing = {x["title"]: x for x in (api("GET", f"repos/{REPO}/milestones?state=all&per_page=100") or [])}
     for p, title in PHASE_TITLES.items():
         st = read_state()
+        due = sched.get("milestones", {}).get(title, {}).get("due")
+        if title in existing:
+            if title not in st["milestones"]:
+                with locked_state() as s:
+                    s["milestones"][title] = existing[title]["number"]
+            have = (existing[title].get("due_on") or "")[:10]
+            if due and have != due:
+                # the schedule moved: keep the milestone's due date in step with schedule.json
+                print("milestone due", title, have or "none", "->", due)
+                write("PATCH", f"repos/{REPO}/milestones/{existing[title]['number']}", {"due_on": due + "T08:00:00Z"})
+            continue
         if title in st["milestones"]:
             continue
-        if title in existing:
-            with locked_state() as s:
-                s["milestones"][title] = existing[title]
-            continue
         payload = {"title": title, "description": PHASE_DESC[p]}
-        due = sched.get("milestones", {}).get(title, {}).get("due")
         if due:
             payload["due_on"] = due + "T08:00:00Z"
         print("milestone", title)

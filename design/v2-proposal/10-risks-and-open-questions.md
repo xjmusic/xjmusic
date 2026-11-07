@@ -78,18 +78,16 @@ Decisions this proposal does not make. Each names who decides and when. The seco
 |---|---|
 | R1 | [#692](https://github.com/xjmusic/xjmusic/issues/692), [#703](https://github.com/xjmusic/xjmusic/issues/703), [#705](https://github.com/xjmusic/xjmusic/issues/705) |
 | R2 | [#574](https://github.com/xjmusic/xjmusic/issues/574), [#577](https://github.com/xjmusic/xjmusic/issues/577) |
-| R3 | [#573](https://github.com/xjmusic/xjmusic/issues/573), [#706](https://github.com/xjmusic/xjmusic/issues/706), [#712](https://github.com/xjmusic/xjmusic/issues/712), [#747](https://github.com/xjmusic/xjmusic/issues/747), [#749](https://github.com/xjmusic/xjmusic/issues/749), [#845](https://github.com/xjmusic/xjmusic/issues/845) |
-| R3 R12 | [#746](https://github.com/xjmusic/xjmusic/issues/746) |
-| R4 | [#825](https://github.com/xjmusic/xjmusic/issues/825) |
-| R4 R11 | [#564](https://github.com/xjmusic/xjmusic/issues/564), [#762](https://github.com/xjmusic/xjmusic/issues/762) |
-| R5 | [#565](https://github.com/xjmusic/xjmusic/issues/565), [#561](https://github.com/xjmusic/xjmusic/issues/561), [#681](https://github.com/xjmusic/xjmusic/issues/681), [#702](https://github.com/xjmusic/xjmusic/issues/702) |
-| R5 R6 | [#680](https://github.com/xjmusic/xjmusic/issues/680) |
-| R6 | [#566](https://github.com/xjmusic/xjmusic/issues/566) |
+| R3 | [#573](https://github.com/xjmusic/xjmusic/issues/573), [#706](https://github.com/xjmusic/xjmusic/issues/706), [#712](https://github.com/xjmusic/xjmusic/issues/712), [#746](https://github.com/xjmusic/xjmusic/issues/746), [#747](https://github.com/xjmusic/xjmusic/issues/747), [#749](https://github.com/xjmusic/xjmusic/issues/749), [#845](https://github.com/xjmusic/xjmusic/issues/845) |
+| R4 | [#564](https://github.com/xjmusic/xjmusic/issues/564), [#762](https://github.com/xjmusic/xjmusic/issues/762), [#825](https://github.com/xjmusic/xjmusic/issues/825) |
+| R5 | [#565](https://github.com/xjmusic/xjmusic/issues/565), [#561](https://github.com/xjmusic/xjmusic/issues/561), [#680](https://github.com/xjmusic/xjmusic/issues/680), [#681](https://github.com/xjmusic/xjmusic/issues/681), [#702](https://github.com/xjmusic/xjmusic/issues/702) |
+| R6 | [#566](https://github.com/xjmusic/xjmusic/issues/566), [#680](https://github.com/xjmusic/xjmusic/issues/680) |
 | R7 | [#563](https://github.com/xjmusic/xjmusic/issues/563), [#484](https://github.com/xjmusic/xjmusic/issues/484), [#668](https://github.com/xjmusic/xjmusic/issues/668), [#708](https://github.com/xjmusic/xjmusic/issues/708), [#723](https://github.com/xjmusic/xjmusic/issues/723) |
 | R8 | [#613](https://github.com/xjmusic/xjmusic/issues/613), [#637](https://github.com/xjmusic/xjmusic/issues/637), [#674](https://github.com/xjmusic/xjmusic/issues/674) |
 | R9 | [#487](https://github.com/xjmusic/xjmusic/issues/487), [#587](https://github.com/xjmusic/xjmusic/issues/587), [#600](https://github.com/xjmusic/xjmusic/issues/600), [#585](https://github.com/xjmusic/xjmusic/issues/585), [#601](https://github.com/xjmusic/xjmusic/issues/601) |
 | R10 | [#488](https://github.com/xjmusic/xjmusic/issues/488), [#555](https://github.com/xjmusic/xjmusic/issues/555), [#556](https://github.com/xjmusic/xjmusic/issues/556) |
-| R11 | [#710](https://github.com/xjmusic/xjmusic/issues/710), [#751](https://github.com/xjmusic/xjmusic/issues/751), [#783](https://github.com/xjmusic/xjmusic/issues/783) |
+| R11 | [#564](https://github.com/xjmusic/xjmusic/issues/564), [#710](https://github.com/xjmusic/xjmusic/issues/710), [#751](https://github.com/xjmusic/xjmusic/issues/751), [#762](https://github.com/xjmusic/xjmusic/issues/762), [#783](https://github.com/xjmusic/xjmusic/issues/783) |
+| R12 | [#746](https://github.com/xjmusic/xjmusic/issues/746) |
 | R13 | [#553](https://github.com/xjmusic/xjmusic/issues/553), [#581](https://github.com/xjmusic/xjmusic/issues/581), [#841](https://github.com/xjmusic/xjmusic/issues/841), [#705](https://github.com/xjmusic/xjmusic/issues/705), [#720](https://github.com/xjmusic/xjmusic/issues/720), [#721](https://github.com/xjmusic/xjmusic/issues/721) |
 | R14 | [#485](https://github.com/xjmusic/xjmusic/issues/485), [#657](https://github.com/xjmusic/xjmusic/issues/657), [#658](https://github.com/xjmusic/xjmusic/issues/658), [#809](https://github.com/xjmusic/xjmusic/issues/809) |
 | R15 | [#764](https://github.com/xjmusic/xjmusic/issues/764), [#798](https://github.com/xjmusic/xjmusic/issues/798), [#794](https://github.com/xjmusic/xjmusic/issues/794), [#801](https://github.com/xjmusic/xjmusic/issues/801), [#804](https://github.com/xjmusic/xjmusic/issues/804) |
