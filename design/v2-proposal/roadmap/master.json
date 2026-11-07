@@ -794,7 +794,8 @@
         "e3-mapping-ui",
         "e3-timeline-why",
         "e5-session-clock",
-        "e5-session-transport"
+        "e5-session-transport",
+        "e3-docs-workstation"
       ]
     },
     {
@@ -5801,7 +5802,8 @@
         "p5-found-publish-consume-retract",
         "p2-ctrl-cue-gesture-routing-quantize",
         "p5-test-simulated-network-harness",
-        "p2-stn-capture-format"
+        "p2-stn-capture-format",
+        "p5-stn-session-integration-cli"
       ],
       "proposal_refs": [
         "07-session-protocol.md Layer claims",
@@ -5990,7 +5992,8 @@
         "p5-found-horizon-handshake",
         "p3-surf-layer-strips",
         "p5-cue-request-policy",
-        "p3-surf-advance-hold-capture-header"
+        "p3-surf-advance-hold-capture-header",
+        "p5-handoff"
       ],
       "proposal_refs": [
         "05-workstation.md Layers",
@@ -6793,7 +6796,9 @@
         "p3-map-moves-editor",
         "p5-claims-release",
         "p5-handoff",
-        "p5-stn-session-integration-cli"
+        "p5-stn-session-integration-cli",
+        "p3-docs-mapping-reference",
+        "p5-ui-claims-horizon-indicators"
       ]
     },
     {
@@ -6876,7 +6881,6 @@
         "p3-shell-make-mode-handoff-java",
         "p3-first-interim-starter-project",
         "p3-first-play-mode-template",
-        "p3-dec-windows-on-arm",
         "p3-first-launch-to-sound"
       ]
     },

@@ -4,7 +4,7 @@
 
 The plan of [09-roadmap.md](09-roadmap.md) as a waterfall of issues: one milestone per phase, one epic per capability, one task per unit of work, with formal *blocked by* links. The issues live in [project #7](https://github.com/orgs/xjmusic/projects/7) under the umbrella [#480](https://github.com/xjmusic/xjmusic/issues/480). Every task body carries a full specification (context, scope, design, acceptance criteria, test plan, dependencies, risks, references).
 
-**Shape:** 63 epics, 304 tasks, 1296.5 engineer-days of estimates. Two engineers from 2026-11-16 to 2029-06-26 on the list schedule below. Estimates are planning numbers with the ±50% uncertainty 09 states, re-estimated at each decision gate by the people doing the work.
+**Shape:** 63 epics, 304 tasks, 1296.5 engineer-days of estimates. Two engineers from 2026-11-16 to 2029-06-28 on the list schedule below. Estimates are planning numbers with the ±50% uncertainty 09 states, re-estimated at each decision gate by the people doing the work.
 
 ## Phases at a glance
 
@@ -15,9 +15,9 @@ The plan of [09-roadmap.md](09-roadmap.md) as a waterfall of issues: one milesto
 | 2 · Station core | 11 | 65 | 292 | 13.9 | 4–5 | 2027-08-06 → 2028-03-01 |
 | 3 · Workstation 2.0, Play mode | 10 | 42 | 185.5 | 8.8 | 5–7 | 2028-02-03 → 2028-07-12 |
 | 4 · Commons | 8 | 33 | 121 | 5.8 | 2–3 | 2028-02-03 → 2028-09-28 |
-| 5 · Sessions | 7 | 27 | 140 | 6.7 | 3–4 | 2028-09-06 → 2029-01-29 |
-| 6 · Make mode parity | 5 | 22 | 140 | 6.7 | 5–8 | 2029-01-26 → 2029-06-26 |
-| 7 · The show | 1 | 10 | 34 | 1.6 | not engineering | 2029-01-23 → 2029-05-18 |
+| 5 · Sessions | 7 | 27 | 140 | 6.7 | 3–4 | 2028-09-06 → 2029-01-31 |
+| 6 · Make mode parity | 5 | 22 | 140 | 6.7 | 5–8 | 2029-01-30 → 2029-06-28 |
+| 7 · The show | 1 | 10 | 34 | 1.6 | not engineering | 2029-01-25 → 2029-05-22 |
 
 Engineer-months divide days by 21. Phase 1 exceeds 09's band because the grounded research found port regressions, seven randomness sites and ABI hardening the proposal did not know about; Phase 6 undershoots it because the shared editing infrastructure absorbs most of the Java editors (see [roadmap/decomposition-rationale.md](roadmap/decomposition-rationale.md)).
 
@@ -428,6 +428,7 @@ flowchart LR
   e3_timeline_why --> e5_foundation_claims_cues
   e5_session_clock --> e5_foundation_claims_cues
   e5_session_transport --> e5_foundation_claims_cues
+  e3_docs_workstation --> e5_foundation_claims_cues
   e1_foundation --> e5_session_clock
   e2_rust_engine --> e5_session_clock
   e2_station_runtime --> e5_session_clock
@@ -1017,7 +1018,7 @@ Area `docs` · 4 tasks · 8 engineer-days · blocked by #481, #517, #525, #524, 
 | [#716](https://github.com/xjmusic/xjmusic/issues/716) Write the mapping TOML reference and document the two default profiles | S | 2 | #661, #715 | 2028-07-05 → 2028-07-07 |
 | [#740](https://github.com/xjmusic/xjmusic/issues/740) Write the 2.0.0 installation pages and the Ship-mode guide (build, bounce, capture export) | S | 2 | #718, #727, #731, #739, #726, #720, #721 | 2028-07-03 → 2028-07-05 |
 | [#745](https://github.com/xjmusic/xjmusic/issues/745) Write the Play-mode performer's guide | S | 3 | #735, #738, #744, #737, #732, #733, #741, #736, #743 | 2028-07-03 → 2028-07-06 |
-| [#845](https://github.com/xjmusic/xjmusic/issues/845) Amend the proposal chapters with the departures the Phase 3 specifications recorded | XS | 1 | #489, #749, #726, #711, #712, #719, #729 | 2028-07-11 → 2028-07-12 |
+| [#845](https://github.com/xjmusic/xjmusic/issues/845) Amend the proposal chapters with the departures the Phase 3 specifications recorded | XS | 1 | #489, #749, #726, #711, #712, #729 | 2028-07-11 → 2028-07-12 |
 
 ## Phase 4 · Commons
 
@@ -1114,7 +1115,7 @@ Area `workstation-ui` · 3 tasks · 11 engineer-days · blocked by #513, #517, #
 
 ## Phase 5 · Sessions
 
-Scheduled 2028-09-06 → 2029-01-29. Exit criteria are in [09-roadmap.md](09-roadmap.md).
+Scheduled 2028-09-06 → 2029-01-31. Exit criteria are in [09-roadmap.md](09-roadmap.md).
 
 ### [#539](https://github.com/xjmusic/xjmusic/issues/539) Publish the versioned session protocol with conformance fixtures
 
@@ -1123,7 +1124,7 @@ Area `docs` · 2 tasks · 8 engineer-days · blocked by #495, #504, #531.
 | Task | Size | Days | Blocked by | Scheduled |
 |---|---|---|---|---|
 | [#784](https://github.com/xjmusic/xjmusic/issues/784) Write and publish the versioned JSON Schema for all session messages and the epoch | M | 4 | #596, #561, #752 | 2028-09-25 → 2028-09-29 |
-| [#785](https://github.com/xjmusic/xjmusic/issues/785) Publish message fixtures and a minimal reference reader for non-XJ participants | M | 4 | #784 | 2029-01-17 → 2029-01-23 |
+| [#785](https://github.com/xjmusic/xjmusic/issues/785) Publish message fixtures and a minimal reference reader for non-XJ participants | M | 4 | #784 | 2029-01-19 → 2029-01-25 |
 
 ### [#540](https://github.com/xjmusic/xjmusic/issues/540) Build xj-session discovery, connection and membership
 
@@ -1137,18 +1138,18 @@ Area `session` · 3 tasks · 15 engineer-days · blocked by #510, #535, #539.
 
 ### [#541](https://github.com/xjmusic/xjmusic/issues/541) Share the foundation: publish, retract, horizon, claims, cue requests, handoff, failures
 
-Area `session` · 8 tasks · 44 engineer-days · blocked by #504, #500, #517, #511, #518, #524, #523, #542, #540.
+Area `session` · 8 tasks · 44 engineer-days · blocked by #504, #500, #517, #511, #518, #524, #523, #542, #540, #530.
 
 | Task | Size | Days | Blocked by | Scheduled |
 |---|---|---|---|---|
 | [#791](https://github.com/xjmusic/xjmusic/issues/791) Publish sequenced foundation records, consume them in follow mode, retract on rewrite | M | 7 | #790, #788, #677, #679, #700, #694 | 2028-11-02 → 2028-11-13 |
 | [#793](https://github.com/xjmusic/xjmusic/issues/793) Wire xj-session into the xj-station loop and CLI: host, join, role, boundary switch | L | 9 | #790, #791, #703, #693, #788, #789 | 2028-11-13 → 2028-11-24 |
-| [#792](https://github.com/xjmusic/xjmusic/issues/792) Implement layer claims and releases that mute other stations' layers via cue and gesture | M | 5 | #791, #684, #794, #694 | 2028-11-21 → 2028-11-28 |
+| [#792](https://github.com/xjmusic/xjmusic/issues/792) Implement layer claims and releases that mute other stations' layers via cue and gesture | M | 5 | #791, #684, #794, #694, #793 | 2028-11-24 → 2028-12-01 |
 | [#795](https://github.com/xjmusic/xjmusic/issues/795) Compute the effective commit horizon and hold one segment on a late record, counted | M | 5 | #791, #635, #794, #677, #793 | 2028-11-24 → 2028-12-01 |
 | [#796](https://github.com/xjmusic/xjmusic/issues/796) Forward followers' foundation cues as cue requests under accept-all, trust list, ask mode | M | 4 | #795, #634, #793 | 2028-12-01 → 2028-12-07 |
 | [#797](https://github.com/xjmusic/xjmusic/issues/797) Implement the three-step conductor handoff at a segment boundary | L | 8 | #796, #792, #793 | 2028-12-07 → 2028-12-19 |
-| [#848](https://github.com/xjmusic/xjmusic/issues/848) Allow claim, release and handoff_offer as move steps, in the file and the moves editor | S | 2 | #689, #717, #792, #797, #793 | 2029-01-25 → 2029-01-29 |
-| [#798](https://github.com/xjmusic/xjmusic/issues/798) Test every row of the failure table end to end on the simulated-network harness | M | 4 | #797, #790, #635, #795, #794, #789, #802, #742, #599, #793 | 2028-12-19 → 2028-12-25 |
+| [#798](https://github.com/xjmusic/xjmusic/issues/798) Test every row of the failure table end to end on the simulated-network harness | M | 4 | #797, #790, #635, #795, #794, #789, #802, #742, #599, #793 | 2028-12-25 → 2028-12-29 |
+| [#848](https://github.com/xjmusic/xjmusic/issues/848) Allow claim, release and handoff_offer as move steps, in the file and the moves editor | S | 2 | #689, #717, #792, #797, #793, #716, #802 | 2029-01-29 → 2029-01-31 |
 
 ### [#542](https://github.com/xjmusic/xjmusic/issues/542) Add the session BeatClock, the Link epoch mapping and the simulated-network harness
 
@@ -1166,9 +1167,9 @@ Area `workstation-ui` · 3 tasks · 13 engineer-days · blocked by #518, #521, #
 
 | Task | Size | Days | Blocked by | Scheduled |
 |---|---|---|---|---|
-| [#802](https://github.com/xjmusic/xjmusic/issues/802) Show claims on the layer strips, the effective horizon, request senders, late records | M | 4 | #792, #795, #732, #796, #728 | 2028-12-07 → 2028-12-13 |
-| [#799](https://github.com/xjmusic/xjmusic/issues/799) Serve a web status page from a headless xj-station | S | 3 | #798, #699, #793 | 2029-01-02 → 2029-01-05 |
-| [#803](https://github.com/xjmusic/xjmusic/issues/803) Build the session panel: host or join by code, members, roles, cue requests, network | M | 6 | #796, #797, #713, #793, #760, #728 | 2028-12-25 → 2029-01-02 |
+| [#802](https://github.com/xjmusic/xjmusic/issues/802) Show claims on the layer strips, the effective horizon, request senders, late records | M | 4 | #792, #795, #732, #796, #728, #797 | 2028-12-19 → 2028-12-25 |
+| [#799](https://github.com/xjmusic/xjmusic/issues/799) Serve a web status page from a headless xj-station | S | 3 | #798, #699, #793 | 2029-01-04 → 2029-01-09 |
+| [#803](https://github.com/xjmusic/xjmusic/issues/803) Build the session panel: host or join by code, members, roles, cue requests, network | M | 6 | #796, #797, #713, #793, #760, #728 | 2028-12-27 → 2029-01-04 |
 
 ### [#544](https://github.com/xjmusic/xjmusic/issues/544) Soak sessions: handoffs for an hour, three stations for eight, and play the real duet
 
@@ -1177,8 +1178,8 @@ Area `ci-release` · 3 tasks · 23 engineer-days · blocked by #517, #519, #528,
 | Task | Size | Days | Blocked by | Scheduled |
 |---|---|---|---|---|
 | [#800](https://github.com/xjmusic/xjmusic/issues/800) Soak conductor handoffs back and forth every N segments for an hour | M | 6 | #794, #797, #707, #755 | 2028-12-19 → 2028-12-27 |
-| [#801](https://github.com/xjmusic/xjmusic/issues/801) Run the eight-hour three-station soak with a headless container and a scripted performer | L | 10 | #800, #707, #793, #798 | 2028-12-27 → 2029-01-10 |
-| [#805](https://github.com/xjmusic/xjmusic/issues/805) Play the 30-minute duet: two workstations and an MPC on Link, two handoffs, two captures | M | 7 | #801, #803, #802, #789, #688, #793, #730, #766, #731, #753 | 2029-01-10 → 2029-01-19 |
+| [#801](https://github.com/xjmusic/xjmusic/issues/801) Run the eight-hour three-station soak with a headless container and a scripted performer | L | 10 | #800, #707, #793, #798 | 2028-12-29 → 2029-01-12 |
+| [#805](https://github.com/xjmusic/xjmusic/issues/805) Play the 30-minute duet: two workstations and an MPC on Link, two handoffs, two captures | M | 7 | #801, #803, #802, #789, #688, #793, #730, #766, #731, #753 | 2029-01-12 → 2029-01-23 |
 
 ### [#545](https://github.com/xjmusic/xjmusic/issues/545) Clear the legal review, write the venue guide, hold the post-duet gate, release 2.2
 
@@ -1187,14 +1188,14 @@ Area `legal-paperwork` · 5 tasks · 15 engineer-days · blocked by #481, #530, 
 | Task | Size | Days | Blocked by | Scheduled |
 |---|---|---|---|---|
 | [#783](https://github.com/xjmusic/xjmusic/issues/783) Obtain counsel's review of live performance as output and of the venue's patent position | S | 3 | #751, #753, #771, #730 | 2028-09-06 → 2028-09-11 |
-| [#804](https://github.com/xjmusic/xjmusic/issues/804) Write the venue setup guide: wired network, join codes, roles, failure behavior | M | 5 | #798, #803, #799, #801, #745, #716 | 2029-01-10 → 2029-01-17 |
-| [#806](https://github.com/xjmusic/xjmusic/issues/806) Record the post-Phase-5 gate: did the duet work, and does the Q13 default move | S | 2 | #805 | 2029-01-19 → 2029-01-23 |
-| [#847](https://github.com/xjmusic/xjmusic/issues/847) Amend the proposal chapters with the departures the Phase 5 specifications recorded | S | 2 | #489, #806, #784, #795, #786, #797, #792, #791, #794 | 2029-01-23 → 2029-01-25 |
-| [#807](https://github.com/xjmusic/xjmusic/issues/807) Release workstation 2.2 with sessions after the legal review and the duet | S | 3 | #805, #783, #785, #804, #799, #730, #782, #806 | 2029-01-23 → 2029-01-26 |
+| [#804](https://github.com/xjmusic/xjmusic/issues/804) Write the venue setup guide: wired network, join codes, roles, failure behavior | M | 5 | #798, #803, #799, #801, #745, #716 | 2029-01-12 → 2029-01-19 |
+| [#806](https://github.com/xjmusic/xjmusic/issues/806) Record the post-Phase-5 gate: did the duet work, and does the Q13 default move | S | 2 | #805 | 2029-01-23 → 2029-01-25 |
+| [#847](https://github.com/xjmusic/xjmusic/issues/847) Amend the proposal chapters with the departures the Phase 5 specifications recorded | S | 2 | #489, #806, #784, #795, #786, #797, #792, #791, #794 | 2029-01-25 → 2029-01-29 |
+| [#807](https://github.com/xjmusic/xjmusic/issues/807) Release workstation 2.2 with sessions after the legal review and the duet | S | 3 | #805, #783, #785, #804, #799, #730, #782, #806 | 2029-01-25 → 2029-01-30 |
 
 ## Phase 6 · Make mode parity
 
-Scheduled 2029-01-26 → 2029-06-26. Exit criteria are in [09-roadmap.md](09-roadmap.md).
+Scheduled 2029-01-30 → 2029-06-28. Exit criteria are in [09-roadmap.md](09-roadmap.md).
 
 ### [#546](https://github.com/xjmusic/xjmusic/issues/546) Build the editing infrastructure the Rust editors share
 
@@ -1202,11 +1203,11 @@ Area `workstation-ui` · 5 tasks · 30 engineer-days · blocked by #508, #512, #
 
 | Task | Size | Days | Blocked by | Scheduled |
 |---|---|---|---|---|
-| [#808](https://github.com/xjmusic/xjmusic/issues/808) Implement an undoable command stack over content edits | L | 9 | #713, #657, #677, #724, #726, #675 | 2029-01-26 → 2029-02-08 |
-| [#809](https://github.com/xjmusic/xjmusic/issues/809) Edit one instrument name in Rust, save, and reopen the project identically in Java | M | 4 | #808, #658, #726, #643 | 2029-02-08 → 2029-02-14 |
-| [#810](https://github.com/xjmusic/xjmusic/issues/810) Implement the content CRUD service with the Java cascades, defaults and project actions | L | 9 | #809, #726, #654, #767 | 2029-02-14 → 2029-02-27 |
-| [#812](https://github.com/xjmusic/xjmusic/issues/812) Build the library browser with create, duplicate, move, delete and navigation history | M | 4 | #810, #739, #732 | 2029-02-27 → 2029-03-05 |
-| [#811](https://github.com/xjmusic/xjmusic/issues/811) Build config editors validated against the C++ parser dialect and suggested meme entry | M | 4 | #810, #654, #767, #812, #752 | 2029-03-05 → 2029-03-09 |
+| [#808](https://github.com/xjmusic/xjmusic/issues/808) Implement an undoable command stack over content edits | L | 9 | #713, #657, #677, #724, #726, #675 | 2029-01-30 → 2029-02-12 |
+| [#809](https://github.com/xjmusic/xjmusic/issues/809) Edit one instrument name in Rust, save, and reopen the project identically in Java | M | 4 | #808, #658, #726, #643 | 2029-02-12 → 2029-02-16 |
+| [#810](https://github.com/xjmusic/xjmusic/issues/810) Implement the content CRUD service with the Java cascades, defaults and project actions | L | 9 | #809, #726, #654, #767 | 2029-02-16 → 2029-03-01 |
+| [#812](https://github.com/xjmusic/xjmusic/issues/812) Build the library browser with create, duplicate, move, delete and navigation history | M | 4 | #810, #739, #732 | 2029-03-01 → 2029-03-07 |
+| [#811](https://github.com/xjmusic/xjmusic/issues/811) Build config editors validated against the C++ parser dialect and suggested meme entry | M | 4 | #810, #654, #767, #812, #752 | 2029-03-07 → 2029-03-13 |
 
 ### [#547](https://github.com/xjmusic/xjmusic/issues/547) Build the instrument and audio editor first, because packs need it
 
@@ -1214,12 +1215,12 @@ Area `workstation-ui` · 6 tasks · 32 engineer-days · blocked by #513, #512, #
 
 | Task | Size | Days | Blocked by | Scheduled |
 |---|---|---|---|---|
-| [#813](https://github.com/xjmusic/xjmusic/issues/813) Build the instrument editor: fields, memes, config, audios table, import | M | 4 | #812, #811, #756 | 2029-03-09 → 2029-03-15 |
-| [#814](https://github.com/xjmusic/xjmusic/issues/814) Import audio in any decodable format and propose loopBeats and tempo from the file | M | 4 | #813, #649, #754, #769 | 2029-03-15 → 2029-03-21 |
-| [#815](https://github.com/xjmusic/xjmusic/issues/815) Build the audio editor with waveform, transient and loop markers, zoom and all fields | L | 8 | #814, #653 | 2029-03-21 → 2029-04-02 |
-| [#816](https://github.com/xjmusic/xjmusic/issues/816) Add pitch-shift and stretch allowance controls, inline lint fixes, and batch processing | L | 9 | #815, #652, #701, #769 | 2029-04-02 → 2029-04-13 |
-| [#832](https://github.com/xjmusic/xjmusic/issues/832) Audition audios and their rendered variants through the running graph | M | 6 | #816, #652, #701, #693, #781 | 2029-05-07 → 2029-05-15 |
-| [#822](https://github.com/xjmusic/xjmusic/issues/822) Release workstation 2.3 with the instrument and audio editor so pack authors drop Java | XS | 1 | #816, #812, #807, #832 | 2029-05-16 → 2029-05-17 |
+| [#813](https://github.com/xjmusic/xjmusic/issues/813) Build the instrument editor: fields, memes, config, audios table, import | M | 4 | #812, #811, #756 | 2029-03-13 → 2029-03-19 |
+| [#814](https://github.com/xjmusic/xjmusic/issues/814) Import audio in any decodable format and propose loopBeats and tempo from the file | M | 4 | #813, #649, #754, #769 | 2029-03-19 → 2029-03-23 |
+| [#815](https://github.com/xjmusic/xjmusic/issues/815) Build the audio editor with waveform, transient and loop markers, zoom and all fields | L | 8 | #814, #653 | 2029-03-23 → 2029-04-04 |
+| [#816](https://github.com/xjmusic/xjmusic/issues/816) Add pitch-shift and stretch allowance controls, inline lint fixes, and batch processing | L | 9 | #815, #652, #701, #769 | 2029-04-04 → 2029-04-17 |
+| [#832](https://github.com/xjmusic/xjmusic/issues/832) Audition audios and their rendered variants through the running graph | M | 6 | #816, #652, #701, #693, #781 | 2029-05-09 → 2029-05-17 |
+| [#822](https://github.com/xjmusic/xjmusic/issues/822) Release workstation 2.3 with the instrument and audio editor so pack authors drop Java | XS | 1 | #816, #812, #807, #832 | 2029-05-18 → 2029-05-21 |
 
 ### [#548](https://github.com/xjmusic/xjmusic/issues/548) Build the template editor
 
@@ -1227,8 +1228,8 @@ Area `workstation-ui` · 2 tasks · 8 engineer-days · blocked by #512, #535, #5
 
 | Task | Size | Days | Blocked by | Scheduled |
 |---|---|---|---|---|
-| [#823](https://github.com/xjmusic/xjmusic/issues/823) Build the template editor fields and the bindings table with an add-binding flow | M | 4 | #812, #811 | 2029-05-02 → 2029-05-08 |
-| [#824](https://github.com/xjmusic/xjmusic/issues/824) Build taxonomy, intensity, mixer, horizon and hold settings and template export | M | 4 | #823, #763, #654 | 2029-05-15 → 2029-05-21 |
+| [#823](https://github.com/xjmusic/xjmusic/issues/823) Build the template editor fields and the bindings table with an add-binding flow | M | 4 | #812, #811 | 2029-05-04 → 2029-05-10 |
+| [#824](https://github.com/xjmusic/xjmusic/issues/824) Build taxonomy, intensity, mixer, horizon and hold settings and template export | M | 4 | #823, #763, #654 | 2029-05-17 → 2029-05-23 |
 
 ### [#549](https://github.com/xjmusic/xjmusic/issues/549) Build the program editor in bind, chord and event modes
 
@@ -1236,12 +1237,12 @@ Area `workstation-ui` · 6 tasks · 44 engineer-days · blocked by #512, #546, #
 
 | Task | Size | Days | Blocked by | Scheduled |
 |---|---|---|---|---|
-| [#817](https://github.com/xjmusic/xjmusic/issues/817) Build the program editor shell: fields, type cascade, sequence management, grid, zoom | M | 7 | #812, #811, #653, #815 | 2029-04-02 → 2029-04-11 |
-| [#818](https://github.com/xjmusic/xjmusic/issues/818) Build bind mode: offset columns, sequence bindings, binding memes, drag between offsets | M | 5 | #817 | 2029-04-25 → 2029-05-02 |
-| [#819](https://github.com/xjmusic/xjmusic/issues/819) Build chord edit mode: chord timeline, chord properties, voice lanes and voicing cells | L | 8 | #817 | 2029-04-13 → 2029-04-25 |
-| [#820](https://github.com/xjmusic/xjmusic/issues/820) Build event edit mode: voices, tracks, patterns and draggable events | L | 9 | #817 | 2029-04-11 → 2029-04-24 |
-| [#833](https://github.com/xjmusic/xjmusic/issues/833) Add event multi-select, group edit, the properties dialog, and copy and paste | L | 9 | #820 | 2029-04-24 → 2029-05-07 |
-| [#821](https://github.com/xjmusic/xjmusic/issues/821) Add keyboard note entry and drag reorder; make the Rust program editor the default | M | 6 | #833, #818, #819 | 2029-05-08 → 2029-05-16 |
+| [#817](https://github.com/xjmusic/xjmusic/issues/817) Build the program editor shell: fields, type cascade, sequence management, grid, zoom | M | 7 | #812, #811, #653, #815 | 2029-04-04 → 2029-04-13 |
+| [#818](https://github.com/xjmusic/xjmusic/issues/818) Build bind mode: offset columns, sequence bindings, binding memes, drag between offsets | M | 5 | #817 | 2029-04-27 → 2029-05-04 |
+| [#819](https://github.com/xjmusic/xjmusic/issues/819) Build chord edit mode: chord timeline, chord properties, voice lanes and voicing cells | L | 8 | #817 | 2029-04-17 → 2029-04-27 |
+| [#820](https://github.com/xjmusic/xjmusic/issues/820) Build event edit mode: voices, tracks, patterns and draggable events | L | 9 | #817 | 2029-04-13 → 2029-04-26 |
+| [#833](https://github.com/xjmusic/xjmusic/issues/833) Add event multi-select, group edit, the properties dialog, and copy and paste | L | 9 | #820 | 2029-04-26 → 2029-05-09 |
+| [#821](https://github.com/xjmusic/xjmusic/issues/821) Add keyboard note entry and drag reorder; make the Rust program editor the default | M | 6 | #833, #818, #819 | 2029-05-10 → 2029-05-18 |
 
 ### [#550](https://github.com/xjmusic/xjmusic/issues/550) Audit parity, run pack-author sessions, write the migration guide, archive Java
 
@@ -1249,13 +1250,13 @@ Area `docs` · 3 tasks · 26 engineer-days · blocked by #512, #538, #547, #549,
 
 | Task | Size | Days | Blocked by | Scheduled |
 |---|---|---|---|---|
-| [#825](https://github.com/xjmusic/xjmusic/issues/825) Audit every Java editing operation against its Rust equivalent; run pack-author sessions | L | 10 | #816, #824, #821, #780, #822 | 2029-05-21 → 2029-06-04 |
-| [#826](https://github.com/xjmusic/xjmusic/issues/826) Write the migration guide from the Java workstation to the Rust editors | M | 4 | #825 | 2029-06-04 → 2029-06-08 |
-| [#827](https://github.com/xjmusic/xjmusic/issues/827) Archive the Java workstation with a pointer and retire the Java round-trip CI | L | 12 | #826, #658 | 2029-06-08 → 2029-06-26 |
+| [#825](https://github.com/xjmusic/xjmusic/issues/825) Audit every Java editing operation against its Rust equivalent; run pack-author sessions | L | 10 | #816, #824, #821, #780, #822 | 2029-05-23 → 2029-06-06 |
+| [#826](https://github.com/xjmusic/xjmusic/issues/826) Write the migration guide from the Java workstation to the Rust editors | M | 4 | #825 | 2029-06-06 → 2029-06-12 |
+| [#827](https://github.com/xjmusic/xjmusic/issues/827) Archive the Java workstation with a pointer and retire the Java round-trip CI | L | 12 | #826, #658 | 2029-06-12 → 2029-06-28 |
 
 ## Phase 7 · The show
 
-Scheduled 2029-01-23 → 2029-05-18. Exit criteria are in [09-roadmap.md](09-roadmap.md).
+Scheduled 2029-01-25 → 2029-05-22. Exit criteria are in [09-roadmap.md](09-roadmap.md).
 
 ### [#551](https://github.com/xjmusic/xjmusic/issues/551) Produce the show: a real night, three or more stations, outside artists, a recording
 
@@ -1263,16 +1264,16 @@ Area `show` · 10 tasks · 34 engineer-days · blocked by #517, #516, #538, #532
 
 | Task | Size | Days | Blocked by | Scheduled |
 |---|---|---|---|---|
-| [#834](https://github.com/xjmusic/xjmusic/issues/834) Add an optional target to the mapping handoff_offer action | XS | 1 | #802, #661 | 2029-05-17 → 2029-05-18 |
-| [#828](https://github.com/xjmusic/xjmusic/issues/828) Set the venue, date, lineup and production plan | S | 3 | #806, #782, #807 | 2029-01-26 → 2029-01-31 |
-| [#835](https://github.com/xjmusic/xjmusic/issues/835) Bring each artist's pack into the show and pair-render every combination | M | 4 | #828, #780, #763 | 2029-01-31 → 2029-02-06 |
-| [#829](https://github.com/xjmusic/xjmusic/issues/829) Assemble the venue network kit and freeze the show's packs and lockfile | M | 5 | #828, #835, #764, #804 | 2029-02-06 → 2029-02-13 |
-| [#830](https://github.com/xjmusic/xjmusic/issues/830) Onboard the artists with their own packs and run a rehearsal | M | 5 | #829 | 2029-02-13 → 2029-02-20 |
-| [#836](https://github.com/xjmusic/xjmusic/issues/836) Build the show's credits, loudness, repair-alignment and capture-scrub tools | M | 5 | #753, #755, #766, #670 | 2029-01-23 → 2029-01-30 |
-| [#837](https://github.com/xjmusic/xjmusic/issues/837) Freeze the show build and the final lock at T−7 d | S | 2 | #830, #836, #829 | 2029-02-20 → 2029-02-22 |
-| [#831](https://github.com/xjmusic/xjmusic/issues/831) Run the show night with captures on every station and collect the evidence | S | 3 | #837 | 2029-02-22 → 2029-02-27 |
-| [#838](https://github.com/xjmusic/xjmusic/issues/838) Mix and master the recording and publish the release with credits | M | 4 | #831, #836 | 2029-02-27 → 2029-03-05 |
-| [#839](https://github.com/xjmusic/xjmusic/issues/839) Write the Phase 7 retrospective and file its findings for 2.x | S | 2 | #838 | 2029-03-05 → 2029-03-07 |
+| [#834](https://github.com/xjmusic/xjmusic/issues/834) Add an optional target to the mapping handoff_offer action | XS | 1 | #802, #661 | 2029-05-21 → 2029-05-22 |
+| [#828](https://github.com/xjmusic/xjmusic/issues/828) Set the venue, date, lineup and production plan | S | 3 | #806, #782, #807 | 2029-01-30 → 2029-02-02 |
+| [#835](https://github.com/xjmusic/xjmusic/issues/835) Bring each artist's pack into the show and pair-render every combination | M | 4 | #828, #780, #763 | 2029-02-02 → 2029-02-08 |
+| [#829](https://github.com/xjmusic/xjmusic/issues/829) Assemble the venue network kit and freeze the show's packs and lockfile | M | 5 | #828, #835, #764, #804 | 2029-02-08 → 2029-02-15 |
+| [#830](https://github.com/xjmusic/xjmusic/issues/830) Onboard the artists with their own packs and run a rehearsal | M | 5 | #829 | 2029-02-15 → 2029-02-22 |
+| [#836](https://github.com/xjmusic/xjmusic/issues/836) Build the show's credits, loudness, repair-alignment and capture-scrub tools | M | 5 | #753, #755, #766, #670 | 2029-01-25 → 2029-02-01 |
+| [#837](https://github.com/xjmusic/xjmusic/issues/837) Freeze the show build and the final lock at T−7 d | S | 2 | #830, #836, #829 | 2029-02-22 → 2029-02-26 |
+| [#831](https://github.com/xjmusic/xjmusic/issues/831) Run the show night with captures on every station and collect the evidence | S | 3 | #837 | 2029-02-26 → 2029-03-01 |
+| [#838](https://github.com/xjmusic/xjmusic/issues/838) Mix and master the recording and publish the release with credits | M | 4 | #831, #836 | 2029-03-01 → 2029-03-07 |
+| [#839](https://github.com/xjmusic/xjmusic/issues/839) Write the Phase 7 retrospective and file its findings for 2.x | S | 2 | #838 | 2029-03-07 → 2029-03-09 |
 
 ## How this chapter is kept current
 
