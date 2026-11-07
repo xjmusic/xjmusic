@@ -1808,5 +1808,35 @@
   "number": 480,
   "url": "https://github.com/xjmusic/xjmusic/issues/480",
   "kind": "umbrella"
+ },
+ "p1-docs-amend-proposal-phase-1": {
+  "number": 843,
+  "url": "https://github.com/xjmusic/xjmusic/issues/843",
+  "kind": "task"
+ },
+ "p2-docs-amend-proposal-phase-2": {
+  "number": 844,
+  "url": "https://github.com/xjmusic/xjmusic/issues/844",
+  "kind": "task"
+ },
+ "p3-docs-amend-proposal-phase-3": {
+  "number": 845,
+  "url": "https://github.com/xjmusic/xjmusic/issues/845",
+  "kind": "task"
+ },
+ "p4-docs-amend-proposal-phase-4": {
+  "number": 846,
+  "url": "https://github.com/xjmusic/xjmusic/issues/846",
+  "kind": "task"
+ },
+ "p5-docs-amend-proposal-phase-5": {
+  "number": 847,
+  "url": "https://github.com/xjmusic/xjmusic/issues/847",
+  "kind": "task"
+ },
+ "p5-moves-session-steps": {
+  "number": 848,
+  "url": "https://github.com/xjmusic/xjmusic/issues/848",
+  "kind": "task"
  }
 }
