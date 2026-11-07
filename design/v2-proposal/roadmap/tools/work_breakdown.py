@@ -51,6 +51,12 @@ def main():
     def ref(k):
         return f"[#{imap[k]['number']}]({REPO_URL}/issues/{imap[k]['number']})" if k in imap else f"`{k}`"
 
+    def short(title, width=42):
+        """Cut a title at a word boundary for a graph label."""
+        if len(title) <= width:
+            return title
+        return title[:width].rsplit(" ", 1)[0].rstrip(",;:") + "…"
+
     def num(k):
         return f"#{imap[k]['number']}" if k in imap else f"`{k}`"
 
@@ -107,7 +113,23 @@ def main():
     L.append("")
     L.append("## Epic dependency graph")
     L.append("")
-    L.append("Each box is an epic; an arrow means *blocked by*. Edges are computed from the tasks' edges (an edge that would close a cycle between two epics whose tasks interleave is left out).")
+    E = {e["key"]: set(e.get("blocked_by", [])) for e in m["epics"]}
+
+    def implied(a, b):
+        """True when a longer path from a already reaches b, so the direct edge a -> b adds nothing to the picture."""
+        seen, stack = set(), [x for x in E[a] if x != b]
+        while stack:
+            x = stack.pop()
+            if x == b:
+                return True
+            if x not in seen:
+                seen.add(x)
+                stack.extend(E[x])
+        return False
+
+    shown = [(a, b) for a in E for b in sorted(E[a]) if not implied(a, b)]
+    total_edges = sum(len(v) for v in E.values())
+    L.append(f"Each box is an epic; an arrow means *blocked by*. The tracker holds {total_edges} epic edges, computed from the tasks' edges (an edge that would close a cycle between two epics whose tasks interleave is left out). The graph draws the {len(shown)} that no longer path already implies, so every dependency path is still visible.")
     L.append("")
     L.append("```mermaid")
     L.append("flowchart LR")
@@ -115,11 +137,10 @@ def main():
         L.append(f"  subgraph P{p}[\"Phase {p} · {name}\"]")
         for e in m["epics"]:
             if e["phase"] == p:
-                L.append(f"    {e['key'].replace('-', '_')}[\"{num(e['key'])} {e['title'][:40]}\"]")
+                L.append(f"    {e['key'].replace('-', '_')}[\"{num(e['key'])} {short(e['title'])}\"]")
         L.append("  end")
-    for e in m["epics"]:
-        for b in e.get("blocked_by", []):
-            L.append(f"  {b.replace('-', '_')} --> {e['key'].replace('-', '_')}")
+    for a, b in shown:
+        L.append(f"  {b.replace('-', '_')} --> {a.replace('-', '_')}")
     L.append("```")
     for p, name in PHASES:
         L.append("")

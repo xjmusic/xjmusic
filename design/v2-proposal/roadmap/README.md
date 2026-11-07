@@ -28,6 +28,8 @@ The research the specifications cite is in [../research/](../research/): grounde
 
 The issues are the home of the specifications. `tools/gh_sync.py` is idempotent: a full pass creates whatever is missing, re-renders each issue body from `specs/<key>.md`, links sub-issues and dependencies, and sets the issue fields. `--bodies` pushes only changed bodies, and `--epic <key>` limits a pass to one epic. The `specs/` folder is a working copy, not committed: `tools/pull_specs.py` recovers it from the live issues, so an edit made on GitHub is never lost and a local edit always starts from what is published. Issues were published early, as work in progress, and are updated as each specification is written, reviewed and checked for consistency, so the tracker moves forward in visible steps even if the work that produces it is interrupted.
 
+One writing rule applies to issue bodies: never put an exclamation mark directly before an opening square bracket. Some GitHub integrations strip that sequence as Markdown image syntax, so the specifications write a Rust inner attribute as `#! [attr]`, an empty vector as `Vec::new()`, and a negative lookbehind on a character class as an anchored lookbehind on its complement. Issues in other repositories are cited as `owner/repo#N`, because a bare `#N` links to this repository.
+
 Once people start working the issues, the tracker is the source of truth for status and detail. Change an issue first; regenerate this folder's data only when the shape of the plan changes, then rerun `schedule.py`, `umbrella.py --push`, `work_breakdown.py` and `chapter_links.py` so the dates, the index issue, chapter 12 and the chapter appendices agree with it.
 
 ## How the proposal stays true

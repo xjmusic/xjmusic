@@ -71,431 +71,181 @@ The longest chain of estimates, with unlimited parallelism, is 231 engineer-days
 
 ## Epic dependency graph
 
-Each box is an epic; an arrow means *blocked by*. Edges are computed from the tasks' edges (an edge that would close a cycle between two epics whose tasks interleave is left out).
+Each box is an epic; an arrow means *blocked by*. The tracker holds 342 epic edges, computed from the tasks' edges (an edge that would close a cycle between two epics whose tasks interleave is left out). The graph draws the 92 that no longer path already implies, so every dependency path is still visible.
 
 ```mermaid
 flowchart LR
   subgraph P0["Phase 0 · Spikes and decisions"]
-    e0_paperwork["#490 Send the week-one license paperwork and "]
-    e0_decisions["#481 Turn the open questions into dated decis"]
-    e0_c_abi_spike["#491 Prove a Rust binary can link the engine "]
-    e0_craft_timing["#492 Check in the craft-timing harness and re"]
-    e0_ui_toolkit_spike["#493 Build the same performance-surface slice"]
-    e0_stretch_bakeoff["#494 Run the blind stretch and pitch-shift ba"]
-    e0_link_spike["#495 Lock a Rust process to an MPC and Ableto"]
-    e0_taxonomy_draft["#496 Draft xj-base@1 from the demo convention"]
-    e0_controller_spike["#497 Verify what midir exposes and how the tw"]
-    e0_tracker_ci_baseline["#498 Set up the V2 tracker and a Rust CI base"]
+    e0_paperwork["#490 Send the week-one license paperwork and…"]
+    e0_decisions["#481 Turn the open questions into dated…"]
+    e0_c_abi_spike["#491 Prove a Rust binary can link the engine…"]
+    e0_craft_timing["#492 Check in the craft-timing harness and…"]
+    e0_ui_toolkit_spike["#493 Build the same performance-surface slice…"]
+    e0_stretch_bakeoff["#494 Run the blind stretch and pitch-shift…"]
+    e0_link_spike["#495 Lock a Rust process to an MPC and Ableton…"]
+    e0_taxonomy_draft["#496 Draft xj-base@1 from the demo conventions…"]
+    e0_controller_spike["#497 Verify what midir exposes and how the two…"]
+    e0_tracker_ci_baseline["#498 Set up the V2 tracker and a Rust CI…"]
   end
   subgraph P1["Phase 1 · Engine 2.0"]
-    e1_determinism["#499 Make craft deterministic: tests first, e"]
-    e1_port_fixes["#500 Fix the C++ port regressions that the 2."]
-    e1_c_abi_core["#501 Ship the C ABI core: header, lifecycle, "]
-    e1_c_abi_hardening["#502 Run the ABI under sanitizers and fuzz it"]
-    e1_cues["#503 Implement cues with landing boundaries, "]
-    e1_foundation["#504 Implement follow mode and conduct mode a"]
-    e1_preview_diagnostics["#505 Add preview, choice diagnostics and reac"]
-    e1_abi_snapshots["#506 Complete the C ABI surface: snapshots, i"]
-    e1_content_fields["#507 Add the additive content fields and the "]
-    e1_engine_release_ci["#508 Modernize engine CI, decouple tags, ship"]
-    e1_engine_docs["#509 Update Doxygen and the docs site for eng"]
+    e1_determinism["#499 Make craft deterministic: tests first…"]
+    e1_port_fixes["#500 Fix the C++ port regressions that the 2.0…"]
+    e1_c_abi_core["#501 Ship the C ABI core: header, lifecycle…"]
+    e1_c_abi_hardening["#502 Run the ABI under sanitizers and fuzz it…"]
+    e1_cues["#503 Implement cues with landing boundaries…"]
+    e1_foundation["#504 Implement follow mode and conduct mode…"]
+    e1_preview_diagnostics["#505 Add preview, choice diagnostics and…"]
+    e1_abi_snapshots["#506 Complete the C ABI surface: snapshots…"]
+    e1_content_fields["#507 Add the additive content fields and the…"]
+    e1_engine_release_ci["#508 Modernize engine CI, decouple tags, ship…"]
+    e1_engine_docs["#509 Update Doxygen and the docs site for…"]
   end
   subgraph P2["Phase 2 · Station core"]
-    e2_rust_workspace["#510 Lay out the Rust workspace with a depend"]
-    e2_rust_engine["#511 Build xj-engine-sys and the safe xj-engi"]
-    e2_content_v1_io["#512 Read and write V1 projects as the Java w"]
-    e2_content_audio_cache["#513 Decode, resample and cache audio by cont"]
-    e2_transport["#514 Own the clock: four time bases, BeatCloc"]
-    e2_dsp_core["#515 Build the real-time graph: voices, buses"]
-    e2_dsp_fx_sinks["#516 Add the insert effects and the device, W"]
-    e2_control["#517 Build xj-control: inputs, mapping file, "]
-    e2_station_runtime["#518 Compose the headless xj-station runtime "]
-    e2_station_ci_soak["#519 Prove the station core in CI: render sta"]
-    e2_release_early["#520 Ship CLI releases on every tag so the de"]
+    e2_rust_workspace["#510 Lay out the Rust workspace with a…"]
+    e2_rust_engine["#511 Build xj-engine-sys and the safe…"]
+    e2_content_v1_io["#512 Read and write V1 projects as the Java…"]
+    e2_content_audio_cache["#513 Decode, resample and cache audio by…"]
+    e2_transport["#514 Own the clock: four time bases, BeatClock…"]
+    e2_dsp_core["#515 Build the real-time graph: voices, buses…"]
+    e2_dsp_fx_sinks["#516 Add the insert effects and the device…"]
+    e2_control["#517 Build xj-control: inputs, mapping file…"]
+    e2_station_runtime["#518 Compose the headless xj-station runtime…"]
+    e2_station_ci_soak["#519 Prove the station core in CI: render…"]
+    e2_release_early["#520 Ship CLI releases on every tag so the…"]
   end
   subgraph P3["Phase 3 · Workstation 2.0, Play mode"]
-    e3_shell["#521 Build the application shell in the chose"]
-    e3_surface["#522 Build the performance surface: scenes, p"]
-    e3_timeline_why["#523 Build the timeline, the why panel and th"]
-    e3_mapping_ui["#524 Build the controller mapping UI with lea"]
-    e3_first_run["#525 Make first launch sound in under 10 seco"]
-    e3_ship_mode["#526 Build Ship mode: Build for engine, bounc"]
-    e3_packaging["#527 Package, sign, notarize and auto-update "]
-    e3_release["#528 Release Workstation 2.0.0 after the usab"]
-    e3_usability["#529 Run the usability program that is the Ph"]
-    e3_docs_workstation["#530 Write the Play-mode and Ship-mode guides"]
+    e3_shell["#521 Build the application shell in the chosen…"]
+    e3_surface["#522 Build the performance surface: scenes…"]
+    e3_timeline_why["#523 Build the timeline, the why panel and the…"]
+    e3_mapping_ui["#524 Build the controller mapping UI with…"]
+    e3_first_run["#525 Make first launch sound in under 10…"]
+    e3_ship_mode["#526 Build Ship mode: Build for engine…"]
+    e3_packaging["#527 Package, sign, notarize and auto-update…"]
+    e3_release["#528 Release Workstation 2.0.0 after the…"]
+    e3_usability["#529 Run the usability program that is the…"]
+    e3_docs_workstation["#530 Write the Play-mode and Ship-mode guides…"]
   end
   subgraph P4["Phase 4 · Commons"]
-    e4_pack_format["#531 Define the pack, show and lockfile forma"]
-    e4_content_cli["#532 Ship the xj-content CLI: pack, lint, ver"]
-    e4_registry_infra["#533 Stand up the registry: index repository,"]
-    e4_registry_publishing["#534 Run publishing through CI, document auth"]
-    e4_shows["#535 Make shows load byte-identical content o"]
-    e4_taxonomy_licensing["#536 Publish xj-base@1, clear the licensing t"]
-    e4_seed_content["#537 Clear, correct and publish the four demo"]
-    e4_commons_ui["#538 Bring the Commons into the workstation: "]
+    e4_pack_format["#531 Define the pack, show and lockfile…"]
+    e4_content_cli["#532 Ship the xj-content CLI: pack, lint…"]
+    e4_registry_infra["#533 Stand up the registry: index repository…"]
+    e4_registry_publishing["#534 Run publishing through CI, document…"]
+    e4_shows["#535 Make shows load byte-identical content on…"]
+    e4_taxonomy_licensing["#536 Publish xj-base@1, clear the licensing…"]
+    e4_seed_content["#537 Clear, correct and publish the four demos…"]
+    e4_commons_ui["#538 Bring the Commons into the workstation…"]
   end
   subgraph P5["Phase 5 · Sessions"]
-    e5_protocol_spec_docs["#539 Publish the versioned session protocol w"]
-    e5_session_transport["#540 Build xj-session discovery, connection a"]
-    e5_foundation_claims_cues["#541 Share the foundation: publish, retract, "]
-    e5_session_clock["#542 Add the session BeatClock, the Link epoc"]
-    e5_session_ui["#543 Build the session panel, claim and horiz"]
-    e5_session_testing["#544 Soak sessions: handoffs for an hour, thr"]
-    e5_legal_docs_gate["#545 Clear the legal review, write the venue "]
+    e5_protocol_spec_docs["#539 Publish the versioned session protocol…"]
+    e5_session_transport["#540 Build xj-session discovery, connection…"]
+    e5_foundation_claims_cues["#541 Share the foundation: publish, retract…"]
+    e5_session_clock["#542 Add the session BeatClock, the Link epoch…"]
+    e5_session_ui["#543 Build the session panel, claim and…"]
+    e5_session_testing["#544 Soak sessions: handoffs for an hour…"]
+    e5_legal_docs_gate["#545 Clear the legal review, write the venue…"]
   end
   subgraph P6["Phase 6 · Make mode parity"]
-    e6_editor_infra["#546 Build the editing infrastructure the Rus"]
-    e6_instrument_audio_editor["#547 Build the instrument and audio editor fi"]
+    e6_editor_infra["#546 Build the editing infrastructure the Rust…"]
+    e6_instrument_audio_editor["#547 Build the instrument and audio editor…"]
     e6_template_editor["#548 Build the template editor"]
-    e6_program_editor["#549 Build the program editor in bind, chord "]
-    e6_parity_archive["#550 Audit parity, run pack-author sessions, "]
+    e6_program_editor["#549 Build the program editor in bind, chord…"]
+    e6_parity_archive["#550 Audit parity, run pack-author sessions…"]
   end
   subgraph P7["Phase 7 · The show"]
-    e7_show["#551 Produce the show: a real night, three or"]
+    e7_show["#551 Produce the show: a real night, three or…"]
   end
   e0_c_abi_spike --> e0_decisions
   e0_controller_spike --> e0_decisions
   e0_craft_timing --> e0_decisions
   e0_link_spike --> e0_decisions
-  e0_paperwork --> e0_decisions
   e0_stretch_bakeoff --> e0_decisions
   e0_taxonomy_draft --> e0_decisions
   e0_ui_toolkit_spike --> e0_decisions
   e0_tracker_ci_baseline --> e0_c_abi_spike
   e0_paperwork --> e0_link_spike
-  e0_craft_timing --> e1_determinism
-  e0_decisions --> e1_determinism
   e1_port_fixes --> e1_determinism
-  e0_craft_timing --> e1_port_fixes
   e0_decisions --> e1_port_fixes
-  e0_c_abi_spike --> e1_c_abi_core
-  e0_decisions --> e1_c_abi_core
   e1_determinism --> e1_c_abi_core
-  e1_port_fixes --> e1_c_abi_core
-  e0_craft_timing --> e1_c_abi_hardening
   e1_abi_snapshots --> e1_c_abi_hardening
-  e1_c_abi_core --> e1_c_abi_hardening
   e1_determinism --> e1_cues
-  e1_port_fixes --> e1_cues
-  e0_decisions --> e1_foundation
   e1_cues --> e1_foundation
-  e1_determinism --> e1_foundation
-  e1_port_fixes --> e1_foundation
-  e0_craft_timing --> e1_preview_diagnostics
   e1_cues --> e1_preview_diagnostics
-  e1_determinism --> e1_preview_diagnostics
   e1_c_abi_core --> e1_abi_snapshots
-  e1_cues --> e1_abi_snapshots
-  e1_determinism --> e1_abi_snapshots
   e1_foundation --> e1_abi_snapshots
-  e1_port_fixes --> e1_abi_snapshots
   e1_preview_diagnostics --> e1_abi_snapshots
-  e0_craft_timing --> e1_content_fields
   e1_c_abi_core --> e1_content_fields
   e1_cues --> e1_content_fields
-  e1_determinism --> e1_content_fields
-  e1_port_fixes --> e1_content_fields
-  e0_c_abi_spike --> e1_engine_release_ci
-  e0_craft_timing --> e1_engine_release_ci
-  e0_decisions --> e1_engine_release_ci
-  e0_tracker_ci_baseline --> e1_engine_release_ci
-  e1_abi_snapshots --> e1_engine_release_ci
-  e1_c_abi_core --> e1_engine_release_ci
   e1_c_abi_hardening --> e1_engine_release_ci
-  e1_content_fields --> e1_engine_release_ci
-  e1_cues --> e1_engine_release_ci
-  e1_determinism --> e1_engine_release_ci
   e1_engine_docs --> e1_engine_release_ci
-  e1_foundation --> e1_engine_release_ci
-  e1_port_fixes --> e1_engine_release_ci
-  e1_preview_diagnostics --> e1_engine_release_ci
-  e0_decisions --> e1_engine_docs
   e1_abi_snapshots --> e1_engine_docs
-  e1_c_abi_core --> e1_engine_docs
   e1_content_fields --> e1_engine_docs
-  e1_cues --> e1_engine_docs
-  e1_determinism --> e1_engine_docs
-  e1_foundation --> e1_engine_docs
   e0_c_abi_spike --> e2_rust_workspace
-  e0_tracker_ci_baseline --> e2_rust_workspace
-  e0_c_abi_spike --> e2_rust_engine
-  e1_abi_snapshots --> e2_rust_engine
-  e1_c_abi_core --> e2_rust_engine
   e1_c_abi_hardening --> e2_rust_engine
-  e1_foundation --> e2_rust_engine
-  e1_preview_diagnostics --> e2_rust_engine
   e2_rust_workspace --> e2_rust_engine
-  e0_craft_timing --> e2_content_v1_io
-  e0_decisions --> e2_content_v1_io
-  e1_abi_snapshots --> e2_content_v1_io
   e1_content_fields --> e2_content_v1_io
-  e1_port_fixes --> e2_content_v1_io
   e2_content_audio_cache --> e2_content_v1_io
   e2_rust_engine --> e2_content_v1_io
-  e2_rust_workspace --> e2_content_v1_io
-  e0_stretch_bakeoff --> e2_content_audio_cache
   e2_dsp_core --> e2_content_audio_cache
-  e2_rust_workspace --> e2_content_audio_cache
-  e0_link_spike --> e2_transport
   e2_dsp_core --> e2_transport
   e2_rust_engine --> e2_transport
-  e2_rust_workspace --> e2_transport
-  e0_decisions --> e2_dsp_core
-  e0_ui_toolkit_spike --> e2_dsp_core
   e1_cues --> e2_dsp_core
   e2_rust_workspace --> e2_dsp_core
-  e0_decisions --> e2_dsp_fx_sinks
   e2_content_audio_cache --> e2_dsp_fx_sinks
-  e2_dsp_core --> e2_dsp_fx_sinks
   e2_transport --> e2_dsp_fx_sinks
-  e0_controller_spike --> e2_control
-  e2_content_audio_cache --> e2_control
-  e2_dsp_core --> e2_control
   e2_dsp_fx_sinks --> e2_control
-  e2_rust_engine --> e2_control
-  e2_rust_workspace --> e2_control
-  e2_transport --> e2_control
-  e0_ui_toolkit_spike --> e2_station_runtime
-  e1_content_fields --> e2_station_runtime
-  e1_cues --> e2_station_runtime
-  e1_port_fixes --> e2_station_runtime
-  e2_content_audio_cache --> e2_station_runtime
   e2_content_v1_io --> e2_station_runtime
   e2_control --> e2_station_runtime
-  e2_dsp_core --> e2_station_runtime
-  e2_dsp_fx_sinks --> e2_station_runtime
-  e2_rust_engine --> e2_station_runtime
-  e2_transport --> e2_station_runtime
-  e0_decisions --> e2_station_ci_soak
-  e2_content_audio_cache --> e2_station_ci_soak
-  e2_content_v1_io --> e2_station_ci_soak
-  e2_control --> e2_station_ci_soak
-  e2_dsp_fx_sinks --> e2_station_ci_soak
   e2_station_runtime --> e2_station_ci_soak
-  e0_decisions --> e2_release_early
   e1_engine_release_ci --> e2_release_early
-  e2_rust_workspace --> e2_release_early
   e2_station_runtime --> e2_release_early
-  e0_decisions --> e3_shell
-  e0_ui_toolkit_spike --> e3_shell
   e1_engine_release_ci --> e3_shell
-  e2_control --> e3_shell
-  e2_dsp_core --> e3_shell
-  e2_rust_engine --> e3_shell
-  e2_rust_workspace --> e3_shell
   e2_station_ci_soak --> e3_shell
-  e2_station_runtime --> e3_shell
-  e0_taxonomy_draft --> e3_surface
-  e1_cues --> e3_surface
-  e1_determinism --> e3_surface
-  e2_content_v1_io --> e3_surface
-  e2_control --> e3_surface
-  e2_dsp_core --> e3_surface
-  e2_dsp_fx_sinks --> e3_surface
-  e2_rust_engine --> e3_surface
-  e2_station_runtime --> e3_surface
   e3_mapping_ui --> e3_surface
-  e3_shell --> e3_surface
   e3_timeline_why --> e3_surface
-  e1_abi_snapshots --> e3_timeline_why
-  e1_preview_diagnostics --> e3_timeline_why
-  e2_rust_engine --> e3_timeline_why
-  e2_station_runtime --> e3_timeline_why
   e3_shell --> e3_timeline_why
-  e2_control --> e3_mapping_ui
   e3_shell --> e3_mapping_ui
-  e0_decisions --> e3_first_run
-  e0_paperwork --> e3_first_run
-  e1_cues --> e3_first_run
-  e2_content_audio_cache --> e3_first_run
-  e2_content_v1_io --> e3_first_run
-  e2_station_ci_soak --> e3_first_run
-  e2_station_runtime --> e3_first_run
-  e3_mapping_ui --> e3_first_run
-  e3_shell --> e3_first_run
   e3_ship_mode --> e3_first_run
-  e3_surface --> e3_first_run
-  e2_content_v1_io --> e3_ship_mode
-  e2_station_runtime --> e3_ship_mode
-  e3_shell --> e3_ship_mode
   e3_surface --> e3_ship_mode
-  e0_decisions --> e3_packaging
-  e2_control --> e3_packaging
   e2_release_early --> e3_packaging
-  e2_rust_workspace --> e3_packaging
-  e2_station_runtime --> e3_packaging
   e3_first_run --> e3_packaging
-  e3_shell --> e3_packaging
-  e0_paperwork --> e3_release
-  e2_dsp_fx_sinks --> e3_release
-  e2_transport --> e3_release
   e3_docs_workstation --> e3_release
-  e3_first_run --> e3_release
-  e3_mapping_ui --> e3_release
-  e3_packaging --> e3_release
-  e3_ship_mode --> e3_release
-  e3_surface --> e3_release
-  e3_timeline_why --> e3_release
-  e3_usability --> e3_release
-  e2_station_runtime --> e3_release
-  e3_first_run --> e3_usability
-  e3_mapping_ui --> e3_usability
   e3_packaging --> e3_usability
-  e3_surface --> e3_usability
-  e3_timeline_why --> e3_usability
-  e0_decisions --> e3_docs_workstation
-  e2_control --> e3_docs_workstation
-  e3_first_run --> e3_docs_workstation
-  e3_mapping_ui --> e3_docs_workstation
-  e3_packaging --> e3_docs_workstation
-  e3_shell --> e3_docs_workstation
-  e3_ship_mode --> e3_docs_workstation
-  e3_surface --> e3_docs_workstation
-  e3_timeline_why --> e3_docs_workstation
   e3_usability --> e3_docs_workstation
-  e0_decisions --> e4_pack_format
-  e0_taxonomy_draft --> e4_pack_format
-  e1_content_fields --> e4_pack_format
-  e2_content_audio_cache --> e4_pack_format
   e2_content_v1_io --> e4_pack_format
   e2_control --> e4_pack_format
-  e2_rust_workspace --> e4_pack_format
-  e0_taxonomy_draft --> e4_content_cli
-  e1_content_fields --> e4_content_cli
-  e1_cues --> e4_content_cli
-  e2_content_audio_cache --> e4_content_cli
-  e2_content_v1_io --> e4_content_cli
-  e2_dsp_fx_sinks --> e4_content_cli
-  e2_rust_engine --> e4_content_cli
-  e2_station_runtime --> e4_content_cli
-  e4_pack_format --> e4_content_cli
   e4_registry_infra --> e4_content_cli
   e4_taxonomy_licensing --> e4_content_cli
-  e0_decisions --> e4_registry_infra
   e4_pack_format --> e4_registry_infra
-  e0_decisions --> e4_registry_publishing
   e4_content_cli --> e4_registry_publishing
-  e4_pack_format --> e4_registry_publishing
-  e4_registry_infra --> e4_registry_publishing
-  e4_taxonomy_licensing --> e4_registry_publishing
-  e1_cues --> e4_shows
-  e2_content_v1_io --> e4_shows
-  e2_station_runtime --> e4_shows
-  e4_content_cli --> e4_shows
-  e4_pack_format --> e4_shows
   e4_registry_publishing --> e4_shows
-  e4_taxonomy_licensing --> e4_shows
-  e0_decisions --> e4_taxonomy_licensing
-  e0_taxonomy_draft --> e4_taxonomy_licensing
-  e2_content_v1_io --> e4_taxonomy_licensing
-  e2_station_runtime --> e4_taxonomy_licensing
   e3_ship_mode --> e4_taxonomy_licensing
   e4_pack_format --> e4_taxonomy_licensing
-  e0_craft_timing --> e4_seed_content
-  e0_paperwork --> e4_seed_content
-  e1_engine_release_ci --> e4_seed_content
-  e1_foundation --> e4_seed_content
-  e1_preview_diagnostics --> e4_seed_content
-  e2_station_ci_soak --> e4_seed_content
   e3_first_run --> e4_seed_content
-  e4_content_cli --> e4_seed_content
   e4_registry_publishing --> e4_seed_content
-  e4_taxonomy_licensing --> e4_seed_content
-  e2_content_audio_cache --> e4_commons_ui
-  e2_control --> e4_commons_ui
-  e3_first_run --> e4_commons_ui
   e3_release --> e4_commons_ui
-  e3_shell --> e4_commons_ui
-  e3_ship_mode --> e4_commons_ui
-  e4_content_cli --> e4_commons_ui
-  e4_registry_publishing --> e4_commons_ui
   e4_seed_content --> e4_commons_ui
   e4_shows --> e4_commons_ui
-  e4_taxonomy_licensing --> e4_commons_ui
-  e0_link_spike --> e5_protocol_spec_docs
-  e1_foundation --> e5_protocol_spec_docs
   e4_pack_format --> e5_protocol_spec_docs
-  e2_rust_workspace --> e5_session_transport
   e4_shows --> e5_session_transport
   e5_protocol_spec_docs --> e5_session_transport
-  e1_foundation --> e5_foundation_claims_cues
-  e1_port_fixes --> e5_foundation_claims_cues
-  e2_control --> e5_foundation_claims_cues
-  e2_rust_engine --> e5_foundation_claims_cues
-  e2_station_runtime --> e5_foundation_claims_cues
-  e3_mapping_ui --> e5_foundation_claims_cues
-  e3_timeline_why --> e5_foundation_claims_cues
-  e5_session_clock --> e5_foundation_claims_cues
-  e5_session_transport --> e5_foundation_claims_cues
   e3_docs_workstation --> e5_foundation_claims_cues
-  e1_foundation --> e5_session_clock
-  e2_rust_engine --> e5_session_clock
-  e2_station_runtime --> e5_session_clock
-  e2_transport --> e5_session_clock
+  e5_session_clock --> e5_foundation_claims_cues
   e5_session_transport --> e5_session_clock
-  e2_station_runtime --> e5_session_ui
-  e3_shell --> e5_session_ui
-  e3_surface --> e5_session_ui
-  e4_content_cli --> e5_session_ui
   e5_foundation_claims_cues --> e5_session_ui
-  e2_control --> e5_session_testing
-  e2_station_ci_soak --> e5_session_testing
   e3_release --> e5_session_testing
-  e3_ship_mode --> e5_session_testing
-  e4_content_cli --> e5_session_testing
-  e4_shows --> e5_session_testing
-  e4_taxonomy_licensing --> e5_session_testing
-  e5_foundation_claims_cues --> e5_session_testing
-  e5_session_clock --> e5_session_testing
   e5_session_ui --> e5_session_testing
-  e0_decisions --> e5_legal_docs_gate
-  e3_docs_workstation --> e5_legal_docs_gate
-  e3_release --> e5_legal_docs_gate
   e4_commons_ui --> e5_legal_docs_gate
-  e4_registry_publishing --> e5_legal_docs_gate
-  e4_taxonomy_licensing --> e5_legal_docs_gate
-  e5_foundation_claims_cues --> e5_legal_docs_gate
-  e5_protocol_spec_docs --> e5_legal_docs_gate
-  e5_session_clock --> e5_legal_docs_gate
   e5_session_testing --> e5_legal_docs_gate
-  e5_session_transport --> e5_legal_docs_gate
-  e5_session_ui --> e5_legal_docs_gate
-  e1_engine_release_ci --> e6_editor_infra
-  e2_content_v1_io --> e6_editor_infra
-  e2_rust_engine --> e6_editor_infra
   e3_first_run --> e6_editor_infra
-  e3_shell --> e6_editor_infra
-  e3_surface --> e6_editor_infra
-  e4_pack_format --> e6_editor_infra
   e4_taxonomy_licensing --> e6_editor_infra
-  e2_content_audio_cache --> e6_instrument_audio_editor
-  e2_content_v1_io --> e6_instrument_audio_editor
-  e2_station_runtime --> e6_instrument_audio_editor
-  e4_commons_ui --> e6_instrument_audio_editor
-  e4_content_cli --> e6_instrument_audio_editor
-  e4_pack_format --> e6_instrument_audio_editor
   e5_legal_docs_gate --> e6_instrument_audio_editor
   e6_editor_infra --> e6_instrument_audio_editor
-  e2_content_v1_io --> e6_template_editor
   e4_shows --> e6_template_editor
   e6_editor_infra --> e6_template_editor
-  e2_content_v1_io --> e6_program_editor
-  e6_editor_infra --> e6_program_editor
   e6_instrument_audio_editor --> e6_program_editor
-  e2_content_v1_io --> e6_parity_archive
-  e4_commons_ui --> e6_parity_archive
-  e6_instrument_audio_editor --> e6_parity_archive
   e6_program_editor --> e6_parity_archive
   e6_template_editor --> e6_parity_archive
-  e2_control --> e7_show
-  e2_dsp_fx_sinks --> e7_show
-  e4_commons_ui --> e7_show
-  e4_content_cli --> e7_show
-  e4_shows --> e7_show
-  e4_taxonomy_licensing --> e7_show
   e5_legal_docs_gate --> e7_show
-  e5_session_ui --> e7_show
 ```
 
 ## Phase 0 · Spikes and decisions
