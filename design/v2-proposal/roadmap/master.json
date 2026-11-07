@@ -152,7 +152,8 @@
       "blocked_by": [
         "e0-craft-timing",
         "e1-abi-snapshots",
-        "e1-c-abi-core"
+        "e1-c-abi-core",
+        "e0-decisions"
       ]
     },
     {
@@ -365,7 +366,8 @@
         "e0-decisions",
         "e2-content-audio-cache",
         "e2-dsp-core",
-        "e2-transport"
+        "e2-transport",
+        "e2-rust-workspace"
       ]
     },
     {
@@ -795,7 +797,8 @@
         "e3-timeline-why",
         "e5-session-clock",
         "e5-session-transport",
-        "e3-docs-workstation"
+        "e3-docs-workstation",
+        "e5-protocol-spec-docs"
       ]
     },
     {
@@ -867,7 +870,8 @@
         "e5-session-clock",
         "e5-session-testing",
         "e5-session-transport",
-        "e5-session-ui"
+        "e5-session-ui",
+        "e3-usability"
       ]
     },
     {
@@ -916,7 +920,9 @@
       "blocked_by": [
         "e2-content-v1-io",
         "e4-shows",
-        "e6-editor-infra"
+        "e6-editor-infra",
+        "e4-commons-ui",
+        "e4-taxonomy-licensing"
       ]
     },
     {
@@ -1017,7 +1023,7 @@
     },
     {
       "key": "p0-dec-convention-and-closed-questions",
-      "title": "Create the decision-record convention and record Q7, Q8, Q9, Q13, Q14 and four deferrals",
+      "title": "Create the decision-record convention and record Q7, Q8, Q9, Q13, Q14 and five deferrals",
       "epic": "e0-decisions",
       "phase": "0",
       "area": "decision",
@@ -1242,7 +1248,8 @@
       "estimate_days": 2,
       "summary": "Run the harness on a 2019 Intel MacBook (and one Windows laptop of similar age) with default and Play-mode horizons on the checked-in Deep House payload (the largest demo; craft timing needs no audio) with a macro override every 20 s. Record mean/p95/p99/max per cycle class (the per-stage split is added in Phase 1 when the timing messages exist). Decide, in a decision record, whether the inline-craft design holds (the proposal retires the craft-on-another-thread contingency unless this contradicts it by an order of magnitude).",
       "blocked_by": [
-        "p0-timing-harness-in-tree"
+        "p0-timing-harness-in-tree",
+        "p0-dec-convention-and-closed-questions"
       ],
       "proposal_refs": [
         "09-roadmap.md Phase 0 Craft timing",
@@ -1326,7 +1333,8 @@
       "summary": "Score criteria 1 to 8 (60 fps on a 2019 laptop, visual ceiling, time to first sound under 2 s, iteration speed, accessibility, cross-platform parity, contributor pool, no separate Linux path) for both candidates with measurements attached. Record in the Q1 ADR that both slices were driven by the fake snapshot stream rather than a running engine, and restate criterion 3 as window-to-first-frame of the surface under 2 s here plus the Phase 3 launch-to-sound target measured on the real pipeline. Apply the tie-breaker (Candidate A) only if the scores tie; record the decision and the condition under which the surface would be scoped down (both miss 60 fps).",
       "blocked_by": [
         "p0-ui-spike-tauri-slice",
-        "p0-ui-spike-iced-slice"
+        "p0-ui-spike-iced-slice",
+        "p0-dec-convention-and-closed-questions"
       ],
       "proposal_refs": [
         "05-workstation.md Criteria",
@@ -1542,7 +1550,8 @@
       "estimate_days": 2,
       "summary": "The tracker holds the V2 plan only if the 44 open issues are dispositioned, not just the three conflicting ones. Using the understand map's dispositions: close the subsumed issues (#305, #306, #307, #309, #311, #320, #322, #324, #325, #331, #337, #341, #343, #359, #423, #471, #476 and the rest of that column) with a comment pointing at the V2 epic or task issue that absorbs each; re-milestone the carry items (#303, #308, #326, #328, #415, #437 and the rest) onto their V2 phase milestone with the `v2` and area labels; move the stays-V1 and Phase 6 items (#312, #315, #316, #317, #319 ...) to the Java maintenance bucket or the Phase 6 milestone; and close or re-milestone the craft requests #330 and #332 explicitly under 01's non-goal 'not a rewrite of the craft algorithms' (close with the reason, or a 2.x milestone if the company wants them kept). Done when no open issue lacks a milestone and a V2 disposition comment.",
       "blocked_by": [
-        "p0-ci-tracker-labels-milestones-project"
+        "p0-ci-tracker-labels-milestones-project",
+        "p0-dec-convention-and-closed-questions"
       ],
       "proposal_refs": [
         "09-roadmap.md From this folder to issues",
@@ -1660,7 +1669,8 @@
       "estimate_days": 2,
       "summary": "`EntityUtils::computeUniqueId` is a process-global 12-hex counter shared by every Engine in a process, so two engines in one process (the follow test, the Rust wrapper) issue colliding segment-side ids, and a 16-byte `active_audio_id` cannot be a byte-cast of today's string. Move the counter into the chain and emit 128-bit ids (a prefix drawn from the chain seed (the primitives task's field and setter) through `xj::Rng` at start, plus a per-chain counter) that the ABI returns as byte arrays, so the same seed reproduces the same ids and golden dumps and replays stay byte-identical; this depends on the RNG primitives but not on the swap PR, which separately removes the StickyBun and ValueUtils static generators. Two engines in one process draw different seeds unless told otherwise; across stations, records are identified by the session envelope's sender and seq, not by segment-side ids.",
       "blocked_by": [
-        "p1-det-rng-primitives"
+        "p1-det-rng-primitives",
+        "p1-det-segment-entity-json"
       ],
       "proposal_refs": [
         "04-engine.md \u00a711 Follow-mode tests",
@@ -2068,7 +2078,8 @@
         "p1-abi-content-reload-boundary",
         "p1-abi-set-horizons-boundary",
         "p1-abi-diagnostics-flag",
-        "p1-abi-preview-function-c-test"
+        "p1-abi-preview-function-c-test",
+        "p0-dec-versioning-tag-scheme"
       ],
       "proposal_refs": [
         "04-engine.md \u00a712",
@@ -2235,7 +2246,8 @@
       "summary": "Add the Content|External policy and a pending external tempo as public documented `XJ::Engine::setTempoPolicy()` and `setExternalTempo()` methods (Q8). In External mode MacroMainCraft writes the external tempo to the segment; CraftWork.cpp:300 (rewrite) must read `lastSegment->tempo` instead of `currentMainProgram->tempo` so it agrees with doCutoffLastSegment at :336 (edited after the horizon task has unified the three beats-to-micros formulas, so the two tasks touch those lines in order); and the segment tempo must be written before the Fabricator's first beats-to-micros call because getMicrosPerBeat caches the first tempo it sees. Main programs are still chosen by memes; their nominal tempo becomes advisory. Tests assert that a tempo change affects only segments crafted after it, that scheduled audio micros are unchanged, that the engine either runs across Link's 20 to 999 bpm range or applies a documented \u00d72/\u00f72 lock (TEST-PLAN TEMPO-4), and that Link's integer micros-per-beat quantization (124 bpm is 483,871 \u00b5s) is tolerated by comparing beats, not micros. The pending external tempo and the boundary at which it lands are recorded as a SegmentMessage so hosts read them through `xj_engine_get_messages_json`; no further ABI function is introduced for tempo state.",
       "blocked_by": [
         "p1-fix-micros-int64",
-        "p1-cue-horizon-earliest-landing"
+        "p1-cue-horizon-earliest-landing",
+        "p1-diag-messages-sequence-timing"
       ],
       "proposal_refs": [
         "04-engine.md \u00a72",
@@ -2424,7 +2436,8 @@
       "estimate_days": 9,
       "summary": "Two exclusion gates exist: the silent `iso.isAllowed` at bag time and the put-time MemeStack check that already writes an Error message. Behind a flag, record in `MarbleBag::pickPhase` the phases, candidates, weights (1 plus shared-meme count) and the winner, and record a reason at each silent `continue` in the craft stages, as SegmentMeta under an `xj.choice.` key namespace (StickyBun_ is the only existing one). Zero cost when off; snapshot JSON includes them. The flag itself is exposed to hosts by the ABI task `p1-abi-diagnostics-flag` (create setting plus `xj_engine_set_diagnostics`).",
       "blocked_by": [
-        "p1-det-swap-one-pr"
+        "p1-det-swap-one-pr",
+        "p1-diag-messages-sequence-timing"
       ],
       "proposal_refs": [
         "04-engine.md \u00a78",
@@ -3376,7 +3389,8 @@
       "estimate_days": 7,
       "blocked_by": [
         "p0-link-epoch-and-path-decision",
-        "p2-ws-ci-features-caching"
+        "p2-ws-ci-features-caching",
+        "p2-ws-cargo-deny-policy-notices"
       ],
       "summary": "rusty_link 0.4.9 on crates.io vendors Link 4.0.0b3 (its `abl_link_create` returns a LinkAudio instance), is GPL-2.0-or-later, and is a one-person project last touched 2026-01. Fork it under the XJ workspace as recorded in Phase 0, pin Ableton/link 4.1.1 (CMake 3.18, C++17), keep LinkAudio disabled, fix HostTimeFilter::reset allocation and the two asserts that would panic in the callback, and confirm by packet capture that a LinkAudio-disabled instance interoperates with Link 3 peers (MPC firmware). Ableton's grant can cover the vendored Link and abl_link; the rusty_link-derived Rust files are isolated in src/derived/ and need their author's relicense or the Phase 3 rewrite.",
       "proposal_refs": [
@@ -3563,7 +3577,8 @@
       "blocked_by": [
         "p2-dsp-voice-pool-envelopes",
         "p0-dec-q10-platforms-audio-backends",
-        "p2-xport-time-bases-affine"
+        "p2-xport-time-bases-affine",
+        "p2-ws-cargo-deny-policy-notices"
       ],
       "proposal_refs": [
         "05-workstation.md Sinks",
@@ -3642,7 +3657,8 @@
       "estimate_days": 6,
       "summary": "rosc is a codec only: add the UDP transport with bundles and timetags, plus sending for integrations such as lighting desks. gilrs for gamepads (polling, hot-plug supported) and a raw-mode keyboard reader for the CLI so the whole surface can be driven without a controller.",
       "blocked_by": [
-        "p2-ws-ci-features-caching"
+        "p2-ws-ci-features-caching",
+        "p2-ws-cargo-deny-policy-notices"
       ],
       "proposal_refs": [
         "08-performer-input.md Input sources"
@@ -3888,7 +3904,9 @@
         "p2-xport-link-feature-impl",
         "p2-dsp-rt-safety-harness",
         "p2-stn-variant-resolution-events",
-        "p2-ctrl-midi-clock-out"
+        "p2-ctrl-midi-clock-out",
+        "p2-ctrl-led-feedback-profiles",
+        "p2-ctrl-influence-signals"
       ],
       "proposal_refs": [
         "09-roadmap.md Phase 2 Exit",
@@ -3926,7 +3944,8 @@
         "p2-stn-tick-loop-scheduler",
         "p2-dsp-sinks-wav-capture-null-offline",
         "p2-ctrl-cue-gesture-routing-quantize",
-        "p2-stn-cli-render"
+        "p2-stn-cli-render",
+        "p2-ctrl-influence-signals"
       ],
       "proposal_refs": [
         "08-performer-input.md Capture and replay",
@@ -4400,7 +4419,8 @@
       "blocked_by": [
         "p3-shell-canvas-surface-component",
         "p2-stn-capture-format",
-        "p3-surf-one-pad-slice"
+        "p3-surf-one-pad-slice",
+        "p3-tl-timeline"
       ],
       "proposal_refs": [
         "05-workstation.md Advance and Hold",
@@ -4682,7 +4702,8 @@
         "p3-shell-app-skeleton",
         "p2-cont-build-for-engine",
         "p2-stn-cli-render",
-        "p3-shell-station-embed-snapshots"
+        "p3-shell-station-embed-snapshots",
+        "p2-stn-cli-build"
       ],
       "proposal_refs": [
         "05-workstation.md Game-audio continuity",
@@ -4721,7 +4742,8 @@
         "p0-dec-q10-platforms-audio-backends",
         "p2-ctrl-led-feedback-profiles",
         "p3-first-interim-starter-project",
-        "p2-ws-cargo-deny-policy-notices"
+        "p2-ws-cargo-deny-policy-notices",
+        "p2-rel-cli-release-checksums"
       ],
       "proposal_refs": [
         "11-resolutions.md Q10",
@@ -4967,7 +4989,8 @@
         "p3-surf-gesture-pads-fx",
         "p3-surf-transport-start-stop-template",
         "p3-surf-intensity-influence",
-        "p3-surf-keyboard-accessibility"
+        "p3-surf-keyboard-accessibility",
+        "p3-pkg-crash-reporting-opt-in"
       ],
       "proposal_refs": [
         "05-workstation.md The performance surface",
@@ -5737,7 +5760,8 @@
       "summary": "hello carries station id, name, engine and ABI versions, join code and the show.lock hash; welcome carries session id, epoch, member list, current claims, the next few foundation records and the conductor's show.lock (pack names, versions, hashes), as 06 says the conductor sends the lock; reject names the reason (bad code, version mismatch, lock mismatch) for the UI, and the lock-mismatch reject carries the same show.lock so a follower with a stale or missing lock can fetch the show and rejoin. A follower may not follow until its content is byte-identical. The conductor rejects a seventeenth station. Periodic presence carries state, round-trip estimate and a meters summary; bye is the clean departure; after a timeout a vanished follower's claims are released and everyone un-mutes those layers at the next segment.",
       "blocked_by": [
         "p5-sess-quic-tcp-framing",
-        "p4-show-station-loads-offline"
+        "p4-show-station-loads-offline",
+        "p5-proto-conformance-fixtures-reader"
       ],
       "proposal_refs": [
         "07-session-protocol.md Messages",
@@ -5760,7 +5784,9 @@
         "p2-eng-foundation-reload-horizons-diag-methods",
         "p2-eng-follow-test-rust",
         "p2-stn-tempo-policy-beatclock-wiring",
-        "p2-stn-capture-format"
+        "p2-stn-capture-format",
+        "p5-test-simulated-network-harness",
+        "p5-proto-conformance-fixtures-reader"
       ],
       "proposal_refs": [
         "07-session-protocol.md Messages foundation retract",
@@ -5866,7 +5892,8 @@
         "p5-ui-claims-horizon-indicators",
         "p3-tl-timeline",
         "p1-found-richer-fixture-beat-detail",
-        "p5-stn-session-integration-cli"
+        "p5-stn-session-integration-cli",
+        "p5-proto-conformance-fixtures-reader"
       ],
       "proposal_refs": [
         "07-session-protocol.md Failure handling",
@@ -5993,7 +6020,8 @@
         "p3-surf-layer-strips",
         "p5-cue-request-policy",
         "p3-surf-advance-hold-capture-header",
-        "p5-handoff"
+        "p5-handoff",
+        "p3-surf-harmony-strip-chord-picker"
       ],
       "proposal_refs": [
         "05-workstation.md Layers",
@@ -6012,7 +6040,8 @@
       "blocked_by": [
         "p5-failure-handling",
         "p2-stn-settings-diagnostics-bundle",
-        "p5-stn-session-integration-cli"
+        "p5-stn-session-integration-cli",
+        "p5-ui-session-panel"
       ],
       "proposal_refs": [
         "03-architecture.md Deployment shapes Headless station",
@@ -6114,7 +6143,8 @@
       "estimate_days": 2,
       "summary": "From the duet captures, the drift observations and the performers' feedback: decide whether Phase 7 is scheduled, whether the accept-all cue-request default stays (Q13), and what the sessions found that Phase 6 or 2.x must fix; record as a decision.",
       "blocked_by": [
-        "p5-test-real-gear-duet"
+        "p5-test-real-gear-duet",
+        "p3-ux-gate-decision"
       ],
       "proposal_refs": [
         "09-roadmap.md Decision gates",
@@ -6398,7 +6428,8 @@
       "summary": "Name, shipKey (lower-scored), config, the bindings table (type, name, jump to target, delete), the add-binding flow (library, then optional program or instrument) with a duplicate-binding check the Java editor lacked.",
       "blocked_by": [
         "p6-edit-library-browser",
-        "p6-edit-config-and-memes"
+        "p6-edit-config-and-memes",
+        "p4-ui-pack-browser-license"
       ],
       "proposal_refs": [
         "05-workstation.md Editors 2"
@@ -6410,13 +6441,14 @@
       "epic": "e6-template-editor",
       "phase": "6",
       "area": "workstation-ui",
-      "size": "M",
-      "estimate_days": 4,
+      "size": "L",
+      "estimate_days": 12,
       "summary": "A structured editor over memeTaxonomy (categories and memes, with the show's pack union shown read-only), intensityLayers and thresholds per type (all ten types required so the engine's zero-layers path is unreachable), the mixer keys that xj-dsp owns, commitHorizonBeats and followHoldMaxBars, and Export template in the Published-only flat layout.",
       "blocked_by": [
         "p6-tmpl-editor-fields-bindings",
         "p4-show-taxonomy-union-template",
-        "p2-cont-config-parser-dialect-port"
+        "p2-cont-config-parser-dialect-port",
+        "p4-legal-credits-generator"
       ],
       "proposal_refs": [
         "05-workstation.md Editors 2",
@@ -6500,7 +6532,8 @@
       "estimate_days": 9,
       "summary": "Multi-select and group edit of events (#317) with marquee, group move and edge drags constrained per pattern, Delete with confirmation; the event properties dialog for one or many events (tones, velocity as percent, 1-based position, duration, all validated); copy and paste of events and patterns across programs and projects through a versioned text/plain clipboard format with a JSON Schema and refusal rules.",
       "blocked_by": [
-        "p6-prog-event-edit-mode"
+        "p6-prog-event-edit-mode",
+        "p6-prog-chord-edit-mode"
       ],
       "proposal_refs": [
         "09-roadmap.md Phase 6"
@@ -6612,7 +6645,8 @@
       "summary": "Add the optional key `to` to the mapping form `session = { type = \"handoff_offer\" }`, so an OSC or controller binding can offer the conductor role to a named station. This is the house station's primary handoff path for the show; the wall-keyed script remains the fallback.",
       "blocked_by": [
         "p5-ui-claims-horizon-indicators",
-        "p2-ctrl-mapping-toml-learn"
+        "p2-ctrl-mapping-toml-learn",
+        "p5-rel-workstation-2-2"
       ],
       "proposal_refs": [
         "08-performer-input.md Mapping",
