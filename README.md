@@ -1,3 +1,35 @@
+# XJ music 2.0: a room full of stations, one song
+
+**Play adaptive music like an instrument. Share a library like a crew. Keep a whole room in the same tempo and the same chord changes.**
+
+XJ music began with two samplers wired to one hard drive: one machine holding the groove, the other tearing it apart, both playing the same show. Version 2 builds that room for real. The patented engine that composes adaptive soundtracks for games becomes the heart of a live performance workstation.
+
+**The mission:** lift the performer above the sequencer. The machine handles the lowest level of the music, so you get to do the part that matters: steer it, play it, and connect with the people in front of you.
+
+**Where it stands:** the plan is complete and public, and engineering begins with Engine 2.0. Today's download is XJ music 1.9, and it is the best way to start making adaptive music now.
+
+### For musicians
+
+- **It plays the moment it opens.** No project to build first. The workstation opens in Play mode with a starter pack already making music.
+- **You steer, it composes.** Cue where the music goes next and land changes on the beat, the bar or the section. Fire drops, sweeps, fills and stutters in the moment, from a pad controller, a keyboard or the screen.
+- **You always know what it will do.** Every choice the engine makes is on screen, and every control shows what it will do before you touch it.
+- **Bring your sound, share the stage.** Draw on the open Commons, a shared library of signed, licensed packs, or on your own material. Everything you play is chosen against the shared harmony and tempo, so it fits.
+- **Two stations, one song.** Join a session on the venue network and every station follows the same tempo and chord changes, trading the lead back and forth at a section boundary with no dropout. Ableton Link keeps the beat with the rest of your gear.
+- **Still made for games.** A game soundtrack and a live set are the same content, and the engine keeps preparing adaptive music for Unreal and other engines.
+
+### For hackers
+
+- **Engine 2.0.** The C++ craft engine stays the single source of musical truth, now behind a stable C ABI, with seeded randomness so a performance can be replayed and two stations compared.
+- **A Rust workstation and station runtime** on that ABI: real-time DSP, Link, MIDI and OSC mapping, capture and replay.
+- **The Commons.** Versioned, content-addressed, signed packs, a static registry with no server to run, and a lint that understands music.
+- **Sessions.** An open protocol for a venue network, in which one station conducts a harmonic timeline published bars ahead of the beat and every other station crafts its own layers against it.
+- **Designed in the open, down to the acceptance criteria.** Read [the V2 proposal](design/v2-proposal/README.md), follow [the roadmap](https://github.com/orgs/xjmusic/projects/7) from [its umbrella issue](https://github.com/xjmusic/xjmusic/issues/480), pick an issue, and build it with us. Every hour of merged work earns equity in XJ music, as [described below](#earning-equity-in-xj-music).
+
+The 1.9 workstation stays the editor of record, in maintenance, until the new editors reach parity. Nothing you make today is left behind: both read and write the same project files.
+
+---
+
+
 [![Engine CI](https://github.com/xjmusic/xjmusic/actions/workflows/engine_ci.yaml/badge.svg)](https://github.com/xjmusic/xjmusic/actions/workflows/engine_ci.yaml)
 [![Engine Distro](https://github.com/xjmusic/xjmusic/actions/workflows/engine_distro.yml/badge.svg)](https://github.com/xjmusic/xjmusic/actions/workflows/engine_distro.yml)<br/>
 [![Workstation CI](https://github.com/xjmusic/xjmusic/actions/workflows/workstation_ci.yml/badge.svg)](https://github.com/xjmusic/xjmusic/actions/workflows/workstation_ci.yml)
