@@ -1,0 +1,4 @@
+# Working copies and build output that must not be committed
+specs/
+*.remote.md
+__pycache__/

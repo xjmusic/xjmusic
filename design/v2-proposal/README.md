@@ -42,6 +42,7 @@ Multi-station synchronization, the part that sounds most exotic, is the *least* 
 | 9 | [09-roadmap.md](09-roadmap.md) | Phases, exit criteria, sizing, and what we keep from V1 during transition |
 | 10 | [10-risks-and-open-questions.md](10-risks-and-open-questions.md) | Risks, alternatives considered, decisions deferred to spikes |
 | 11 | [11-resolutions.md](11-resolutions.md) | Second pass: each open question researched, measured where possible, and resolved to a recommendation |
+| 12 | [12-work-breakdown.md](12-work-breakdown.md) | The roadmap as issues: phases, epics and tasks in dependency order, the critical path and the schedule, generated from [roadmap/](roadmap/README.md) |
 | — | [glossary.md](glossary.md) | Terms used across the proposal, including new ones |
 | — | [paperwork/](paperwork/ableton-link-license-request.md) | The week-one license paperwork: a draft request to Ableton for Link, and the Steinberg ASIO agreement checklist |
 | — | [tools/](tools/README.md) | The scripts behind the second pass's measurements and content analysis |
@@ -50,7 +51,7 @@ Multi-station synchronization, the part that sounds most exotic, is the *least* 
 
 This is a PR so it can be reviewed line by line. Comment on the specific claim you disagree with. Where a section proposes a decision, it names the alternatives considered and the criteria, so the fastest way to change the proposal is to attack the criteria.
 
-The intent is that once the shape is agreed, each phase in [09-roadmap.md](09-roadmap.md) decomposes into ordinary GitHub issues. Until then this folder is the single place the plan lives.
+Each phase in [09-roadmap.md](09-roadmap.md) is decomposed into GitHub issues: the decomposition and its tools live in [roadmap/](roadmap/README.md), the generated view is [12-work-breakdown.md](12-work-breakdown.md), and every chapter ends with an "Implementation issues" appendix naming the issues that cite it. This folder remains the single description of the plan; the issues are the source of truth for status and detail.
 
 ## Provenance
 
