@@ -1,3 +1,5 @@
+<img width="1024" height="1024" alt="xj-music-v2-the-next-level" src="design/xj-music-v2-the-next-level.png" />
+
 [![Engine CI](https://github.com/xjmusic/xjmusic/actions/workflows/engine_ci.yaml/badge.svg)](https://github.com/xjmusic/xjmusic/actions/workflows/engine_ci.yaml)
 [![Engine Distro](https://github.com/xjmusic/xjmusic/actions/workflows/engine_distro.yml/badge.svg)](https://github.com/xjmusic/xjmusic/actions/workflows/engine_distro.yml)<br/>
 [![Workstation CI](https://github.com/xjmusic/xjmusic/actions/workflows/workstation_ci.yml/badge.svg)](https://github.com/xjmusic/xjmusic/actions/workflows/workstation_ci.yml)
@@ -6,11 +8,9 @@
 <a href="https://xjmusic.com/license"><img src="https://img.shields.io/badge/license-free_for_indies-4dc81f" alt="License" /></a>
 <a href="https://discord.xj.io/">![Discord](https://img.shields.io/discord/1143999288440000522.svg?label=Discord&logo=discord&color=7289DA&labelColor=2C2F33)</a>
 <a href="https://www.unrealengine.com/">![Unreal Engine](https://img.shields.io/badge/Unreal-5.4.4%2B-dea309)</a>
-
-<img width="1024" height="1024" alt="xj-music-v2-the-next-level" src="design/xj-music-v2-the-next-level.png" />
-
+<br/>
 <a href="https://xjmusic.com">
-  <img width="320" height="320" src="design/xj-music-logo.png" alt="XJ music logo" />
+  <img width="64" height="64" src="design/xj-music-logo.png" alt="XJ music logo" />
 </a>
 
 # THE NEXT LEVEL: XJ v2
