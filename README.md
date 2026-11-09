@@ -7,35 +7,11 @@
 <a href="https://discord.xj.io/">![Discord](https://img.shields.io/discord/1143999288440000522.svg?label=Discord&logo=discord&color=7289DA&labelColor=2C2F33)</a>
 <a href="https://www.unrealengine.com/">![Unreal Engine](https://img.shields.io/badge/Unreal-5.4.4%2B-dea309)</a>
 
+<img width="1024" height="1024" alt="xj-music-v2-the-next-level" src="design/xj-music-v2-the-next-level.png" />
 
 <a href="https://xjmusic.com">
   <img width="320" height="320" src="design/xj-music-logo.png" alt="XJ music logo" />
 </a>
-
-
-# Adaptive music engine
-
-XJ music is the first end-to-end solution built specifically for adaptive ambient music, enabling composers to realize new possibilities.
-
-XJ includes the [XJ music workstation](workstation/README.md), a DAW dedicated to preparing adaptive video game music, and the 
-[XJ music engine](engine/README.md) to integrate the product within your game audio system.
-
-Download and install the XJ music workstation to start creating adaptive music for video games. You can download the latest version of the XJ music workstation from [xjmusic.com/download](https://xjmusic.com/download).
-
-![XJ music workstation in action](workstation/design/xjmusic-workstation-screenshot-fabrication.png)
-
-
-## Getting started
-
-First, [Download the XJ music workstation](https://xjmusic.com/download) and follow the [installation instructions](https://docs.xjmusic.com/installation/).
-
-Then, read the [getting started documentation](https://docs.xjmusic.com/getting-started/), which shows you how to create one of our Demo projects so you can start checking out the workstation right away.
-
-The source files for the demos are hosted [here](https://github.com/xjmusic/xjmusic-demos)
-
-When you're ready to integrate XJ music into your game, check out the [Unreal Engine Plugin](https://github.com/xjmusic/UnrealPlugin/) or go directly to the [C++ playback engine](https://github.com/xjmusic/xjmusic/tree/main/engine/) and [its documentation](https://engine-docs.xjmusic.com/).
-
----
 
 # THE NEXT LEVEL: XJ v2
 
@@ -67,6 +43,28 @@ XJ music began with two samplers wired to one hard drive: one machine holding th
 The 1.9 workstation stays the editor of record until the new editors reach parity, and moves to maintenance once Engine 2.0 ships. Nothing you make today is left behind: both read and write the same project files.
 
 ---
+
+# Adaptive music engine
+
+XJ music is the first end-to-end solution built specifically for adaptive ambient music, enabling composers to realize new possibilities.
+
+XJ includes the [XJ music workstation](workstation/README.md), a DAW dedicated to preparing adaptive video game music, and the 
+[XJ music engine](engine/README.md) to integrate the product within your game audio system.
+
+Download and install the XJ music workstation to start creating adaptive music for video games. You can download the latest version of the XJ music workstation from [xjmusic.com/download](https://xjmusic.com/download).
+
+![XJ music workstation in action](workstation/design/xjmusic-workstation-screenshot-fabrication.png)
+
+
+## Getting started
+
+First, [Download the XJ music workstation](https://xjmusic.com/download) and follow the [installation instructions](https://docs.xjmusic.com/installation/).
+
+Then, read the [getting started documentation](https://docs.xjmusic.com/getting-started/), which shows you how to create one of our Demo projects so you can start checking out the workstation right away.
+
+The source files for the demos are hosted [here](https://github.com/xjmusic/xjmusic-demos)
+
+When you're ready to integrate XJ music into your game, check out the [Unreal Engine Plugin](https://github.com/xjmusic/UnrealPlugin/) or go directly to the [C++ playback engine](https://github.com/xjmusic/xjmusic/tree/main/engine/) and [its documentation](https://engine-docs.xjmusic.com/).
 
 ## Patented technology, open source codebase
 
