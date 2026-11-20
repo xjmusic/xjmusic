@@ -127,7 +127,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake ..
+          cmake .. -DCMAKE_POLICY_VERSION_MINIMUM=3.5
           cmake --build .
 
       - name: Test (Windows)
@@ -148,7 +148,7 @@ jobs:
         if: runner.os == 'Linux' || runner.os == 'macOS'
         working-directory: engine/build/
         run: |
-          cmake .. -DCMAKE_BUILD_TYPE=Release
+          cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_POLICY_VERSION_MINIMUM=3.5
           cmake --build .
           cp src/libxjmusic.a ../../xjmusic-v${{ needs.verify_version_number.outputs.version }}.lib
 
@@ -156,7 +156,7 @@ jobs:
         if: runner.os == 'Windows'
         working-directory: engine/build/
         run: |
-          cmake .. -DCMAKE_BUILD_TYPE=Release
+          cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_POLICY_VERSION_MINIMUM=3.5
           cmake --build .
           cp src/Debug/xjmusic.lib ../../xjmusic-v${{ needs.verify_version_number.outputs.version }}.lib
 
