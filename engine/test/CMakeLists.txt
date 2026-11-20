@@ -143,6 +143,11 @@ if(NOT yaml-cpp_POPULATED)
     message(STATUS "Fetching yaml-cpp...")
     FetchContent_Populate(yaml-cpp)
     add_subdirectory(${yaml-cpp_SOURCE_DIR} ${yaml-cpp_BINARY_DIR})
+    # yaml-cpp 0.8.0 uses uint16_t without including <cstdint>, which GCC 13 and later no longer
+    # pull in for it: give that one target the header, and leave every other target as it was.
+    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        target_compile_options(yaml-cpp PRIVATE -include cstdint)
+    endif()
 endif()
 target_link_libraries(xjmusic_test PUBLIC yaml-cpp::yaml-cpp)
 
