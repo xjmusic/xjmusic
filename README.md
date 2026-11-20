@@ -23,6 +23,20 @@ XJ music began with two samplers wired to one hard drive: one machine holding th
 
 **Where it stands:** The plan is public and open for comment. Work starts with Phase 0 spikes that end in a go/no-go on the plan, then Engine 2.0. Today's download is XJ music 1.9, and it is the best way to start making adaptive music now.
 
+## Usage reporting
+
+> **The XJ music workstation asks before it sends anything, and sends nothing unless you say yes.**
+
+The workstation (the Java app in [`workstation/`](workstation/)) can send anonymous usage numbers to **Signal**, Outright Mental's own first-party, aggregate-only analytics. No third-party analytics company is involved.
+
+- **What is sent:** one summary of a few dozen bytes when you quit: how long the workstation was open, which views and modes you used, which major features you touched, whether music played, and whether anything failed or crashed. Every value is a number. [Metric by metric, in PRIVACY.md](PRIVACY.md#exactly-what-is-sent).
+- **What is never sent:** your name, an account or any identifier; your projects, files, folders or the names in them; your music; anything you type. Your IP address is not stored.
+- **Your choice:** a first-run question with equal **Yes, share** and **No thanks**. Change your mind any time in **Settings › Privacy**, which shows the exact bytes that would be sent. Turn it off for good with `XJ_SIGNAL=off`.
+- **The code:** the catalog in [`.signal/`](.signal/), the workstation's side in [`workstation/src/main/java/io/xj/gui/usage/`](workstation/src/main/java/io/xj/gui/usage/), and Signal's core, vendored, in [`workstation/vendor/signal-core/`](workstation/vendor/signal-core/).
+- **Only the workstation:** the engine and the Unreal plugin never report anything. They run inside other people's games.
+
+Everything, in full: **[PRIVACY.md](PRIVACY.md)**.
+
 ## For musicians
 
 - **It makes music within seconds of launch.** No project to build first. The workstation opens in Play mode with a starter pack already playing.

@@ -248,6 +248,16 @@ public class MainMenuController extends ProjectController {
   }
 
   @FXML
+  void onLaunchPrivacyPolicy() {
+    supportService.launchPrivacyPolicyInBrowser();
+  }
+
+  @FXML
+  void onOpenUsageReportingSettings() {
+    settingsModalController.launchModalWithPrivacySettings();
+  }
+
+  @FXML
   void handleAbout() {
     mainAboutModalController.launchModal();
   }

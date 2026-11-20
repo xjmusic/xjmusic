@@ -180,6 +180,10 @@
             </MenuItem>
             <SeparatorMenuItem mnemonicParsing="false"/>
             <MenuItem onAction="#onLaunchDiscord" text="Discord" mnemonicParsing="false"/>
+            <SeparatorMenuItem mnemonicParsing="false"/>
+            <!-- Usage reporting: see PRIVACY.md -->
+            <MenuItem onAction="#onLaunchPrivacyPolicy" text="Privacy &amp; Usage Reporting" mnemonicParsing="false"/>
+            <MenuItem onAction="#onOpenUsageReportingSettings" text="Usage Reporting Settings..." mnemonicParsing="false"/>
         </Menu>
 
     </MenuBar>

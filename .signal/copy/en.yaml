@@ -1,0 +1,23 @@
+# The words of the workstation's own Signal screens: the first-run question,
+# the notice that would take its place under notice_and_opt_out, and
+# Settings › Privacy. Every line not here is Signal's standard copy.
+prompt_title: Help improve the {GAME}?
+prompt_body: "If you say yes, the workstation sends XJ Music a few anonymous numbers each time you quit: how long it was open, which views you used, which features you touched, whether music played, and whether anything failed. Never your name, an account or any identifier, never your projects, files or music, and nothing you type. They go to Signal, Outright Mental's own analytics service, which keeps only daily totals. Nothing is sent unless you say yes. You can see exactly what is sent, and change your mind any time, in Settings › Privacy."
+prompt_yes: Yes, share
+prompt_no: No thanks
+prompt_what: What exactly is sent?
+prompt_policy: Privacy policy
+notice_title: The {GAME} shares anonymous usage numbers
+notice_body: "Each time you quit, the workstation sends XJ Music a few anonymous numbers: how long it was open, which views you used, which features you touched, whether music played, and whether anything failed. Never your name, an account or any identifier, never your projects, files or music, and nothing you type. They go to Signal, Outright Mental's own analytics service, which keeps only daily totals. You can see exactly what is sent, and turn it off, here or any time in Settings › Privacy."
+notice_ok: OK
+notice_off: Turn off
+privacy_title: Privacy
+privacy_share: Share anonymous usage numbers
+privacy_preview: What we send
+privacy_preview_next: Next summary, sent when you quit
+privacy_preview_sent: Last sent
+privacy_preview_none: Nothing is being recorded, so nothing will be sent.
+privacy_reset: Reset local stats
+privacy_reset_done: Local stats cleared.
+privacy_policy: Privacy policy
+privacy_close: Close

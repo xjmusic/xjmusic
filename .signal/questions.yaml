@@ -1,0 +1,36 @@
+# What a maintainer of the workstation would act on. Every metric in
+# catalog.yaml cites one of these, and each says the decision its answer
+# changes: a number nobody would act on is not collected.
+questions:
+  - id: Q1
+    text: Which modes (Content, Templates, Preview) and which views of the workstation are used, and for how long?
+    owner: nick
+    decision: Put design and documentation work where people spend their time; simplify or cut views nobody reaches.
+
+  - id: Q2
+    text: How quickly does a new user get from launching the workstation to hearing music, and where do the ones who never get there stop?
+    owner: nick
+    decision: Rework the first run (demos, the empty start screen, the guide) if most first sessions never play music.
+
+  - id: Q3
+    text: How long are sessions and previews, and do people come back?
+    owner: nick
+    decision: Decide whether to invest in long-running listening (Preview) or in editing workflows; judge whether releases keep people.
+    core: [sessions, playtime_s, session_length, return_gap, session_outcome]
+
+  - id: Q4
+    text: Which major features are used, and which control mode is chosen when music is previewed?
+    owner: nick
+    decision: Prioritise, document or retire features by how often they are reached.
+
+  - id: Q5
+    text: How often does the workstation crash, end uncleanly, fail a build, a preview or a project, or show an error?
+    owner: nick
+    decision: Put stability work ahead of features when failures rise after a release.
+    core: [unclean_prev_exit]
+
+  - id: Q6
+    text: How many people say yes to sharing these numbers?
+    owner: nick
+    decision: Know how far the numbers can be trusted, and whether the first-run question is worded well.
+    core: [consent_events]

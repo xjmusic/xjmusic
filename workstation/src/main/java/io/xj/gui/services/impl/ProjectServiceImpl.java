@@ -8,6 +8,10 @@ import io.xj.gui.services.ProjectDescriptor;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.VersionService;
+import io.xj.gui.usage.UsageService;
+import io.xj.gui.usage.XjSignalCatalog.L;
+import io.xj.gui.usage.XjSignalCatalog.MS;
+import io.xj.gui.usage.XjSignalCatalog.T;
 import io.xj.gui.types.AudioFileContainer;
 import io.xj.model.HubContent;
 import io.xj.model.entity.EntityUtils;
@@ -147,6 +151,7 @@ public class ProjectServiceImpl implements ProjectService {
   private final ThemeService themeService;
   private final ProjectManager projectManager;
   private final VersionService versionService;
+  private final UsageService usageService;
   private final JsonProvider jsonProvider;
   private final String demoBaseUrl;
 
@@ -159,7 +164,8 @@ public class ProjectServiceImpl implements ProjectService {
     @Value("${build.defaultOutputSampleBits}") String defaultOutputSampleBits,
     ThemeService themeService,
     ProjectManager projectManager,
-    VersionService versionService
+    VersionService versionService,
+    UsageService usageService
   ) {
     this.demoBaseUrl = demoBaseUrl;
     this.maxRecentProjects = maxRecentProjects;
@@ -170,6 +176,7 @@ public class ProjectServiceImpl implements ProjectService {
     this.themeService = themeService;
     this.projectManager = projectManager;
     this.versionService = versionService;
+    this.usageService = usageService;
     this.jsonProvider = new JsonProviderImpl();
     attachPreferenceListeners();
     setAllFromPreferencesOrDefaults();
@@ -217,6 +224,8 @@ public class ProjectServiceImpl implements ProjectService {
   public void openProject(String projectFilePath) {
     closeProject(() -> executeInBackground("Open Project", () -> {
       if (projectManager.openProjectFromLocalFile(projectFilePath)) {
+        usageService.feature(L.FEATURES_PROJECT_OPEN);
+        usageService.milestone(MS.PROJECT_OPENED);
         projectManager.getProject().ifPresent(project -> {
           resetProjectModificationStates(true);
           addToRecentProjects(project, projectManager.getProjectFilename(), projectManager.getPathToProjectFile());
@@ -246,6 +255,8 @@ public class ProjectServiceImpl implements ProjectService {
       if (promptToSkipOverwriteIfExists(parentPathPrefix, projectName, "Project"))
         executeInBackground("Create Project", () -> {
           if (projectManager.createProject(parentPathPrefix, projectName, versionService.getVersion())) {
+            usageService.feature(L.FEATURES_PROJECT_NEW);
+            usageService.milestone(MS.PROJECT_CREATED);
             projectManager.getProject().ifPresent(project -> {
               resetProjectModificationStates(true);
               addToRecentProjects(project, projectManager.getProjectFilename(), projectManager.getPathToProjectFile());
@@ -267,6 +278,9 @@ public class ProjectServiceImpl implements ProjectService {
               projectName,
               versionService.getVersion()
             )) {
+              usageService.feature(L.FEATURES_DEMO_OPEN);
+              usageService.milestone(MS.DEMO_OPENED);
+              usageService.trait(T.STARTED_WITH_DEMO);
               projectManager.getProject().ifPresent(project -> {
                 resetProjectModificationStates(true);
                 addToRecentProjects(project, projectManager.getProjectFilename(), projectManager.getPathToProjectFile());
@@ -306,6 +320,9 @@ public class ProjectServiceImpl implements ProjectService {
             conversionChannels
           )) {
             Platform.runLater(this::cancelProjectLoading);
+          } else {
+            usageService.feature(L.FEATURES_TEMPLATE_EXPORT);
+            usageService.milestone(MS.TEMPLATE_EXPORTED);
           }
         } catch (Exception e) {
           LOG.warn("Failed to export template! {}\n{}", e, StringUtils.formatStackTrace(e));
@@ -316,6 +333,7 @@ public class ProjectServiceImpl implements ProjectService {
 
   @Override
   public void buildProject() {
+    usageService.feature(L.FEATURES_PROJECT_BUILD);
     executeInBackground("Build Project", () -> {
       try {
         if (!projectManager.buildProject(
@@ -336,6 +354,7 @@ public class ProjectServiceImpl implements ProjectService {
   @Override
   public void saveProject(@Nullable Runnable onComplete) {
     LOG.info("Will save project");
+    usageService.feature(L.FEATURES_PROJECT_SAVE);
     executeInBackground("Save Project", () -> {
       projectManager.saveProject(versionService.getVersion());
       Platform.runLater(() -> {
@@ -348,6 +367,7 @@ public class ProjectServiceImpl implements ProjectService {
   @Override
   public void saveAsProject(String parentPathPrefix, String projectName) {
     LOG.info("Will save as new project");
+    usageService.feature(L.FEATURES_PROJECT_SAVE_AS);
     executeInBackground("Save As New Project", () -> {
       projectManager.saveAsProject(parentPathPrefix, projectName, versionService.getVersion());
       addToRecentProjects(projectManager.getProject().orElse(null), projectName + ".xj", projectManager.getPathToProjectFile());
@@ -696,6 +716,7 @@ public class ProjectServiceImpl implements ProjectService {
   @Override
   public InstrumentAudio createInstrumentAudio(Instrument instrument, String audioFilePath) throws Exception {
     var audio = projectManager.createInstrumentAudio(instrument, audioFilePath);
+    usageService.feature(L.FEATURES_AUDIO_IMPORT);
     didUpdate(InstrumentAudio.class, true);
     LOG.info("Created Instrument Audio \"{}\" by importing waveform from {}", audio.getName(), audioFilePath);
     return audio;
@@ -958,6 +979,7 @@ public class ProjectServiceImpl implements ProjectService {
 
   @Override
   public void showErrorDialog(String title, String header, String body) {
+    usageService.errorShown();
     ButtonType loginButtonType = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
     Dialog<String> dialog = new Dialog<>();
     themeService.setup(dialog);

@@ -7,6 +7,8 @@ import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
+import io.xj.gui.usage.UsageService;
+import io.xj.gui.usage.XjSignalCatalog;
 import io.xj.engine.fabricator.ControlMode;
 import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
@@ -46,6 +48,7 @@ import java.util.UUID;
 public class FabricationControlsController extends ProjectController {
   private static final PseudoClass ENGAGED_PSEUDO_CLASS = PseudoClass.getPseudoClass("engaged");
   private final FabricationService fabricationService;
+  private final UsageService usageService;
   private final ObservableMap<String, String> taxonomyCategoryToggleSelections = FXCollections.observableHashMap();
   private final String sliderTrackColorActive;
   private final String sliderTrackColorDefault;
@@ -64,12 +67,14 @@ public class FabricationControlsController extends ProjectController {
     ThemeService themeService,
     FabricationService fabricationService,
     UIStateService uiStateService,
-    ProjectService projectService
+    ProjectService projectService,
+    UsageService usageService
   ) {
     super(fxml, ac, themeService, uiStateService, projectService);
     this.sliderTrackColorActive = sliderTrackColorActive;
     this.sliderTrackColorDefault = sliderTrackColorDefault;
     this.fabricationService = fabricationService;
+    this.usageService = usageService;
   }
 
   @Override
@@ -163,10 +168,13 @@ public class FabricationControlsController extends ProjectController {
 
     // Engage Macro Override
     addEngageButton(
-      event -> fabricationService.doOverrideMacro(macroPrograms.stream()
-        .filter(macroProgram -> macroProgram.getId().equals(UUID.fromString(((ToggleButton) group.getSelectedToggle()).getId())))
-        .findFirst()
-        .orElseThrow()),
+      event -> {
+        fabricationService.doOverrideMacro(macroPrograms.stream()
+          .filter(macroProgram -> macroProgram.getId().equals(UUID.fromString(((ToggleButton) group.getSelectedToggle()).getId())))
+          .findFirst()
+          .orElseThrow());
+        usageService.feature(XjSignalCatalog.L.FEATURES_MACRO_OVERRIDE);
+      },
       Bindings.createBooleanBinding(
         () -> Objects.isNull(group.selectedToggleProperty().get()) ||
           Objects.equals(fabricationService.overrideMacroProgramIdProperty().get(), UUID.fromString(((ToggleButton) group.getSelectedToggle()).getId())),
@@ -196,7 +204,10 @@ public class FabricationControlsController extends ProjectController {
 
     // Engage Meme Override
     addEngageButton(
-      event -> fabricationService.doOverrideMemes(taxonomyCategoryToggleSelections.values()),
+      event -> {
+        fabricationService.doOverrideMemes(taxonomyCategoryToggleSelections.values());
+        usageService.feature(XjSignalCatalog.L.FEATURES_MEME_OVERRIDE);
+      },
       Bindings.createBooleanBinding(
         () -> taxonomyCategoryToggleSelections.isEmpty() ||
           fabricationService.overrideMemesProperty().containsAll(taxonomyCategoryToggleSelections.values()),

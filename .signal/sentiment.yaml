@@ -1,0 +1,10 @@
+# The workstation asks for nothing else: no "How is it going?" pulse, no store
+# review request, and no feedback form. Signal's feedback form takes typed
+# text, and the workstation sends nothing typed. Feedback goes where it
+# always has: GitHub issues and Discord.
+pulse:
+  enabled: false
+review:
+  enabled: false
+feedback:
+  enabled: false

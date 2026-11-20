@@ -8,7 +8,10 @@ import io.xj.gui.controllers.MainController;
 import io.xj.gui.services.ProjectService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
+import io.xj.gui.usage.UsageObserver;
+import io.xj.gui.usage.UsageQuestion;
 import io.xj.gui.utils.UiUtils;
+import javafx.application.Platform;
 import io.xj.model.util.StringUtils;
 import jakarta.annotation.Nonnull;
 import javafx.stage.Stage;
@@ -35,6 +38,8 @@ public class MainWindowStageReadyListener implements ApplicationListener<StageRe
   private final ProjectService projectService;
   private final UIStateService uiStateService;
   private final ThemeService themeService;
+  private final UsageObserver usageObserver;
+  private final UsageQuestion usageQuestion;
 
   public MainWindowStageReadyListener(
     @Value("classpath:/views/main.fxml") Resource mainWindowFxml,
@@ -44,7 +49,9 @@ public class MainWindowStageReadyListener implements ApplicationListener<StageRe
     ApplicationContext ac,
     ProjectService projectService,
     UIStateService uiStateService,
-    ThemeService themeService
+    ThemeService themeService,
+    UsageObserver usageObserver,
+    UsageQuestion usageQuestion
   ) {
     this.mainWindowFxml = mainWindowFxml;
     this.debug = debug;
@@ -54,6 +61,8 @@ public class MainWindowStageReadyListener implements ApplicationListener<StageRe
     this.projectService = projectService;
     this.uiStateService = uiStateService;
     this.themeService = themeService;
+    this.usageObserver = usageObserver;
+    this.usageQuestion = usageQuestion;
   }
 
   @Override
@@ -95,7 +104,11 @@ public class MainWindowStageReadyListener implements ApplicationListener<StageRe
       primaryStage.setOnCloseRequest(this::onCloseRequest);
 
       mainController.onStageReady();
+      usageObserver.onStageReady(scene);
       primaryStage.show();
+
+      // Usage reporting: the first-run question, once, over the main window. Nothing is sent unless it is a yes.
+      Platform.runLater(() -> usageQuestion.askIfNeeded(primaryStage));
 
       // See https://github.com/TangoraBox/ComponentInspector/
       if (debug.equals("true")) {

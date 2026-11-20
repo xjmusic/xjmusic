@@ -11,6 +11,17 @@ possibilities for streams, games, and spaces.
 
 [xjmusic.com](https://xjmusic.com)
 
+## Usage reporting
+
+> **The workstation asks before it sends anything, and sends nothing unless you say yes.**
+
+The first time it opens, the workstation asks whether to share anonymous usage numbers with **Signal**, Outright Mental's own first-party, aggregate-only analytics, with **Yes, share** and **No thanks** side by side. If you say yes, it sends one summary of a few dozen bytes each time you quit: how long it was open, which views and modes you used, which major features you touched, whether music played, and whether anything failed. Every value is a number. It never sends a name or identifier, your projects, files or music, or anything you type.
+
+- **See it, or change your mind:** **Settings › Privacy** (Project › Settings, or Help › Usage Reporting Settings...) has the switch *Share anonymous usage numbers*, and shows the exact bytes of the next summary and what each part means.
+- **Turn it off for good:** set `XJ_SIGNAL=off` in the environment, or run with `-Dxj.signal=off`. The tests (`./gradlew test`) run with it off.
+- **Exactly what is sent, metric by metric, where it goes, and what is kept on your computer:** [PRIVACY.md](../PRIVACY.md).
+- **The code:** [`src/main/java/io/xj/gui/usage/`](src/main/java/io/xj/gui/usage/), the catalog in [`../.signal/`](../.signal/), and Signal's Java core, vendored, in [`vendor/signal-core/`](vendor/signal-core/).
+
 ## Setup
 
 ### Dependencies

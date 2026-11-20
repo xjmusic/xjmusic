@@ -14,19 +14,25 @@ public class SupportServiceImpl implements SupportService {
   private final String launchDiscordUrl;
   private final String launchTutorialUrl;
   private final String launchWebsiteUrl;
+  private final String launchPrivacyPolicyUrl;
+  private final String launchUsageReportingDocUrl;
 
   public SupportServiceImpl(
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") HostServices hostServices,
     @Value("${help.guideUrl}") String launchGuideUrl,
     @Value("${help.discordUrl}") String launchDiscordUrl,
     @Value("${help.tutorialUrl}") String launchTutorialUrl,
-    @Value("${help.websiteUrl}") String launchWebsiteUrl
+    @Value("${help.websiteUrl}") String launchWebsiteUrl,
+    @Value("${help.privacyPolicyUrl}") String launchPrivacyPolicyUrl,
+    @Value("${help.usageReportingDocUrl}") String launchUsageReportingDocUrl
   ) {
     this.hostServices = hostServices;
     this.launchGuideUrl = launchGuideUrl;
     this.launchDiscordUrl = launchDiscordUrl;
     this.launchTutorialUrl = launchTutorialUrl;
     this.launchWebsiteUrl = launchWebsiteUrl;
+    this.launchPrivacyPolicyUrl = launchPrivacyPolicyUrl;
+    this.launchUsageReportingDocUrl = launchUsageReportingDocUrl;
   }
 
   @Override
@@ -47,5 +53,15 @@ public class SupportServiceImpl implements SupportService {
   @Override
   public void launchWebsiteInBrowser() {
     hostServices.showDocument(launchWebsiteUrl);
+  }
+
+  @Override
+  public void launchPrivacyPolicyInBrowser() {
+    hostServices.showDocument(launchPrivacyPolicyUrl);
+  }
+
+  @Override
+  public void launchUsageReportingDocInBrowser() {
+    hostServices.showDocument(launchUsageReportingDocUrl);
   }
 }
