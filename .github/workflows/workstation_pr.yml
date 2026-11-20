@@ -4,6 +4,8 @@ on:
   pull_request:
     paths:
       - workstation/**
+      # A change to how workstation is built or released is tested here too.
+      - .github/workflows/workstation_*
 
 jobs:
   build_and_test:
@@ -15,7 +17,7 @@ jobs:
     permissions: read-all
     strategy:
       matrix:
-        os: [ ubuntu-latest, macos-13, macos-14, windows-latest ]
+        os: [ ubuntu-latest, macos-latest, windows-latest ]
       fail-fast: false
     steps:
       - name: Checkout
@@ -27,10 +29,10 @@ jobs:
           job-id: workstation-tests-${{ matrix.os }}
 
       - name: Set up JDK17
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v4
         with:
+          distribution: temurin
           java-version: 17
-          java-package: jdk
 
       - name: Build & Run Tests
         id: test
