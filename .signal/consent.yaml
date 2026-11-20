@@ -1,0 +1,21 @@
+# Opt-in, by the founder's decision: the workstation asks once, at first run,
+# with "Yes, share" and "No thanks" side by side and equal, and sends nothing
+# unless the answer is yes. A no is remembered and never asked again.
+#
+# Switching to notice_and_opt_out later is ONE CONFIG CHANGE, made only once
+# counsel has signed it off and there is a reference to cite:
+#
+#   mode: notice_and_opt_out
+#   counsel_ref: <the reference to counsel's sign-off>
+#
+# then regenerate the constants from this folder, with Signal's CLI:
+#
+#   signal gen --java .signal --package io.xj.gui.usage -o workstation/src/main/java/io/xj/gui/usage/XjSignalCatalog.java
+#
+# The app already handles both modes: under notice_and_opt_out it shows a
+# notice with an equal-weight "Turn off" in place of the question, and shares
+# until it is turned off. The copy for it is in copy/en.yaml. Signal's CLI
+# refuses notice_and_opt_out without counsel_ref. DO NOT set it before then.
+mode: opt_in
+consent_version: 1
+policy_url: https://xjmusic.com/privacy#workstation

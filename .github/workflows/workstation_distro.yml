@@ -53,6 +53,33 @@ jobs:
             exit 1
           fi
 
+  # Usage reporting (PRIVACY.md): no installer ships whose catalog Signal does not know. A build sending a
+  # digest Signal never projected would have every summary dropped, so the release stops here until the
+  # .signal folder's catalog is projected (by a maintainer, with the stream's projection token).
+  usage_reporting_projected:
+    needs: verify_version_number
+    name: Usage Reporting Catalog Is Projected
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Signal knows this build's catalog digest
+        run: |
+          KEY=$(grep '^signal.key=' workstation/src/main/resources/application.properties | cut -d= -f2- | tr -d '[:space:]')
+          DIGEST=$(grep -oE 'DIGEST = "[0-9a-f]{16}"' workstation/src/main/java/io/xj/gui/usage/XjSignalCatalog.java | grep -oE '[0-9a-f]{16}')
+          if [ -z "$KEY" ] || [ -z "$DIGEST" ]; then
+            echo "::error::Could not read the Signal key or the catalog digest"
+            exit 1
+          fi
+          echo "Stream key $KEY, catalog digest $DIGEST"
+          BODY=$(curl -fsS "https://in.signal.outright.io/v1/k/${KEY}?d=${DIGEST}")
+          echo "$BODY"
+          if ! echo "$BODY" | grep -qE '"projected"[[:space:]]*:[[:space:]]*true'; then
+            echo "::error::Signal has not projected catalog $DIGEST: project .signal before releasing (see PRIVACY.md)"
+            exit 1
+          fi
+
   verify:
     needs: verify_version_number
     name: Build & Test [${{ matrix.os }}]
@@ -85,7 +112,7 @@ jobs:
         continue-on-error: false
 
   distribute_workstation_installer:
-    needs: [verify_version_number, verify]
+    needs: [verify_version_number, verify, usage_reporting_projected]
     name: Workstation Installer [${{ matrix.os }}]
     env:
       REPO_TOKEN: ${{ secrets.REPO_TOKEN }}

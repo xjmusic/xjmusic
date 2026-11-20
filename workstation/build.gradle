@@ -116,6 +116,20 @@ bootJar {
 
 test {
     useJUnitPlatform()
+    // Usage reporting never runs under the tests (see PRIVACY.md)
+    systemProperty 'xj.signal', 'off'
+    // The vendored Signal core's golden fixtures, which its test plays through the vendored core
+    systemProperty 'signal.golden', file('vendor/signal-core/fixtures/golden.json').absolutePath
+}
+
+// Usage reporting: the Signal core, vendored from Signal's own repository (sdk/java/signal-core), which is
+// private. Pure Java, with no dependencies. See vendor/signal-core/README.md and PRIVACY.md.
+sourceSets {
+    main {
+        java {
+            srcDir 'vendor/signal-core/src/main/java'
+        }
+    }
 }
 
 //set the working directory

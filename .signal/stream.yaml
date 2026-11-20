@@ -1,0 +1,22 @@
+# The XJ music workstation, as Signal knows it: Outright Mental's own,
+# first-party, aggregate-only analytics. What it sends, and how to say no:
+# PRIVACY.md at the root of this repository.
+#
+# The id is for ever, and every list below only grows.
+streamId: xjmusic-workstation
+contractVersion: 1
+name: XJ music workstation
+repository: xjmusic/xjmusic
+
+# Where a build was got. The app says which (workstation/src/main/java/io/xj/gui/usage/UsageChannel.java):
+#
+#   download  an installer from GitHub Releases or from xjmusic.com. The release
+#             workflow (.github/workflows/workstation_distro.yml) uploads the
+#             same file to both, so a build cannot tell the two apart.
+#   source    run from a checkout: ./gradlew bootRun, or the jar, with no installer.
+#
+# There is no Steam build.
+channels: [download, source]
+
+# The workstation's UI is in English; any other language the computer is set to is counted as "other".
+languages: [en]

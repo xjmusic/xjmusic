@@ -28,7 +28,9 @@ class SupportServiceImplTest {
       "https://guide.test.xj.io/",
       "https://discord.test.xj.io/",
       "https://tutorial.test.xj.io/",
-      "https://test.xjmusic.com/"
+      "https://test.xjmusic.com/",
+      "https://test.xjmusic.com/privacy#workstation",
+      "https://github.test/xjmusic/xjmusic/blob/main/PRIVACY.md"
     );
   }
 
@@ -58,5 +60,19 @@ class SupportServiceImplTest {
     subject.launchWebsiteInBrowser();
 
     verify(hostServices, times(1)).showDocument(eq("https://test.xjmusic.com/"));
+  }
+
+  @Test
+  void launchPrivacyPolicyInBrowser() {
+    subject.launchPrivacyPolicyInBrowser();
+
+    verify(hostServices, times(1)).showDocument(eq("https://test.xjmusic.com/privacy#workstation"));
+  }
+
+  @Test
+  void launchUsageReportingDocInBrowser() {
+    subject.launchUsageReportingDocInBrowser();
+
+    verify(hostServices, times(1)).showDocument(eq("https://github.test/xjmusic/xjmusic/blob/main/PRIVACY.md"));
   }
 }

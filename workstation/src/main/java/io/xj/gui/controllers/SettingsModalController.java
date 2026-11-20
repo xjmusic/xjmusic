@@ -6,9 +6,13 @@ import io.xj.engine.fabricator.ControlMode;
 import io.xj.gui.ProjectModalController;
 import io.xj.gui.services.FabricationService;
 import io.xj.gui.services.ProjectService;
+import io.xj.gui.services.SupportService;
 import io.xj.gui.services.ThemeService;
 import io.xj.gui.services.UIStateService;
 import io.xj.gui.types.AudioFileContainer;
+import io.xj.gui.usage.UsagePrivacyPanel;
+import io.xj.gui.usage.UsageService;
+import io.xj.gui.usage.XjSignalCatalog;
 import io.xj.gui.utils.ProjectUtils;
 import io.xj.gui.utils.UiUtils;
 import io.xj.model.util.LocalFileUtils;
@@ -32,9 +36,14 @@ import java.util.Objects;
 public class SettingsModalController extends ProjectModalController {
   private static final String WINDOW_NAME = "Settings";
   private final FabricationService fabricationService;
+  private final UsageService usageService;
+  private final SupportService supportService;
 
   @FXML
   VBox generalSettingsContainer;
+
+  @FXML
+  VBox privacySettingsContainer;
 
   @FXML
   VBox fabricationSettingsContainer;
@@ -62,6 +71,9 @@ public class SettingsModalController extends ProjectModalController {
 
   @FXML
   ToggleButton navBuild;
+
+  @FXML
+  ToggleButton navPrivacy;
 
   @FXML
   TextField fieldCraftAheadSeconds;
@@ -109,9 +121,13 @@ public class SettingsModalController extends ProjectModalController {
     ThemeService themeService,
     FabricationService fabricationService,
     UIStateService uiStateService,
-    ProjectService projectService) {
+    ProjectService projectService,
+    UsageService usageService,
+    SupportService supportService) {
     super(fxml, ac, themeService, uiStateService, projectService);
     this.fabricationService = fabricationService;
+    this.usageService = usageService;
+    this.supportService = supportService;
   }
 
   @Override
@@ -144,6 +160,12 @@ public class SettingsModalController extends ProjectModalController {
     generalSettingsContainer.managedProperty().bind(navGeneral.selectedProperty());
     fieldProjectsPathPrefix.textProperty().bindBidirectional(projectService.projectsPathPrefixProperty());
     fieldExportPathPrefix.textProperty().bindBidirectional(projectService.exportPathPrefixProperty());
+
+    // Usage reporting: the share switch and exactly what is sent (see PRIVACY.md)
+    privacySettingsContainer.visibleProperty().bind(navPrivacy.selectedProperty());
+    privacySettingsContainer.managedProperty().bind(navPrivacy.selectedProperty());
+    UsagePrivacyPanel.fill(privacySettingsContainer, usageService, supportService);
+    usageService.milestone(XjSignalCatalog.MS.SETTINGS_OPENED);
 
     UiUtils.toggleGroupPreventDeselect(navToggleGroup);
   }
@@ -207,5 +229,12 @@ public class SettingsModalController extends ProjectModalController {
    */
   public void launchModalWithBuildSettings() {
     createAndShowModal(WINDOW_NAME, () -> navBuild.setSelected(true));
+  }
+
+  /**
+   Launches the settings modal with the privacy settings (usage reporting) tab selected.
+   */
+  public void launchModalWithPrivacySettings() {
+    createAndShowModal(WINDOW_NAME, () -> navPrivacy.setSelected(true));
   }
 }

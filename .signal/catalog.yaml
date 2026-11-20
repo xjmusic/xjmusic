@@ -1,0 +1,127 @@
+# What the XJ music workstation counts, each line citing a question in
+# questions.yaml. Every value is a number: a count, a time in a bucket, a
+# step reached. There is no string, id, date or free-text type in Signal, so
+# no project name, file name, path, template, program, meme or anything
+# typed can be sent. PRIVACY.md lists all of it in plain words.
+#
+# This catalog is append-only once projected: ids, labels, milestones and
+# nodes are for ever. A metric that is no longer wanted is marked
+# `retired: true`, never removed or reused.
+#
+# The universal core (ids 1 to 16: sessions, time used, session length, the
+# first-run ladder, the last view, days between sessions, the unclean-exit
+# crash proxy, the input kind, consent answers) is Signal's own, and is
+# listed in PRIVACY.md too.
+
+# The workstation's views, as path nodes: `start` is the window with no project
+# open, and the others are io.xj.gui.types.Route, one for one.
+nodes:
+  - start
+  - content_library_browser
+  - content_library_editor
+  - content_program_browser
+  - content_program_editor
+  - content_instrument_browser
+  - content_instrument_editor
+  - content_instrument_audio_editor
+  - template_browser
+  - template_editor
+  - fabrication_timeline
+  - fabrication_segment
+
+traits:
+  - { name: started_with_demo, question: Q2, about: "On the install's first day, a demo project was opened" }
+
+metrics:
+  - id: 32
+    name: views
+    type: path
+    question: Q1
+    category: interaction
+    expires: 2027-11-30
+    about: Moves from one view to the next
+
+  - id: 33
+    name: time_in_mode
+    type: histogram
+    labels: [content, templates, preview]
+    scale: 30
+    unit: s
+    question: Q1
+    category: interaction
+    expires: 2027-11-30
+    about: Seconds a session spent in each of the three modes, once per mode used
+
+  - id: 34
+    name: program_editor_mode
+    type: labeled_counter
+    labels: [bind, edit]
+    question: Q1
+    category: interaction
+    expires: 2027-11-30
+    about: Switches of the program editor into Bind or Edit mode
+
+  - id: 35
+    name: getting_started
+    type: milestone
+    milestones: [project_created, project_opened, demo_opened, content_edited, preview_started, music_playing, project_built, template_exported]
+    question: Q2
+    category: interaction
+    expires: 2027-11-30
+    about: "The ladder from a first project to music and an export: each step's first time on this install"
+
+  - id: 36
+    name: time_to_music
+    type: histogram
+    scale: 2
+    unit: s
+    question: Q2
+    category: interaction
+    expires: 2027-11-30
+    about: Seconds from launch to the first music playing, in a session where music played
+
+  - id: 37
+    name: features
+    type: labeled_counter
+    labels: [project_new, project_open, demo_open, project_save, project_save_as, project_build, template_export, preview_start, macro_override, meme_override, intensity_override, audio_import, logs_shown]
+    question: Q4
+    category: interaction
+    expires: 2027-11-30
+    about: Times each major feature was used
+
+  - id: 38
+    name: preview_control_mode
+    type: labeled_counter
+    labels: [auto, macro, taxonomy]
+    question: Q4
+    category: interaction
+    expires: 2027-11-30
+    about: Previews started, by control mode
+
+  - id: 39
+    name: preview_length
+    type: histogram
+    scale: 30
+    unit: s
+    question: Q3
+    category: interaction
+    expires: 2027-11-30
+    about: Seconds each preview played music for
+
+  - id: 40
+    name: failures
+    type: labeled_counter
+    labels: [preview, project, build]
+    question: Q5
+    category: technical
+    expires: 2027-11-30
+    about: "Times a preview, a project task (open, create, save, export) or a build ended in failure"
+
+  - id: 41
+    name: errors_shown
+    type: counter
+    max: 1000
+    question: Q5
+    category: technical
+    expires: 2027-11-30
+    about: Error dialogs the workstation showed
