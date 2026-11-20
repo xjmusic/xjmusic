@@ -4,6 +4,8 @@ on:
   pull_request:
     paths:
       - engine/**
+      # A change to how engine is built or released is tested here too.
+      - .github/workflows/engine_*
 
 jobs:
 

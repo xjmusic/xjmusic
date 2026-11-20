@@ -4,6 +4,8 @@ on:
   pull_request:
     paths:
       - workstation/**
+      # A change to how workstation is built or released is tested here too.
+      - .github/workflows/workstation_*
 
 jobs:
   build_and_test:
